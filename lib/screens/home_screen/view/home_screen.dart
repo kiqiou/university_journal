@@ -20,15 +20,19 @@ class _MyHomePageState extends State<MyHomePage> {
     Icons.my_library_books
   ];
 
-  bool _isMenuOpen = false;
+  bool _isExpanded = false;
+  double _collapsedWidth = 100;
+  double _expandedWidth = 250;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Row(
         children: [
-          Container(
+          AnimatedContainer(
             color: Colors.grey.shade300,
+            duration: const Duration(milliseconds: 300),
+            width: _isExpanded ? _expandedWidth : _collapsedWidth,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -37,14 +41,12 @@ class _MyHomePageState extends State<MyHomePage> {
                     InkWell(
                       onTap: () {
                         setState(() {
-                          _isMenuOpen = true;
+                          _isExpanded = !_isExpanded;
                         });
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-                        child: IconContainer(
-                          icon: Icons.menu,
-                        ),
+                        child: IconContainer(icon: Icons.menu, width: _isExpanded ? 300 : 50,),
                       ),
                     ),
                     Padding(
@@ -57,9 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       onTap: () {},
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-                        child: IconContainer(
-                          icon: Icons.account_circle_outlined,
-                        ),
+                        child: IconContainer(icon: Icons.account_circle_outlined, width: _isExpanded ? 300 : 50,),
                       ),
                     ),
                     Padding(
@@ -79,7 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
                               child: InkWell(
                                 onTap: () {},
-                                child: IconContainer(icon: _icons[index]),
+                                child: IconContainer(icon: _icons[index], width: _isExpanded ? 300 : 50,),
                               ),
                             ),
                           ),
@@ -93,10 +93,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     horizontal: 8.0,
                     vertical: 8.0,
                   ),
-                  child: IconContainer(
-                    borderRadius: 100,
-                    icon: Icons.arrow_back,
-                  ),
+                  child: IconContainer(borderRadius: 100, icon: Icons.arrow_back, width: _isExpanded ? 300 : 50,),
                 ),
               ],
             ),
@@ -105,7 +102,30 @@ class _MyHomePageState extends State<MyHomePage> {
             width: 30,
           ),
           Expanded(
-            child: DataTableScreen(),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.indigo,
+                    ),
+                    child: Text(
+                        'Добавить занятие',
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: DataTableScreen(),
+                ),
+              ],
+            ),
           ),
         ],
       ),

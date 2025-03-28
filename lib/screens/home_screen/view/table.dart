@@ -124,6 +124,7 @@ class EmployeeDataSource extends DataGridSource {
 
   final Function(int rowIndex, int colIndex) onCellTap;
   final Function() getSelectedCell;
+
   List<DataGridRow> _dataGridRows = [];
   final List<Employee> employees;
 
@@ -172,7 +173,9 @@ class EmployeeDataSource extends DataGridSource {
         int columnIndex = entry.key;
         bool isSelected = rowIndex == selectedRow && columnIndex == selectedColumn;
 
-        TextEditingController controller;
+        TextEditingController controller = TextEditingController(
+          text: entry.value.value?.toString() ?? '',
+        );
         if (columnIndex == 1) {
           controller = TextEditingController(text: entry.value.value.toString());
         } else {
