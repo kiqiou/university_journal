@@ -25,6 +25,7 @@ dependencies:
   equatable: ^2.0.5
   http: ^0.13.0
   syncfusion_flutter_datagrid: ^29.1.33
+  firebase_core: ^2.0.0
 
 dev_dependencies:
   flutter_test:
