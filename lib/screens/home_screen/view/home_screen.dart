@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:university_journal/components/icon_container.dart';
+import 'package:university_journal/screens/auth/view/welcome_screen.dart';
 import 'package:university_journal/screens/home_screen/view/table.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -17,7 +18,7 @@ class _MyHomePageState extends State<MyHomePage> {
     Icons.computer,
     Icons.create,
     Icons.menu_book,
-    Icons.my_library_books
+    Icons.my_library_books,
   ];
 
   bool _isExpanded = false;
@@ -46,7 +47,10 @@ class _MyHomePageState extends State<MyHomePage> {
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-                        child: IconContainer(icon: Icons.menu, width: _isExpanded ? 300 : 50,),
+                        child: IconContainer(
+                          icon: Icons.menu,
+                          width: _isExpanded ? 300 : 50,
+                        ),
                       ),
                     ),
                     Padding(
@@ -56,10 +60,20 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                     ),
                     InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => WelcomeScreen(),
+                          ),
+                        );
+                      },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-                        child: IconContainer(icon: Icons.account_circle_outlined, width: _isExpanded ? 300 : 50,),
+                        child: IconContainer(
+                          icon: Icons.account_circle_outlined,
+                          width: _isExpanded ? 300 : 50,
+                        ),
                       ),
                     ),
                     Padding(
@@ -79,7 +93,10 @@ class _MyHomePageState extends State<MyHomePage> {
                               padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
                               child: InkWell(
                                 onTap: () {},
-                                child: IconContainer(icon: _icons[index], width: _isExpanded ? 300 : 50,),
+                                child: IconContainer(
+                                  icon: _icons[index],
+                                  width: _isExpanded ? 300 : 50,
+                                ),
                               ),
                             ),
                           ),
@@ -93,7 +110,11 @@ class _MyHomePageState extends State<MyHomePage> {
                     horizontal: 8.0,
                     vertical: 8.0,
                   ),
-                  child: IconContainer(borderRadius: 100, icon: Icons.arrow_back, width: _isExpanded ? 300 : 50,),
+                  child: IconContainer(
+                    borderRadius: 100,
+                    icon: Icons.arrow_back,
+                    width: _isExpanded ? 300 : 50,
+                  ),
                 ),
               ],
             ),
@@ -107,14 +128,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: ElevatedButton(
-                    onPressed: () {
-
-                    },
+                    onPressed: () {},
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.indigo,
                     ),
                     child: Text(
-                        'Добавить занятие',
+                      'Добавить занятие',
                       style: TextStyle(
                         color: Colors.white,
                       ),

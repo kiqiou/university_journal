@@ -10,7 +10,7 @@ class _DataTableScreenState extends State<DataTableScreen> {
   late EmployeeDataSource employeeDataSource;
   final List<Employee> employees = List.generate(
     22,
-    (index) => Employee('Иванов Иван Иванович', List.generate(10, (i) => 'Н')),
+    (index) => Employee('Иванов Иван', List.generate(10, (i) => 'Н')),
   );
 
   int? selectedRowIndex;
@@ -67,7 +67,7 @@ class _DataTableScreenState extends State<DataTableScreen> {
               ),
               padding: EdgeInsets.all(8),
               alignment: Alignment.centerLeft,
-              child: Text('Список группы'),
+              child: Center(child: Text('ФИО')),
             ),
           ),
           for (int i = 1; i <= 10; i++)
@@ -85,7 +85,7 @@ class _DataTableScreenState extends State<DataTableScreen> {
                     RotatedBox(
                       quarterTurns: 3,
                       child: Text(
-                        '03.02.25',
+                        '03.02.2025',
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -176,33 +176,28 @@ class EmployeeDataSource extends DataGridSource {
         TextEditingController controller = TextEditingController(
           text: entry.value.value?.toString() ?? '',
         );
-        if (columnIndex == 1) {
-          controller = TextEditingController(text: entry.value.value.toString());
-        } else {
-          controller = TextEditingController(text: entry.value.value.toString());
-        }
 
-        return Center(
-          child: GestureDetector(
-            onTap: () {
-              onCellTap(rowIndex, columnIndex);
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade400),
-                color: isSelected ? Colors.blue.withOpacity(0.3) : Colors.transparent,
-              ),
-              alignment: Alignment.center,
-              padding: EdgeInsets.all(8),
-              child: TextField(
-                style: TextStyle(fontSize: 16, color: Colors.black54),
-                controller: controller,
-                decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Colors.transparent),
-                  ),
-                ),
+        return GestureDetector(
+          onTap: () {
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey.shade400),
+              color: isSelected ? Colors.blue.withOpacity(0.3) : Colors.transparent,
+            ),
+            alignment: Alignment.center,
+            padding: EdgeInsets.all(8),
+            child: TextField(
+              controller: controller,
+              style: TextStyle(fontSize: 16, color: Colors.black),
+              textAlign: TextAlign.center,
+              onChanged: (value) {
+                if (columnIndex > 1) {
+                  employees[rowIndex].attendance[columnIndex - 2] = value;
+                }
+              },
+              decoration: InputDecoration(
+                border: InputBorder.none,
               ),
             ),
           ),
