@@ -16,10 +16,11 @@ class AppView extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.light(
-            surface: Colors.grey.shade100,
-            onSurface: Colors.black87,
-            primary: Color.fromRGBO(255,158,0,1),
-            onPrimary: Colors.white),
+          surface: Colors.grey.shade100,
+          onSurface: Colors.black87,
+          primary: Color.fromRGBO(255, 158, 0, 1),
+          onPrimary: Colors.white,
+        ),
       ),
       home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
         builder: ((context, state) {
