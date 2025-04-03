@@ -38,12 +38,6 @@ class _DataTableScreenState extends State<DataTableScreen> {
         headerRowHeight: 100,
         editingGestureType: EditingGestureType.doubleTap,
         allowEditing: true,
-        onCellTap: (details) {
-          setState(() {
-            selectedRowIndex = details.rowColumnIndex.rowIndex - 1;
-            selectedColumnIndex = details.rowColumnIndex.columnIndex;
-          });
-        },
         columns: [
           GridColumn(
             columnName: '№',
@@ -94,6 +88,7 @@ class _DataTableScreenState extends State<DataTableScreen> {
                       height: 1,
                       color: Colors.grey.shade400,
                       margin: EdgeInsets.symmetric(vertical: 2),
+
                     ),
                     Text(
                       'Лек',
@@ -162,7 +157,6 @@ class EmployeeDataSource extends DataGridSource {
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
     int rowIndex = _dataGridRows.indexOf(row);
-    var (selectedRow, selectedColumn) = getSelectedCell();
 
     return DataGridRowAdapter(
       cells: row
@@ -171,7 +165,6 @@ class EmployeeDataSource extends DataGridSource {
           .entries
           .map((entry) {
         int columnIndex = entry.key;
-        bool isSelected = rowIndex == selectedRow && columnIndex == selectedColumn;
 
         TextEditingController controller = TextEditingController(
           text: entry.value.value?.toString() ?? '',
@@ -183,13 +176,12 @@ class EmployeeDataSource extends DataGridSource {
           child: Container(
             decoration: BoxDecoration(
               border: Border.all(color: Colors.grey.shade400),
-              color: isSelected ? Colors.blue.withOpacity(0.3) : Colors.transparent,
             ),
             alignment: Alignment.center,
             padding: EdgeInsets.all(8),
             child: TextField(
               controller: controller,
-              style: TextStyle(fontSize: 16, color: Colors.black),
+              style: TextStyle(fontSize: 16, color: Colors.black87),
               textAlign: TextAlign.center,
               onChanged: (value) {
                 if (columnIndex > 1) {

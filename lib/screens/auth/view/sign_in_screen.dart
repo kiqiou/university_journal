@@ -48,7 +48,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   width: MediaQuery.of(context).size.width * 0.9,
                   child: MyTextField(
                       controller: emailController,
-                      hintText: 'Email',
+                      hintText: 'Почта',
                       obscureText: false,
                       keyboardType: TextInputType.emailAddress,
                       prefixIcon: const Icon(CupertinoIcons.mail_solid),
@@ -68,7 +68,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 width: MediaQuery.of(context).size.width * 0.9,
                 child: MyTextField(
                   controller: passwordController,
-                  hintText: 'Password',
+                  hintText: 'Пароль',
                   obscureText: obscurePassword,
                   keyboardType: TextInputType.visiblePassword,
                   prefixIcon: const Icon(CupertinoIcons.lock_fill),
@@ -120,7 +120,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     child: const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 25, vertical: 5),
                       child: Text(
-                        'Sign In',
+                        'Войти',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             color: Colors.white,

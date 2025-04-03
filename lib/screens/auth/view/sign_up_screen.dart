@@ -53,7 +53,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 width: MediaQuery.of(context).size.width * 0.9,
                 child: MyTextField(
                     controller: emailController,
-                    hintText: 'Email',
+                    hintText: 'Почта',
                     obscureText: false,
                     keyboardType: TextInputType.emailAddress,
                     prefixIcon: const Icon(CupertinoIcons.mail_solid),
@@ -72,7 +72,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 width: MediaQuery.of(context).size.width * 0.9,
                 child: MyTextField(
                     controller: passwordController,
-                    hintText: 'Password',
+                    hintText: 'Пароль',
                     obscureText: obscurePassword,
                     keyboardType: TextInputType.visiblePassword,
                     prefixIcon: const Icon(CupertinoIcons.lock_fill),
@@ -209,7 +209,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 width: MediaQuery.of(context).size.width * 0.9,
                 child: MyTextField(
                     controller: nameController,
-                    hintText: 'Name',
+                    hintText: 'Имя',
                     obscureText: false,
                     keyboardType: TextInputType.name,
                     prefixIcon: const Icon(CupertinoIcons.person_fill),
@@ -255,7 +255,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     child: const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 25, vertical: 5),
                       child: Text(
-                        'Sign Up',
+                        'Зарегистрироваться',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             color: Colors.white,

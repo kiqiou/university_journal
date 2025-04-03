@@ -18,7 +18,7 @@ class AppView extends StatelessWidget {
         colorScheme: ColorScheme.light(
           surface: Colors.grey.shade100,
           onSurface: Colors.black87,
-          primary: Color.fromRGBO(255, 158, 0, 1),
+          primary: Colors.indigo,
           onPrimary: Colors.white,
         ),
       ),

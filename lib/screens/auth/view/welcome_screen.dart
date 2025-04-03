@@ -78,7 +78,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                             Padding(
                               padding: EdgeInsets.all(12.0),
                               child: Text(
-                                'Sign In',
+                                'Вход',
                                 style: TextStyle(
                                   fontSize: 18,
                                 ),
@@ -87,7 +87,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                             Padding(
                               padding: EdgeInsets.all(12.0),
                               child: Text(
-                                'Sign Up',
+                                'Регистрация',
                                 style: TextStyle(
                                   fontSize: 18,
                                 ),
