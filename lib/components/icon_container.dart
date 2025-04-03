@@ -7,15 +7,20 @@ class IconContainer extends StatelessWidget {
   final double width;
   final double height;
   Color? containerColor;
+  bool? withText;
+  String? text;
 
-  IconContainer(
-      {super.key,
-      this.borderRadius = 15.0,
-      required this.icon,
-      this.size = 20,
-      this.height = 50,
-      this.width = 50,
-      this.containerColor});
+  IconContainer({
+    super.key,
+    this.borderRadius = 15.0,
+    required this.icon,
+    this.size = 20,
+    this.height = 50,
+    this.width = 50,
+    this.containerColor,
+    this.withText = false,
+    this.text,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +33,23 @@ class IconContainer extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade400),
       ),
       child: Center(
-        child: Icon(
+        child: withText!
+            ? Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              text ?? '',
+              style: TextStyle(color: Colors.grey.shade600),
+            ),
+            const SizedBox(width: 8),
+            Icon(
+              icon,
+              color: Colors.grey.shade600,
+              size: size,
+            ),
+          ],
+        )
+            : Icon(
           icon,
           color: Colors.grey.shade600,
           size: size,
@@ -37,3 +58,4 @@ class IconContainer extends StatelessWidget {
     );
   }
 }
+

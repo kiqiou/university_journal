@@ -5,7 +5,7 @@ import 'package:university_journal/screens/auth/bloc/sign_in/sign_in_bloc.dart';
 import 'package:university_journal/screens/auth/view/welcome_screen.dart';
 
 class SideNavigationMenu extends StatefulWidget {
-  SideNavigationMenu({super.key});
+  const SideNavigationMenu({super.key});
 
   @override
   State<SideNavigationMenu> createState() => _SideNavigationMenu();
@@ -22,10 +22,20 @@ class _SideNavigationMenu extends State<SideNavigationMenu> {
     Icons.my_library_books,
   ];
 
+  final List<String> _texts = [
+    'Книги',
+    'Библиотека',
+    'Папки',
+    'Компьютер',
+    'Создать',
+    'Учебник',
+    'Моя библиотека',
+  ];
+
   bool _isExpanded = false;
   bool isHovered = false;
-  double _collapsedWidth = 100;
-  double _expandedWidth = 250;
+  final double _collapsedWidth = 100;
+  final double _expandedWidth = 250;
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +55,8 @@ class _SideNavigationMenu extends State<SideNavigationMenu> {
                   });
                 },
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8.0, vertical: 8.0),
                   child: IconContainer(
                     icon: Icons.menu,
                     width: _isExpanded ? 300 : 50,
@@ -54,9 +65,13 @@ class _SideNavigationMenu extends State<SideNavigationMenu> {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                child: Divider(
-                  color: Colors.grey.shade400,
-                ),
+                child: _isExpanded
+                    ? Text(
+                  'Профиль',
+                  style:
+                  TextStyle(color: Colors.grey.shade400, fontSize: 16),
+                )
+                    : SizedBox.shrink(),
               ),
               InkWell(
                 onTap: () {
@@ -68,7 +83,8 @@ class _SideNavigationMenu extends State<SideNavigationMenu> {
                   );
                 },
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8.0, vertical: 8.0),
                   child: IconContainer(
                     icon: Icons.account_circle_outlined,
                     width: _isExpanded ? 300 : 50,
@@ -77,9 +93,13 @@ class _SideNavigationMenu extends State<SideNavigationMenu> {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                child: Divider(
-                  color: Colors.grey.shade400,
-                ),
+                child: _isExpanded
+                    ? Text(
+                  'Панель навигации',
+                  style:
+                  TextStyle(color: Colors.grey.shade400, fontSize: 16),
+                )
+                    : SizedBox.shrink(),
               ),
               ListView.builder(
                 shrinkWrap: true,
@@ -89,12 +109,19 @@ class _SideNavigationMenu extends State<SideNavigationMenu> {
                     borderRadius: BorderRadius.circular(20.0),
                     child: Center(
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                        padding:
+                        const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
                         child: InkWell(
                           onTap: () {},
-                          child: IconContainer(
-                            icon: _icons[index],
-                            width: _isExpanded ? 300 : 50,
+                          child: Row(
+                            children: [
+                              IconContainer(
+                                icon: _icons[index],
+                                width:
+                                _isExpanded ? 300 : 50,
+                                text: _texts[index],
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -105,10 +132,8 @@ class _SideNavigationMenu extends State<SideNavigationMenu> {
             ],
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 8.0,
-              vertical: 8.0,
-            ),
+            padding:
+            const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
             child: InkWell(
               onHover: (hovering) {
                 setState(() {
@@ -121,7 +146,8 @@ class _SideNavigationMenu extends State<SideNavigationMenu> {
               child: IconContainer(
                 borderRadius: 100,
                 icon: Icons.arrow_back,
-                width: _isExpanded ? 300 : 50,
+                width:
+                _isExpanded ? 300 : 50,
               ),
             ),
           ),
