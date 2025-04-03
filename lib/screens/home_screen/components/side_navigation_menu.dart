@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:university_journal/bloc/user_info_getter/user_info_getter.dart';
 import 'package:university_journal/components/icon_container.dart';
 import 'package:university_journal/screens/auth/bloc/sign_in/sign_in_bloc.dart';
 import 'package:university_journal/screens/auth/view/welcome_screen.dart';
@@ -38,7 +40,7 @@ class _SideNavigationMenu extends State<SideNavigationMenu> {
   final double _expandedWidth = 250;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context){
     return AnimatedContainer(
       color: Colors.grey.shade300,
       duration: const Duration(milliseconds: 300),
@@ -55,23 +57,32 @@ class _SideNavigationMenu extends State<SideNavigationMenu> {
                   });
                 },
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 8.0, vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
                   child: IconContainer(
                     icon: Icons.menu,
                     width: _isExpanded ? 300 : 50,
                   ),
                 ),
               ),
+              SizedBox(
+                height: 10,
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 18.0),
                 child: _isExpanded
-                    ? Text(
-                  'Профиль',
-                  style:
-                  TextStyle(color: Colors.grey.shade400, fontSize: 16),
-                )
-                    : SizedBox.shrink(),
+                    ? Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Профиль',
+                          style: TextStyle(color: Colors.grey, fontSize: 16),
+                        ),
+                      )
+                    : Divider(
+                        height: 1,
+                      ),
+              ),
+              SizedBox(
+                height: 10,
               ),
               InkWell(
                 onTap: () {
@@ -83,46 +94,70 @@ class _SideNavigationMenu extends State<SideNavigationMenu> {
                   );
                 },
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 8.0, vertical: 8.0),
-                  child: IconContainer(
-                    icon: Icons.account_circle_outlined,
-                    width: _isExpanded ? 300 : 50,
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                  child: FutureBuilder<String?>(
+                    future: getUserName(FirebaseAuth.instance.currentUser!.uid),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return IconContainer(
+                          icon: Icons.account_circle_outlined,
+                          width: _isExpanded ? 300 : 50,
+                          withText: _isExpanded ? true : false,
+                          text: 'Загрузка...',
+                        );
+                      } else if (snapshot.hasError) {
+                        return IconContainer(
+                          icon: Icons.account_circle_outlined,
+                          width: _isExpanded ? 300 : 50,
+                          withText: _isExpanded ? true : false,
+                          text: 'Ошибка',
+                        );
+                      } else {
+                        return IconContainer(
+                          icon: Icons.account_circle_outlined,
+                          width: _isExpanded ? 300 : 50,
+                          withText: _isExpanded ? true : false,
+                          text: snapshot.data ?? 'Гость',
+                        );
+                      }
+                    },
                   ),
                 ),
+              ),
+              SizedBox(
+                height: 10,
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 18.0),
                 child: _isExpanded
-                    ? Text(
-                  'Панель навигации',
-                  style:
-                  TextStyle(color: Colors.grey.shade400, fontSize: 16),
-                )
-                    : SizedBox.shrink(),
+                    ? Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Панель навигации',
+                          style: TextStyle(color: Colors.grey, fontSize: 16),
+                        ),
+                      )
+                    : Divider(
+                        height: 1,
+                      ),
+              ),
+              SizedBox(
+                height: 10,
               ),
               ListView.builder(
                 shrinkWrap: true,
                 itemCount: _icons.length,
                 itemBuilder: (BuildContext context, int index) {
-                  return ClipRRect(
-                    borderRadius: BorderRadius.circular(20.0),
-                    child: Center(
-                      child: Padding(
-                        padding:
-                        const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-                        child: InkWell(
-                          onTap: () {},
-                          child: Row(
-                            children: [
-                              IconContainer(
-                                icon: _icons[index],
-                                width:
-                                _isExpanded ? 300 : 50,
-                                text: _texts[index],
-                              ),
-                            ],
-                          ),
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                      child: InkWell(
+                        onTap: () {},
+                        child: IconContainer(
+                          icon: _icons[index],
+                          width: _isExpanded ? 300 : 50,
+                          text: _texts[index],
+                          withText: _isExpanded ? true : false,
                         ),
                       ),
                     ),
@@ -132,8 +167,7 @@ class _SideNavigationMenu extends State<SideNavigationMenu> {
             ],
           ),
           Padding(
-            padding:
-            const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
             child: InkWell(
               onHover: (hovering) {
                 setState(() {
@@ -146,8 +180,7 @@ class _SideNavigationMenu extends State<SideNavigationMenu> {
               child: IconContainer(
                 borderRadius: 100,
                 icon: Icons.arrow_back,
-                width:
-                _isExpanded ? 300 : 50,
+                width: _isExpanded ? 300 : 50,
               ),
             ),
           ),
@@ -155,4 +188,5 @@ class _SideNavigationMenu extends State<SideNavigationMenu> {
       ),
     );
   }
+
 }

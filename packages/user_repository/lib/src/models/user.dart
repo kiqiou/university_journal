@@ -4,17 +4,20 @@ class MyUser {
   String userId;
   String email;
   String name;
+  String role;
 
   MyUser({
     required this.userId,
     required this.email,
     required this.name,
+    required this.role,
   });
 
   static final empty = MyUser(
     userId: '',
     email: '',
     name: '',
+    role: ''
   );
 
   MyUserEntity toEntity() {
@@ -22,6 +25,7 @@ class MyUser {
       userId: userId,
       email: email,
       name: name,
+      role: role,
     );
   }
 
@@ -30,11 +34,12 @@ class MyUser {
         userId: entity.userId,
         email: entity.email,
         name: entity.name,
+      role: entity.role,
     );
   }
 
   @override
   String toString() {
-    return 'MyUser: $userId, $email, $name';
+    return 'MyUser: $userId, $email, $name, $role';
   }
 }

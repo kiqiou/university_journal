@@ -1,6 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:university_journal/components/icon_container.dart';
-import 'package:university_journal/screens/auth/view/welcome_screen.dart';
 import 'package:university_journal/screens/home_screen/components/side_navigation_menu.dart';
 import 'package:university_journal/screens/home_screen/components/table.dart';
 

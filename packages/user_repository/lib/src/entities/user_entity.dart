@@ -2,11 +2,13 @@ class MyUserEntity {
   String userId;
   String email;
   String name;
+  String role;
 
   MyUserEntity({
     required this.userId,
     required this.email,
     required this.name,
+    required this.role,
   });
 
   Map<String, Object?> toDocument() {
@@ -14,6 +16,7 @@ class MyUserEntity {
       'userId': userId,
       'email': email,
       'name': name,
+      'role' : role,
     };
   }
 
@@ -22,6 +25,7 @@ class MyUserEntity {
       userId: doc['userId'],
       email: doc['email'],
       name: doc['name'],
+      role: doc['role'],
     );
   }
 }

@@ -32,30 +32,32 @@ class IconContainer extends StatelessWidget {
         borderRadius: BorderRadius.circular(borderRadius),
         border: Border.all(color: Colors.grey.shade400),
       ),
-      child: Center(
-        child: withText!
-            ? Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              text ?? '',
-              style: TextStyle(color: Colors.grey.shade600),
+      child: withText!
+          ? Align(
+              alignment: Alignment.centerLeft,
+              child: Row(
+                children: [
+                  SizedBox( width: 8,),
+                  Icon(
+                    icon,
+                    color: Colors.grey.shade600,
+                    size: size,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    text ?? '',
+                    style: TextStyle(color: Colors.grey.shade600),
+                  ),
+                ],
+              ),
+            )
+          : Center(
+              child: Icon(
+                icon,
+                color: Colors.grey.shade600,
+                size: size,
+              ),
             ),
-            const SizedBox(width: 8),
-            Icon(
-              icon,
-              color: Colors.grey.shade600,
-              size: size,
-            ),
-          ],
-        )
-            : Icon(
-          icon,
-          color: Colors.grey.shade600,
-          size: size,
-        ),
-      ),
     );
   }
 }
-

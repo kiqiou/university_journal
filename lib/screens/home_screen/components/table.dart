@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import 'package:university_journal/bloc/user_info_getter/user_info_getter.dart';
 
 class DataTableScreen extends StatefulWidget {
   @override
@@ -15,18 +17,18 @@ class _DataTableScreenState extends State<DataTableScreen> {
 
   int? selectedRowIndex;
   int? selectedColumnIndex;
+  String? userRole;
 
   @override
   void initState() {
     super.initState();
-    employeeDataSource = EmployeeDataSource(employees,
-        onCellTap: (rowIndex, colIndex) {
-          setState(() {
-            selectedRowIndex = rowIndex;
-            selectedColumnIndex = colIndex;
-          });
-        },
-        getSelectedCell: () => (selectedRowIndex, selectedColumnIndex));
+    employeeDataSource = EmployeeDataSource(employees);
+    getUserRole(FirebaseAuth.instance.currentUser!.uid).then((role) {
+      setState(() {
+        userRole = role;
+        employeeDataSource = EmployeeDataSource(employees, userRole: role);
+      });
+    });
   }
 
   @override
@@ -37,7 +39,6 @@ class _DataTableScreenState extends State<DataTableScreen> {
         source: employeeDataSource,
         headerRowHeight: 100,
         editingGestureType: EditingGestureType.doubleTap,
-        allowEditing: true,
         columns: [
           GridColumn(
             columnName: '№',
@@ -113,15 +114,13 @@ class Employee {
 }
 
 class EmployeeDataSource extends DataGridSource {
-  EmployeeDataSource(this.employees, {required this.onCellTap, required this.getSelectedCell}) {
-    buildDataGridRows();
-  }
-
-  final Function(int rowIndex, int colIndex) onCellTap;
-  final Function() getSelectedCell;
-
   List<DataGridRow> _dataGridRows = [];
   final List<Employee> employees;
+  final String? userRole;
+
+  EmployeeDataSource(this.employees, {this.userRole}) {
+    buildDataGridRows();
+  }
 
   void buildDataGridRows() {
     _dataGridRows = employees
@@ -170,6 +169,8 @@ class EmployeeDataSource extends DataGridSource {
           text: entry.value.value?.toString() ?? '',
         );
 
+        bool isEditable = userRole == 'teacher';
+
         return GestureDetector(
           onTap: () {
           },
@@ -180,6 +181,7 @@ class EmployeeDataSource extends DataGridSource {
             alignment: Alignment.center,
             padding: EdgeInsets.all(8),
             child: TextField(
+              enabled: isEditable,
               controller: controller,
               style: TextStyle(fontSize: 16, color: Colors.black87),
               textAlign: TextAlign.center,
