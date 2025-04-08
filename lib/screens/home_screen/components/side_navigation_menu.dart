@@ -60,7 +60,7 @@ class _SideNavigationMenu extends State<SideNavigationMenu> {
                   padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
                   child: IconContainer(
                     icon: Icons.menu,
-                    width: (_isExpanded ? 250 : 35),
+                    width: (_isExpanded ? 250 : 50),
                   ),
                 ),
               ),
@@ -101,21 +101,21 @@ class _SideNavigationMenu extends State<SideNavigationMenu> {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return IconContainer(
                           icon: Icons.account_circle_outlined,
-                          width: (_isExpanded ? 250 : 35),
+                          width: (_isExpanded ? 250 : 50),
                           withText: _isExpanded ? true : false,
                           text: 'Загрузка...',
                         );
                       } else if (snapshot.hasError) {
                         return IconContainer(
                           icon: Icons.account_circle_outlined,
-                          width: (_isExpanded ? 250 : 35),
+                          width: (_isExpanded ? 250 : 50),
                           withText: _isExpanded ? true : false,
                           text: 'Ошибка',
                         );
                       } else {
                         return IconContainer(
                           icon: Icons.account_circle_outlined,
-                          width: (_isExpanded ? 250 : 35),
+                          width: (_isExpanded ? 250 : 50),
                           withText: _isExpanded ? true : false,
                           text: snapshot.data ?? 'Гость',
                         );
@@ -155,7 +155,7 @@ class _SideNavigationMenu extends State<SideNavigationMenu> {
                         onTap: () {},
                         child: IconContainer(
                           icon: _icons[index],
-                          width: (_isExpanded ? 250 : 35),
+                          width: (_isExpanded ? 250 : 50),
                           text: _texts[index],
                           withText: _isExpanded ? true : false,
                         ),
@@ -180,7 +180,7 @@ class _SideNavigationMenu extends State<SideNavigationMenu> {
               child: IconContainer(
                 borderRadius: 100,
                 icon: Icons.arrow_back,
-                width: (_isExpanded ? 250 : 35),
+                width: (_isExpanded ? 250 : 50),
               ),
             ),
           ),

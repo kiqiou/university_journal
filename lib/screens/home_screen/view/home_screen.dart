@@ -122,7 +122,7 @@ class _AddEventDialogContentState extends State<AddEventDialogContent> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 1190,
+      height: 800,
       width: 100,
       child: SingleChildScrollView(
         child: Column(
@@ -181,7 +181,7 @@ class _AddEventDialogContentState extends State<AddEventDialogContent> {
                 widget.onDateSelected(date);
               },
             ),
-            SizedBox(height: 500),
+            SizedBox(height: 100),
             Text(
               'Выберите вид занятия',
               style: TextStyle(fontSize: 22),
