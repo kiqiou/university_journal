@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/bloc/auth/authentication_bloc.dart';
 import 'package:university_journal/screens/auth/bloc/sign_in/sign_in_bloc.dart';
-import 'package:university_journal/screens/auth/bloc/sign_up_bloc/sign_up_bloc.dart';
 import 'sign_in_screen.dart';
-import 'sign_up_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -19,11 +17,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
 
   @override
   void initState() {
-    tabController = TabController(
-        initialIndex: 0,
-        length: 2,
-        vsync: this
-    );
+    tabController = TabController(initialIndex: 0, length: 2, vsync: this);
     super.initState();
   }
 
@@ -41,10 +35,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                 child: Container(
                   height: MediaQuery.of(context).size.width,
                   width: MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Theme.of(context).colorScheme.tertiary
-                  ),
+                  decoration: BoxDecoration(shape: BoxShape.circle, color: Theme.of(context).colorScheme.tertiary),
                 ),
               ),
               Align(
@@ -52,10 +43,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                 child: Container(
                   height: MediaQuery.of(context).size.width / 1.3,
                   width: MediaQuery.of(context).size.width / 1.3,
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Theme.of(context).colorScheme.primary
-                  ),
+                  decoration: BoxDecoration(shape: BoxShape.circle, color: Theme.of(context).colorScheme.primary),
                 ),
               ),
               BackdropFilter(
@@ -70,50 +58,21 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                     children: [
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 50.0),
-                        child: TabBar(
-                          controller: tabController,
-                          unselectedLabelColor: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
-                          labelColor: Theme.of(context).colorScheme.onBackground,
-                          tabs: const [
-                            Padding(
-                              padding: EdgeInsets.all(12.0),
-                              child: Text(
-                                'Вход',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                ),
-                              ),
+                        child: Padding(
+                          padding: EdgeInsets.all(12.0),
+                          child: Text(
+                            'Вход',
+                            style: TextStyle(
+                              fontSize: 18,
                             ),
-                            Padding(
-                              padding: EdgeInsets.all(12.0),
-                              child: Text(
-                                'Регистрация',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ),
                       Expanded(
-                          child: TabBarView(
-                            controller: tabController,
-                            children: [
-                              BlocProvider<SignInBloc>(
-                                create: (context) => SignInBloc(
-                                    context.read<AuthenticationBloc>().userRepository
-                                ),
-                                child: const SignInScreen(),
-                              ),
-                              BlocProvider<SignUpBloc>(
-                                create: (context) => SignUpBloc(
-                                    context.read<AuthenticationBloc>().userRepository
-                                ),
-                                child: const SignUpScreen(),
-                              ),
-                            ],
-                          )
+                        child: BlocProvider<SignInBloc>(
+                          create: (context) => SignInBloc(context.read<AuthenticationBloc>().userRepository),
+                          child: const SignInScreen(),
+                        ),
                       )
                     ],
                   ),

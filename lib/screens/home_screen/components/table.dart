@@ -17,17 +17,23 @@ class _DataTableScreenState extends State<DataTableScreen> {
 
   int? selectedRowIndex;
   int? selectedColumnIndex;
+
   String? userRole;
+  Map<String, dynamic>? userData;
 
   @override
   void initState() {
     super.initState();
     employeeDataSource = EmployeeDataSource(employees);
-    getUserRole(FirebaseAuth.instance.currentUser!.uid).then((role) {
-      setState(() {
-        userRole = role;
-        employeeDataSource = EmployeeDataSource(employees, userRole: role);
-      });
+    fetchData();
+  }
+
+  Future<void> fetchData() async {
+    userData = await fetchUserData();
+
+    setState(() {
+      userRole = userData?['role_name'];
+      employeeDataSource = EmployeeDataSource(employees, userRole: userRole);
     });
   }
 
@@ -169,7 +175,7 @@ class EmployeeDataSource extends DataGridSource {
           text: entry.value.value?.toString() ?? '',
         );
 
-        bool isEditable = userRole == 'teacher';
+        bool isEditable = userRole == 'Преподаватель';
 
         return GestureDetector(
           onTap: () {

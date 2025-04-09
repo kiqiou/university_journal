@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/bloc/user_info_getter/user_info_getter.dart';
@@ -29,7 +28,7 @@ class _SideNavigationMenu extends State<SideNavigationMenu> {
     'Лекции',
     'Практика',
     'Семинары',
-    'Лабороторные',
+    'Лаборторные',
     'Аттестация',
     'Темы',
   ];
@@ -71,15 +70,15 @@ class _SideNavigationMenu extends State<SideNavigationMenu> {
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: _isExpanded
                     ? Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Профиль',
-                    style: TextStyle(color: Colors.grey, fontSize: 16),
-                  ),
-                )
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Профиль',
+                          style: TextStyle(color: Colors.grey, fontSize: 16),
+                        ),
+                      )
                     : Divider(
-                  height: 1,
-                ),
+                        height: 1,
+                      ),
               ),
               SizedBox(
                 height: 5,
@@ -93,35 +92,40 @@ class _SideNavigationMenu extends State<SideNavigationMenu> {
                     ),
                   );
                 },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
-                  child: FutureBuilder<String?>(
-                    future: getUserName(FirebaseAuth.instance.currentUser!.uid),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return IconContainer(
-                          icon: Icons.account_circle_outlined,
-                          width: (_isExpanded ? 250 : 50),
-                          withText: _isExpanded ? true : false,
-                          text: 'Загрузка...',
-                        );
-                      } else if (snapshot.hasError) {
-                        return IconContainer(
-                          icon: Icons.account_circle_outlined,
-                          width: (_isExpanded ? 250 : 50),
-                          withText: _isExpanded ? true : false,
-                          text: 'Ошибка',
-                        );
-                      } else {
-                        return IconContainer(
-                          icon: Icons.account_circle_outlined,
-                          width: (_isExpanded ? 250 : 50),
-                          withText: _isExpanded ? true : false,
-                          text: snapshot.data ?? 'Гость',
-                        );
-                      }
-                    },
-                  ),
+                child: FutureBuilder<Map<String, dynamic>>(
+                  future: fetchUserData(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return IconContainer(
+                        icon: Icons.account_circle_outlined,
+                        width: (_isExpanded ? 250 : 50),
+                        withText: _isExpanded ? true : false,
+                        text: 'Загрузка...',
+                      );
+                    } else if (snapshot.hasError) {
+                      return IconContainer(
+                        icon: Icons.account_circle_outlined,
+                        width: (_isExpanded ? 250 : 50),
+                        withText: _isExpanded ? true : false,
+                        text: 'Ошибка',
+                      );
+                    } else if (snapshot.hasData) {
+                      var userData = snapshot.data!;
+                      return IconContainer(
+                        icon: Icons.account_circle_outlined,
+                        width: (_isExpanded ? 250 : 50),
+                        withText: _isExpanded ? true : false,
+                        text: userData['username'] ?? 'Гость',
+                      );
+                    } else {
+                      return IconContainer(
+                        icon: Icons.account_circle_outlined,
+                        width: (_isExpanded ? 250 : 50),
+                        withText: _isExpanded ? true : false,
+                        text: 'Нет данных',
+                      );
+                    }
+                  },
                 ),
               ),
               SizedBox(
@@ -131,15 +135,15 @@ class _SideNavigationMenu extends State<SideNavigationMenu> {
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: _isExpanded
                     ? Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Панель навигации',
-                    style: TextStyle(color: Colors.grey, fontSize: 16),
-                  ),
-                )
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Панель навигации',
+                          style: TextStyle(color: Colors.grey, fontSize: 16),
+                        ),
+                      )
                     : Divider(
-                  height: 1,
-                ),
+                        height: 1,
+                      ),
               ),
               SizedBox(
                 height: 5,

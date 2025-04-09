@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:university_journal/screens/home_screen/components/side_navigation_menu.dart';
 import 'package:university_journal/screens/home_screen/components/table.dart';
@@ -56,8 +55,8 @@ class _MyHomePageState extends State<MyHomePage> {
         return Stack(
           children: [
             Positioned(
-              top: 30, //Расположение сверху
-              right: 30, // Расположение справа
+              top: 30,
+              right: 30,
               child: Material(
                 borderRadius: BorderRadius.circular(15),
                 elevation: 8,

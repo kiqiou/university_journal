@@ -24,18 +24,7 @@ class AppView extends StatelessWidget {
           onPrimary: Colors.white,
         ),
       ),
-      home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
-        builder: ((context, state) {
-          if (state.status == AuthenticationStatus.authenticated) {
-            return BlocProvider(
-              create: (context) => SignInBloc(context.read<AuthenticationBloc>().userRepository),
-              child: const MyHomePage(),
-            );
-          } else {
-            return WelcomeScreen();
-          }
-        }),
-      ),
+      home: MyHomePage(),
     );
   }
 }
