@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/bloc/user_info_getter/user_info_getter.dart';
 import 'package:university_journal/components/icon_container.dart';
+import 'package:university_journal/screens/account_screen/view/account_screen.dart';
 import 'package:university_journal/screens/auth/bloc/sign_in/sign_in_bloc.dart';
 import 'package:university_journal/screens/auth/view/welcome_screen.dart';
 
@@ -88,7 +89,7 @@ class _SideNavigationMenu extends State<SideNavigationMenu> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => WelcomeScreen(),
+                      builder: (context) => AccountScreen(),
                     ),
                   );
                 },
