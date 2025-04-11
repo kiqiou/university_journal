@@ -18,7 +18,7 @@ class AppView extends StatelessWidget {
           onPrimary: Colors.white,
         ),
       ),
-      home: Admin1HomeScreen(),
+      home: TeacherHomeScreen(),
     );
   }
 }
