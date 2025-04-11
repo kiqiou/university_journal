@@ -1,12 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:university_journal/screens/auth/bloc/sign_in/sign_in_bloc.dart';
-import 'package:university_journal/screens/auth/view/welcome_screen.dart';
-import 'package:university_journal/screens/home_screen/view/home_screen.dart';
-
-import 'bloc/auth/authentication_bloc.dart';
+import 'package:university_journal/screens/admin_1/home_sreen/views/admin_1_home_screen.dart';
+import 'package:university_journal/screens/teacher/home_screen/view/home_screen.dart';
 
 class AppView extends StatelessWidget {
   const AppView({super.key});
@@ -24,7 +18,7 @@ class AppView extends StatelessWidget {
           onPrimary: Colors.white,
         ),
       ),
-      home: MyHomePage(),
+      home: Admin1HomeScreen(),
     );
   }
 }

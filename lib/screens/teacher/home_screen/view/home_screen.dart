@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:university_journal/screens/home_screen/components/side_navigation_menu.dart';
-import 'package:university_journal/screens/home_screen/components/table.dart';
+import 'package:university_journal/screens/teacher/home_screen/components/side_navigation_menu.dart';
+import 'package:university_journal/screens/teacher/home_screen/components/table.dart';
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+class TeacherHomeScreen extends StatefulWidget {
+  const TeacherHomeScreen({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<TeacherHomeScreen> createState() => _TeacherHomeScreenState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
   DateTime? _selectedDate;
   String? _selectedEventType;
 
@@ -18,7 +18,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       body: Row(
         children: [
-          SideNavigationMenu(),
+          TeacherSideNavigationMenu(),
           SizedBox(width: 30),
           Expanded(
             child: Column(

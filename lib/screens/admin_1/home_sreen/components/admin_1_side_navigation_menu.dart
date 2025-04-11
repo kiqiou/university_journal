@@ -2,25 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/bloc/user_info_getter/user_info_getter.dart';
 import 'package:university_journal/components/icon_container.dart';
-import 'package:university_journal/screens/auth/bloc/sign_in/sign_in_bloc.dart';
-import 'package:university_journal/screens/auth/view/welcome_screen.dart';
+import 'package:university_journal/screens/teacher/auth/bloc/sign_in/sign_in_bloc.dart';
+import 'package:university_journal/screens/teacher/auth/view/welcome_screen.dart';
 
-class SideNavigationMenu extends StatefulWidget {
-  const SideNavigationMenu({super.key});
+class Admin1SideNavigationMenu extends StatefulWidget {
+  const Admin1SideNavigationMenu({super.key});
 
   @override
-  State<SideNavigationMenu> createState() => _SideNavigationMenu();
+  State<Admin1SideNavigationMenu> createState() => _Admin1SideNavigationMenu();
 }
 
-class _SideNavigationMenu extends State<SideNavigationMenu> {
+class _Admin1SideNavigationMenu extends State<Admin1SideNavigationMenu> {
   final List<IconData> _icons = [
     Icons.book,
     Icons.library_books,
     Icons.folder_shared,
     Icons.computer,
-    Icons.create,
-    Icons.menu_book,
-    Icons.my_library_books,
   ];
 
   final List<String> _texts = [
@@ -28,9 +25,6 @@ class _SideNavigationMenu extends State<SideNavigationMenu> {
     'Лекции',
     'Практика',
     'Семинары',
-    'Лаборторные',
-    'Аттестация',
-    'Темы',
   ];
 
   bool _isExpanded = false;
@@ -64,24 +58,24 @@ class _SideNavigationMenu extends State<SideNavigationMenu> {
                 ),
               ),
               SizedBox(
-                height: 5,
+                height: 10,
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: _isExpanded
                     ? Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'Профиль',
-                          style: TextStyle(color: Colors.grey, fontSize: 16),
-                        ),
-                      )
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Профиль',
+                    style: TextStyle(color: Colors.grey, fontSize: 16),
+                  ),
+                )
                     : Divider(
-                        height: 1,
-                      ),
+                  height: 1,
+                ),
               ),
               SizedBox(
-                height: 5,
+                height: 10,
               ),
               InkWell(
                 onTap: () {
@@ -135,15 +129,15 @@ class _SideNavigationMenu extends State<SideNavigationMenu> {
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: _isExpanded
                     ? Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'Панель навигации',
-                          style: TextStyle(color: Colors.grey, fontSize: 16),
-                        ),
-                      )
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Панель навигации',
+                    style: TextStyle(color: Colors.grey, fontSize: 16),
+                  ),
+                )
                     : Divider(
-                        height: 1,
-                      ),
+                  height: 1,
+                ),
               ),
               SizedBox(
                 height: 5,
