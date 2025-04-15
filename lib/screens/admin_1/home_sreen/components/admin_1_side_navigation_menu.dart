@@ -3,7 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/bloc/user_info_getter/user_info_getter.dart';
 import 'package:university_journal/components/icon_container.dart';
 import 'package:university_journal/screens/teacher/auth/bloc/sign_in/sign_in_bloc.dart';
-import 'package:university_journal/screens/teacher/auth/view/welcome_screen.dart';
+
+import '../../../teacher/account_screen/view/account_screen.dart';
 
 class Admin1SideNavigationMenu extends StatefulWidget {
   const Admin1SideNavigationMenu({super.key});
@@ -82,7 +83,7 @@ class _Admin1SideNavigationMenu extends State<Admin1SideNavigationMenu> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => WelcomeScreen(),
+                      builder: (context) => AccountScreen(),
                     ),
                   );
                 },
