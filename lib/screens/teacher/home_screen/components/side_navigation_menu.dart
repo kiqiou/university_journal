@@ -5,6 +5,8 @@ import 'package:university_journal/components/icon_container.dart';
 import 'package:university_journal/screens/teacher/auth/bloc/sign_in/sign_in_bloc.dart';
 import 'package:university_journal/screens/teacher/auth/view/welcome_screen.dart';
 
+import '../../account_screen/view/account_screen.dart';
+
 
 class TeacherSideNavigationMenu extends StatefulWidget {
   const TeacherSideNavigationMenu({super.key});
@@ -117,7 +119,7 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => WelcomeScreen(),
+                          builder: (context) => AccountScreen(),
                         ),
                       );
                     },
