@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:university_journal/screens/home_screen/components/side_navigation_menu.dart';
-import 'package:university_journal/screens/home_screen/components/table.dart';
+import 'package:university_journal/screens/teacher/home_screen/components/side_navigation_menu.dart';
+import 'package:university_journal/screens/teacher/home_screen/components/table.dart';
+
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});

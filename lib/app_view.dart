@@ -1,9 +1,6 @@
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:university_journal/screens/auth/bloc/sign_in/sign_in_bloc.dart';
-import 'package:university_journal/screens/auth/view/welcome_screen.dart';
-import 'package:university_journal/screens/home_screen/view/home_screen.dart';
+import 'package:university_journal/screens/teacher/home_screen/view/home_screen.dart';
 
 import 'bloc/auth/authentication_bloc.dart';
 

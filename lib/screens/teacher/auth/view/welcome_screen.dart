@@ -2,7 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/bloc/auth/authentication_bloc.dart';
-import 'package:university_journal/screens/auth/bloc/sign_in/sign_in_bloc.dart';
+import 'package:university_journal/screens/teacher/auth/bloc/sign_in/sign_in_bloc.dart';
 import 'sign_in_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
