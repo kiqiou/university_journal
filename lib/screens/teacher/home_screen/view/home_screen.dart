@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-
-import '../components/side_navigation_menu.dart';
-import '../components/table.dart';
+import 'package:university_journal/screens/teacher/home_screen/components/side_navigation_menu.dart';
+import 'package:university_journal/screens/teacher/home_screen/components/table.dart';
 
 class TeacherHomeScreen extends StatefulWidget {
   const TeacherHomeScreen({super.key});
@@ -105,9 +104,9 @@ class AddEventDialogContent extends StatefulWidget {
 
   const AddEventDialogContent(
       {Key? key,
-        required this.onDateSelected,
-        required this.onEventTypeSelected,
-        required this.onSavePressed})
+      required this.onDateSelected,
+      required this.onEventTypeSelected,
+      required this.onSavePressed})
       : super(key: key);
 
   @override
@@ -145,7 +144,7 @@ class _AddEventDialogContentState extends State<AddEventDialogContent> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
                         padding:
-                        EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                            EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                         minimumSize: Size(0, 0),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5),
@@ -233,3 +232,5 @@ class _AddEventDialogContentState extends State<AddEventDialogContent> {
     );
   }
 }
+
+

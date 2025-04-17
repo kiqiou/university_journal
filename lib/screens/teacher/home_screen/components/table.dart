@@ -31,7 +31,12 @@ class _DataTableScreenState extends State<DataTableScreen> {
     userData = await fetchUserData();
 
     setState(() {
-      userRole = userData?['role_name'];
+      if (userData != null && userData?['role'] != null) {
+        userRole = (userData?['role'] as List).map((role) => role['role']).join(', ');
+      } else {
+        userRole = 'Нет роли';
+      }
+
       employeeDataSource = EmployeeDataSource(employees, userRole: userRole);
     });
   }

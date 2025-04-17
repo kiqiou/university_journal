@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:university_journal/screens/admin_1/home_sreen/views/admin_1_home_screen.dart';
 import 'package:university_journal/screens/teacher/home_screen/view/home_screen.dart';
-
 
 class AppView extends StatelessWidget {
   const AppView({super.key});
