@@ -4,9 +4,7 @@ import 'package:university_journal/bloc/user_info_getter/user_info_getter.dart';
 import 'package:university_journal/components/icon_container.dart';
 import 'package:university_journal/screens/teacher/auth/bloc/sign_in/sign_in_bloc.dart';
 import 'package:university_journal/screens/teacher/auth/view/welcome_screen.dart';
-
 import '../../account_screen/view/account_screen.dart';
-
 
 class TeacherSideNavigationMenu extends StatefulWidget {
   const TeacherSideNavigationMenu({super.key});
@@ -41,6 +39,7 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
   bool isHovered = false;
   final double _collapsedWidth = 100;
   final double _expandedWidth = 250;
+  int? _selectedIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +68,7 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
                 style:
                 TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               )
-                  : SizedBox(
+                  : const SizedBox(
                 height: 24,
                 width: 24,
               ),
@@ -93,9 +92,7 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
                         ),
                       ),
                     ),
-                  SizedBox(
-                    height: 5,
-                  ),
+                  const SizedBox(height: 5),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10.0),
                     child: _isExpanded
@@ -107,13 +104,9 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
                         TextStyle(color: Colors.grey, fontSize: 16),
                       ),
                     )
-                        : Divider(
-                      height: 1,
-                    ),
+                        : const Divider(height: 1),
                   ),
-                  SizedBox(
-                    height: 5,
-                  ),
+                  const SizedBox(height: 5),
                   InkWell(
                     onTap: () {
                       Navigator.push(
@@ -131,14 +124,14 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
                           return IconContainer(
                             icon: Icons.account_circle_outlined,
                             width: (_isExpanded ? 250 : 50),
-                            withText: _isExpanded ? true : false,
+                            withText: _isExpanded,
                             text: 'Загрузка...',
                           );
                         } else if (snapshot.hasError) {
                           return IconContainer(
                             icon: Icons.account_circle_outlined,
                             width: (_isExpanded ? 250 : 50),
-                            withText: _isExpanded ? true : false,
+                            withText: _isExpanded,
                             text: 'Ошибка',
                           );
                         } else if (snapshot.hasData) {
@@ -146,23 +139,21 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
                           return IconContainer(
                             icon: Icons.account_circle_outlined,
                             width: (_isExpanded ? 250 : 50),
-                            withText: _isExpanded ? true : false,
+                            withText: _isExpanded,
                             text: userData['username'] ?? 'Гость',
                           );
                         } else {
                           return IconContainer(
                             icon: Icons.account_circle_outlined,
                             width: (_isExpanded ? 250 : 50),
-                            withText: _isExpanded ? true : false,
+                            withText: _isExpanded,
                             text: 'Нет данных',
                           );
                         }
                       },
                     ),
                   ),
-                  SizedBox(
-                    height: 5,
-                  ),
+                  const SizedBox(height: 5),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10.0),
                     child: _isExpanded
@@ -174,13 +165,9 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
                         TextStyle(color: Colors.grey, fontSize: 16),
                       ),
                     )
-                        : Divider(
-                      height: 1,
-                    ),
+                        : const Divider(height: 1),
                   ),
-                  SizedBox(
-                    height: 5,
-                  ),
+                  const SizedBox(height: 5),
                   Expanded(
                     child: ListView.builder(
                       itemCount: _icons.length,
@@ -190,12 +177,19 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 4.0, vertical: 4.0),
                             child: InkWell(
-                              onTap: () {},
+                              onTap: () {
+                                setState(() {
+                                  _selectedIndex = index;
+                                });
+                              },
                               child: IconContainer(
                                 icon: _icons[index],
                                 width: (_isExpanded ? 250 : 50),
                                 text: _texts[index],
-                                withText: _isExpanded ? true : false,
+                                withText: _isExpanded,
+                                borderColor: _selectedIndex == index
+                                    ? Colors.blue
+                                    : Colors.grey.shade400,
                               ),
                             ),
                           ),
@@ -208,21 +202,18 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
             ),
             Center(
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 4.0, vertical: 4.0),
+                padding:
+                const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
                 child: InkWell(
-                  onHover: (hovering) {
-                    setState(() {
-                      isHovered = true;
-                    });
-                  },
                   onTap: () {
                     context.read<SignInBloc>().add(SignOutRequired());
                   },
                   child: IconContainer(
-                    borderRadius: 100,
-                    icon: Icons.arrow_back,
+                    borderRadius: 25,
+                    icon: _isExpanded ? Icons.logout : Icons.arrow_back,
                     width: (_isExpanded ? 250 : 50),
+                    text: _isExpanded ? 'Выйти из профиля' : null,
+                    withText: _isExpanded,
                   ),
                 ),
               ),

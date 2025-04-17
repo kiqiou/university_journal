@@ -6,9 +6,10 @@ class IconContainer extends StatelessWidget {
   final double size;
   final double width;
   final double height;
-  Color? containerColor;
-  bool? withText;
-  String? text;
+  final Color? containerColor;
+  final bool withText;
+  final String? text;
+  final Color borderColor;
 
   IconContainer({
     super.key,
@@ -20,6 +21,7 @@ class IconContainer extends StatelessWidget {
     this.containerColor,
     this.withText = false,
     this.text,
+    this.borderColor = const Color(0xFFB0B0B0),
   });
 
   @override
@@ -30,34 +32,34 @@ class IconContainer extends StatelessWidget {
       color: containerColor,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(borderRadius),
-        border: Border.all(color: Colors.grey.shade400),
+        border: Border.all(color: borderColor),
       ),
-      child: withText!
+      child: withText
           ? Align(
-              alignment: Alignment.centerLeft,
-              child: Row(
-                children: [
-                  SizedBox( width: 8,),
-                  Icon(
-                    icon,
-                    color: Colors.grey.shade600,
-                    size: size,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    text ?? '',
-                    style: TextStyle(color: Colors.grey.shade600),
-                  ),
-                ],
-              ),
-            )
-          : Center(
-              child: Icon(
-                icon,
-                color: Colors.grey.shade600,
-                size: size,
-              ),
+        alignment: Alignment.centerLeft,
+        child: Row(
+          children: [
+            const SizedBox(width: 8),
+            Icon(
+              icon,
+              color: Colors.grey.shade600,
+              size: size,
             ),
+            const SizedBox(width: 8),
+            Text(
+              text ?? '',
+              style: TextStyle(color: Colors.grey.shade600),
+            ),
+          ],
+        ),
+      )
+          : Center(
+        child: Icon(
+          icon,
+          color: Colors.grey.shade600,
+          size: size,
+        ),
+      ),
     );
   }
 }
