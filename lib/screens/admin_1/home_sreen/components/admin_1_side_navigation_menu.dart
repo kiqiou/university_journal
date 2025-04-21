@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:university_journal/bloc/user_info_getter/user_info_getter.dart';
+import 'package:university_journal/bloc/user/user_info_getter.dart';
 import 'package:university_journal/components/icon_container.dart';
-import 'package:university_journal/screens/teacher/auth/bloc/sign_in/sign_in_bloc.dart';
-import 'package:university_journal/screens/teacher/auth/view/welcome_screen.dart';
+import 'package:university_journal/screens/auth/view/sign_up_screen.dart';
 
 class Admin1SideNavigationMenu extends StatefulWidget {
   const Admin1SideNavigationMenu({super.key});
@@ -105,11 +103,13 @@ class _Admin1SideNavigationMenu extends State<Admin1SideNavigationMenu> {
                       );
                     } else if (snapshot.hasData) {
                       var userData = snapshot.data!;
+                      var userRole = (userData['role'] as List).map((role) => role['role']).join(', ');
                       return IconContainer(
                         icon: Icons.account_circle_outlined,
                         width: (_isExpanded ? 250 : 50),
                         withText: _isExpanded ? true : false,
-                        text: userData['username'] ?? 'Гость',
+
+                        text: userRole ?? 'Гость',
                       );
                     } else {
                       return IconContainer(
@@ -173,7 +173,7 @@ class _Admin1SideNavigationMenu extends State<Admin1SideNavigationMenu> {
                 });
               },
               onTap: () {
-                context.read<SignInBloc>().add(SignOutRequired());
+
               },
               child: IconContainer(
                 borderRadius: 100,

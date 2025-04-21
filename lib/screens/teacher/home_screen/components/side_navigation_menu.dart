@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:university_journal/bloc/user_info_getter/user_info_getter.dart';
+import 'package:university_journal/bloc/user/user_info_getter.dart';
 import 'package:university_journal/components/icon_container.dart';
-import 'package:university_journal/screens/teacher/auth/bloc/sign_in/sign_in_bloc.dart';
-import 'package:university_journal/screens/teacher/auth/view/welcome_screen.dart';
-
+import 'package:university_journal/screens/auth/view/sign_up_screen.dart';
+import 'package:university_journal/screens/teacher/account_screen/account_screen.dart';
 
 class TeacherSideNavigationMenu extends StatefulWidget {
   const TeacherSideNavigationMenu({super.key});
@@ -117,7 +115,7 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => WelcomeScreen(),
+                          builder: (context) => AccountScreen(),
                         ),
                       );
                     },
@@ -215,7 +213,12 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
                     });
                   },
                   onTap: () {
-                    context.read<SignInBloc>().add(SignOutRequired());
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => WelcomeScreen(),
+                      ),
+                    );
                   },
                   child: IconContainer(
                     borderRadius: 100,

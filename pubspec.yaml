@@ -25,8 +25,7 @@ dependencies:
   equatable: ^2.0.5
   http: ^0.13.0
   syncfusion_flutter_datagrid: ^29.1.33
-  user_repository:
-    path: packages/user_repository
+  shared_preferences: ^2.5.3
   rxdart: ^0.27.7
 
 dev_dependencies:
