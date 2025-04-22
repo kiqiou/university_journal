@@ -15,7 +15,6 @@ class _Admin1HomeScreenState extends State<Admin2HomeScreen> {
     return Scaffold(
       body: Row(
         children: [
-          Admin1SideNavigationMenu(),
           Expanded(
             child: Column(
               children: [

@@ -18,7 +18,6 @@ class _DekanHomeScreenState extends State<DekanHomeScreen> {
     return Scaffold(
       body: Row(
         children: [
-          TeacherSideNavigationMenu(),
           SizedBox(width: 30),
           Expanded(
             child: Column(

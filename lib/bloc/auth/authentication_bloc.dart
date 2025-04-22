@@ -10,8 +10,7 @@ part 'authentication_state.dart';
 class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> {
   final AuthRepository authRepository;
 
-  AuthenticationBloc({required this.authRepository})
-      : super(const AuthenticationState.unknown()) {
+  AuthenticationBloc({required this.authRepository}) : super(const AuthenticationState.unknown()) {
 
     on<AuthenticationUserChanged>((event, emit) {
       if (event.user != MyUser.empty) {
@@ -24,13 +23,22 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
     on<AuthenticationLoginRequested>((event, emit) async {
       final user = await authRepository.login(event.username, event.password);
       if (user != null) {
+        print('👤 Пользователь успешно спарсен: $user');
+        emit(AuthenticationState.authenticated(user));
+      } else {
+        emit(const AuthenticationState.unauthenticated());
+      }
+    });
+
+    on<AuthenticationRegisterRequested>((event, emit) async {
+      final user = await authRepository.signUp(event.username, event.password, event.roles);
+      if (user != null) {
         emit(AuthenticationState.authenticated(user));
       } else {
         emit(const AuthenticationState.unauthenticated());
       }
     });
   }
-
 }
 
 class AuthenticationLoginRequested extends AuthenticationEvent {
@@ -46,9 +54,14 @@ class AuthenticationLoginRequested extends AuthenticationEvent {
 class AuthenticationRegisterRequested extends AuthenticationEvent {
   final String username;
   final String password;
+  final List<int> roles;
 
-  const AuthenticationRegisterRequested({required this.username, required this.password});
+  const AuthenticationRegisterRequested({
+    required this.username,
+    required this.password,
+    required this.roles,
+  });
 
   @override
-  List<Object> get props => [username, password];
+  List<Object> get props => [username, password, roles];
 }

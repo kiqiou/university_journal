@@ -2,16 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/bloc/auth/authentication_bloc.dart';
 import 'package:university_journal/bloc/user/authentication_user.dart';
-import 'package:university_journal/screens/auth/view/sign_in_screen.dart';
 
-class WelcomeScreen extends StatefulWidget {
-  const WelcomeScreen({super.key});
+class SignInScreen extends StatefulWidget {
+  const SignInScreen({super.key});
 
   @override
-  State<WelcomeScreen> createState() => _WelcomeScreenState();
+  State<SignInScreen> createState() => _SignInScreenState();
 }
 
-class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateMixin {
+class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -51,38 +50,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                 return null;
               },
             ),
-            TextFormField(
-              decoration: InputDecoration(labelText: 'Айди роли'),
-              controller: _roleIdController,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Введите айди';
-                }
-                return null;
-              },
-            ),
             ElevatedButton(
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
                   context.read<AuthenticationBloc>().add(
-                    AuthenticationRegisterRequested(
+                    AuthenticationLoginRequested(
                       username: _usernameController.text,
                       password: _passwordController.text,
-                      roles: [int.parse(_roleIdController.text)],
-                    )
+                    ),
                   );
                 }
-              },
-              child: Text('Зарегистрироваться'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SignInScreen(),
-                  ),
-                );
               },
               child: Text('Войти'),
             ),

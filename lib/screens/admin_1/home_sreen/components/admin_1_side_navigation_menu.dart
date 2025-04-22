@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:university_journal/bloc/user/user_info_getter.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:university_journal/bloc/auth/authentication_bloc.dart';
 import 'package:university_journal/components/icon_container.dart';
 import 'package:university_journal/screens/auth/view/sign_up_screen.dart';
 
@@ -84,39 +85,28 @@ class _Admin1SideNavigationMenu extends State<Admin1SideNavigationMenu> {
                     ),
                   );
                 },
-                child: FutureBuilder<Map<String, dynamic>>(
-                  future: fetchUserData(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
+                child: BlocBuilder<AuthenticationBloc, AuthenticationState>(
+                  builder: (context, state) {
+                    if (state.status == AuthenticationStatus.authenticated && state.user != null) {
                       return IconContainer(
                         icon: Icons.account_circle_outlined,
                         width: (_isExpanded ? 250 : 50),
-                        withText: _isExpanded ? true : false,
-                        text: 'Загрузка...',
+                        withText: _isExpanded,
+                        text: state.user!.username,
                       );
-                    } else if (snapshot.hasError) {
+                    } else if (state.status == AuthenticationStatus.unauthenticated) {
                       return IconContainer(
                         icon: Icons.account_circle_outlined,
                         width: (_isExpanded ? 250 : 50),
-                        withText: _isExpanded ? true : false,
-                        text: 'Ошибка',
-                      );
-                    } else if (snapshot.hasData) {
-                      var userData = snapshot.data!;
-                      var userRole = (userData['role'] as List).map((role) => role['role']).join(', ');
-                      return IconContainer(
-                        icon: Icons.account_circle_outlined,
-                        width: (_isExpanded ? 250 : 50),
-                        withText: _isExpanded ? true : false,
-
-                        text: userRole ?? 'Гость',
+                        withText: _isExpanded,
+                        text: 'Гость',
                       );
                     } else {
                       return IconContainer(
                         icon: Icons.account_circle_outlined,
                         width: (_isExpanded ? 250 : 50),
-                        withText: _isExpanded ? true : false,
-                        text: 'Нет данных',
+                        withText: _isExpanded,
+                        text: 'Загрузка...',
                       );
                     }
                   },

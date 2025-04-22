@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:university_journal/bloc/user/user_info_getter.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:university_journal/bloc/auth/authentication_bloc.dart';
 import 'package:university_journal/components/icon_container.dart';
 import 'package:university_journal/screens/auth/view/sign_up_screen.dart';
 import 'package:university_journal/screens/teacher/account_screen/account_screen.dart';
@@ -8,8 +9,7 @@ class TeacherSideNavigationMenu extends StatefulWidget {
   const TeacherSideNavigationMenu({super.key});
 
   @override
-  State<TeacherSideNavigationMenu> createState() =>
-      _TeacherSideNavigationMenuState();
+  State<TeacherSideNavigationMenu> createState() => _TeacherSideNavigationMenuState();
 }
 
 class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
@@ -61,14 +61,13 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
               padding: const EdgeInsets.all(8.0),
               child: _isExpanded
                   ? const Text(
-                'МИТСО\nМеждународный\nУниверситет',
-                style:
-                TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              )
+                      'МИТСО\nМеждународный\nУниверситет',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    )
                   : SizedBox(
-                height: 24,
-                width: 24,
-              ),
+                      height: 24,
+                      width: 24,
+                    ),
             ),
             Expanded(
               child: Column(
@@ -81,8 +80,7 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
                         });
                       },
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 4.0, vertical: 4.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
                         child: IconContainer(
                           icon: Icons.menu,
                           width: (_isExpanded ? 250 : 50),
@@ -96,16 +94,15 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
                     padding: const EdgeInsets.symmetric(horizontal: 10.0),
                     child: _isExpanded
                         ? Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Профиль',
-                        style:
-                        TextStyle(color: Colors.grey, fontSize: 16),
-                      ),
-                    )
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'Профиль',
+                              style: TextStyle(color: Colors.grey, fontSize: 16),
+                            ),
+                          )
                         : Divider(
-                      height: 1,
-                    ),
+                            height: 1,
+                          ),
                   ),
                   SizedBox(
                     height: 5,
@@ -119,38 +116,28 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
                         ),
                       );
                     },
-                    child: FutureBuilder<Map<String, dynamic>>(
-                      future: fetchUserData(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
+                    child: BlocBuilder<AuthenticationBloc, AuthenticationState>(
+                      builder: (context, state) {
+                        if (state.status == AuthenticationStatus.authenticated && state.user != null) {
                           return IconContainer(
                             icon: Icons.account_circle_outlined,
                             width: (_isExpanded ? 250 : 50),
-                            withText: _isExpanded ? true : false,
-                            text: 'Загрузка...',
+                            withText: _isExpanded,
+                            text: state.user!.username,
                           );
-                        } else if (snapshot.hasError) {
+                        } else if (state.status == AuthenticationStatus.unauthenticated) {
                           return IconContainer(
                             icon: Icons.account_circle_outlined,
                             width: (_isExpanded ? 250 : 50),
-                            withText: _isExpanded ? true : false,
-                            text: 'Ошибка',
-                          );
-                        } else if (snapshot.hasData) {
-                          var userData = snapshot.data!;
-                          return IconContainer(
-                            icon: Icons.account_circle_outlined,
-                            width: (_isExpanded ? 250 : 50),
-                            withText: _isExpanded ? true : false,
-                            text: userData['username'] ?? 'Гость',
+                            withText: _isExpanded,
+                            text: 'Гость',
                           );
                         } else {
                           return IconContainer(
                             icon: Icons.account_circle_outlined,
                             width: (_isExpanded ? 250 : 50),
-                            withText: _isExpanded ? true : false,
-                            text: 'Нет данных',
+                            withText: _isExpanded,
+                            text: 'Загрузка...',
                           );
                         }
                       },
@@ -163,16 +150,15 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
                     padding: const EdgeInsets.symmetric(horizontal: 10.0),
                     child: _isExpanded
                         ? Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Панель навигации',
-                        style:
-                        TextStyle(color: Colors.grey, fontSize: 16),
-                      ),
-                    )
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'Панель навигации',
+                              style: TextStyle(color: Colors.grey, fontSize: 16),
+                            ),
+                          )
                         : Divider(
-                      height: 1,
-                    ),
+                            height: 1,
+                          ),
                   ),
                   SizedBox(
                     height: 5,
@@ -183,8 +169,7 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
                       itemBuilder: (BuildContext context, int index) {
                         return Center(
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 4.0, vertical: 4.0),
+                            padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
                             child: InkWell(
                               onTap: () {},
                               child: IconContainer(
@@ -204,8 +189,7 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
             ),
             Center(
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 4.0, vertical: 4.0),
+                padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
                 child: InkWell(
                   onHover: (hovering) {
                     setState(() {

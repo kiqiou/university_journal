@@ -18,7 +18,6 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
     return Scaffold(
       body: Row(
         children: [
-          TeacherSideNavigationMenu(),
           SizedBox(width: 30),
           Expanded(
             child: Column(

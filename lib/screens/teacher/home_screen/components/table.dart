@@ -1,6 +1,7 @@
+import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
-import 'package:university_journal/bloc/user/user_info_getter.dart';
+import 'package:university_journal/bloc/auth/authentication_bloc.dart';
 
 class DataTableScreen extends StatefulWidget {
   @override
@@ -17,28 +18,10 @@ class _DataTableScreenState extends State<DataTableScreen> {
   int? selectedRowIndex;
   int? selectedColumnIndex;
 
-  String? userRole;
-  Map<String, dynamic>? userData;
-
   @override
   void initState() {
     super.initState();
     employeeDataSource = EmployeeDataSource(employees);
-    fetchData();
-  }
-
-  Future<void> fetchData() async {
-    userData = await fetchUserData();
-
-    setState(() {
-      if (userData != null && userData?['role'] != null) {
-        userRole = (userData?['role'] as List).map((role) => role['role']).join(', ');
-      } else {
-        userRole = 'Нет роли';
-      }
-
-      employeeDataSource = EmployeeDataSource(employees, userRole: userRole);
-    });
   }
 
   @override
@@ -179,8 +162,6 @@ class EmployeeDataSource extends DataGridSource {
           text: entry.value.value?.toString() ?? '',
         );
 
-        bool isEditable = userRole == 'Преподаватель';
-
         return GestureDetector(
           onTap: () {
           },
@@ -191,7 +172,7 @@ class EmployeeDataSource extends DataGridSource {
             alignment: Alignment.center,
             padding: EdgeInsets.all(8),
             child: TextField(
-              enabled: isEditable,
+              enabled: true,
               controller: controller,
               style: TextStyle(fontSize: 16, color: Colors.black87),
               textAlign: TextAlign.center,
