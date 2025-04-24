@@ -31,14 +31,24 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
     });
 
     on<AuthenticationRegisterRequested>((event, emit) async {
-      final user = await authRepository.signUp(event.username, event.password, event.roles);
+      final user = await authRepository.signUp(event.username, event.password, event.roleId);
       if (user != null) {
         emit(AuthenticationState.authenticated(user));
       } else {
         emit(const AuthenticationState.unauthenticated());
       }
     });
+
+    on<AuthenticationLogoutRequested>((event, emit) async {
+      print('🔄 Выход из аккаунта...');
+      await authRepository.logout();
+      emit(const AuthenticationState.unauthenticated());
+    });
+
   }
+}
+
+class AuthenticationLogoutRequested extends AuthenticationEvent{
 }
 
 class AuthenticationLoginRequested extends AuthenticationEvent {
@@ -54,14 +64,14 @@ class AuthenticationLoginRequested extends AuthenticationEvent {
 class AuthenticationRegisterRequested extends AuthenticationEvent {
   final String username;
   final String password;
-  final List<int> roles;
+  final int roleId;
 
   const AuthenticationRegisterRequested({
     required this.username,
     required this.password,
-    required this.roles,
+    required this.roleId,
   });
 
   @override
-  List<Object> get props => [username, password, roles];
+  List<Object> get props => [username, password, roleId];
 }

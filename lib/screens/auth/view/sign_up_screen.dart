@@ -68,7 +68,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                     AuthenticationRegisterRequested(
                       username: _usernameController.text,
                       password: _passwordController.text,
-                      roles: [int.parse(_roleIdController.text)],
+                      roleId: int.parse(_roleIdController.text),
                     )
                   );
                 }

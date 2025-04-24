@@ -16,34 +16,50 @@ class AppView extends StatelessWidget {
     return BlocListener<AuthenticationBloc, AuthenticationState>(
       listenWhen: (previous, current) => previous.status != current.status,
       listener: (context, state) {
-        final roles = state.user?.roles ?? [];
-        final cleanedRoles = roles.map((r) => r.trim()).toList();
-
+        print('➡️ Обновление состояния: ${state.status}');
         Widget? nextScreen;
 
         if (state.status == AuthenticationStatus.authenticated) {
-          if (cleanedRoles.contains('Администратор 1')) {
-            nextScreen = const Admin1HomeScreen();
-          } else if (cleanedRoles.contains('Администратор 2')) {
-            nextScreen = const Admin2HomeScreen();
-          } else if (cleanedRoles.contains('Декан')) {
-            nextScreen = const DekanHomeScreen();
-          } else if (cleanedRoles.contains('Преподаватель')) {
-            print('teacherscreen');
-            nextScreen = const TeacherHomeScreen();
-          } else if (cleanedRoles.contains('Студент')) {
-            nextScreen = const StudentHomeScreen();
+          final role = state.user?.role ?? '';
+          print('🔐 Пользователь с ролью: $role');
+
+          switch (role) {
+            case 'Администратор 1':
+              nextScreen = const Admin1HomeScreen();
+              break;
+            case 'Администратор 2':
+              nextScreen = const Admin2HomeScreen();
+              break;
+            case 'Декан':
+              nextScreen = const DekanHomeScreen();
+              break;
+            case 'Преподаватель':
+              nextScreen = const TeacherHomeScreen();
+              break;
+            case 'Студент':
+              nextScreen = const StudentHomeScreen();
+              break;
+            default:
+              nextScreen = const WelcomeScreen();
+              break;
           }
+        } else if (state.status == AuthenticationStatus.unauthenticated) {
+          nextScreen = const WelcomeScreen();
         }
 
         if (nextScreen != null) {
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (_) => nextScreen!),
-                (_) => false,
-          );
+          print('🔄 Переход на: ${nextScreen.runtimeType}');
+          // Не push, а removeUntil, чтобы очистить стек
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (_) => nextScreen!),
+                  (route) => false,
+            );
+          });
         }
       },
-      child: const WelcomeScreen(),
+      child: const WelcomeScreen(), // Показываем стартово
     );
   }
 }
+

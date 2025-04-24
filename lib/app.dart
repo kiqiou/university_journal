@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import 'app_view.dart';
 
 class MyApp extends StatelessWidget {
@@ -19,7 +17,9 @@ class MyApp extends StatelessWidget {
           onPrimary: Colors.white,
         ),
       ),
-      home: const AppView(), // теперь AppView — не MaterialApp, а просто экран
+      home: Builder(
+        builder: (context) => const AppView(),
+      ),
     );
   }
 }
