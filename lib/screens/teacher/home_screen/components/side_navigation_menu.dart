@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/bloc/auth/authentication_bloc.dart';
 import 'package:university_journal/components/icon_container.dart';
+import 'package:university_journal/screens/auth/view/sign_up_screen.dart';
 import 'package:university_journal/screens/teacher/account_screen/account_screen.dart';
 
 class TeacherSideNavigationMenu extends StatefulWidget {

@@ -13,16 +13,14 @@ class AppView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthenticationBloc, AuthenticationState>(
-      listenWhen: (previous, current) => previous.status != current.status,
-      listener: (context, state) {
+    return BlocBuilder<AuthenticationBloc, AuthenticationState>(
+      builder: (context, state) {
         print('➡️ Обновление состояния: ${state.status}');
         Widget? nextScreen;
 
         if (state.status == AuthenticationStatus.authenticated) {
           final role = state.user?.role ?? '';
           print('🔐 Пользователь с ролью: $role');
-
           switch (role) {
             case 'Администратор 1':
               nextScreen = const Admin1HomeScreen();
@@ -49,16 +47,14 @@ class AppView extends StatelessWidget {
 
         if (nextScreen != null) {
           print('🔄 Переход на: ${nextScreen.runtimeType}');
-          // Не push, а removeUntil, чтобы очистить стек
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            Navigator.of(context).pushAndRemoveUntil(
+            Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (_) => nextScreen!),
-                  (route) => false,
             );
           });
         }
+        return WelcomeScreen();
       },
-      child: const WelcomeScreen(), // Показываем стартово
     );
   }
 }
