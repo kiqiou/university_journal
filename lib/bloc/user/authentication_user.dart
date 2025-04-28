@@ -6,7 +6,7 @@ class AuthRepository {
   Future<MyUser?> signUp(String username, String password, int roleId) async {
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/api/register/'),
+        Uri.parse('http://127.0.0.1:8000/auth/api/register/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
@@ -20,11 +20,6 @@ class AuthRepository {
 
       if (response.statusCode == 201) {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
-        if (data is Map<String, dynamic>) {
-          print('➡️ Данные корректны: $data');
-        } else {
-          print('❌ Ошибка: Ожидался Map<String, dynamic>, но пришло ${data.runtimeType}');
-        }
         if (data['username'] != null && data['role'] != null) {
           print('✅ Username: ${data['username']}');
           return MyUser(
@@ -46,7 +41,7 @@ class AuthRepository {
   Future<MyUser?> login(String username, String password) async {
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/api/login/'),
+        Uri.parse('http://127.0.0.1:8000/auth/api/login/'),
         headers: {'Content-Type': 'application/json; charset=utf-8'},
         body: jsonEncode({
           'username': username,
@@ -75,7 +70,7 @@ class AuthRepository {
     return null;
   }
   Future<void> logout() async {
-    final response = await http.post(Uri.parse('http://127.0.0.1:8000/logout/'));
+    final response = await http.post(Uri.parse('http://127.0.0.1:8000/auth/logout/'));
     if (response.statusCode != 200) {
       throw Exception('Ошибка при выходе из аккаунта');
     }

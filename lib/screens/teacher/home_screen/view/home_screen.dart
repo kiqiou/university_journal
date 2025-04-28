@@ -56,19 +56,17 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        final screenWidth = MediaQuery.of(context).size.width;
-        final screenHeight = MediaQuery.of(context).size.height;
         return Dialog(
           insetPadding: EdgeInsets.only(
-            left: screenWidth * 0.7, // Отодвигаем от левого края на 55% ширины экрана
+            left: MediaQuery.of(context).size.width * 0.7, // Отодвигаем от левого края на 55% ширины экрана
             top: 20,
             right: 20,
             bottom: 20,
           ),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
-            width: screenWidth * 0.25, // 25% ширины экрана
-            height: screenHeight * 0.85, // 85% высоты экрана
+            width: MediaQuery.of(context).size.width* 0.25, // 25% ширины экрана
+            height: MediaQuery.of(context).size.height * 0.85, // 85% высоты экрана
             padding: EdgeInsets.all(20),
             child: AddEventDialogContent(
               onDateSelected: (date) {
@@ -103,23 +101,22 @@ class AddEventDialogContent extends StatefulWidget {
   final VoidCallback onSavePressed;
 
   const AddEventDialogContent(
-      {Key? key,
+      {super.key,
       required this.onDateSelected,
       required this.onEventTypeSelected,
-      required this.onSavePressed})
-      : super(key: key);
+      required this.onSavePressed});
 
   @override
-  _AddEventDialogContentState createState() => _AddEventDialogContentState();
+  AddEventDialogContentState createState() => AddEventDialogContentState();
 }
 
-class _AddEventDialogContentState extends State<AddEventDialogContent> {
+class AddEventDialogContentState extends State<AddEventDialogContent> {
   DateTime _selectedDate = DateTime.now();
   String? _selectedEventType;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
       child: SingleChildScrollView(

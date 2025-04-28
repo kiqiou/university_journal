@@ -1,14 +1,14 @@
-import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
-import 'package:university_journal/bloc/auth/authentication_bloc.dart';
 
 class DataTableScreen extends StatefulWidget {
+  const DataTableScreen({super.key});
+
   @override
-  _DataTableScreenState createState() => _DataTableScreenState();
+  DataTableScreenState createState() => DataTableScreenState();
 }
 
-class _DataTableScreenState extends State<DataTableScreen> {
+class DataTableScreenState extends State<DataTableScreen> {
   late EmployeeDataSource employeeDataSource;
   final List<Employee> employees = List.generate(
     22,
