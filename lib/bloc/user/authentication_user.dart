@@ -22,10 +22,7 @@ class AuthRepository {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
         if (data['username'] != null && data['role'] != null) {
           print('✅ Username: ${data['username']}');
-          return MyUser(
-            username: data['username'] ?? 'Гость',
-            role: data['role']['role'] ?? '',
-          );
+          return MyUser.fromJson(data);
         } else {
           print('❌ Неверный формат данных: $data');
           return null;
@@ -53,11 +50,7 @@ class AuthRepository {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
 
         if (data is Map<String, dynamic> && data['user'] != null) {
-          final userData = data['user'];
-          final username = userData['username']?.toString() ?? 'Гость';
-          final roleData = userData['role'];
-          final roleName = roleData != null ? roleData['role']?.toString() ?? 'Неизвестная роль' : 'Нет роли';
-          return MyUser(username: username, role: roleName);
+          return MyUser.fromJson(data);
         }
       } else {
         print('❌ Ошибка: Нет информации о пользователе или ролях');
