@@ -170,7 +170,7 @@ class _AddEventDialogContentState extends State<AddEventDialogContent> {
             Theme(
               data: Theme.of(context).copyWith(
                 colorScheme: ColorScheme.light(
-                  primary: Colors.blue,      // Цвет фона выбранной даты
+                  primary: Colors.blueJurnal,      // Цвет фона выбранной даты
                   onPrimary: Colors.white,   // Цвет текста выбранной даты
                   onSurface: Colors.black,   // Цвет текста всех остальных дат
                 ),

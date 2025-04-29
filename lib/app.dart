@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:university_journal/screens/teacher/home_screen/view/home_screen.dart';
 import 'app_view.dart';
 
 class MyApp extends StatelessWidget {
@@ -17,8 +18,8 @@ class MyApp extends StatelessWidget {
           onPrimary: Colors.white,
         ),
       ),
-      home: Builder(
-        builder: (context) => const AppView(),
+      home: TeacherHomeScreen(
+
       ),
     );
   }
