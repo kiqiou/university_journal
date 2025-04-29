@@ -3,6 +3,8 @@ import 'package:university_journal/screens/teacher/home_screen/components/side_n
 import 'package:university_journal/screens/teacher/home_screen/components/table.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import '../../../../components/colors/colors.dart';
+
 class TeacherHomeScreen extends StatefulWidget {
   const TeacherHomeScreen({super.key});
 
@@ -33,7 +35,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                         _showAddEventDialog(context);
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueJurnal,
+                        backgroundColor: MyColors.blueJournal,
                         padding: EdgeInsets.symmetric(horizontal: 25, vertical: 23), //Отступы
                         textStyle: TextStyle(fontSize: 18), // размер текста
                         minimumSize: Size(170, 50),
@@ -214,7 +216,7 @@ class _AddEventDialogContentState extends State<AddEventDialogContent> {
         ),
       ),
     );
-    Overlay.of(context)!.insert(_dropdownOverlay!);
+    Overlay.of(context).insert(_dropdownOverlay!);
   }
 
   void _hideDropdown() {
@@ -296,7 +298,7 @@ class _AddEventDialogContentState extends State<AddEventDialogContent> {
         ),
       ),
     );
-    Overlay.of(context)!.insert(_monthDropdownOverlay!);
+    Overlay.of(context).insert(_monthDropdownOverlay!);
   }
 
   void _hideMonthDropdown() {
@@ -341,7 +343,7 @@ class _AddEventDialogContentState extends State<AddEventDialogContent> {
                       onPressed: widget.onSavePressed,
                       child: Text('Сохранить', style: TextStyle(color: Colors.white)),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueJurnal,
+                        backgroundColor: MyColors.blueJournal,
                         padding: EdgeInsets.symmetric(horizontal: 30, vertical: 22),
                         minimumSize: Size(0, 0),
                         shape: RoundedRectangleBorder(
@@ -352,7 +354,7 @@ class _AddEventDialogContentState extends State<AddEventDialogContent> {
                     SizedBox(width: 8),
                     Container(
                       decoration: BoxDecoration(
-                        color: Colors.blueJurnal,
+                        color: MyColors.blueJournal,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: IconButton(
@@ -399,7 +401,7 @@ class _AddEventDialogContentState extends State<AddEventDialogContent> {
                   shape: BoxShape.circle,
                 ),
                 selectedDecoration: BoxDecoration(
-                  color: Colors.blueJurnal,
+                  color: MyColors.blueJournal,
                   shape: BoxShape.circle,
                 ),
               ),

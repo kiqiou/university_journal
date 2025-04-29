@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:university_journal/screens/teacher/home_screen/components/side_navigation_menu.dart';
 import 'package:university_journal/screens/teacher/home_screen/components/table.dart';
 
+import '../../../components/colors/colors.dart';
+
 class StudentHomeScreen extends StatefulWidget {
   const StudentHomeScreen({super.key});
 
@@ -170,9 +172,9 @@ class _AddEventDialogContentState extends State<AddEventDialogContent> {
             Theme(
               data: Theme.of(context).copyWith(
                 colorScheme: ColorScheme.light(
-                  primary: Colors.blueJurnal,      // Цвет фона выбранной даты
+                  primary: MyColors.blueJournal,      // Цвет фона выбранной даты
                   onPrimary: Colors.white,   // Цвет текста выбранной даты
-                  onSurface: Colors.black,   // Цвет текста всех остальных дат
+                  onSurface: Colors.black,  // Цвет текста всех остальных дат
                 ),
               ),
               child: CalendarDatePicker(
