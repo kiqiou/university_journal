@@ -10,9 +10,14 @@ class MyUser extends Equatable {
   });
 
   factory MyUser.fromJson(Map<String, dynamic> json) {
+    final userJson = json['user'];
+    if (userJson == null) {
+      print('❌ Ошибка: JSON не содержит user');
+      return MyUser(username: '', role: '');
+    }
     return MyUser(
-      username: json['username'],
-      role: json['role']['role'],
+      username: userJson['username'] ?? '',
+      role: userJson['role']?['role'] ?? '',
     );
   }
 

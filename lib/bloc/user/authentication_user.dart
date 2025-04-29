@@ -48,7 +48,7 @@ class AuthRepository {
       if (response.statusCode == 200) {
         print('✅ Успешный вход!');
         final data = jsonDecode(utf8.decode(response.bodyBytes));
-
+        print('📌 Ответ сервера: $data');
         if (data is Map<String, dynamic> && data['user'] != null) {
           return MyUser.fromJson(data);
         }

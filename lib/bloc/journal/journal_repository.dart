@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:university_journal/bloc/journal/journal.dart';
 
 class JournalRepository{
-  Future<Session?> journalData() async {
+  Future<List<Session?>> journalData() async {
     final response = await http.post(
       Uri.parse('http://127.0.0.1:8000/api/attendance/'),
       headers: {
@@ -21,11 +21,16 @@ class JournalRepository{
     if (response.statusCode == 201) {
       final String decodedResponse = utf8.decode(response.bodyBytes);
       final data = jsonDecode(decodedResponse);
-      print('✅ Данные: $data');
-      return Session.fromJson(data);
+
+      if (data is List) {
+        return data.map((json) => Session.fromJson(json)).toList();
+      } else {
+        print('❌ Ожидался список, но получен одиночный объект: $data');
+        return [];
+      }
     } else {
       print('❌ Ошибка: ${response.statusCode}, ${response.body}');
-      return null;
+      return [];
     }
   }
 }

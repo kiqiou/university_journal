@@ -18,9 +18,9 @@ class MyApp extends StatelessWidget {
           onPrimary: Colors.white,
         ),
       ),
-      home: TeacherHomeScreen(
-
-      ),
+      home: Builder(
+        builder: (context) => const AppView(),
+    ),
     );
   }
 }
