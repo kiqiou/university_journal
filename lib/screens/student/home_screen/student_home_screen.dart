@@ -43,7 +43,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                   ),
                 ),
                 Expanded(
-                  child: DataTableScreen(),
+                  child: JournalScreen(),
                 ),
               ],
             ),

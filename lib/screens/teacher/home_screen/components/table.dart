@@ -1,193 +1,217 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import 'package:collection/collection.dart';
 
-class DataTableScreen extends StatefulWidget {
-  const DataTableScreen({super.key});
+import '../../../../bloc/journal/journal.dart';
+import '../../../../bloc/journal/journal_repository.dart';
+
+class JournalScreen extends StatefulWidget {
+  const JournalScreen({super.key});
 
   @override
-  DataTableScreenState createState() => DataTableScreenState();
+  State<JournalScreen> createState() => _JournalScreenState();
 }
 
-class DataTableScreenState extends State<DataTableScreen> {
-  late EmployeeDataSource employeeDataSource;
-  final List<Employee> employees = List.generate(
-    22,
-    (index) => Employee('Иванов Иван', List.generate(10, (i) => 'Н')),
-  );
-
-  int? selectedRowIndex;
-  int? selectedColumnIndex;
+class _JournalScreenState extends State<JournalScreen> {
+  late JournalDataSource dataSource;
+  List<GridColumn> columns = [];
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    employeeDataSource = EmployeeDataSource(employees);
+    loadSessions();
+  }
+
+  Future<void> loadSessions() async {
+    final journalRepository = JournalRepository();
+    final sessions = await journalRepository.journalData();
+    final grouped = groupSessionsByStudent(sessions);
+
+    setState(() {
+      columns = buildColumns(sessions);
+      dataSource = JournalDataSource(grouped, sessions);
+      isLoading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Журнал')),
-      body: SfDataGrid(
-        source: employeeDataSource,
+      appBar: AppBar(title: const Text('Журнал')),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SfDataGrid(
+        gridLinesVisibility: GridLinesVisibility.none,
+        headerGridLinesVisibility: GridLinesVisibility.none,
+        source: dataSource,
+        columns: columns,
         headerRowHeight: 100,
-        editingGestureType: EditingGestureType.doubleTap,
-        columns: [
-          GridColumn(
-            columnName: '№',
-            label: Container(
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                border: Border.all(color: Colors.grey.shade400),
-              ),
-              padding: EdgeInsets.all(8),
-              alignment: Alignment.center,
-              child: Text('№'),
-            ),
-          ),
-          GridColumn(
-            columnName: 'ФИО',
-            width: 200,
-            label: Container(
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                border: Border.all(color: Colors.grey.shade400),
-              ),
-              padding: EdgeInsets.all(8),
-              alignment: Alignment.centerLeft,
-              child: Center(child: Text('ФИО')),
-            ),
-          ),
-          for (int i = 1; i <= 10; i++)
-            GridColumn(
-              columnName: 'Дата $i',
-              width: 50,
-              label: Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  border: Border.all(color: Colors.grey.shade400),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    RotatedBox(
-                      quarterTurns: 3,
-                      child: Text(
-                        '03.02.2025',
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    Container(
-                      width: double.infinity,
-                      height: 1,
-                      color: Colors.grey.shade400,
-                      margin: EdgeInsets.symmetric(vertical: 2),
-
-                    ),
-                    Text(
-                      'Лек',
-                      style: TextStyle(fontSize: 12),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-        ],
       ),
     );
   }
 }
 
-class Employee {
-  Employee(this.name, this.attendance);
+/// Источник данных для таблицы
+class JournalDataSource extends DataGridSource {
+  final List<DataGridRow> _rows;
+  final List<String> _dates;
+  final Map<String, Map<String, Session>> _sessionData;
 
-  final String name;
-  final List<String> attendance;
-}
+  JournalDataSource(this._sessionData, List<Session> sessions)
+      : _dates = extractUniqueDates(sessions),
+        _rows = _buildRows(_sessionData, extractUniqueDates(sessions));
 
-class EmployeeDataSource extends DataGridSource {
-  List<DataGridRow> _dataGridRows = [];
-  final List<Employee> employees;
-  final String? userRole;
+  static List<DataGridRow> _buildRows(
+      Map<String, Map<String, Session>> data,
+      List<String> dates,
+      ) {
+    return data.entries.mapIndexed((index, entry) {
+      final name = entry.key;
+      final sessionsByDate = entry.value;
 
-  EmployeeDataSource(this.employees, {this.userRole}) {
-    buildDataGridRows();
-  }
-
-  void buildDataGridRows() {
-    _dataGridRows = employees
-        .asMap()
-        .entries
-        .map(
-          (entry) =>
-          DataGridRow(cells: [
-            DataGridCell<int>(columnName: '№', value: entry.key + 1),
-            DataGridCell<String>(columnName: 'ФИО', value: entry.value.name),
-            for (int i = 0; i < entry.value.attendance.length; i++)
-              DataGridCell<String>(
-                columnName: 'Дата ${i + 1}',
-                value: entry.value.attendance[i],
-              )
-          ]),
-    )
-        .toList();
+      return DataGridRow(cells: [
+        DataGridCell<int>(columnName: '№', value: index + 1),
+        DataGridCell<String>(columnName: 'ФИО', value: name),
+        for (final date in dates)
+          DataGridCell<String>(
+            columnName: date,
+            value: sessionsByDate[date]?.status ?? '',
+          ),
+      ]);
+    }).toList();
   }
 
   @override
-  List<DataGridRow> get rows => _dataGridRows;
-
-  @override
-  Future<void> onCellSubmit(DataGridRow row, RowColumnIndex rowColumnIndex, GridColumn column) async {
-    if (rowColumnIndex.rowIndex < 0) return;
-    int employeeIndex = rowColumnIndex.rowIndex;
-    print("Ячейка изменена: ${column.columnName}");
-    employees[employeeIndex].attendance[rowColumnIndex.columnIndex - 2] = column.columnName;
-    notifyListeners();
-  }
+  List<DataGridRow> get rows => _rows;
 
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
-    int rowIndex = _dataGridRows.indexOf(row);
-
     return DataGridRowAdapter(
-      cells: row
-          .getCells()
-          .asMap()
-          .entries
-          .map((entry) {
-        int columnIndex = entry.key;
+      cells: row.getCells().asMap().entries.map((entry) {
+        final columnIndex = entry.key;
+        final cell = entry.value;
 
-        TextEditingController controller = TextEditingController(
-          text: entry.value.value?.toString() ?? '',
-        );
+        final isEditable = columnIndex > 1;
 
-        return GestureDetector(
-          onTap: () {
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.shade400),
-            ),
-            alignment: Alignment.center,
-            padding: EdgeInsets.all(8),
-            child: TextField(
-              enabled: true,
-              controller: controller,
-              style: TextStyle(fontSize: 16, color: Colors.black87),
-              textAlign: TextAlign.center,
-              onChanged: (value) {
-                if (columnIndex > 1) {
-                  employees[rowIndex].attendance[columnIndex - 2] = value;
-                }
-              },
-              decoration: InputDecoration(
-                border: InputBorder.none,
-              ),
-            ),
+        return Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade400, width: 1),
           ),
+          alignment: Alignment.center,
+          padding: const EdgeInsets.all(8),
+          child: isEditable
+              ? TextField(
+            controller: TextEditingController(text: cell.value.toString()),
+            textAlign: TextAlign.center,
+            decoration: const InputDecoration(
+              isDense: true,
+              border: InputBorder.none,
+            ),
+            onChanged: (value) {
+              final rowIndex = _rows.indexOf(row);
+              final studentName = _rows[rowIndex].getCells()[1].value;
+              final date = _dates[columnIndex - 2]; // учесть № и ФИО
+
+              _sessionData[studentName]?[date]?.status = value;
+
+              _rows[rowIndex].getCells()[columnIndex] =
+                  DataGridCell<String>(columnName: date, value: value);
+
+              notifyListeners();
+            },
+          )
+              : Text(cell.value.toString(), textAlign: TextAlign.center),
         );
       }).toList(),
     );
   }
+}
+
+/// Вспомогательные функции
+
+List<String> extractUniqueDates(List<Session> sessions) {
+  final dates = sessions.map((s) => s.date).toSet().toList();
+  dates.sort();
+  return dates;
+}
+
+Map<String, Map<String, Session>> groupSessionsByStudent(List<Session> sessions) {
+  final Map<String, Map<String, Session>> result = {};
+
+  for (var session in sessions) {
+    final studentName = session.student.username;
+    final date = session.date;
+    if (!result.containsKey(studentName)) {
+      result[studentName] = {};
+    }
+    result[studentName]![date] = session;
+  }
+
+  return result;
+}
+
+
+List<GridColumn> buildColumns(List<Session> sessions) {
+  final uniqueDates = <String, String>{}; // date -> type
+
+  for (var session in sessions) {
+    uniqueDates[session.date] = session.sessionType;
+  }
+
+  final sortedDates = uniqueDates.keys.toList()..sort();
+
+  return [
+    GridColumn(
+      columnName: '№',
+      width: 50,
+      label: Container(
+        decoration: BoxDecoration(
+          color: Colors.grey.shade300,
+          border: Border.all(color: Colors.grey.shade400),
+        ),
+        alignment: Alignment.center,
+        padding: const EdgeInsets.all(8),
+        child: const Text('№'),
+      ),
+    ),
+    GridColumn(
+      columnName: 'ФИО',
+      width: 200,
+      label: Container(
+        decoration: BoxDecoration(
+          color: Colors.grey.shade300,
+          border: Border.all(color: Colors.grey.shade400),
+        ),
+        alignment: Alignment.center,
+        padding: const EdgeInsets.all(8),
+        child: const Text('ФИО'),
+      ),
+    ),
+    for (var date in sortedDates)
+      GridColumn(
+        columnName: date,
+        width: 60,
+        label: Container(
+          decoration: BoxDecoration(
+            color: Colors.grey.shade300,
+            border: Border.all(color: Colors.grey.shade400),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              RotatedBox(
+                quarterTurns: 3,
+                child: Text(date, textAlign: TextAlign.center),
+              ),
+              Divider(height: 2, color: Colors.grey.shade400,),
+              Text(
+                uniqueDates[date] ?? '',
+                style: const TextStyle(fontSize: 12),
+              ),
+            ],
+          ),
+        ),
+      ),
+  ];
 }

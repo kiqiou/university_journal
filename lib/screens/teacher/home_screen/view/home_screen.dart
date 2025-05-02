@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:university_journal/bloc/journal/journal_repository.dart';
 import 'package:university_journal/screens/teacher/home_screen/components/side_navigation_menu.dart';
 import 'package:university_journal/screens/teacher/home_screen/components/table.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -51,7 +52,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                   ),
                 ),
                 Expanded(
-                  child: DataTableScreen(),
+                  child: JournalScreen(),
                 ),
               ],
             ),
@@ -90,12 +91,32 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                   _selectedEventType = eventType;
                 });
               },
-              onSavePressed: () {
+              onSavePressed: () async {
                 if (_selectedDate != null && _selectedEventType != null) {
                   print('Date: $_selectedDate, Type: $_selectedEventType');
                   Navigator.of(context).pop();
                 } else {
                   print('Please select date and event type');
+                }
+
+                final journalRepository = JournalRepository();
+                String formattedDate = "${_selectedDate?.year}-${_selectedDate?.month.toString().padLeft(2, '0')}-${_selectedDate?.day.toString().padLeft(2, '0')}";
+
+                final result = await journalRepository.addSession(
+                  type: _selectedEventType!,
+                  date: formattedDate,
+                  courseId: 1,
+                );
+
+                if (result != null) {
+                  Navigator.of(context).pop(); // Закрыть диалог
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('✅ Занятие добавлено')),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('❌ Ошибка при добавлении занятия')),
+                  );
                 }
               },
             ),
@@ -317,7 +338,7 @@ class _AddEventDialogContentState extends State<AddEventDialogContent> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
       child: SingleChildScrollView(
