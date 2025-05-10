@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:collection/collection.dart';
 
-import '../../../../bloc/journal/journal.dart';
+import '../../../bloc/journal/journal.dart';
 
 class JournalTable extends StatefulWidget {
   final bool isLoading;
@@ -54,7 +54,7 @@ class JournalDataSource extends DataGridSource {
   final Map<String, Map<String, Session>> _sessionData;
 
   JournalDataSource(this._sessionData, List<Session> sessions)
-      : _dates = extractUniqueDateTypes(sessions).toList(), // Берем только ключи (даты)
+      : _dates = extractUniqueDateTypes(sessions).toList(),
         _rows = _buildRows(_sessionData, extractUniqueDateTypes(sessions).toList());
 
   static List<DataGridRow> _buildRows(
@@ -151,6 +151,14 @@ Map<String, Map<String, Session>> groupSessionsByStudent(List<Session> sessions)
 List<GridColumn> buildColumns(List<Session> sessions) {
   final dateTypeColumns = extractUniqueDateTypes(sessions);
 
+  const sessionTypeShortNames = {
+    'Лекция': 'Лек',
+    'Практика': 'Практ',
+    'Семинар': 'Сем',
+    'Лабораторная': 'Лаб',
+
+  };
+
   return [
     GridColumn(
       columnName: '№',
@@ -183,7 +191,7 @@ List<GridColumn> buildColumns(List<Session> sessions) {
     for (var dateType in dateTypeColumns)
       GridColumn(
         columnName: dateType,
-        width: 80,
+        width: 60,
         allowSorting: true,
         label: Container(
           decoration: BoxDecoration(
@@ -199,7 +207,7 @@ List<GridColumn> buildColumns(List<Session> sessions) {
               ),
               Divider(height: 2, color: Colors.grey.shade400),
               Text(
-                dateType.split(' ').last,
+                sessionTypeShortNames[dateType.split(' ').last] ?? dateType.split(' ').last,
                 style: const TextStyle(fontSize: 12),
               ),
             ],

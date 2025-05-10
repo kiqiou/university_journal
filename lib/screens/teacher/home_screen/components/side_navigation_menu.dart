@@ -1,9 +1,12 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/bloc/auth/authentication_bloc.dart';
 import 'package:university_journal/components/icon_container.dart';
 import 'package:university_journal/screens/teacher/account_screen/account_screen.dart';
-import 'package:university_journal/screens/teacher/home_screen/components/table.dart';
+
+import '../../../../components/journal_table.dart';
 
 class TeacherSideNavigationMenu extends StatefulWidget {
   final Function(String type) onSelectType;
@@ -94,7 +97,7 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
-                        child: IconContainer(
+                        child: MyIconContainer(
                           icon: Icons.menu,
                           width: (_isExpanded ? 250 : 50),
                         ),
@@ -132,21 +135,21 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
                     child: BlocBuilder<AuthenticationBloc, AuthenticationState>(
                       builder: (context, state) {
                         if (state.status == AuthenticationStatus.authenticated && state.user != null) {
-                          return IconContainer(
+                          return MyIconContainer(
                             icon: Icons.account_circle_outlined,
                             width: (_isExpanded ? 250 : 50),
                             withText: _isExpanded,
                             text: state.user!.username,
                           );
                         } else if (state.status == AuthenticationStatus.unauthenticated) {
-                          return IconContainer(
+                          return MyIconContainer(
                             icon: Icons.account_circle_outlined,
                             width: (_isExpanded ? 250 : 50),
                             withText: _isExpanded,
                             text: 'Гость',
                           );
                         } else {
-                          return IconContainer(
+                          return MyIconContainer(
                             icon: Icons.account_circle_outlined,
                             width: (_isExpanded ? 250 : 50),
                             withText: _isExpanded,
@@ -188,11 +191,11 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
                                 final type = _filterText[index];
                                 widget.onSelectType(type);
                                 },
-                              child: IconContainer(
+                              child: MyIconContainer(
                                 icon: _icons[index],
                                 width: (_isExpanded ? 250 : 50),
                                 text: _texts[index],
-                                withText: _isExpanded ? true : false,
+                                withText: _isExpanded,
                               ),
                             ),
                           ),
@@ -214,9 +217,9 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
                   },
                   onTap: () {
                     context.read<AuthenticationBloc>().add(AuthenticationLogoutRequested());
-                    print('➡️ Состояние: ${context.read<AuthenticationBloc>().state}');
+                    log('➡️ Состояние: ${context.read<AuthenticationBloc>().state}');
                   },
-                  child: IconContainer(
+                  child: MyIconContainer(
                     borderRadius: 100,
                     icon: Icons.arrow_back,
                     width: (_isExpanded ? 250 : 50),

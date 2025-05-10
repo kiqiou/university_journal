@@ -50,7 +50,7 @@ class _Admin1SideNavigationMenu extends State<Admin1SideNavigationMenu> {
                 },
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
-                  child: IconContainer(
+                  child: MyIconContainer(
                     icon: Icons.menu,
                     width: (_isExpanded ? 250 : 50),
                   ),
@@ -88,21 +88,21 @@ class _Admin1SideNavigationMenu extends State<Admin1SideNavigationMenu> {
                 child: BlocBuilder<AuthenticationBloc, AuthenticationState>(
                   builder: (context, state) {
                     if (state.status == AuthenticationStatus.authenticated && state.user != null) {
-                      return IconContainer(
+                      return MyIconContainer(
                         icon: Icons.account_circle_outlined,
                         width: (_isExpanded ? 250 : 50),
                         withText: _isExpanded,
                         text: state.user!.username,
                       );
                     } else if (state.status == AuthenticationStatus.unauthenticated) {
-                      return IconContainer(
+                      return MyIconContainer(
                         icon: Icons.account_circle_outlined,
                         width: (_isExpanded ? 250 : 50),
                         withText: _isExpanded,
                         text: 'Гость',
                       );
                     } else {
-                      return IconContainer(
+                      return MyIconContainer(
                         icon: Icons.account_circle_outlined,
                         width: (_isExpanded ? 250 : 50),
                         withText: _isExpanded,
@@ -141,7 +141,7 @@ class _Admin1SideNavigationMenu extends State<Admin1SideNavigationMenu> {
                       padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
                       child: InkWell(
                         onTap: () {},
-                        child: IconContainer(
+                        child: MyIconContainer(
                           icon: _icons[index],
                           width: (_isExpanded ? 250 : 50),
                           text: _texts[index],
@@ -165,7 +165,7 @@ class _Admin1SideNavigationMenu extends State<Admin1SideNavigationMenu> {
               onTap: () {
 
               },
-              child: IconContainer(
+              child: MyIconContainer(
                 borderRadius: 100,
                 icon: Icons.arrow_back,
                 width: (_isExpanded ? 250 : 50),

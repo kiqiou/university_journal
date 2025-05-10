@@ -1,6 +1,6 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
-import 'package:university_journal/screens/teacher/home_screen/components/side_navigation_menu.dart';
-import 'package:university_journal/screens/teacher/home_screen/components/table.dart';
 
 import '../../../components/colors/colors.dart';
 
@@ -84,10 +84,10 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
               },
               onSavePressed: () {
                 if (_selectedDate != null && _selectedEventType != null) {
-                  print('Date: $_selectedDate, Type: $_selectedEventType');
+                  log('Date: $_selectedDate, Type: $_selectedEventType');
                   Navigator.of(context).pop();
                 } else {
-                  print('Please select date and event type');
+                  log('Please select date and event type');
                 }
               },
             ),
@@ -104,23 +104,22 @@ class AddEventDialogContent extends StatefulWidget {
   final VoidCallback onSavePressed;
 
   const AddEventDialogContent(
-      {Key? key,
+      {super.key,
         required this.onDateSelected,
         required this.onEventTypeSelected,
-        required this.onSavePressed})
-      : super(key: key);
+        required this.onSavePressed});
 
   @override
-  _AddEventDialogContentState createState() => _AddEventDialogContentState();
+  AddEventDialogContentState createState() => AddEventDialogContentState();
 }
 
-class _AddEventDialogContentState extends State<AddEventDialogContent> {
+class AddEventDialogContentState extends State<AddEventDialogContent> {
   DateTime _selectedDate = DateTime.now();
   String? _selectedEventType;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
       child: SingleChildScrollView(

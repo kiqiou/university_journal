@@ -1,10 +1,12 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:university_journal/bloc/journal/journal_repository.dart';
 import 'package:university_journal/screens/teacher/home_screen/components/side_navigation_menu.dart';
-import 'package:university_journal/screens/teacher/home_screen/components/table.dart';
 
 import '../../../../bloc/journal/journal.dart';
 import '../../../../components/colors/colors.dart';
+import '../../../../components/journal_table.dart';
 import '../components/add_classes_dialog.dart';
 
 class TeacherHomeScreen extends StatefulWidget {
@@ -30,7 +32,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
   }
 
   Future<void> loadSessions() async {
-    print("Загрузка данных сессий...");
+    log("Загрузка данных сессий...");
     final journalRepository = JournalRepository();
     allSessions = await journalRepository.journalData();
 
@@ -100,7 +102,8 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
   }
 
   void _showAddEventDialog(BuildContext context) async {
-    final result = await showDialog<bool>(
+
+    await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
         final screenWidth = MediaQuery
@@ -139,7 +142,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                     final journalRepository = JournalRepository();
                     String formattedDate =
                         "${_selectedDate?.year}-${_selectedDate?.month.toString().padLeft(2, '0')}-${_selectedDate?.day.toString().padLeft(2, '0')}";
-                    final result = await journalRepository.addSession(
+                    await journalRepository.addSession(
                       type: _selectedEventType!,
                       date: formattedDate,
                       courseId: 1,
@@ -147,14 +150,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
 
                     final newSessions = await journalRepository.journalData();
                     allSessions = newSessions;
-                    _filterBySessionType(selectedSessionsType); // <-- Вот это критически важно!
-
-                    if (mounted) {
-                      Navigator.of(context).pop(true);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('✅ Занятие добавлено')),
-                      );
-                    }
+                    _filterBySessionType(selectedSessionsType);
                   }
                 }
             ),

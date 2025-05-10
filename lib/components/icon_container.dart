@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class IconContainer extends StatelessWidget {
+class MyIconContainer extends StatelessWidget {
   final double borderRadius;
   final IconData icon;
   final double size;
@@ -10,7 +10,7 @@ class IconContainer extends StatelessWidget {
   bool? withText;
   String? text;
 
-  IconContainer({
+  MyIconContainer({
     super.key,
     this.borderRadius = 15.0,
     required this.icon,
@@ -44,9 +44,12 @@ class IconContainer extends StatelessWidget {
                     size: size,
                   ),
                   const SizedBox(width: 8),
-                  Text(
-                    text ?? '',
-                    style: TextStyle(color: Colors.grey.shade600),
+                  Expanded(
+                    child: Text(
+                      text!,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: Colors.grey.shade600),
+                    ),
                   ),
                 ],
               ),

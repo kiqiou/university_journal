@@ -307,7 +307,7 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
               },
               calendarStyle: CalendarStyle(
                 todayDecoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.2),
+                  color: Colors.blue.withValues(),
                   shape: BoxShape.circle,
                 ),
                 selectedDecoration: BoxDecoration(

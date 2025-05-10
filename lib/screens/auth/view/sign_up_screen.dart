@@ -1,10 +1,10 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:university_journal/bloc/auth/authentication_bloc.dart';
-import 'package:university_journal/bloc/journal/journal_repository.dart';
 import 'package:university_journal/screens/auth/view/sign_in_screen.dart';
 
 import '../../../bloc/journal/journal.dart';
@@ -44,13 +44,13 @@ void initState() {
     if (response.statusCode == 201) {
       final String decodedResponse = utf8.decode(response.bodyBytes);
       final data = jsonDecode(decodedResponse);
-      print('✅ Данные: $data');
+      log('✅ Данные: $data');
       final List<dynamic> dataList = jsonDecode(decodedResponse); // Парсим список
 
       return dataList.map((json) => Session.fromJson(json)).toList(); // Преобразуе
 
     } else {
-      print('❌ Ошибка: ${response.statusCode}, ${response.body}');
+      log('❌ Ошибка: ${response.statusCode}, ${response.body}');
       return null;
     }
   }

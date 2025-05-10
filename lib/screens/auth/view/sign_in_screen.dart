@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/bloc/auth/authentication_bloc.dart';
-import 'package:university_journal/bloc/user/authentication_user.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -14,7 +13,6 @@ class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMix
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _roleIdController = TextEditingController();
 
   @override
   void initState() {
@@ -24,7 +22,7 @@ class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Form(
         key: _formKey,
         child: Column(

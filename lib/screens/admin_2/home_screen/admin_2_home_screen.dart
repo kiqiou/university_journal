@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:university_journal/screens/admin_1/home_sreen/components/admin_1_side_navigation_menu.dart';
 
 class Admin2HomeScreen extends StatefulWidget {
   const Admin2HomeScreen({super.key});
