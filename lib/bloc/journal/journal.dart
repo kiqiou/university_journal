@@ -6,8 +6,8 @@ class Session {
   final String date;
   final String sessionType;
   final MyUser student;
-  String status;
-  final int grade;
+  String? status;
+  final int? grade;
 
   Session({required this.courseId, required this.date, required this.sessionType, required this.grade, required this.student, required this.status, this.courseName});
 

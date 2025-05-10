@@ -3,35 +3,30 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:collection/collection.dart';
 
 import '../../../../bloc/journal/journal.dart';
-import '../../../../bloc/journal/journal_repository.dart';
 
-class JournalScreen extends StatefulWidget {
-  const JournalScreen({super.key});
+class JournalTable extends StatefulWidget {
+  final bool isLoading;
+
+  const JournalTable({super.key, required this.isLoading});
 
   @override
-  State<JournalScreen> createState() => _JournalScreenState();
+  State<JournalTable> createState() => JournalTableState();
 }
 
-class _JournalScreenState extends State<JournalScreen> {
+class JournalTableState extends State<JournalTable> {
   late JournalDataSource dataSource;
   List<GridColumn> columns = [];
-  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    loadSessions();
   }
 
-  Future<void> loadSessions() async {
-    final journalRepository = JournalRepository();
-    final sessions = await journalRepository.journalData();
+  void updateDataSource(List<Session> sessions) {
     final grouped = groupSessionsByStudent(sessions);
-
     setState(() {
       columns = buildColumns(sessions);
       dataSource = JournalDataSource(grouped, sessions);
-      isLoading = false;
     });
   }
 
@@ -39,7 +34,7 @@ class _JournalScreenState extends State<JournalScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Журнал')),
-      body: isLoading
+      body: widget.isLoading
           ? const Center(child: CircularProgressIndicator())
           : SfDataGrid(
         gridLinesVisibility: GridLinesVisibility.none,
@@ -59,8 +54,8 @@ class JournalDataSource extends DataGridSource {
   final Map<String, Map<String, Session>> _sessionData;
 
   JournalDataSource(this._sessionData, List<Session> sessions)
-      : _dates = extractUniqueDates(sessions),
-        _rows = _buildRows(_sessionData, extractUniqueDates(sessions));
+      : _dates = extractUniqueDateTypes(sessions).toList(), // Берем только ключи (даты)
+        _rows = _buildRows(_sessionData, extractUniqueDateTypes(sessions).toList());
 
   static List<DataGridRow> _buildRows(
       Map<String, Map<String, Session>> data,
@@ -91,7 +86,6 @@ class JournalDataSource extends DataGridSource {
       cells: row.getCells().asMap().entries.map((entry) {
         final columnIndex = entry.key;
         final cell = entry.value;
-
         final isEditable = columnIndex > 1;
 
         return Container(
@@ -128,12 +122,16 @@ class JournalDataSource extends DataGridSource {
   }
 }
 
-/// Вспомогательные функции
+List<String> extractUniqueDateTypes(List<Session> sessions) {
+  final Set<String> dateTypes = {};
 
-List<String> extractUniqueDates(List<Session> sessions) {
-  final dates = sessions.map((s) => s.date).toSet().toList();
-  dates.sort();
-  return dates;
+  for (var session in sessions) {
+    dateTypes.add('${session.date} ${session.sessionType}');
+  }
+  final sorted = dateTypes.toList()
+    ..sort((a, b) => a.compareTo(b));
+
+  return sorted;
 }
 
 Map<String, Map<String, Session>> groupSessionsByStudent(List<Session> sessions) {
@@ -141,30 +139,23 @@ Map<String, Map<String, Session>> groupSessionsByStudent(List<Session> sessions)
 
   for (var session in sessions) {
     final studentName = session.student.username;
-    final date = session.date;
-    if (!result.containsKey(studentName)) {
-      result[studentName] = {};
-    }
-    result[studentName]![date] = session;
+    final dateTypeKey = '${session.date} ${session.sessionType}';
+
+    result.putIfAbsent(studentName, () => {});
+    result[studentName]![dateTypeKey] = session;
   }
 
   return result;
 }
 
-
 List<GridColumn> buildColumns(List<Session> sessions) {
-  final uniqueDates = <String, String>{}; // date -> type
-
-  for (var session in sessions) {
-    uniqueDates[session.date] = session.sessionType;
-  }
-
-  final sortedDates = uniqueDates.keys.toList()..sort();
+  final dateTypeColumns = extractUniqueDateTypes(sessions);
 
   return [
     GridColumn(
       columnName: '№',
       width: 50,
+      allowSorting: true,
       label: Container(
         decoration: BoxDecoration(
           color: Colors.grey.shade300,
@@ -178,6 +169,7 @@ List<GridColumn> buildColumns(List<Session> sessions) {
     GridColumn(
       columnName: 'ФИО',
       width: 200,
+      allowSorting: true,
       label: Container(
         decoration: BoxDecoration(
           color: Colors.grey.shade300,
@@ -188,10 +180,11 @@ List<GridColumn> buildColumns(List<Session> sessions) {
         child: const Text('ФИО'),
       ),
     ),
-    for (var date in sortedDates)
+    for (var dateType in dateTypeColumns)
       GridColumn(
-        columnName: date,
-        width: 60,
+        columnName: dateType,
+        width: 80,
+        allowSorting: true,
         label: Container(
           decoration: BoxDecoration(
             color: Colors.grey.shade300,
@@ -202,11 +195,11 @@ List<GridColumn> buildColumns(List<Session> sessions) {
             children: [
               RotatedBox(
                 quarterTurns: 3,
-                child: Text(date, textAlign: TextAlign.center),
+                child: Text(dateType.split(' ').first, textAlign: TextAlign.center),
               ),
-              Divider(height: 2, color: Colors.grey.shade400,),
+              Divider(height: 2, color: Colors.grey.shade400),
               Text(
-                uniqueDates[date] ?? '',
+                dateType.split(' ').last,
                 style: const TextStyle(fontSize: 12),
               ),
             ],

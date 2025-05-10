@@ -42,9 +42,9 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                     ),
                   ),
                 ),
-                Expanded(
-                  child: JournalScreen(),
-                ),
+                // Expanded(
+                //   child: JournalTable(isLoading: false,),
+                // ),
               ],
             ),
           ),

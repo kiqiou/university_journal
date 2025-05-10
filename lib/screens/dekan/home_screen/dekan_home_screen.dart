@@ -40,9 +40,9 @@ class _DekanHomeScreenState extends State<DekanHomeScreen> {
                     ),
                   ),
                 ),
-                Expanded(
-                  child: JournalScreen(),
-                ),
+                // Expanded(
+                //   child: JournalTable(),
+                // ),
               ],
             ),
           ),

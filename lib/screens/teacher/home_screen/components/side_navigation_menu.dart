@@ -2,17 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/bloc/auth/authentication_bloc.dart';
 import 'package:university_journal/components/icon_container.dart';
-import 'package:university_journal/screens/auth/view/sign_up_screen.dart';
 import 'package:university_journal/screens/teacher/account_screen/account_screen.dart';
+import 'package:university_journal/screens/teacher/home_screen/components/table.dart';
 
 class TeacherSideNavigationMenu extends StatefulWidget {
-  const TeacherSideNavigationMenu({super.key});
+  final Function(String type) onSelectType;
+  const TeacherSideNavigationMenu({super.key, required this.onSelectType,});
 
   @override
   State<TeacherSideNavigationMenu> createState() => _TeacherSideNavigationMenuState();
 }
 
 class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
+  final GlobalKey<JournalTableState> tableKey = GlobalKey<JournalTableState>();
+  
   final List<IconData> _icons = [
     Icons.book,
     Icons.library_books,
@@ -31,6 +34,16 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
     'Лабораторные',
     'Аттестация',
     'Темы',
+  ];
+
+  final List<String> _filterText = [
+    'Все',
+    'Лекция',
+    'Практика',
+    'Семинар',
+    'Лабораторная',
+    'Аттестация',
+    'Текущая Аттестация',
   ];
 
   bool _isExpanded = false;
@@ -171,7 +184,10 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
                             child: InkWell(
-                              onTap: () {},
+                              onTap: () {
+                                final type = _filterText[index];
+                                widget.onSelectType(type);
+                                },
                               child: IconContainer(
                                 icon: _icons[index],
                                 width: (_isExpanded ? 250 : 50),

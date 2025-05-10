@@ -44,13 +44,12 @@ class JournalRepository {
         body: jsonEncode({"type": type, "date": date, "course_id": 1}),
       );
 
-      if (response.statusCode == 201) {
-        print('✅ Занятие успешно добавлено!');
-        final data = jsonDecode(utf8.decode(response.bodyBytes));
+      final data = jsonDecode(utf8.decode(response.bodyBytes));
+      if (data != null && data.containsKey("course")) {
         print('📌 Ответ сервера: $data');
         return Session.fromJson(data);
       } else {
-        print('❌ Ошибка добавления: ${response.statusCode}, ${response.body}');
+        print('❌ Ошибка: неожиданный формат ответа сервера');
         return null;
       }
     } catch (e) {
