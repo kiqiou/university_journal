@@ -16,7 +16,7 @@ class JournalTable extends StatefulWidget {
 }
 
 class JournalTableState extends State<JournalTable> {
-  late JournalDataSource dataSource;
+  JournalDataSource? dataSource;
   List<GridColumn> columns = [];
   List<Session> _sessions = [];
   int? _selectedColumnIndex;
@@ -30,7 +30,7 @@ class JournalTableState extends State<JournalTable> {
     final grouped = groupSessionsByStudent(sessions);
 
     setState(() {
-      _sessions = sessions; // ✅ сохраняем
+      _sessions = sessions;
       columns = buildColumns(
         sessions: sessions,
         selectedColumnIndex: _selectedColumnIndex,
@@ -60,24 +60,21 @@ class JournalTableState extends State<JournalTable> {
           if (_selectedColumnIndex != null)
             ElevatedButton(
               onPressed: () async {
-                final dates = extractUniqueDateTypes(dataSource.sessions);
+                final dates = extractUniqueDateTypes(dataSource!.sessions);
                 final toRemove = dates[_selectedColumnIndex!];
-
-                final session = dataSource.sessions.firstWhere(
+                final session = dataSource?.sessions.firstWhere(
                       (s) => '${s.date} ${s.sessionType}' == toRemove,
                 );
-
                 final repository = JournalRepository();
-                final success = await repository.deleteSession(sessionId: session.sessionId);
+                final success = await repository.deleteSession(sessionId: session!.sessionId);
 
                 if (success) {
-                  final updatedSessions = List<Session>.from(dataSource.sessions)
+                  final updatedSessions = List<Session>.from(dataSource!.sessions)
                     ..removeWhere((s) => s.sessionId == session.sessionId);
 
                   setState(() {
                     _selectedColumnIndex = null;
                   });
-
                   updateDataSource(updatedSessions);
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -99,12 +96,12 @@ class JournalTableState extends State<JournalTable> {
                 style: TextStyle(color: Colors.white),
               ),
             ),
-          widget.isLoading
+          widget.isLoading || dataSource == null
               ? const Center(child: CircularProgressIndicator())
               : SfDataGrid(
                   gridLinesVisibility: GridLinesVisibility.none,
                   headerGridLinesVisibility: GridLinesVisibility.none,
-                  source: dataSource,
+                  source: dataSource!,
                   columns: columns,
                   headerRowHeight: 100,
                 ),
