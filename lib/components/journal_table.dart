@@ -56,7 +56,10 @@ class JournalTableState extends State<JournalTable> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Журнал')),
+      appBar: AppBar(
+        title: const Text('Журнал'),
+        automaticallyImplyLeading: false,
+      ),
       body: Column(
         children: [
           if (_selectedColumnIndex != null)
@@ -65,7 +68,7 @@ class JournalTableState extends State<JournalTable> {
                 final dates = extractUniqueDateTypes(dataSource!.sessions);
                 final toRemove = dates[_selectedColumnIndex!];
                 final session = dataSource?.sessions.firstWhere(
-                      (s) => '${s.date} ${s.sessionType}' == toRemove,
+                  (s) => '${s.date} ${s.sessionType}' == toRemove,
                 );
                 final repository = JournalRepository();
                 final success = await repository.deleteSession(sessionId: session!.sessionId);
