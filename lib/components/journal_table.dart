@@ -247,7 +247,10 @@ List<GridColumn> buildColumns({
       width: 50,
       allowSorting: true,
       label: Container(
-        color: Colors.grey.shade300,
+        decoration: BoxDecoration(
+          color: Colors.grey.shade300,
+          border: Border.all(color: Colors.grey.shade400),
+        ),
         alignment: Alignment.center,
         padding: const EdgeInsets.all(8),
         child: const Text('№'),
@@ -259,7 +262,10 @@ List<GridColumn> buildColumns({
       width: 200,
       allowSorting: true,
       label: Container(
-        color: Colors.grey.shade300,
+        decoration: BoxDecoration(
+          color: Colors.grey.shade300,
+          border: Border.all(color: Colors.grey.shade400),
+        ),
         alignment: Alignment.center,
         padding: const EdgeInsets.all(8),
         child: const Text('ФИО'),
