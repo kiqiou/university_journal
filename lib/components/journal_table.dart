@@ -8,8 +8,9 @@ import 'colors/colors.dart';
 
 class JournalTable extends StatefulWidget {
   final bool isLoading;
+  final List<Session> sessions;
 
-  const JournalTable({super.key, required this.isLoading});
+  const JournalTable({super.key, required this.isLoading, required this.sessions});
 
   @override
   State<JournalTable> createState() => JournalTableState();
@@ -24,6 +25,7 @@ class JournalTableState extends State<JournalTable> {
   @override
   void initState() {
     super.initState();
+    updateDataSource(widget.sessions);
   }
 
   void updateDataSource(List<Session> sessions) {

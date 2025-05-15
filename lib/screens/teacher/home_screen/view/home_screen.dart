@@ -30,7 +30,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
   String? _selectedEventType;
   bool isLoading = true;
   String selectedSessionsType = 'Все';
-  late List<Session> allSessions;
+  late List<Session> sessions;
 
   @override
   void initState() {
@@ -41,10 +41,10 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
   Future<void> loadSessions() async {
     log("Загрузка данных сессий...");
     final journalRepository = JournalRepository();
-    allSessions = await journalRepository.journalData();
+    sessions = await journalRepository.journalData();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      tableKey.currentState?.updateDataSource(allSessions);
+      tableKey.currentState?.updateDataSource(sessions);
     });
 
     setState(() {
@@ -59,8 +59,8 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     });
 
     final filtered = type == 'Все'
-        ? allSessions
-        : allSessions.where((s) => s.sessionType == type).toList();
+        ? sessions
+        : sessions.where((s) => s.sessionType == type).toList();
 
     tableKey.currentState?.updateDataSource(filtered);
   }
@@ -111,7 +111,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                 Expanded(
                   child: currentScreen == TeacherContentScreen.account
                       ? const AccountScreen()
-                      : JournalTable(key: tableKey, isLoading: isLoading),
+                      : JournalTable(key: tableKey, isLoading: isLoading, sessions: sessions,),
                 ),
               ],
             ),
@@ -161,7 +161,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                       courseId: 1,
                     );
                     final newSessions = await journalRepository.journalData();
-                    allSessions = newSessions;
+                    sessions = newSessions;
                     _filterBySessionType(selectedSessionsType);
                   }
                 }
