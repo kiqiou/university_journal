@@ -24,51 +24,6 @@ class _AccountScreenState extends State<AccountScreen> {
           ),
         ],
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            const SizedBox(height: 50),
-            const ListTile(
-              leading: Icon(Icons.person_outline),
-            ),
-            const Divider(),
-            ListTile(
-              leading: const Icon(Icons.book),
-              onTap: () {},
-            ),
-            ListTile(
-              leading: const Icon(Icons.list_alt),
-              onTap: () {},
-            ),
-            ListTile(
-              leading: const Icon(Icons.school),
-              onTap: () {},
-            ),
-            ListTile(
-              leading: const Icon(Icons.computer),
-              onTap: () {},
-            ),
-            ListTile(
-              leading: const Icon(Icons.article),
-              onTap: () {},
-            ),
-            ListTile(
-              leading: const Icon(Icons.menu_book),
-              onTap: () {},
-            ),
-            ListTile(
-              leading: const Icon(Icons.auto_stories),
-              onTap: () {},
-            ),
-            const Spacer(),
-            ListTile(
-              leading: const Icon(Icons.exit_to_app),
-              onTap: () {},
-            ),
-          ],
-        ),
-      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Row(

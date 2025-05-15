@@ -27,34 +27,6 @@ void initState() {
   super.initState();
 }
 
-  Future<List<Session>?> journalData() async {
-    final response = await http.post(
-      Uri.parse('http://127.0.0.1:8000/api/attendance/'),
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-        'Accept-Charset': 'utf-8',
-      },
-      body: jsonEncode({
-        "session": 1,
-        "student": 3,
-        "status": "п",
-        "grade": 8
-      }),
-    );
-    if (response.statusCode == 201) {
-      final String decodedResponse = utf8.decode(response.bodyBytes);
-      final data = jsonDecode(decodedResponse);
-      log('✅ Данные: $data');
-      final List<dynamic> dataList = jsonDecode(decodedResponse); // Парсим список
-
-      return dataList.map((json) => Session.fromJson(json)).toList(); // Преобразуе
-
-    } else {
-      log('❌ Ошибка: ${response.statusCode}, ${response.body}');
-      return null;
-    }
-  }
-
 @override
 Widget build(BuildContext context) {
   return Scaffold(
@@ -124,12 +96,6 @@ Widget build(BuildContext context) {
             child: Text('Войти'),
           ),
           SizedBox(height: 10,),
-          ElevatedButton(
-            onPressed: () {
-              journalData();
-            },
-            child: Text('Получить данные'),
-          ),
         ],
       ),
     ),

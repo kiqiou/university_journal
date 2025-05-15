@@ -10,7 +10,8 @@ import '../../../../components/journal_table.dart';
 
 class TeacherSideNavigationMenu extends StatefulWidget {
   final Function(String type) onSelectType;
-  const TeacherSideNavigationMenu({super.key, required this.onSelectType,});
+  final VoidCallback onProfileTap;
+  const TeacherSideNavigationMenu({super.key, required this.onSelectType, required this.onProfileTap,});
 
   @override
   State<TeacherSideNavigationMenu> createState() => _TeacherSideNavigationMenuState();
@@ -125,12 +126,7 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
                   ),
                   InkWell(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AccountScreen(),
-                        ),
-                      );
+                      widget.onProfileTap();
                     },
                     child: BlocBuilder<AuthenticationBloc, AuthenticationState>(
                       builder: (context, state) {

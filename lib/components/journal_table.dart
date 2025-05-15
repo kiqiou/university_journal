@@ -63,7 +63,6 @@ class JournalTableState extends State<JournalTable> {
                 final dates = extractUniqueDateTypes(dataSource.sessions);
                 final toRemove = dates[_selectedColumnIndex!];
 
-                // Найдём нужную сессию
                 final session = dataSource.sessions.firstWhere(
                       (s) => '${s.date} ${s.sessionType}' == toRemove,
                 );
@@ -72,16 +71,9 @@ class JournalTableState extends State<JournalTable> {
                 final success = await repository.deleteSession(sessionId: session.sessionId);
 
                 if (success) {
-                  // Удаляем только одно занятие
                   final updatedSessions = List<Session>.from(dataSource.sessions)
                     ..removeWhere((s) => s.sessionId == session.sessionId);
 
-                  // Проверяем: остались ли другие занятия с тем же dateType
-                  final hasOtherSameDateType = updatedSessions.any(
-                        (s) => '${s.date} ${s.sessionType}' == toRemove,
-                  );
-
-                  // Обновляем колонку и таблицу
                   setState(() {
                     _selectedColumnIndex = null;
                   });
@@ -287,7 +279,7 @@ List<GridColumn> buildColumns({
           child: Container(
             decoration: BoxDecoration(
               color: Colors.grey.shade300,
-              border: Border.all(color: selectedColumnIndex == index ? Colors.indigo : Colors.grey.shade400),
+              border: Border.all(color: selectedColumnIndex == index ? MyColors.blueJournal : Colors.grey.shade400),
             ),
             padding: const EdgeInsets.all(4),
             child: Column(
