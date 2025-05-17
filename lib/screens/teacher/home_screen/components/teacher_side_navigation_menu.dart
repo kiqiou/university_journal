@@ -7,6 +7,7 @@ import 'package:university_journal/components/icon_container.dart';
 import 'package:university_journal/screens/teacher/account_screen/account_screen.dart';
 
 import '../../../../components/journal_table.dart';
+import '../../../auth/view/sign_up_screen.dart';
 
 class TeacherSideNavigationMenu extends StatefulWidget {
   final Function(String type) onSelectType;
@@ -218,6 +219,12 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
                   onTap: () {
                     context.read<AuthenticationBloc>().add(AuthenticationLogoutRequested());
                     log('➡️ Состояние: ${context.read<AuthenticationBloc>().state}');
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder: (context) => WelcomeScreen(),
+                    //   ),
+                    // );
                   },
                   child: MyIconContainer(
                     borderRadius: 100,

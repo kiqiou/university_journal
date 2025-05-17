@@ -317,11 +317,22 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                     ),
-                                    onPressed: () {
-                                      setState(() {
-                                        showDeleteDialog = false;
-                                        selectedIndex = null;
-                                      });
+                                    onPressed: () async {
+                                      if (selectedIndex != null) {
+                                        final userId = teachers[selectedIndex!].id;
+                                        bool success = await journalRepository.deleteUser(userId: userId);
+
+                                        if (success) {
+                                          List<MyUser>? updatedList = await journalRepository.getTeacherList();
+                                          setState(() {
+                                            if (updatedList != null) {
+                                              teachers = updatedList;
+                                            }
+                                            showDeleteDialog = false;
+                                            selectedIndex = null;
+                                          });
+                                        }
+                                      }
                                     },
                                     child: const Text("Удалить", style: TextStyle(color: Colors.white)),
                                   ),

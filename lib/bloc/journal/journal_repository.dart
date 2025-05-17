@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:http/http.dart' as http;
 import 'package:university_journal/bloc/journal/journal.dart';
@@ -73,15 +74,42 @@ class JournalRepository {
 
       final data = jsonDecode(utf8.decode(response.bodyBytes));
       if (data != null && data is List) {
-        print('📌 Ответ сервера: $data');
+        log('📌 Ответ сервера: $data');
         return data.map((json) => MyUser.fromJson(json)).toList();
       } else {
-        print('❌ Ошибка: неожиданный формат ответа сервера');
+        log('❌ Ошибка: неожиданный формат ответа сервера');
         return null;
       }
     } catch (e) {
-      print('❌ Ошибка соединения: $e');
+      log('❌ Ошибка соединения: $e');
       return null;
+    }
+  }
+
+  Future<bool> deleteUser({
+    required int userId,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://127.0.0.1:8000/api/delete_user/'),
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept-Charset': 'utf-8',
+        },
+        body: jsonEncode({"user_id": userId}),
+      );
+      final data = jsonDecode(utf8.decode(response.bodyBytes));
+      if (data != null) {
+        log('📌 Ответ сервера: $data');
+        return true;
+      } else {
+        log('❌ Ошибка: неожиданный формат ответа сервера');
+        return false;
+      }
+    }
+    catch(e){
+      log('❌ Ошибка соединения: $e');
+      return false;
     }
   }
 }

@@ -13,10 +13,10 @@ class Admin1SideNavigationMenu extends StatefulWidget {
 
 class _Admin1SideNavigationMenu extends State<Admin1SideNavigationMenu> {
   final List<IconData> _icons = [
-    Icons.book,
+    Icons.groups_outlined,
     Icons.library_books,
-    Icons.folder_shared,
-    Icons.computer,
+    Icons.add_circle_outline,
+    Icons.add_circle_outline,
   ];
 
   final List<String> _texts = [
