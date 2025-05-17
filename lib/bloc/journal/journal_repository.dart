@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:university_journal/bloc/journal/journal.dart';
 
+import '../user/user.dart';
+
 class JournalRepository {
   Future<List<Session>> journalData() async {
     final response = await http.post(
@@ -11,7 +13,7 @@ class JournalRepository {
         'Content-Type': 'application/json; charset=utf-8',
         'Accept-Charset': 'utf-8',
       },
-      body: jsonEncode({"session": 1, "student": 3, "status": "п", "grade": 8}),
+      body: jsonEncode({}),
     );
     if (response.statusCode == 201) {
       final String decodedResponse = utf8.decode(response.bodyBytes);
@@ -48,6 +50,31 @@ class JournalRepository {
       if (data != null && data.containsKey("course")) {
         print('📌 Ответ сервера: $data');
         return Session.fromJson(data);
+      } else {
+        print('❌ Ошибка: неожиданный формат ответа сервера');
+        return null;
+      }
+    } catch (e) {
+      print('❌ Ошибка соединения: $e');
+      return null;
+    }
+  }
+
+  Future<List<MyUser>?> getTeacherList () async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://127.0.0.1:8000/api/get_teacher_list/'),
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept-Charset': 'utf-8',
+        },
+        body: jsonEncode({}),
+      );
+
+      final data = jsonDecode(utf8.decode(response.bodyBytes));
+      if (data != null && data is List) {
+        print('📌 Ответ сервера: $data');
+        return data.map((json) => MyUser.fromJson(json)).toList();
       } else {
         print('❌ Ошибка: неожиданный формат ответа сервера');
         return null;

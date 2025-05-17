@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:university_journal/bloc/journal/journal_repository.dart';
 import 'package:university_journal/screens/admin_1/home_sreen/components/admin_1_side_navigation_menu.dart';
+
+import '../../../../bloc/user/user.dart';
 
 class Admin1HomeScreen extends StatefulWidget {
   const Admin1HomeScreen({super.key});
@@ -9,11 +12,34 @@ class Admin1HomeScreen extends StatefulWidget {
 }
 
 class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
+  final journalRepository = JournalRepository();
+  List<MyUser> teachers = [];
   int? selectedIndex;
+  bool isLoading = true;
   bool showDeleteDialog = false;
   bool showEditDialog = false;
 
-  final List<String> teachers = List.generate(10, (i) => 'Иванов Иван Иванович');
+
+  @override
+  void initState() {
+    super.initState();
+    loadTeachers();
+  }
+
+  Future<void> loadTeachers() async {
+    try {
+      final list = await journalRepository.getTeacherList();
+      setState(() {
+        teachers = list!;
+        isLoading = false;
+      });
+    } catch (e) {
+      print("Ошибка при загрузке преподавателей: $e");
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -187,7 +213,7 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
                                           alignment: Alignment.centerLeft,
                                           padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                           child: Text(
-                                            teachers[index],
+                                            teachers[index].username,
                                             style: const TextStyle(
                                               fontSize: 16,
                                               color: Colors.black87,
@@ -272,7 +298,7 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
                                 ),
                                 const SizedBox(height: 24),
                                 Text(
-                                  teachers[selectedIndex!],
+                                  teachers[selectedIndex!].username,
                                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                                 ),
                                 const SizedBox(height: 16),
