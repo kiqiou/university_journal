@@ -1,19 +1,21 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/bloc/auth/authentication_bloc.dart';
 import 'package:university_journal/components/icon_container.dart';
 import 'package:university_journal/screens/auth/view/sign_up_screen.dart';
+import 'package:university_journal/components/add_teacher.dart';
+
+import 'add_teacher.dart';
 
 class Admin1SideNavigationMenu extends StatefulWidget {
   const Admin1SideNavigationMenu({super.key});
 
   @override
-  State<Admin1SideNavigationMenu> createState() => _Admin1SideNavigationMenu();
+  State<Admin1SideNavigationMenu> createState() => _Admin1SideNavigationMenuState();
 }
 
-class _Admin1SideNavigationMenu extends State<Admin1SideNavigationMenu> {
+class _Admin1SideNavigationMenuState extends State<Admin1SideNavigationMenu> {
   final List<IconData> _icons = [
     Icons.groups_outlined,
     Icons.library_books,
@@ -35,6 +37,19 @@ class _Admin1SideNavigationMenu extends State<Admin1SideNavigationMenu> {
 
   @override
   Widget build(BuildContext context) {
+    // ВАЖНО: функции должны быть внутри build, чтобы был доступ к context
+    final List<VoidCallback> _functions = [
+          () => print('бля бя'),
+          () => print('функция 2'),
+          () {
+        showDialog(
+          context: context,
+          builder: (context) => const AddTeacherDialog(),
+        );
+      },
+          () => print('функция 4'),
+    ];
+
     return GestureDetector(
       onTap: () {
         if (_isExpanded) {
@@ -59,7 +74,7 @@ class _Admin1SideNavigationMenu extends State<Admin1SideNavigationMenu> {
                 'МИТСО\nМеждународный\nУниверситет',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               )
-                  : SizedBox(
+                  : const SizedBox(
                 height: 24,
                 width: 24,
               ),
@@ -82,26 +97,20 @@ class _Admin1SideNavigationMenu extends State<Admin1SideNavigationMenu> {
                         ),
                       ),
                     ),
-                  SizedBox(
-                    height: 5,
-                  ),
+                  const SizedBox(height: 5),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10.0),
                     child: _isExpanded
-                        ? Align(
+                        ? const Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
                         'Панель навигации',
                         style: TextStyle(color: Colors.grey, fontSize: 16),
                       ),
                     )
-                        : Divider(
-                      height: 1,
-                    ),
+                        : const Divider(height: 1),
                   ),
-                  SizedBox(
-                    height: 5,
-                  ),
+                  const SizedBox(height: 5),
                   Expanded(
                     child: ListView.builder(
                       itemCount: _icons.length,
@@ -110,8 +119,7 @@ class _Admin1SideNavigationMenu extends State<Admin1SideNavigationMenu> {
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
                             child: InkWell(
-                              onTap: () {
-                              },
+                              onTap: _functions[index],
                               child: MyIconContainer(
                                 icon: _icons[index],
                                 width: (_isExpanded ? 250 : 50),
@@ -139,12 +147,6 @@ class _Admin1SideNavigationMenu extends State<Admin1SideNavigationMenu> {
                   onTap: () {
                     context.read<AuthenticationBloc>().add(AuthenticationLogoutRequested());
                     log('➡️ Состояние: ${context.read<AuthenticationBloc>().state}');
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     builder: (context) => WelcomeScreen(),
-                    //   ),
-                    // );
                   },
                   child: MyIconContainer(
                     borderRadius: 100,
