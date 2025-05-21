@@ -15,7 +15,7 @@ class MyUser extends Equatable {
     final data = json.containsKey('user') ? json['user'] : json;
     return MyUser(
       username: data['username'] ?? '',
-      role: data['role']?['role'] ?? '',
+      role: data['role'] ?? '',
     );
   }
 
