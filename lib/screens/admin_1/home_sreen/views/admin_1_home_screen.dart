@@ -19,7 +19,6 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
   bool showDeleteDialog = false;
   bool showEditDialog = false;
 
-
   @override
   void initState() {
     super.initState();
@@ -54,7 +53,11 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
     return Scaffold(
       body: Row(
         children: [
-          Admin1SideNavigationMenu(),
+          Admin1SideNavigationMenu(
+            onTeacherAdded: () async {
+              await loadTeachers();
+            },
+          ),
           Expanded(
             child: Stack(
               children: [
@@ -130,7 +133,8 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
                                     ),
                                     elevation: 0,
                                   ),
-                                  child: const Text('Привязка дисциплины и группы', style: TextStyle(color: Colors.white)),
+                                  child:
+                                      const Text('Привязка дисциплины и группы', style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                             ],

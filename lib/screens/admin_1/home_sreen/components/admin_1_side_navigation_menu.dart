@@ -3,13 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/bloc/auth/authentication_bloc.dart';
 import 'package:university_journal/components/icon_container.dart';
-import 'package:university_journal/screens/auth/view/sign_up_screen.dart';
-import 'package:university_journal/components/add_teacher.dart';
 
 import 'add_teacher.dart';
 
 class Admin1SideNavigationMenu extends StatefulWidget {
-  const Admin1SideNavigationMenu({super.key});
+  final Future<void> Function() onTeacherAdded;
+  const Admin1SideNavigationMenu({super.key, required this.onTeacherAdded});
 
   @override
   State<Admin1SideNavigationMenu> createState() => _Admin1SideNavigationMenuState();
@@ -44,7 +43,7 @@ class _Admin1SideNavigationMenuState extends State<Admin1SideNavigationMenu> {
           () {
         showDialog(
           context: context,
-          builder: (context) => const AddTeacherDialog(),
+          builder: (context) => AddTeacherDialog(onTeacherAdded: widget.onTeacherAdded),
         );
       },
           () => print('функция 4'),

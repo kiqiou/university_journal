@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 
+import 'package:university_journal/bloc/user/authentication_user.dart';
+
 class AddTeacherDialog extends StatefulWidget {
-  const AddTeacherDialog({Key? key}) : super(key: key);
+  final VoidCallback onTeacherAdded;
+  const AddTeacherDialog({super.key, required this.onTeacherAdded});
 
   @override
   State<AddTeacherDialog> createState() => _AddTeacherDialogState();
@@ -71,9 +74,19 @@ class _AddTeacherDialogState extends State<AddTeacherDialog> {
                           child: Row(
                             children: [
                               ElevatedButton(
-                                onPressed: () {
+                                onPressed: () async {
                                   if (_formKey.currentState!.validate()) {
                                     _formKey.currentState!.save();
+                                    final authRepository = AuthRepository();
+
+                                    await authRepository.signUp(
+                                        username: fio ?? '',
+                                        password: '123456',
+                                        roleId: 1,
+                                        position: position ?? '',
+                                        bio: bio ?? '',
+                                      );
+                                    widget.onTeacherAdded();
                                     Navigator.of(context).pop();
                                   }
                                 },
