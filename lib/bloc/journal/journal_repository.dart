@@ -14,7 +14,7 @@ class JournalRepository {
         'Content-Type': 'application/json; charset=utf-8',
         'Accept-Charset': 'utf-8',
       },
-      body: jsonEncode({}),
+      body: jsonEncode({"session": 1, "student": 3, "status": "п", "grade": 8}),
     );
     if (response.statusCode == 201) {
       final String decodedResponse = utf8.decode(response.bodyBytes);
