@@ -19,6 +19,10 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
   bool showDeleteDialog = false;
   bool showEditDialog = false;
 
+  final usernameController = TextEditingController();
+  final positionController = TextEditingController();
+  final bioController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -403,10 +407,21 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
                                                   elevation: 0,
                                                   padding: const EdgeInsets.symmetric(horizontal: 24),
                                                 ),
-                                                onPressed: () {
-                                                  setState(() {
-                                                    showEditDialog = false;
-                                                  });
+                                                onPressed: () async {
+                                                  final success = await journalRepository.updateTeacher(
+                                                    userId: teachers[selectedIndex!].id,
+                                                    username: usernameController.text,
+                                                    position: positionController.text,
+                                                    bio: bioController.text,
+                                                  );
+
+                                                  if (success) {
+                                                    final updatedList = await journalRepository.getTeacherList();
+                                                    setState(() {
+                                                      teachers = updatedList!;
+                                                      showEditDialog = false;
+                                                    });
+                                                  }
                                                 },
                                                 child: const Text('Сохранить', style: TextStyle(color: Colors.white)),
                                               ),
@@ -474,6 +489,7 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
                                                   SizedBox(
                                                     height: constraints.maxHeight * 0.07,
                                                     child: TextField(
+                                                      controller: usernameController,
                                                       decoration: const InputDecoration(
                                                         labelText: "ФИО преподавателя*",
                                                         hintText: "Введите ФИО преподавателя",
@@ -485,6 +501,7 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
                                                   SizedBox(
                                                     height: constraints.maxHeight * 0.07,
                                                     child: TextField(
+                                                      controller: positionController,
                                                       decoration: const InputDecoration(
                                                         labelText: "Должность",
                                                         hintText: "Введите должность",
@@ -496,6 +513,7 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
                                                   SizedBox(
                                                     height: constraints.maxHeight * 0.11,
                                                     child: TextField(
+                                                      controller: bioController,
                                                       maxLines: 2,
                                                       decoration: const InputDecoration(
                                                         labelText: "Краткая биография",

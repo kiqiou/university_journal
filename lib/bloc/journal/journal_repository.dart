@@ -61,7 +61,7 @@ class JournalRepository {
     }
   }
 
-  Future<List<MyUser>?> getTeacherList () async {
+  Future<List<MyUser>?> getTeacherList() async {
     try {
       final response = await http.post(
         Uri.parse('http://127.0.0.1:8000/api/get_teacher_list/'),
@@ -86,6 +86,36 @@ class JournalRepository {
     }
   }
 
+  Future<bool> updateTeacher({
+    required int userId,
+    required String username,
+    required String position,
+    required String bio,
+  }) async {
+    try {
+      final response = await http.put(
+        Uri.parse('http://127.0.0.1:8000/api/update_teacher/$userId/'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'username': username,
+          'position': position,
+          'bio': bio,
+        }),
+      );
+      log('🔍 Отправка обновления для userId: $userId');
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        log('❌ Ошибка обновления преподавателя: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      log('❌ Ошибка соединения: $e');
+      return false;
+    }
+  }
+
+
   Future<bool> deleteUser({
     required int userId,
   }) async {
@@ -106,10 +136,10 @@ class JournalRepository {
         log('❌ Ошибка: неожиданный формат ответа сервера');
         return false;
       }
-    }
-    catch(e){
+    } catch (e) {
       log('❌ Ошибка соединения: $e');
       return false;
     }
   }
 }
+
