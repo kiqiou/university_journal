@@ -31,7 +31,14 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
     });
 
     on<AuthenticationRegisterRequested>((event, emit) async {
-      final user = await authRepository.signUp(event.username, event.password, event.roleId);
+      final user = await authRepository.signUp(
+        username: event.username,
+        password: event.password,
+        roleId: event.roleId,
+        groupId: event.groupId,
+        position: event.position,
+        bio: event.bio,
+      );
       if (user != null) {
         emit(AuthenticationState.authenticated(user));
       } else {
@@ -65,11 +72,17 @@ class AuthenticationRegisterRequested extends AuthenticationEvent {
   final String username;
   final String password;
   final int roleId;
+  final int? groupId;
+  final String? position;
+  final String? bio;
 
   const AuthenticationRegisterRequested({
     required this.username,
     required this.password,
     required this.roleId,
+    this.groupId,
+    this.position,
+    this.bio,
   });
 
   @override

@@ -3,23 +3,40 @@ import 'package:http/http.dart' as http;
 import 'package:university_journal/bloc/user/user.dart';
 
 class AuthRepository {
-  Future<MyUser?> signUp(String username, String password, int roleId) async {
+  Future<MyUser?> signUp({
+    required String username,
+    required String password,
+    required int roleId,
+    int? groupId,
+    String? position,
+    String? bio,
+  }) async {
     try {
+      final Map<String, dynamic> requestBody = {
+        'username': username,
+        'password': password,
+        'role_id': roleId,
+      };
+
+      if (roleId == 1) {
+        requestBody['position'] = position;
+        requestBody['bio'] = bio;
+      } else if (roleId == 2) {
+        requestBody['group_id'] = groupId;
+      }
+
       final response = await http.post(
         Uri.parse('http://127.0.0.1:8000/auth/api/register/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
         },
-        body: jsonEncode({
-          'username': username,
-          'password': password,
-          'role_id': roleId,
-        }),
+        body: jsonEncode(requestBody),
       );
 
       if (response.statusCode == 201) {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
+        print('📦 Ответ сервера: $data');
         if (data['username'] != null && data['role'] != null) {
           print('✅ Username: ${data['username']}');
           return MyUser.fromJson(data);
@@ -27,10 +44,11 @@ class AuthRepository {
           print('❌ Неверный формат данных: $data');
           return null;
         }
+      } else {
+        print('❌ Ошибка регистрации: ${response.body}');
       }
     } catch (e) {
       print('❌ Ошибка соединения: $e');
-      return null;
     }
     return null;
   }

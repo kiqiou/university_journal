@@ -16,7 +16,7 @@ class MyUser extends Equatable {
     return MyUser(
       id: data['id'] ?? '',
       username: data['username'] ?? '',
-      role: data['role']?['role'] ?? '',
+      role: data['role']['role'] ?? '',
     );
   }
 
