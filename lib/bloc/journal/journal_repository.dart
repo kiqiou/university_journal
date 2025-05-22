@@ -61,6 +61,33 @@ class JournalRepository {
     }
   }
 
+  Future<bool> deleteSession({
+    required int sessionId,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://127.0.0.1:8000/api/delete_session/'),
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept-Charset': 'utf-8',
+        },
+        body: jsonEncode({"session_id": sessionId}),
+      );
+      final data = jsonDecode(utf8.decode(response.bodyBytes));
+      if (data != null) {
+        log('📌 Ответ сервера: $data');
+        return true;
+      } else {
+        log('❌ Ошибка: неожиданный формат ответа сервера');
+        return false;
+      }
+    }
+    catch(e){
+      log('❌ Ошибка соединения: $e');
+      return false;
+    }
+  }
+
   Future<List<MyUser>?> getTeacherList() async {
     try {
       final response = await http.post(
@@ -114,7 +141,6 @@ class JournalRepository {
       return false;
     }
   }
-
 
   Future<bool> deleteUser({
     required int userId,

@@ -1,14 +1,8 @@
-import 'dart:convert';
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:http/http.dart' as http;
 import 'package:university_journal/bloc/auth/authentication_bloc.dart';
-import 'package:university_journal/bloc/journal/journal_repository.dart';
 import 'package:university_journal/screens/auth/view/sign_in_screen.dart';
 
-import '../../../bloc/journal/journal.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key,});
@@ -27,8 +21,6 @@ class WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateMi
 void initState() {
   super.initState();
 }
-
-final journalRepository = JournalRepository();
 
 @override
 Widget build(BuildContext context) {
@@ -99,12 +91,6 @@ Widget build(BuildContext context) {
             child: Text('Войти'),
           ),
           SizedBox(height: 10,),
-          ElevatedButton(
-            onPressed: () {
-              journalRepository.getTeacherList();
-            },
-            child: Text('Получить данные'),
-          ),
         ],
       ),
     ),

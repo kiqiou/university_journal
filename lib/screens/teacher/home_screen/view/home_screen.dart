@@ -7,7 +7,13 @@ import 'package:university_journal/screens/teacher/home_screen/components/teache
 import '../../../../bloc/journal/journal.dart';
 import '../../../../components/colors/colors.dart';
 import '../../../../components/journal_table.dart';
+import '../../account_screen/account_screen.dart';
 import '../components/add_classes_dialog.dart';
+
+enum TeacherContentScreen {
+  journal,
+  account,
+}
 
 class TeacherHomeScreen extends StatefulWidget {
   const TeacherHomeScreen({super.key});
@@ -18,12 +24,13 @@ class TeacherHomeScreen extends StatefulWidget {
 
 class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
   final GlobalKey<JournalTableState> tableKey = GlobalKey<JournalTableState>();
+  TeacherContentScreen currentScreen = TeacherContentScreen.journal;
 
   DateTime? _selectedDate;
   String? _selectedEventType;
   bool isLoading = true;
   String selectedSessionsType = 'Все';
-  late List<Session> allSessions;
+  late List<Session> sessions;
 
   @override
   void initState() {
@@ -34,10 +41,10 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
   Future<void> loadSessions() async {
     log("Загрузка данных сессий...");
     final journalRepository = JournalRepository();
-    allSessions = await journalRepository.journalData();
+    sessions = await journalRepository.journalData();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      tableKey.currentState?.updateDataSource(allSessions);
+      tableKey.currentState?.updateDataSource(sessions);
     });
 
     setState(() {
@@ -46,13 +53,21 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
   }
 
   void _filterBySessionType(String type) {
-    final filtered = type == 'Все'
-        ? allSessions
-        : allSessions.where((s) => s.sessionType == type).toList();
-    tableKey.currentState?.updateDataSource(filtered);
-
     setState(() {
       selectedSessionsType = type;
+      currentScreen = TeacherContentScreen.journal;
+    });
+
+    final filtered = type == 'Все'
+        ? sessions
+        : sessions.where((s) => s.sessionType == type).toList();
+
+    tableKey.currentState?.updateDataSource(filtered);
+  }
+
+  void _showAccountScreen() {
+    setState(() {
+      currentScreen = TeacherContentScreen.account;
     });
   }
 
@@ -61,7 +76,10 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     return Scaffold(
       body: Row(
         children: [
-          TeacherSideNavigationMenu(onSelectType: _filterBySessionType,),
+          TeacherSideNavigationMenu(
+            onSelectType: _filterBySessionType,
+            onProfileTap: _showAccountScreen,
+          ),
           SizedBox(width: 30),
           Expanded(
             child: Column(
@@ -91,7 +109,9 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                   ),
                 ),
                 Expanded(
-                  child: JournalTable(key: tableKey, isLoading: isLoading),
+                  child: currentScreen == TeacherContentScreen.account
+                      ? const AccountScreen()
+                      : JournalTable(key: tableKey, isLoading: isLoading, sessions: sessions,),
                 ),
               ],
             ),
@@ -102,18 +122,11 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
   }
 
   void _showAddEventDialog(BuildContext context) async {
-
     await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
-        final screenWidth = MediaQuery
-            .of(context)
-            .size
-            .width;
-        final screenHeight = MediaQuery
-            .of(context)
-            .size
-            .height;
+        final screenWidth = MediaQuery.of(context).size.width;
+        final screenHeight = MediaQuery.of(context).size.height;
         return Dialog(
           insetPadding: EdgeInsets.only(
             left: screenWidth * 0.7,
@@ -147,9 +160,8 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                       date: formattedDate,
                       courseId: 1,
                     );
-
                     final newSessions = await journalRepository.journalData();
-                    allSessions = newSessions;
+                    sessions = newSessions;
                     _filterBySessionType(selectedSessionsType);
                   }
                 }
