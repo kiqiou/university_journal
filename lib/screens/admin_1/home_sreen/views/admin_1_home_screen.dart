@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:university_journal/bloc/journal/journal_repository.dart';
 import 'package:university_journal/screens/admin_1/home_sreen/components/admin_1_side_navigation_menu.dart';
-
 import '../../../../bloc/user/user.dart';
 
 class Admin1HomeScreen extends StatefulWidget {

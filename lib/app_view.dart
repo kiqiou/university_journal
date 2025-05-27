@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/bloc/auth/authentication_bloc.dart';
 import 'package:university_journal/screens/admin_1/home_sreen/views/admin_1_home_screen.dart';
-import 'package:university_journal/screens/admin_2/home_screen/admin_2_home_screen.dart';
+import 'package:university_journal/screens/admin_2/home_screen/views/admin_2_home_screen.dart';
 import 'package:university_journal/screens/auth/view/sign_up_screen.dart';
 import 'package:university_journal/screens/dekan/home_screen/dekan_home_screen.dart';
 import 'package:university_journal/screens/student/home_screen/student_home_screen.dart';
