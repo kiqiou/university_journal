@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:collection/collection.dart';
 
@@ -125,12 +126,25 @@ class JournalDataSource extends DataGridSource {
   final List<Session> sessions;
   final void Function(int columnIndex)? onCellTap;
 
-  JournalDataSource(
-    this.columns,
-    this._sessionData,
-    this.sessions, {
-    this.onCellTap,
-  })  : _dates = extractUniqueDateTypes(sessions).toList(),
+  final Map<String, TextEditingController> _controllers = {};
+
+  TextEditingController _getController(String key, String initialText) {
+    if (!_controllers.containsKey(key)) {
+      _controllers[key] = TextEditingController(text: initialText);
+    } else {
+      if (!_controllers[key]!.value.selection.isValid) {
+        _controllers[key]!.text = initialText;
+      }
+    }
+    return _controllers[key]!;
+  }
+
+  JournalDataSource(this.columns,
+      this._sessionData,
+      this.sessions, {
+        this.onCellTap,
+      })
+      : _dates = extractUniqueDateTypes(sessions).toList(),
         _rows = _buildRows(_sessionData, extractUniqueDateTypes(sessions).toList());
 
   void removeColumn(String dateType) {
@@ -141,19 +155,26 @@ class JournalDataSource extends DataGridSource {
     notifyListeners();
   }
 
-  static List<DataGridRow> _buildRows(
-    Map<String, Map<String, Session>> data,
-    List<String> dates,
-  ) {
+  static List<DataGridRow> _buildRows(Map<String, Map<String, Session>> data,
+      List<String> dates,) {
     return data.entries.mapIndexed((index, entry) {
       final name = entry.key;
       final sessionsByDate = entry.value;
 
-      return DataGridRow(cells: [
-        DataGridCell<int>(columnName: '№', value: index + 1),
-        DataGridCell<String>(columnName: 'ФИО', value: name),
-        for (final date in dates) DataGridCell<String>(columnName: date, value: sessionsByDate[date]?.status ?? ''),
-      ]);
+      return DataGridRow(
+        cells: [
+          DataGridCell<int>(columnName: '№', value: index + 1),
+          DataGridCell<String>(columnName: 'ФИО', value: name),
+          for (final date in dates)
+            DataGridCell<Object>(
+              columnName: date,
+              value: {
+                'status': sessionsByDate[date]?.status ?? '',
+                'grade': sessionsByDate[date]?.grade ?? '',
+              },
+            ),
+        ],
+      );
     }).toList();
   }
 
@@ -166,152 +187,226 @@ class JournalDataSource extends DataGridSource {
       cells: row.getCells().asMap().entries.map((entry) {
         final columnIndex = entry.key;
         final cell = entry.value;
-        final isEditable = columnIndex > 1;
+
+        if (columnIndex == 0 || columnIndex == 1) {
+          // № и ФИО
+          return Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey.shade400),
+            ),
+            child: Text(cell.value.toString(), textAlign: TextAlign.center),
+          );
+        }
+
+        final value = cell.value as Map<String, String>;
+        final status = value['status'] ?? '';
+        final grade = value['grade'] ?? '';
+
+        final rowIndex = _rows.indexOf(row);
+        final studentName = _rows[rowIndex].getCells()[1].value;
+        final date = cell.columnName;
+
+        final statusKey = '$studentName|$date|status';
+        final gradeKey = '$studentName|$date|grade';
+
+        final statusController = _getController(statusKey, status);
+        final gradeController = _getController(gradeKey, grade);
 
         return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
           decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.shade400, width: 1),
+            border: Border.all(color: Colors.grey.shade400),
           ),
-          alignment: Alignment.center,
-          padding: const EdgeInsets.all(8),
-          child: isEditable
-              ? TextField(
-                  controller: TextEditingController(text: cell.value.toString()),
-                  textAlign: TextAlign.center,
-                  decoration: const InputDecoration(
-                    isDense: true,
-                    border: InputBorder.none,
+          child: IntrinsicHeight(  // чтобы дочерние виджеты растянулись по высоте
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: statusController,
+                    textAlign: TextAlign.center,
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                    ),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[нН]')),
+                      LengthLimitingTextInputFormatter(1),
+                    ],
+                    onChanged: (newStatus) {
+                      _sessionData[studentName]?[date]?.status = newStatus;
+
+                      _rows[rowIndex].getCells()[columnIndex] = DataGridCell<Map<String, String>>(
+                        columnName: date,
+                        value: {
+                          'status': newStatus,
+                          'grade': gradeController.text,
+                        },
+                      );
+
+                      notifyListeners();
+                    },
                   ),
-                  onChanged: (value) {
-                    final rowIndex = _rows.indexOf(row);
-                    final studentName = _rows[rowIndex].getCells()[1].value;
-                    final date = _dates[columnIndex - 2]; // учесть № и ФИО
+                ),
+                Container(
+                  width: 1,
+                  color: Colors.grey.shade400,
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                ),
+                Expanded(
+                  child: TextField(
+                    controller: gradeController,
+                    textAlign: TextAlign.center,
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                    ),
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(2),
+                      FilteringTextInputFormatter.digitsOnly,
+                    ],
+                    onChanged: (newGrade) {
+                      _sessionData[studentName]?[date]?.grade = newGrade;
 
-                    _sessionData[studentName]?[date]?.status = value;
-
-                    _rows[rowIndex].getCells()[columnIndex] = DataGridCell<String>(columnName: date, value: value);
-
-                    notifyListeners();
-                  },
-                )
-              : Text(cell.value.toString(), textAlign: TextAlign.center),
+                      _rows[rowIndex].getCells()[columnIndex] = DataGridCell<Map<String, String>>(
+                        columnName: date,
+                        value: {
+                          'status': statusController.text,
+                          'grade': newGrade,
+                        },
+                      );
+                      notifyListeners();
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
         );
       }).toList(),
     );
   }
 }
 
-List<String> extractUniqueDateTypes(List<Session> sessions) {
-  final Set<String> dateTypes = {};
 
-  for (var session in sessions) {
-    dateTypes.add('${session.date} ${session.sessionType}');
-  }
-  final sorted = dateTypes.toList()..sort((a, b) => a.compareTo(b));
+  List<String> extractUniqueDateTypes(List<Session> sessions) {
+    final Set<String> dateTypes = {};
 
-  return sorted;
-}
+    for (var session in sessions) {
+      dateTypes.add('${session.date} ${session.sessionType}');
+    }
+    final sorted = dateTypes.toList()
+      ..sort((a, b) => a.compareTo(b));
 
-Map<String, Map<String, Session>> groupSessionsByStudent(List<Session> sessions) {
-  final Map<String, Map<String, Session>> result = {};
-
-  for (var session in sessions) {
-    final studentName = session.student.username;
-    final dateTypeKey = '${session.date} ${session.sessionType}';
-
-    result.putIfAbsent(studentName, () => {});
-    result[studentName]![dateTypeKey] = session;
+    return sorted;
   }
 
-  return result;
-}
+  Map<String, Map<String, Session>> groupSessionsByStudent(List<Session> sessions) {
+    final Map<String, Map<String, Session>> result = {};
 
-List<GridColumn> buildColumns({
-  required List<Session> sessions,
-  required int? selectedColumnIndex,
-  required void Function(int index) onHeaderTap,
-}) {
-  final dateTypeColumns = extractUniqueDateTypes(sessions);
+    for (var session in sessions) {
+      final studentName = session.student.username;
+      final dateTypeKey = '${session.date} ${session.sessionType}';
 
-  const sessionTypeShortNames = {
-    'Лекция': 'Лек',
-    'Практика': 'Практ',
-    'Семинар': 'Сем',
-    'Лабораторная': 'Лаб',
-  };
+      result.putIfAbsent(studentName, () => {});
+      result[studentName]![dateTypeKey] = session;
+    }
 
-  final columns = <GridColumn>[
-    // №
-    GridColumn(
-      columnName: '№',
-      width: 50,
-      allowSorting: true,
-      label: Container(
-        decoration: BoxDecoration(
-          color: Colors.grey.shade300,
-          border: Border.all(color: Colors.grey.shade400),
-        ),
-        alignment: Alignment.center,
-        padding: const EdgeInsets.all(8),
-        child: const Text('№'),
-      ),
-    ),
-    // ФИО
-    GridColumn(
-      columnName: 'ФИО',
-      width: 200,
-      allowSorting: true,
-      label: Container(
-        decoration: BoxDecoration(
-          color: Colors.grey.shade300,
-          border: Border.all(color: Colors.grey.shade400),
-        ),
-        alignment: Alignment.center,
-        padding: const EdgeInsets.all(8),
-        child: const Text('ФИО'),
-      ),
-    ),
-  ];
+    return result;
+  }
 
-  for (var entry in dateTypeColumns.asMap().entries) {
-    final index = entry.key;
-    final dateType = entry.value;
+  List<GridColumn> buildColumns({
+    required List<Session> sessions,
+    required int? selectedColumnIndex,
+    required void Function(int index) onHeaderTap,
+  }) {
+    final dateTypeColumns = extractUniqueDateTypes(sessions);
 
-    columns.add(
+    const sessionTypeShortNames = {
+      'Лекция': 'Лек',
+      'Практика': 'Практ',
+      'Семинар': 'Сем',
+      'Лабораторная': 'Лаб',
+    };
+
+    final columns = <GridColumn>[
+      // №
       GridColumn(
-        columnName: dateType,
-        width: 60,
+        columnName: '№',
+        width: 50,
         allowSorting: true,
-        label: GestureDetector(
-          onTap: () => onHeaderTap(index),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.grey.shade300,
-              border: Border.all(color: selectedColumnIndex == index ? MyColors.blueJournal : Colors.grey.shade400),
-            ),
-            padding: const EdgeInsets.all(4),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                RotatedBox(
-                  quarterTurns: 3,
-                  child: Text(
-                    dateType.split(' ').first,
-                    textAlign: TextAlign.center,
+        label: Container(
+          decoration: BoxDecoration(
+            color: Colors.grey.shade300,
+            border: Border.all(color: Colors.grey.shade400),
+          ),
+          alignment: Alignment.center,
+          padding: const EdgeInsets.all(8),
+          child: const Text('№'),
+        ),
+      ),
+      // ФИО
+      GridColumn(
+        columnName: 'ФИО',
+        width: 200,
+        allowSorting: true,
+        label: Container(
+          decoration: BoxDecoration(
+            color: Colors.grey.shade300,
+            border: Border.all(color: Colors.grey.shade400),
+          ),
+          alignment: Alignment.center,
+          padding: const EdgeInsets.all(8),
+          child: const Text('ФИО'),
+        ),
+      ),
+    ];
+
+    for (var entry in dateTypeColumns
+        .asMap()
+        .entries) {
+      final index = entry.key;
+      final dateType = entry.value;
+
+      columns.add(
+        GridColumn(
+          columnName: dateType,
+          width: 80,
+          allowSorting: true,
+          label: GestureDetector(
+            onTap: () => onHeaderTap(index),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                border: Border.all(
+                  color: selectedColumnIndex == index ? MyColors.blueJournal : Colors.grey.shade400,
+                ),
+              ),
+              padding: const EdgeInsets.all(4),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  RotatedBox(
+                    quarterTurns: 3,
+                    child: Text(
+                      dateType.split(' ').first,
+                      textAlign: TextAlign.center,
+                    ),
                   ),
-                ),
-                Divider(height: 2, color: Colors.grey.shade400),
-                Text(
-                  sessionTypeShortNames[dateType.split(' ').last] ?? dateType.split(' ').last,
-                  style: const TextStyle(fontSize: 12),
-                ),
-              ],
+                  Divider(height: 2, color: Colors.grey.shade400),
+                  Text(
+                    sessionTypeShortNames[dateType.split(' ').last] ?? dateType.split(' ').last,
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
-    );
+      );
+    }
+
+    return columns;
   }
 
-  return columns;
-}

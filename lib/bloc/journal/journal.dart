@@ -8,7 +8,7 @@ class Session {
   final String sessionType;
   final MyUser student;
   String? status;
-  final int? grade;
+  String? grade;
 
   Session({required this.courseId, required this.date, required this.sessionType, required this.grade,
     required this.student, required this.status, this.courseName, required this.sessionId,});
@@ -31,7 +31,7 @@ class Session {
         id: studentJson['id'] ?? 0,
       ),
       status: json['status'],
-      grade: json['grade'],
+      grade: json['grade']?.toString(),
     );
   }
 }
