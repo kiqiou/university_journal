@@ -32,6 +32,27 @@ class JournalRepository {
     }
   }
 
+  Future<bool> updateAttendance({required int sessionId, required int studentId, required String status, required String grade}) async {
+    final response = await http.put(
+      Uri.parse('http://127.0.0.1:8000/api/update_attendance/'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'session_id': sessionId,
+        'student_id': studentId,
+        'grade': int.parse(grade),
+        'status': status,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      log('✅ Обновление оценивания выполнено успешно');
+      return true;
+    } else {
+      print('Ошибка обновления: ${response.statusCode}, ${response.body}');
+      return false;
+    }
+  }
+
   Future<Session?> addSession({
     required String type,
     required String date,

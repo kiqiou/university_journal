@@ -39,7 +39,21 @@ class JournalTableState extends State<JournalTable> {
         selectedColumnIndex: _selectedColumnIndex,
         onHeaderTap: _onHeaderTap,
       );
-      dataSource = JournalDataSource(columns, grouped, sessions);
+      dataSource = JournalDataSource(columns, grouped, sessions, onUpdate: (sessionId, studentId, status, grade) async {
+        final repository = JournalRepository();
+        final success = await repository.updateAttendance(
+          sessionId: sessionId,
+          studentId: studentId,
+          status: status,
+          grade: grade,
+        );
+
+        if (!success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Не удалось обновить данные')),
+          );
+        }
+      },);
     });
   }
 
@@ -124,7 +138,8 @@ class JournalDataSource extends DataGridSource {
   final List<String> _dates;
   final Map<String, Map<String, Session>> _sessionData;
   final List<Session> sessions;
-  final void Function(int columnIndex)? onCellTap;
+
+  final Future<void> Function(int sessionId, int studentId, String status, String grade)? onUpdate;
 
   final Map<String, TextEditingController> _controllers = {};
 
@@ -142,7 +157,7 @@ class JournalDataSource extends DataGridSource {
   JournalDataSource(this.columns,
       this._sessionData,
       this.sessions, {
-        this.onCellTap,
+        this.onUpdate,
       })
       : _dates = extractUniqueDateTypes(sessions).toList(),
         _rows = _buildRows(_sessionData, extractUniqueDateTypes(sessions).toList());
@@ -208,6 +223,11 @@ class JournalDataSource extends DataGridSource {
         final studentName = _rows[rowIndex].getCells()[1].value;
         final date = cell.columnName;
 
+        final session = _sessionData[studentName]?[date];
+        if (session == null) {
+          return Container();
+        }
+
         final statusKey = '$studentName|$date|status';
         final gradeKey = '$studentName|$date|grade';
 
@@ -234,9 +254,12 @@ class JournalDataSource extends DataGridSource {
                       FilteringTextInputFormatter.allow(RegExp(r'[нН]')),
                       LengthLimitingTextInputFormatter(1),
                     ],
-                    onChanged: (newStatus) {
+                    onChanged: (newStatus) async {
+                      if (onUpdate != null) {
+                        print('Обновление данных оценивания');
+                        await onUpdate!(session.sessionId, session.student.id, newStatus, gradeController.text);
+                      }
                       _sessionData[studentName]?[date]?.status = newStatus;
-
                       _rows[rowIndex].getCells()[columnIndex] = DataGridCell<Map<String, String>>(
                         columnName: date,
                         value: {
@@ -244,7 +267,6 @@ class JournalDataSource extends DataGridSource {
                           'grade': gradeController.text,
                         },
                       );
-
                       notifyListeners();
                     },
                   ),
@@ -266,9 +288,12 @@ class JournalDataSource extends DataGridSource {
                       LengthLimitingTextInputFormatter(2),
                       FilteringTextInputFormatter.digitsOnly,
                     ],
-                    onChanged: (newGrade) {
+                    onChanged: (newGrade) async {
+                      if (onUpdate != null) {
+                        print('Обновление данных оценивания');
+                        await onUpdate!(session.sessionId, session.student.id, statusController.text, newGrade,);
+                      }
                       _sessionData[studentName]?[date]?.grade = newGrade;
-
                       _rows[rowIndex].getCells()[columnIndex] = DataGridCell<Map<String, String>>(
                         columnName: date,
                         value: {
