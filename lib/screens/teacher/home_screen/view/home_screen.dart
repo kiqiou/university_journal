@@ -9,7 +9,7 @@ import '../../../../components/colors/colors.dart';
 import '../../../../components/journal_table.dart';
 import '../../account_screen/account_screen.dart';
 import '../components/add_classes_dialog.dart';
-import '../components/theme_screen.dart';
+import '../components/theme_table.dart';
 
 enum TeacherContentScreen {
   journal,
@@ -124,15 +124,31 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                         case TeacherContentScreen.account:
                           return const AccountScreen();
                         case TeacherContentScreen.theme:
-                          return const ThemeScreen();
+                          return ThemeTable(
+                            sessions: sessions,
+                            onUpdate: (sessionId, date, type, topic) async {
+                              final repository = JournalRepository();
+                              final success = await repository.updateSession(
+                                sessionId: sessionId,
+                                date: date,
+                                type: type,
+                                topic: topic,
+                              );
+
+                              if (!success) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Не удалось обновить данные')),
+                                );
+                              }
+                              return success;
+                            },
+                          );
                         case TeacherContentScreen.journal:
-                        default:
                           return JournalTable(key: tableKey, isLoading: isLoading, sessions: sessions);
                       }
                     },
                   ),
                 ),
-
               ],
             ),
           ),
