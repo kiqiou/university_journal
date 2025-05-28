@@ -1,4 +1,5 @@
 import '../user/user.dart';
+import 'package:intl/intl.dart';
 
 class Session {
   final int sessionId;
@@ -15,23 +16,27 @@ class Session {
     required this.student, required this.status, this.courseName, required this.sessionId, this.topic});
 
   factory Session.fromJson(Map<String, dynamic> json) {
-    final sessionJson = json['session'] ?? {};
-    final courseJson = sessionJson['course'] ?? {};
-    final studentJson = json['student'] ?? {};
-    final roleJson = studentJson['role'] ?? {};
+    String rawDate = json['session']['date'] ?? '';
+    String formattedDate = '';
+    try {
+      final parsedDate = DateTime.parse(rawDate);
+      formattedDate = DateFormat('dd.MM.yyyy').format(parsedDate);
+    } catch (e) {
+      formattedDate = rawDate;
+    }
 
     return Session(
-      sessionId: sessionJson['id'] ?? 0,
-      courseId: courseJson['id'] ?? 0,
-      courseName: courseJson['name'],
-      date: sessionJson['date'] ?? '',
-      sessionType: sessionJson['type'] ?? '',
+      sessionId: json['session']['id'] ?? 0,
+      courseId: json['session']['course']['id'] ?? 0,
+      courseName: json['session']['course']['name'],
+      date: formattedDate,
+      sessionType: json['session']['type'] ?? '',
       student: MyUser(
-        username: studentJson['username'] ?? '',
-        role: roleJson['role'] ?? '',
-        id: studentJson['id'] ?? 0,
+        username: json['student']['username'] ?? '',
+        role: json['student']['role']['role'] ?? '',
+        id: json['student']['id'] ?? 0,
       ),
-      topic: sessionJson['topic'],
+      topic: json['session']['topic'],
       status: json['status'],
       grade: json['grade']?.toString(),
     );

@@ -19,11 +19,11 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.8
   bloc: ^9.0.0
-  carousel_slider: ^5.0.0
   get: ^4.7.2
   flutter_bloc: ^9.1.0
   equatable: ^2.0.5
   http: ^0.13.0
+  intl: ^0.18.1
   syncfusion_flutter_datagrid: ^29.1.33
   shared_preferences: ^2.5.3
   rxdart: ^0.27.7

@@ -11,11 +11,7 @@ import '../../account_screen/account_screen.dart';
 import '../components/add_classes_dialog.dart';
 import '../components/theme_table.dart';
 
-enum TeacherContentScreen {
-  journal,
-  account,
-  theme
-}
+enum TeacherContentScreen { journal, account, theme }
 
 class TeacherHomeScreen extends StatefulWidget {
   const TeacherHomeScreen({super.key});
