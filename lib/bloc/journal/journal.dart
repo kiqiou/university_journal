@@ -7,11 +7,12 @@ class Session {
   final String date;
   final String sessionType;
   final MyUser student;
+  String? topic;
   String? status;
   String? grade;
 
   Session({required this.courseId, required this.date, required this.sessionType, required this.grade,
-    required this.student, required this.status, this.courseName, required this.sessionId,});
+    required this.student, required this.status, this.courseName, required this.sessionId, this.topic});
 
   factory Session.fromJson(Map<String, dynamic> json) {
     final sessionJson = json['session'] ?? {};
@@ -30,6 +31,7 @@ class Session {
         role: roleJson['role'] ?? '',
         id: studentJson['id'] ?? 0,
       ),
+      topic: sessionJson['topic'],
       status: json['status'],
       grade: json['grade']?.toString(),
     );

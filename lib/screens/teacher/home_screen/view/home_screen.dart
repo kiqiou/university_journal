@@ -9,10 +9,12 @@ import '../../../../components/colors/colors.dart';
 import '../../../../components/journal_table.dart';
 import '../../account_screen/account_screen.dart';
 import '../components/add_classes_dialog.dart';
+import '../components/theme_screen.dart';
 
 enum TeacherContentScreen {
   journal,
   account,
+  theme
 }
 
 class TeacherHomeScreen extends StatefulWidget {
@@ -71,6 +73,12 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     });
   }
 
+  void _showThemeScreen() {
+    setState(() {
+      currentScreen = TeacherContentScreen.theme;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -79,6 +87,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
           TeacherSideNavigationMenu(
             onSelectType: _filterBySessionType,
             onProfileTap: _showAccountScreen,
+            onThemeTap: _showThemeScreen,
           ),
           SizedBox(width: 30),
           Expanded(
@@ -109,10 +118,21 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                   ),
                 ),
                 Expanded(
-                  child: currentScreen == TeacherContentScreen.account
-                      ? const AccountScreen()
-                      : JournalTable(key: tableKey, isLoading: isLoading, sessions: sessions,),
+                  child: Builder(
+                    builder: (context) {
+                      switch (currentScreen) {
+                        case TeacherContentScreen.account:
+                          return const AccountScreen();
+                        case TeacherContentScreen.theme:
+                          return const ThemeScreen();
+                        case TeacherContentScreen.journal:
+                        default:
+                          return JournalTable(key: tableKey, isLoading: isLoading, sessions: sessions);
+                      }
+                    },
+                  ),
                 ),
+
               ],
             ),
           ),
@@ -172,3 +192,5 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     );
   }
 }
+
+
