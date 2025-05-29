@@ -94,7 +94,7 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: isSelected ? Colors.blueJurnal : Colors.white,
+                            backgroundColor: isSelected ? MyColors.blueJournal : Colors.white,
                             foregroundColor: isSelected ? Colors.white : Colors.black,
                             side: BorderSide(color: Colors.grey, width: 1.5),
                             padding: EdgeInsets.symmetric(vertical: 18),
@@ -170,7 +170,7 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: isSelected ? Colors.blueJurnal : Colors.white,
+                            backgroundColor: isSelected ? MyColors.blueJournal : Colors.white,
                             foregroundColor: isSelected ? Colors.white : Colors.black,
                             side: BorderSide(color: Colors.grey, width: 1.5),
                             padding: EdgeInsets.symmetric(vertical: 14),
@@ -323,7 +323,7 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
               },
               calendarStyle: CalendarStyle(
                 todayDecoration: BoxDecoration(
-                  color: Colors.blueJurnal.withOpacity(0.2),
+                  color: MyColors.blueJournal.withOpacity(0.2),
                   shape: BoxShape.circle,
                 ),
                 selectedDecoration: BoxDecoration(

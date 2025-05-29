@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import '../journal/course.dart';
+
 class MyUser extends Equatable {
   final int id;
   final String username;
@@ -7,6 +9,7 @@ class MyUser extends Equatable {
   String? bio;
   String? position;
   int? groupId;
+  final List<Course> courses;
 
   MyUser({
     required this.id,
@@ -15,6 +18,7 @@ class MyUser extends Equatable {
     this.bio,
     this.position,
     this.groupId,
+    this.courses = const [],
   });
 
   factory MyUser.fromJson(Map<String, dynamic> json) {
@@ -32,10 +36,18 @@ class MyUser extends Equatable {
       groupId = data['student_profile']['group_id'];
     }
 
+    List<Course> courses = [];
+    if (data.containsKey('courses') && data['courses'] is List) {
+      courses = List<Map<String, dynamic>>.from(data['courses'])
+          .map((c) => Course.fromJson(c))
+          .toList();
+    }
+
     return MyUser(
       id: data['id'] ?? '',
       username: data['username'] ?? '',
       role: data['role']['role'] ?? '',
+      courses: courses,
       bio: bio,
       position: position,
       groupId: groupId,
