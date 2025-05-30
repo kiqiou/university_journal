@@ -4,13 +4,28 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/bloc/auth/authentication_bloc.dart';
 import 'package:university_journal/components/icon_container.dart';
 
+import '../../../../bloc/journal/group.dart';
+import '../../../../bloc/user/user.dart';
+import 'add_course.dart';
 import 'add_teacher.dart';
 
 class Admin1SideNavigationMenu extends StatefulWidget {
   final Future<void> Function() onTeacherAdded;
+  final Future<void> Function() onCourseAdded;
   final VoidCallback onTeacherListTap;
   final VoidCallback onCoursesListTap;
-  const Admin1SideNavigationMenu({super.key, required this.onTeacherAdded, required this.onTeacherListTap, required this.onCoursesListTap});
+  final List<Group> groups;
+  final List<MyUser> teachers;
+
+  const Admin1SideNavigationMenu({
+    super.key,
+    required this.onTeacherAdded,
+    required this.onTeacherListTap,
+    required this.onCoursesListTap,
+    required this.groups,
+    required this.teachers,
+    required this.onCourseAdded,
+  });
 
   @override
   State<Admin1SideNavigationMenu> createState() => _Admin1SideNavigationMenuState();
@@ -47,7 +62,16 @@ class _Admin1SideNavigationMenuState extends State<Admin1SideNavigationMenu> {
           builder: (context) => AddTeacherDialog(onTeacherAdded: widget.onTeacherAdded),
         );
       },
-          () => print('функция 4'),
+    () {
+        showDialog(
+          context: context,
+          builder: (context) => AddCourseDialog(
+            onCourseAdded: () => widget.onCourseAdded(),
+            teachers: widget.teachers.toList(),
+            groups: widget.groups.toList(),
+          ),
+        );
+      }
     ];
 
     return GestureDetector(

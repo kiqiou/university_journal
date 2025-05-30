@@ -6,6 +6,7 @@ import 'package:university_journal/bloc/journal/journal.dart';
 
 import '../user/user.dart';
 import 'course.dart';
+import 'group.dart';
 
 class JournalRepository {
   Future<List<Session>> journalData() async {
@@ -218,6 +219,22 @@ class JournalRepository {
     }
   }
 
+  Future<List<Group>?> getGroupsList() async {
+    final response = await http.get(Uri.parse('http://127.0.0.1:8000/api/get_groups_list'),
+      headers: {
+    'Content-Type': 'application/json; charset=utf-8',
+    'Accept-Charset': 'utf-8',
+    },);
+
+    print('Полученные данные: ${response.body} ');
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.map((groupJson) => Group.fromJson(groupJson)).toList();
+    } else {
+      throw Exception('Не удалось загрузить список групп');
+    }
+  }
+
   Future<List<Course>?> getCoursesList() async {
     try {
       final response = await http.post(
@@ -228,6 +245,7 @@ class JournalRepository {
         },
         body: jsonEncode({}),
       );
+      log('Raw response: ${response.body}');
 
       final data = jsonDecode(utf8.decode(response.bodyBytes));
       if (data != null && data is List) {
@@ -242,5 +260,65 @@ class JournalRepository {
       return null;
     }
   }
+
+  Future<bool> addCourse({
+    required String name,
+    required List<int> teacherIds,
+    required List<int> groupIds,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://127.0.0.1:8000/api/add_or_update_course/'),
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept-Charset': 'utf-8',
+        },
+        body: jsonEncode({
+          'name': name,
+          'teachers': teacherIds,
+          'groups': groupIds,
+        }),
+      );
+
+      final data = jsonDecode(utf8.decode(response.bodyBytes));
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        log('✅ Курс успешно добавлен: $data');
+        return true;
+      } else {
+        log('❌ Ошибка добавления курса: ${response.statusCode}, $data');
+        return false;
+      }
+    } catch (e) {
+      log('❌ Ошибка соединения при добавлении курса: $e');
+      return false;
+    }
+  }
+
+  Future<bool> deleteCourse({
+    required int courseId,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://127.0.0.1:8000/api/delete_course/'),
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept-Charset': 'utf-8',
+        },
+        body: jsonEncode({"course_id": courseId}),
+      );
+      final data = jsonDecode(utf8.decode(response.bodyBytes));
+      if (data != null) {
+        log('📌 Ответ сервера: $data');
+        return true;
+      } else {
+        log('❌ Ошибка: неожиданный формат ответа сервера');
+        return false;
+      }
+    } catch (e) {
+      log('❌ Ошибка соединения: $e');
+      return false;
+    }
+  }
+
 }
 

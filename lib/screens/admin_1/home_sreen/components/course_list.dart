@@ -309,7 +309,18 @@ class _CoursesList extends State<CoursesList>{
                                       ),
                                     ),
                                     onPressed: () async {
+                                      if (selectedIndex != null) {
+                                        final courseId = widget.courses[selectedIndex!].id;
+                                        bool success = await journalRepository.deleteCourse(courseId: courseId);
 
+                                        if (success) {
+                                          await widget.loadCourses();
+                                          setState(() {
+                                            showDeleteDialog = false;
+                                            selectedIndex = null;
+                                          });
+                                        }
+                                      }
                                     },
                                     child: const Text("Удалить", style: TextStyle(color: Colors.white)),
                                   ),

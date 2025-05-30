@@ -4,6 +4,7 @@ import 'package:university_journal/screens/admin_1/home_sreen/components/admin_1
 import 'package:university_journal/screens/admin_1/home_sreen/components/teacher_list.dart';
 
 import '../../../../bloc/journal/course.dart';
+import '../../../../bloc/journal/group.dart';
 import '../../../../bloc/user/user.dart';
 import '../components/course_list.dart';
 
@@ -21,6 +22,7 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
   Admin1ContentScreen currentScreen = Admin1ContentScreen.teachers;
   List<MyUser> teachers = [];
   List<Course> courses = [];
+  List<Group> groups = [];
   bool isLoading = true;
 
   @override
@@ -28,6 +30,7 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
     super.initState();
     loadTeachers();
     loadCourses();
+    loadGroups();
   }
 
   void _showTeachersList() {
@@ -40,6 +43,19 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
     setState(() {
       currentScreen = Admin1ContentScreen.courses;
     });
+  }
+
+  Future<void> loadGroups() async {
+    try {
+      final list = await journalRepository.getGroupsList();
+      setState(() {
+        groups = list!;
+        isLoading = false;
+      });
+    } catch (e) {
+      print("Ошибка при загрузке групп: $e");
+      isLoading = false;
+    }
   }
 
   Future<void> loadTeachers() async {
@@ -81,8 +97,13 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
             onTeacherAdded: () async {
               await loadTeachers();
             },
+            onCourseAdded: () async {
+              await loadCourses();
+            },
             onTeacherListTap: _showTeachersList,
             onCoursesListTap: _showCoursesList,
+            groups: groups,
+            teachers: teachers,
           ),
           Expanded(
             child: Builder(
