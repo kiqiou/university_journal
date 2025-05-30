@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:university_journal/bloc/journal/journal.dart';
 
 import '../user/user.dart';
+import 'course.dart';
 
 class JournalRepository {
   Future<List<Session>> journalData() async {
@@ -214,6 +215,31 @@ class JournalRepository {
     } catch (e) {
       log('❌ Ошибка соединения: $e');
       return false;
+    }
+  }
+
+  Future<List<Course>?> getCoursesList() async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://127.0.0.1:8000/api/get_courses_list/'),
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept-Charset': 'utf-8',
+        },
+        body: jsonEncode({}),
+      );
+
+      final data = jsonDecode(utf8.decode(response.bodyBytes));
+      if (data != null && data is List) {
+        log('📌 Ответ сервера: $data');
+        return data.map((json) => Course.fromJson(json)).toList();
+      } else {
+        log('❌ Ошибка: неожиданный формат ответа сервера');
+        return null;
+      }
+    } catch (e) {
+      log('❌ Ошибка соединения: $e');
+      return null;
     }
   }
 }

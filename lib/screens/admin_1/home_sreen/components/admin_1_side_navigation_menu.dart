@@ -8,7 +8,9 @@ import 'add_teacher.dart';
 
 class Admin1SideNavigationMenu extends StatefulWidget {
   final Future<void> Function() onTeacherAdded;
-  const Admin1SideNavigationMenu({super.key, required this.onTeacherAdded});
+  final VoidCallback onTeacherListTap;
+  final VoidCallback onCoursesListTap;
+  const Admin1SideNavigationMenu({super.key, required this.onTeacherAdded, required this.onTeacherListTap, required this.onCoursesListTap});
 
   @override
   State<Admin1SideNavigationMenu> createState() => _Admin1SideNavigationMenuState();
@@ -36,10 +38,9 @@ class _Admin1SideNavigationMenuState extends State<Admin1SideNavigationMenu> {
 
   @override
   Widget build(BuildContext context) {
-    // ВАЖНО: функции должны быть внутри build, чтобы был доступ к context
-    final List<VoidCallback> _functions = [
-          () => print('бля бя'),
-          () => print('функция 2'),
+    final List<VoidCallback> functions = [
+          widget.onTeacherListTap,
+          widget.onCoursesListTap,
           () {
         showDialog(
           context: context,
@@ -118,7 +119,7 @@ class _Admin1SideNavigationMenuState extends State<Admin1SideNavigationMenu> {
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
                             child: InkWell(
-                              onTap: _functions[index],
+                              onTap: functions[index],
                               child: MyIconContainer(
                                 icon: _icons[index],
                                 width: (_isExpanded ? 250 : 50),
