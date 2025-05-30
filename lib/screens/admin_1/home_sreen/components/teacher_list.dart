@@ -16,7 +16,6 @@ class TeachersList extends StatefulWidget{
 
 class _TeachersList extends State<TeachersList>{
   final journalRepository = JournalRepository();
-  List<MyUser> teachers = [];
   int? selectedIndex;
   bool isLoading = true;
   bool showDeleteDialog = false;
@@ -34,8 +33,6 @@ class _TeachersList extends State<TeachersList>{
 
   @override
   Widget build(BuildContext context) {
-    var teachers = widget.teachers;
-
     final screenWidth = MediaQuery.of(context).size.width;
     const baseScreenWidth = 1920.0;
     const baseButtonHeight = 40.0;
@@ -165,7 +162,7 @@ class _TeachersList extends State<TeachersList>{
                         // Список преподавателей
                         Expanded(
                           child: ListView.builder(
-                            itemCount: teachers.length,
+                            itemCount: widget.teachers.length,
                             itemBuilder: (BuildContext context, int index) {
                               return Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 6.0),
@@ -205,7 +202,7 @@ class _TeachersList extends State<TeachersList>{
                                           alignment: Alignment.centerLeft,
                                           padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                           child: Text(
-                                            teachers[index].username,
+                                            widget.teachers[index].username,
                                             style: const TextStyle(
                                               fontSize: 16,
                                               color: Colors.black87,
@@ -290,7 +287,7 @@ class _TeachersList extends State<TeachersList>{
                                 ),
                                 const SizedBox(height: 24),
                                 Text(
-                                  teachers[selectedIndex!].username,
+                                  widget.teachers[selectedIndex!].username,
                                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                                 ),
                                 const SizedBox(height: 16),
@@ -311,15 +308,12 @@ class _TeachersList extends State<TeachersList>{
                                     ),
                                     onPressed: () async {
                                       if (selectedIndex != null) {
-                                        final userId = teachers[selectedIndex!].id;
+                                        final userId = widget.teachers[selectedIndex!].id;
                                         bool success = await journalRepository.deleteUser(userId: userId);
 
                                         if (success) {
-                                          List<MyUser>? updatedList = await journalRepository.getTeacherList();
+                                          await widget.loadTeachers();
                                           setState(() {
-                                            if (updatedList != null) {
-                                              teachers = updatedList;
-                                            }
                                             showDeleteDialog = false;
                                             selectedIndex = null;
                                           });
@@ -393,16 +387,15 @@ class _TeachersList extends State<TeachersList>{
                                                 ),
                                                 onPressed: () async {
                                                   final success = await journalRepository.updateTeacher(
-                                                    userId: teachers[selectedIndex!].id,
+                                                    userId: widget.teachers[selectedIndex!].id,
                                                     username: usernameController.text,
                                                     position: positionController.text,
                                                     bio: bioController.text,
                                                   );
 
                                                   if (success) {
-                                                    final updatedList = await journalRepository.getTeacherList();
-                                                    setState(() {
-                                                      teachers = updatedList!;
+                                                    setState(() async {
+                                                      await widget.loadTeachers();
                                                       showEditDialog = false;
                                                     });
                                                   }

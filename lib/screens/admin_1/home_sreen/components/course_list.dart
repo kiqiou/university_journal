@@ -59,7 +59,7 @@ class _CoursesList extends State<CoursesList>{
                         Row(
                           children: [
                             const Text(
-                              'Список преподавателей',
+                              'Список дисциплин',
                               style: TextStyle(
                                 fontSize: 18,
                                 color: Colors.grey,
@@ -84,7 +84,7 @@ class _CoursesList extends State<CoursesList>{
                                     ),
                                     elevation: 0,
                                   ),
-                                  child: const Text('Удалить преподавателя', style: TextStyle(color: Colors.white)),
+                                  child: const Text('Удалить дисциплину', style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               const SizedBox(width: 16),
@@ -148,7 +148,7 @@ class _CoursesList extends State<CoursesList>{
                               Expanded(
                                 child: Center(
                                   child: Text(
-                                    'ФИО преподавателя',
+                                    'Дисциплины',
                                     style: TextStyle(
                                       fontWeight: FontWeight.w500,
                                       color: Colors.grey,
@@ -260,7 +260,7 @@ class _CoursesList extends State<CoursesList>{
                                 Row(
                                   children: [
                                     const Text(
-                                      "Удаление преподавателя",
+                                      "Удаление дисциплины",
                                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400),
                                     ),
                                     const Spacer(),
@@ -294,7 +294,7 @@ class _CoursesList extends State<CoursesList>{
                                 ),
                                 const SizedBox(height: 16),
                                 const Text(
-                                  "Вы действительно хотите удалить преподавателя?",
+                                  "Вы действительно хотите удалить дисциплину?",
                                   style: TextStyle(fontSize: 15),
                                 ),
                                 const SizedBox(height: 32),
@@ -446,8 +446,8 @@ class _CoursesList extends State<CoursesList>{
                                                     child: TextField(
                                                       controller: usernameController,
                                                       decoration: const InputDecoration(
-                                                        labelText: "ФИО преподавателя*",
-                                                        hintText: "Введите ФИО преподавателя",
+                                                        labelText: "Название дисциплины*",
+                                                        hintText: "Введите название дисциплины",
                                                         border: OutlineInputBorder(),
                                                       ),
                                                     ),
@@ -458,8 +458,7 @@ class _CoursesList extends State<CoursesList>{
                                                     child: TextField(
                                                       controller: positionController,
                                                       decoration: const InputDecoration(
-                                                        labelText: "Должность",
-                                                        hintText: "Введите должность",
+                                                        labelText: "Привязать преподавателя",
                                                         border: OutlineInputBorder(),
                                                       ),
                                                     ),
@@ -471,8 +470,7 @@ class _CoursesList extends State<CoursesList>{
                                                       controller: bioController,
                                                       maxLines: 2,
                                                       decoration: const InputDecoration(
-                                                        labelText: "Краткая биография",
-                                                        hintText: "Введите краткую биографию",
+                                                        labelText: "Привязать группу",
                                                         border: OutlineInputBorder(),
                                                       ),
                                                     ),
