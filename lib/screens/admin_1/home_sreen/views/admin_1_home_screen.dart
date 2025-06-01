@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:university_journal/bloc/journal/journal_repository.dart';
 import 'package:university_journal/screens/admin_1/home_sreen/components/admin_1_side_navigation_menu.dart';
-import 'package:university_journal/screens/admin_1/home_sreen/components/teacher_list.dart';
+import 'package:university_journal/screens/admin_1/home_sreen/views/teacher_list.dart';
 
 import '../../../../bloc/journal/course.dart';
 import '../../../../bloc/journal/group.dart';
 import '../../../../bloc/user/user.dart';
-import '../components/course_list.dart';
+import 'course_list.dart';
 
 enum Admin1ContentScreen { teachers, courses }
 
@@ -112,7 +112,7 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
                   case Admin1ContentScreen.teachers:
                     return TeachersList(loadTeachers: loadTeachers, teachers: teachers,);
                   case Admin1ContentScreen.courses:
-                    return CoursesList(loadCourses: loadCourses, courses: courses,);
+                    return CoursesList(loadCourses: loadCourses, courses: courses, groups: groups, teachers: teachers,);
                 }
               },
             ),

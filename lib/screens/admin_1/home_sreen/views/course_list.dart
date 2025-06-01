@@ -1,14 +1,20 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:multi_select_flutter/dialog/multi_select_dialog_field.dart';
+import 'package:multi_select_flutter/util/multi_select_item.dart';
 
 import '../../../../bloc/journal/course.dart';
+import '../../../../bloc/journal/group.dart';
 import '../../../../bloc/journal/journal_repository.dart';
+import '../../../../bloc/user/user.dart';
 
 class CoursesList extends StatefulWidget{
   final Future<void> Function() loadCourses;
   final List<Course> courses;
+  final List<Group> groups;
+  final List<MyUser> teachers;
 
-  CoursesList({super.key, required this.loadCourses, required this.courses, });
+  const CoursesList({super.key, required this.loadCourses, required this.courses, required this.groups, required this.teachers, });
 
 
   @override
@@ -25,11 +31,23 @@ class _CoursesList extends State<CoursesList>{
   final usernameController = TextEditingController();
   final positionController = TextEditingController();
   final bioController = TextEditingController();
+  List<MyUser> selectedTeachers = [];
+  List<Group> selectedGroups = [];
 
   @override
   void initState() {
     super.initState();
     widget.loadCourses;
+  }
+
+  void _openEditDialog(Course course) {
+    setState(() {
+      selectedIndex = course.id;
+      showEditDialog = true;
+      usernameController.text = course.name;
+      selectedTeachers = widget.teachers.where((t) => course.teachers.contains(t.id)).toList();
+      selectedGroups = widget.groups.where((g) => course.groups.contains(g.id)).toList();
+    });
   }
 
   @override
@@ -388,7 +406,37 @@ class _CoursesList extends State<CoursesList>{
                                                   padding: const EdgeInsets.symmetric(horizontal: 24),
                                                 ),
                                                 onPressed: () async {
+                                                  // final currentCourse = widget.courses.firstWhere((c) => c.id == selectedIndex);
+                                                  //
+                                                  // final name = usernameController.text.trim().isEmpty
+                                                  //     ? currentCourse.name
+                                                  //     : usernameController.text.trim();
+                                                  //
+                                                  // final teacherIds = selectedTeachers.isEmpty
+                                                  //     ? currentCourse.teachers
+                                                  //     : selectedTeachers.map((e) => e.id).toList();
+                                                  //
+                                                  // final groupIds = selectedGroups.isEmpty
+                                                  //     ? currentCourse.groups
+                                                  //     : selectedGroups.map((e) => e.id).toList();
+                                                  //
+                                                  // final result = await journalRepository.addCourse(
+                                                  //   courseId: selectedIndex, // <-- Передаём id для обновления
+                                                  //   name: name,
+                                                  //   teacherIds: teacherIds,
+                                                  //   groupIds: groupIds,
+                                                  // );
+                                                  //
+                                                  // if (result) {
+                                                  //   await widget.loadCourses(); // Обновить список
+                                                  //   setState(() => showEditDialog = false);
+                                                  // } else {
+                                                  //   ScaffoldMessenger.of(context).showSnackBar(
+                                                  //     const SnackBar(content: Text('❌ Не удалось сохранить изменения')),
+                                                  //   );
+                                                  // }
                                                 },
+
                                                 child: const Text('Сохранить', style: TextStyle(color: Colors.white)),
                                               ),
                                             ),
@@ -420,35 +468,6 @@ class _CoursesList extends State<CoursesList>{
                                         Row(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            // Аватар
-                                            Column(
-                                              children: [
-                                                Container(
-                                                  width: constraints.maxWidth * 0.15,
-                                                  height: constraints.maxWidth * 0.19,
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.grey[200],
-                                                    borderRadius: BorderRadius.circular(8),
-                                                  ),
-                                                  child: const Icon(Icons.person, size: 48, color: Colors.grey),
-                                                ),
-                                                SizedBox(height: constraints.maxHeight * 0.01 + 4),
-                                                InkWell(
-                                                  onTap: () {},
-                                                  borderRadius: BorderRadius.circular(8),
-                                                  child: Container(
-                                                    width: 32,
-                                                    height: 32,
-                                                    decoration: BoxDecoration(
-                                                      color: Color(0xFF4068EA),
-                                                      borderRadius: BorderRadius.circular(8),
-                                                    ),
-                                                    child: const Icon(Icons.add, color: Colors.white, size: 20),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            SizedBox(width: constraints.maxWidth * 0.07),
                                             Expanded(
                                               child: Column(
                                                 children: [
@@ -464,27 +483,53 @@ class _CoursesList extends State<CoursesList>{
                                                     ),
                                                   ),
                                                   SizedBox(height: constraints.maxHeight * 0.03),
-                                                  SizedBox(
-                                                    height: constraints.maxHeight * 0.07,
-                                                    child: TextField(
-                                                      controller: positionController,
-                                                      decoration: const InputDecoration(
-                                                        labelText: "Привязать преподавателя",
-                                                        border: OutlineInputBorder(),
-                                                      ),
+                                                  MultiSelectDialogField<MyUser>(
+                                                    items: widget.teachers
+                                                        .map((teacher) => MultiSelectItem<MyUser>(teacher, teacher.username))
+                                                        .toList(),
+                                                    title: const Text("Преподаватели"),
+                                                    selectedColor: Colors.blue,
+                                                    decoration: BoxDecoration(
+                                                      color: const Color(0xFFF3F4F6),
+                                                      borderRadius: BorderRadius.circular(11),
+                                                      border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
+                                                    ),
+                                                    buttonIcon: const Icon(Icons.group_add),
+                                                    buttonText: const Text("Преподаватели"),
+                                                    onConfirm: (values) {
+                                                      selectedTeachers = values;
+                                                    },
+                                                    validator: (values) =>
+                                                    (values == null || values.isEmpty) ? 'Выберите хотя бы одного преподавателя' : null,
+                                                  ),
+                                                  const SizedBox(height: 48),
+                                                  const Text(
+                                                    'Привязка группы',
+                                                    style: TextStyle(
+                                                      fontSize: 15,
+                                                      color: Color(0xFF6B7280),
+                                                      fontWeight: FontWeight.w400,
                                                     ),
                                                   ),
-                                                  SizedBox(height: constraints.maxHeight * 0.03),
-                                                  SizedBox(
-                                                    height: constraints.maxHeight * 0.11,
-                                                    child: TextField(
-                                                      controller: bioController,
-                                                      maxLines: 2,
-                                                      decoration: const InputDecoration(
-                                                        labelText: "Привязать группу",
-                                                        border: OutlineInputBorder(),
-                                                      ),
+                                                  const SizedBox(height: 18),
+                                                  MultiSelectDialogField<Group>(
+                                                    items: widget.groups
+                                                        .map((group) => MultiSelectItem<Group>(group, group.name))
+                                                        .toList(),
+                                                    title: const Text("Группы"),
+                                                    selectedColor: Colors.blue,
+                                                    decoration: BoxDecoration(
+                                                      color: const Color(0xFFF3F4F6),
+                                                      borderRadius: BorderRadius.circular(11),
+                                                      border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
                                                     ),
+                                                    buttonIcon: const Icon(Icons.group_add),
+                                                    buttonText: const Text("Группы"),
+                                                    onConfirm: (values) {
+                                                      selectedGroups = values;
+                                                    },
+                                                    validator: (values) =>
+                                                    (values == null || values.isEmpty) ? 'Выберите хотя бы одну группу' : null,
                                                   ),
                                                 ],
                                               ),

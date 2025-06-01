@@ -262,6 +262,7 @@ class JournalRepository {
   }
 
   Future<bool> addCourse({
+    int? courseId,
     required String name,
     required List<int> teacherIds,
     required List<int> groupIds,
@@ -274,6 +275,7 @@ class JournalRepository {
           'Accept-Charset': 'utf-8',
         },
         body: jsonEncode({
+          'id': courseId, // ← передаём id, если это редактирование
           'name': name,
           'teachers': teacherIds,
           'groups': groupIds,
@@ -282,14 +284,14 @@ class JournalRepository {
 
       final data = jsonDecode(utf8.decode(response.bodyBytes));
       if (response.statusCode == 201 || response.statusCode == 200) {
-        log('✅ Курс успешно добавлен: $data');
+        log('✅ Курс успешно сохранён: $data');
         return true;
       } else {
-        log('❌ Ошибка добавления курса: ${response.statusCode}, $data');
+        log('❌ Ошибка сохранения курса: ${response.statusCode}, $data');
         return false;
       }
     } catch (e) {
-      log('❌ Ошибка соединения при добавлении курса: $e');
+      log('❌ Ошибка соединения при сохранении курса: $e');
       return false;
     }
   }

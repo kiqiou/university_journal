@@ -76,7 +76,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                       children: [
                         const Expanded(
                           child: Text(
-                            'Создание преподавателя',
+                            'Создание дисциплины',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w400,
