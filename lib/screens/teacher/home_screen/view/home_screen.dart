@@ -138,7 +138,18 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                               ),
                             ),
                           ),
-                          Expanded(child: JournalTable(key: tableKey, isLoading: isLoading, sessions: sessions)),
+                          Expanded(
+                            child: JournalTable(
+                              key: tableKey,
+                              isLoading: isLoading,
+                              sessions: sessions,
+                              onSessionsChanged: (updatedSessions) {
+                                setState(() {
+                                  sessions = updatedSessions;
+                                });
+                              },
+                            ),
+                          ),
                         ],
                       ),
                     );

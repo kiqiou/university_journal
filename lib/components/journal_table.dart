@@ -10,8 +10,9 @@ import 'colors/colors.dart';
 class JournalTable extends StatefulWidget {
   final bool isLoading;
   final List<Session> sessions;
+  final void Function(List<Session>)? onSessionsChanged;
 
-  const JournalTable({super.key, required this.isLoading, required this.sessions});
+  const JournalTable({super.key, required this.isLoading, required this.sessions, this.onSessionsChanged});
 
   @override
   State<JournalTable> createState() => JournalTableState();
@@ -94,8 +95,9 @@ class JournalTableState extends State<JournalTable> {
 
                   setState(() {
                     _selectedColumnIndex = null;
+                    updateDataSource(updatedSessions);
+                    widget.onSessionsChanged?.call(updatedSessions);
                   });
-                  updateDataSource(updatedSessions);
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Ошибка при удалении занятия')),
@@ -393,7 +395,6 @@ Map<String, Map<String, Session>> groupSessionsByStudent(List<Session> sessions)
       final dateType = entry.value;
 
       final parts = dateType.split(' ');
-      final date = parts.isNotEmpty ? parts[0] : '';
       final sessionType = parts.length > 1 ? parts[1] : '';
 
       columns.add(
