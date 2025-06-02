@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -92,7 +94,7 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: isSelected ? Colors.blue : Colors.white,
+                            backgroundColor: isSelected ? MyColors.blueJournal : Colors.white,
                             foregroundColor: isSelected ? Colors.white : Colors.black,
                             side: BorderSide(color: Colors.grey, width: 1.5),
                             padding: EdgeInsets.symmetric(vertical: 18),
@@ -168,7 +170,7 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: isSelected ? Colors.blue : Colors.white,
+                            backgroundColor: isSelected ? MyColors.blueJournal : Colors.white,
                             foregroundColor: isSelected ? Colors.white : Colors.black,
                             side: BorderSide(color: Colors.grey, width: 1.5),
                             padding: EdgeInsets.symmetric(vertical: 14),
@@ -224,9 +226,19 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    if (screenWidth < 1900) return const SizedBox.shrink();
+    if (screenHeight < 500) return const SizedBox.shrink();
+    // Делаем ширину больше, как на первом скрине, и добавляем большой max
+    final dialogWidth = min(800.0, max(420.0, screenWidth * 0.45));
+    final dialogHeight = min(1200.0, screenHeight - 60);
+
+
     return SizedBox(
-      height: MediaQuery.of(context).size.height,
-      width: MediaQuery.of(context).size.width,
+      height: screenHeight,
+      width: screenWidth,
       child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -246,32 +258,36 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    ElevatedButton(
-                      onPressed: () async {
-                        widget.onSavePressed();
-                        Navigator.of(context).pop(true);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: MyColors.blueJournal,
-                        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 22),
-                        minimumSize: Size(0, 0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                    Flexible(
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          widget.onSavePressed();
+                          Navigator.of(context).pop(true);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: MyColors.blueJournal,
+                          padding: EdgeInsets.symmetric(horizontal: 30, vertical: 22),
+                          minimumSize: Size(0, 0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                         ),
+                        child: Text('Сохранить', style: TextStyle(color: Colors.white)),
                       ),
-                      child: Text('Сохранить', style: TextStyle(color: Colors.white)),
                     ),
                     SizedBox(width: 8),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: MyColors.blueJournal,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: IconButton(
-                        icon: Icon(Icons.close, color: Colors.white, size: 32),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
+                    Flexible(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: MyColors.blueJournal,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: IconButton(
+                          icon: Icon(Icons.close, color: Colors.white, size: 32),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
                       ),
                     ),
                   ],
@@ -307,7 +323,7 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
               },
               calendarStyle: CalendarStyle(
                 todayDecoration: BoxDecoration(
-                  color: Colors.blue.withValues(),
+                  color: MyColors.blueJournal.withOpacity(0.2),
                   shape: BoxShape.circle,
                 ),
                 selectedDecoration: BoxDecoration(
@@ -320,7 +336,6 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // День
                 Container(
                   width: 100,
                   height: 60,
@@ -336,7 +351,6 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
                   ),
                 ),
                 SizedBox(width: 15),
-                // Месяц (выпадающий)
                 CompositedTransformTarget(
                   link: _monthLayerLink,
                   child: GestureDetector(
@@ -365,19 +379,20 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
                   ),
                 ),
                 SizedBox(width: 15),
-                // Год
-                Container(
-                  width: 150,
-                  height: 60,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.shade300, width: 1.5),
-                    borderRadius: BorderRadius.circular(12),
-                    color: Colors.white,
-                  ),
-                  child: Text(
-                    _selectedDate.year.toString(),
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                Flexible(
+                  child: Container(
+                    width: 150,
+                    height: 60,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade300, width: 1.5),
+                      borderRadius: BorderRadius.circular(12),
+                      color: Colors.white,
+                    ),
+                    child: Text(
+                      _selectedDate.year.toString(),
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                    ),
                   ),
                 ),
               ],
@@ -388,7 +403,6 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
               style: TextStyle(fontSize: 22),
             ),
             SizedBox(height: 20),
-            // Кастомная кнопка выбора типа занятия
             CompositedTransformTarget(
               link: _layerLink,
               child: GestureDetector(
@@ -411,16 +425,13 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        _selectedEventType ?? 'Выберите тип занятия',
+                        _selectedEventType ?? 'Тип занятия',
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 18,
                           color: _selectedEventType == null ? Colors.grey : Colors.black,
                         ),
                       ),
-                      Icon(
-                        _dropdownOverlay != null ? Icons.arrow_drop_up : Icons.arrow_drop_down,
-                        color: Colors.grey,
-                      ),
+                      Icon(Icons.arrow_drop_down, color: Colors.grey),
                     ],
                   ),
                 ),
@@ -431,4 +442,5 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
       ),
     );
   }
+
 }

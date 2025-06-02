@@ -10,8 +10,9 @@ import 'colors/colors.dart';
 class JournalTable extends StatefulWidget {
   final bool isLoading;
   final List<Session> sessions;
+  final void Function(List<Session>)? onSessionsChanged;
 
-  const JournalTable({super.key, required this.isLoading, required this.sessions});
+  const JournalTable({super.key, required this.isLoading, required this.sessions, this.onSessionsChanged});
 
   @override
   State<JournalTable> createState() => JournalTableState();
@@ -83,7 +84,7 @@ class JournalTableState extends State<JournalTable> {
                 final dates = extractUniqueDateTypes(dataSource!.sessions);
                 final toRemove = dates[_selectedColumnIndex!];
                 final session = dataSource?.sessions.firstWhere(
-                  (s) => '${s.date} ${s.sessionType}' == toRemove,
+                      (s) => '${s.date} ${s.sessionType} ${s.sessionId}' == toRemove,
                 );
                 final repository = JournalRepository();
                 final success = await repository.deleteSession(sessionId: session!.sessionId);
@@ -94,8 +95,9 @@ class JournalTableState extends State<JournalTable> {
 
                   setState(() {
                     _selectedColumnIndex = null;
+                    updateDataSource(updatedSessions);
+                    widget.onSessionsChanged?.call(updatedSessions);
                   });
-                  updateDataSource(updatedSessions);
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Ошибка при удалении занятия')),
@@ -319,7 +321,7 @@ class JournalDataSource extends DataGridSource {
     final Set<String> dateTypes = {};
 
     for (var session in sessions) {
-      dateTypes.add('${session.date} ${session.sessionType}');
+      dateTypes.add('${session.date} ${session.sessionType} ${session.sessionId}');
     }
     final sorted = dateTypes.toList()
       ..sort((a, b) => a.compareTo(b));
@@ -327,19 +329,19 @@ class JournalDataSource extends DataGridSource {
     return sorted;
   }
 
-  Map<String, Map<String, Session>> groupSessionsByStudent(List<Session> sessions) {
-    final Map<String, Map<String, Session>> result = {};
+Map<String, Map<String, Session>> groupSessionsByStudent(List<Session> sessions) {
+  final Map<String, Map<String, Session>> result = {};
 
-    for (var session in sessions) {
-      final studentName = session.student.username;
-      final dateTypeKey = '${session.date} ${session.sessionType}';
+  for (var session in sessions) {
+    final studentName = session.student.username;
+    final dateTypeKey = '${session.date} ${session.sessionType} ${session.sessionId}';
 
-      result.putIfAbsent(studentName, () => {});
-      result[studentName]![dateTypeKey] = session;
-    }
-
-    return result;
+    result.putIfAbsent(studentName, () => {});
+    result[studentName]![dateTypeKey] = session; // ⬅️ берём только одну сессию (последнюю)
   }
+
+  return result;
+}
 
   List<GridColumn> buildColumns({
     required List<Session> sessions,
@@ -388,11 +390,12 @@ class JournalDataSource extends DataGridSource {
       ),
     ];
 
-    for (var entry in dateTypeColumns
-        .asMap()
-        .entries) {
+    for (var entry in dateTypeColumns.asMap().entries) {
       final index = entry.key;
       final dateType = entry.value;
+
+      final parts = dateType.split(' ');
+      final sessionType = parts.length > 1 ? parts[1] : '';
 
       columns.add(
         GridColumn(
@@ -421,7 +424,7 @@ class JournalDataSource extends DataGridSource {
                   ),
                   Divider(height: 2, color: Colors.grey.shade400),
                   Text(
-                    sessionTypeShortNames[dateType.split(' ').last] ?? dateType.split(' ').last,
+                    sessionTypeShortNames[sessionType] ?? sessionType,
                     style: const TextStyle(fontSize: 12),
                   ),
                 ],

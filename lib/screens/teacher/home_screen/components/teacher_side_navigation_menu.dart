@@ -12,7 +12,10 @@ import '../../../auth/view/sign_up_screen.dart';
 class TeacherSideNavigationMenu extends StatefulWidget {
   final Function(String type) onSelectType;
   final VoidCallback onProfileTap;
-  const TeacherSideNavigationMenu({super.key, required this.onSelectType, required this.onProfileTap,});
+  final VoidCallback onThemeTap;
+
+  const TeacherSideNavigationMenu(
+      {super.key, required this.onSelectType, required this.onProfileTap, required this.onThemeTap});
 
   @override
   State<TeacherSideNavigationMenu> createState() => _TeacherSideNavigationMenuState();
@@ -20,7 +23,12 @@ class TeacherSideNavigationMenu extends StatefulWidget {
 
 class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
   final GlobalKey<JournalTableState> tableKey = GlobalKey<JournalTableState>();
-  
+
+  bool _isExpanded = false;
+  bool isHovered = false;
+  final double _collapsedWidth = 100;
+  final double _expandedWidth = 250;
+
   final List<IconData> _icons = [
     Icons.book,
     Icons.library_books,
@@ -50,11 +58,6 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
     'Аттестация',
     'Текущая Аттестация',
   ];
-
-  bool _isExpanded = false;
-  bool isHovered = false;
-  final double _collapsedWidth = 100;
-  final double _expandedWidth = 250;
 
   @override
   Widget build(BuildContext context) {
@@ -185,9 +188,13 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
                             padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
                             child: InkWell(
                               onTap: () {
-                                final type = _filterText[index];
-                                widget.onSelectType(type);
-                                },
+                                if (index == _icons.length - 1) {
+                                  widget.onThemeTap();
+                                } else {
+                                  final type = _filterText[index];
+                                  widget.onSelectType(type);
+                                }
+                              },
                               child: MyIconContainer(
                                 icon: _icons[index],
                                 width: (_isExpanded ? 250 : 50),
@@ -215,12 +222,6 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
                   onTap: () {
                     context.read<AuthenticationBloc>().add(AuthenticationLogoutRequested());
                     log('➡️ Состояние: ${context.read<AuthenticationBloc>().state}');
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     builder: (context) => WelcomeScreen(),
-                    //   ),
-                    // );
                   },
                   child: MyIconContainer(
                     borderRadius: 100,
