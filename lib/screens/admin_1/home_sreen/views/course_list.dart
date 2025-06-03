@@ -14,6 +14,7 @@ class CoursesList extends StatefulWidget{
   final List<Group> groups;
   final List<MyUser> teachers;
 
+
   const CoursesList({super.key, required this.loadCourses, required this.courses, required this.groups, required this.teachers, });
 
 
@@ -21,7 +22,7 @@ class CoursesList extends StatefulWidget{
   State<CoursesList> createState() => _CoursesList();
 }
 
-class _CoursesList extends State<CoursesList>{
+class _CoursesList extends State<CoursesList> {
   final journalRepository = JournalRepository();
   int? selectedIndex;
   bool isLoading = true;
@@ -29,10 +30,18 @@ class _CoursesList extends State<CoursesList>{
   bool showEditDialog = false;
   final List<Course> courses = [];
   final usernameController = TextEditingController();
-  final positionController = TextEditingController();
-  final bioController = TextEditingController();
+  final lecturesController = TextEditingController();
+  final labsController = TextEditingController();
   List<MyUser> selectedTeachers = [];
   List<Group> selectedGroups = [];
+  List<MyUser> selectedTeachers2 = [];
+  List<String> selectedTypes = [];
+
+  bool nameError = false;
+  bool teacherError = false;
+  bool groupError = false;
+  bool lecturesError = false;
+
 
   @override
   void initState() {
@@ -66,7 +75,6 @@ class _CoursesList extends State<CoursesList>{
           Expanded(
             child: Stack(
               children: [
-                // Основной контент
                 Container(
                   color: Colors.white,
                   child: Padding(
@@ -351,202 +359,384 @@ class _CoursesList extends State<CoursesList>{
                     ),
                   ),
                 // Окно редактирования информации
-                if (showEditDialog && selectedIndex != null)
+                if (showEditDialog)
                   Positioned(
-                    top: 32,
-                    right: 32,
-                    child: Builder(
-                      builder: (context) {
-                        final media = MediaQuery.of(context).size;
-                        final double dialogWidth = (media.width - 32 - 80).clamp(320, 600);
-                        final double dialogHeight = (media.height - 64).clamp(480, 1100);
-
+                    top: 0,
+                    bottom: 0,
+                    right: 0,
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        double dialogWidth = 600;
+                        double dialogMaxHeight = constraints.maxHeight - 48;
                         return Material(
                           color: Colors.transparent,
                           child: Container(
                             width: dialogWidth,
-                            height: dialogHeight,
+                            constraints: BoxConstraints(
+                              maxHeight: dialogMaxHeight,
+                              minHeight: 200,
+                            ),
+                            margin: const EdgeInsets.only(top: 24, right: 24, bottom: 24),
+                            padding: const EdgeInsets.all(36),
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: Color(0xFF4068EA), width: 2),
+                              borderRadius: BorderRadius.circular(26),
                               boxShadow: const [
                                 BoxShadow(
                                   color: Colors.black12,
-                                  blurRadius: 24,
-                                  offset: Offset(0, 8),
+                                  blurRadius: 32,
+                                  offset: Offset(0, 12),
                                 ),
                               ],
                             ),
-                            child: LayoutBuilder(
-                              builder: (context, constraints) {
-                                // constraints.maxWidth == dialogWidth, constraints.maxHeight == dialogHeight
-                                return SingleChildScrollView(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(32),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                            child: Scrollbar(
+                              thumbVisibility: true,
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Верхняя панель
+                                    Row(
                                       children: [
-                                        Row(
-                                          children: [
-                                            const Text(
-                                              "Информация",
-                                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-                                            ),
-                                            const Spacer(),
-                                            SizedBox(
-                                              height: 36,
-                                              child: ElevatedButton(
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor: Color(0xFF4068EA),
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius: BorderRadius.circular(8),
-                                                  ),
-                                                  elevation: 0,
-                                                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                                                ),
-                                                onPressed: () async {
-                                                  // final currentCourse = widget.courses.firstWhere((c) => c.id == selectedIndex);
-                                                  //
-                                                  // final name = usernameController.text.trim().isEmpty
-                                                  //     ? currentCourse.name
-                                                  //     : usernameController.text.trim();
-                                                  //
-                                                  // final teacherIds = selectedTeachers.isEmpty
-                                                  //     ? currentCourse.teachers
-                                                  //     : selectedTeachers.map((e) => e.id).toList();
-                                                  //
-                                                  // final groupIds = selectedGroups.isEmpty
-                                                  //     ? currentCourse.groups
-                                                  //     : selectedGroups.map((e) => e.id).toList();
-                                                  //
-                                                  // final result = await journalRepository.addCourse(
-                                                  //   courseId: selectedIndex, // <-- Передаём id для обновления
-                                                  //   name: name,
-                                                  //   teacherIds: teacherIds,
-                                                  //   groupIds: groupIds,
-                                                  // );
-                                                  //
-                                                  // if (result) {
-                                                  //   await widget.loadCourses(); // Обновить список
-                                                  //   setState(() => showEditDialog = false);
-                                                  // } else {
-                                                  //   ScaffoldMessenger.of(context).showSnackBar(
-                                                  //     const SnackBar(content: Text('❌ Не удалось сохранить изменения')),
-                                                  //   );
-                                                  // }
-                                                },
-
-                                                child: const Text('Сохранить', style: TextStyle(color: Colors.white)),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 12),
-                                            InkWell(
-                                              onTap: () {
-                                                setState(() {
-                                                  showEditDialog = false;
-                                                });
-                                              },
-                                              borderRadius: BorderRadius.circular(10),
-                                              child: Container(
-                                                width: 36,
-                                                height: 36,
-                                                decoration: BoxDecoration(
-                                                  color: Color(0xFF4068EA),
-                                                  borderRadius: BorderRadius.circular(10),
-                                                ),
-                                                child: const Icon(
-                                                  Icons.close,
-                                                  color: Colors.white,
-                                                  size: 22,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
+                                        const Text(
+                                          "Создание дисциплины",
+                                          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w400),
                                         ),
-                                        SizedBox(height: constraints.maxHeight * 0.03),
-                                        Row(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Expanded(
-                                              child: Column(
-                                                children: [
-                                                  SizedBox(
-                                                    height: constraints.maxHeight * 0.07,
-                                                    child: TextField(
-                                                      controller: usernameController,
-                                                      decoration: const InputDecoration(
-                                                        labelText: "Название дисциплины*",
-                                                        hintText: "Введите название дисциплины",
-                                                        border: OutlineInputBorder(),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  SizedBox(height: constraints.maxHeight * 0.03),
-                                                  MultiSelectDialogField<MyUser>(
-                                                    items: widget.teachers
-                                                        .map((teacher) => MultiSelectItem<MyUser>(teacher, teacher.username))
-                                                        .toList(),
-                                                    title: const Text("Преподаватели"),
-                                                    selectedColor: Colors.blue,
-                                                    decoration: BoxDecoration(
-                                                      color: const Color(0xFFF3F4F6),
-                                                      borderRadius: BorderRadius.circular(11),
-                                                      border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
-                                                    ),
-                                                    buttonIcon: const Icon(Icons.group_add),
-                                                    buttonText: const Text("Преподаватели"),
-                                                    onConfirm: (values) {
-                                                      selectedTeachers = values;
-                                                    },
-                                                    validator: (values) =>
-                                                    (values == null || values.isEmpty) ? 'Выберите хотя бы одного преподавателя' : null,
-                                                  ),
-                                                  const SizedBox(height: 48),
-                                                  const Text(
-                                                    'Привязка группы',
-                                                    style: TextStyle(
-                                                      fontSize: 15,
-                                                      color: Color(0xFF6B7280),
-                                                      fontWeight: FontWeight.w400,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(height: 18),
-                                                  MultiSelectDialogField<Group>(
-                                                    items: widget.groups
-                                                        .map((group) => MultiSelectItem<Group>(group, group.name))
-                                                        .toList(),
-                                                    title: const Text("Группы"),
-                                                    selectedColor: Colors.blue,
-                                                    decoration: BoxDecoration(
-                                                      color: const Color(0xFFF3F4F6),
-                                                      borderRadius: BorderRadius.circular(11),
-                                                      border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
-                                                    ),
-                                                    buttonIcon: const Icon(Icons.group_add),
-                                                    buttonText: const Text("Группы"),
-                                                    onConfirm: (values) {
-                                                      selectedGroups = values;
-                                                    },
-                                                    validator: (values) =>
-                                                    (values == null || values.isEmpty) ? 'Выберите хотя бы одну группу' : null,
-                                                  ),
-                                                ],
-                                              ),
+                                        const Spacer(),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              nameError = usernameController.text.trim().isEmpty;
+                                              lecturesError = lecturesController.text.trim().isEmpty;
+                                              teacherError = selectedTeachers.length != 1;
+                                              groupError = selectedGroups.length != 1;
+                                            });
+                                            if (!nameError && !lecturesError && !teacherError && !groupError) {
+                                              // TODO: Сохранить изменения
+                                              setState(() {
+                                                showEditDialog = false;
+                                              });
+                                            }
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: const Color(0xFF4068EA),
+                                            minimumSize: const Size(130, 52),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(14),
                                             ),
-                                          ],
+                                            elevation: 0,
+                                          ),
+                                          child: const Text("Сохранить", style: TextStyle(fontSize: 19, color: Colors.white)),
+                                        ),
+                                        const SizedBox(width: 16),
+                                        InkWell(
+                                          onTap: () {
+                                            setState(() {
+                                              showEditDialog = false;
+                                            });
+                                          },
+                                          borderRadius: BorderRadius.circular(16),
+                                          child: Container(
+                                            width: 54,
+                                            height: 54,
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFF4068EA),
+                                              borderRadius: BorderRadius.circular(16),
+                                            ),
+                                            child: const Icon(
+                                              Icons.close,
+                                              color: Colors.white,
+                                              size: 32,
+                                            ),
+                                          ),
                                         ),
                                       ],
                                     ),
-                                  ),
-                                );
-                              },
+                                    const SizedBox(height: 30),
+
+                                    // Название дисциплины
+                                    const Text("Название дисциплины*"),
+                                    const SizedBox(height: 8),
+                                    TextField(
+                                      controller: usernameController,
+                                      decoration: InputDecoration(
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                          borderSide: BorderSide(
+                                            color: nameError ? Colors.red : Colors.grey,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                                        errorText: nameError ? 'Обязательное поле' : null,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 28),
+
+                                    // Виды занятий
+                                    const Text("Выберите вид занятий*"),
+                                    const SizedBox(height: 10),
+                                    Wrap(
+                                      spacing: 18,
+                                      runSpacing: 14,
+                                      children: [
+                                        ...[
+                                          {'key': 'lecture', 'label': 'Лекции'},
+                                          {'key': 'seminar', 'label': 'Семинар'},
+                                          {'key': 'practice', 'label': 'Практика'},
+                                          {'key': 'lab', 'label': 'Лабораторные'},
+                                          {'key': 'current', 'label': 'Текущая аттестация'},
+                                          {'key': 'final', 'label': 'Промежуточная аттестация'},
+                                        ].map((type) {
+                                          final isSelected = selectedTypes.contains(type['key']);
+                                          return IntrinsicWidth(
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                setState(() {
+                                                  if (isSelected) {
+                                                    selectedTypes.remove(type['key']);
+                                                  } else {
+                                                    selectedTypes.add(type['key']!);
+                                                  }
+                                                });
+                                              },
+                                              child: Container(
+                                                height: 48,
+                                                margin: const EdgeInsets.symmetric(vertical: 2),
+                                                padding: const EdgeInsets.symmetric(horizontal: 20),
+                                                decoration: BoxDecoration(
+                                                  color: isSelected ? const Color(0xFF4068EA) : Colors.transparent,
+                                                  border: Border.all(
+                                                    color: isSelected ? const Color(0xFF4068EA) : Colors.grey.shade300,
+                                                    width: 2,
+                                                  ),
+                                                  borderRadius: BorderRadius.circular(14),
+                                                ),
+                                                child: Row(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    if (isSelected)
+                                                      const Icon(Icons.check, color: Colors.white, size: 22),
+                                                    if (isSelected) const SizedBox(width: 6),
+                                                    Text(
+                                                      type['label']!,
+                                                      style: TextStyle(
+                                                        color: isSelected ? Colors.white : Colors.black87,
+                                                        fontWeight: FontWeight.w500,
+                                                        fontSize: 16,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        })
+                                      ],
+                                    ),
+                                    const SizedBox(height: 28),
+
+                                    // Часы
+                                    const Text("Заполните часы, отведённые на занятия*"),
+                                    const SizedBox(height: 14),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              const Text("Лекции*"),
+                                              const SizedBox(height: 6),
+                                              TextField(
+                                                controller: lecturesController,
+                                                keyboardType: TextInputType.number,
+                                                decoration: InputDecoration(
+                                                  hintText: "Введите часы",
+                                                  border: OutlineInputBorder(
+                                                    borderRadius: BorderRadius.circular(12),
+                                                    borderSide: BorderSide(
+                                                      color: lecturesError ? Colors.red : Colors.grey,
+                                                      width: 1.5,
+                                                    ),
+                                                  ),
+                                                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                                  errorText: lecturesError ? 'Обязательное поле' : null,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(width: 20),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              const Text("Лабораторные"),
+                                              const SizedBox(height: 6),
+                                              TextField(
+                                                controller: labsController,
+                                                keyboardType: TextInputType.number,
+                                                decoration: InputDecoration(
+                                                  hintText: "Введите часы",
+                                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 28),
+
+                                    // Преподаватель 1
+                                    const Text("Привязать преподавателя"),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      "Выберите одного преподавателя и выберите одну группу",
+                                      style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    DropdownButtonFormField<MyUser>(
+                                      isExpanded: true,
+                                      decoration: InputDecoration(
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                          borderSide: BorderSide(
+                                            color: teacherError ? Colors.red : Colors.grey,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                        errorText: teacherError ? 'Обязательное поле. Выберите хотя бы одного преподавателя.' : null,
+                                      ),
+                                      hint: const Text("Выберите из списка преподавателя"),
+                                      value: selectedTeachers.isNotEmpty ? selectedTeachers.first : null,
+                                      items: widget.teachers
+                                          .map((t) => DropdownMenuItem<MyUser>(
+                                        value: t,
+                                        child: Text(t.username),
+                                      ))
+                                          .toList(),
+                                      onChanged: (val) {
+                                        setState(() {
+                                          selectedTeachers = val != null ? [val] : [];
+                                        });
+                                      },
+                                    ),
+                                    const SizedBox(height: 10),
+                                    if (selectedTeachers.isNotEmpty)
+                                      Wrap(
+                                        spacing: 8,
+                                        children: selectedTeachers.map((teacher) {
+                                          return Chip(
+                                            label: Text(teacher.username),
+                                            onDeleted: () {
+                                              setState(() {
+                                                selectedTeachers.remove(teacher);
+                                              });
+                                            },
+                                          );
+                                        }).toList(),
+                                      ),
+                                    const SizedBox(height: 20),
+
+                                    // Группа
+                                    const Text("Привязать группу"),
+                                    const SizedBox(height: 4),
+                                    DropdownButtonFormField<Group>(
+                                      isExpanded: true,
+                                      decoration: InputDecoration(
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                          borderSide: BorderSide(
+                                            color: groupError ? Colors.red : Colors.grey,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                        errorText: groupError ? 'Обязательное поле. Выберите хотя бы одну группу.' : null,
+                                      ),
+                                      hint: const Text("Выберите из списка группу"),
+                                      value: selectedGroups.isNotEmpty ? selectedGroups.first : null,
+                                      items: widget.groups
+                                          .map((g) => DropdownMenuItem<Group>(
+                                        value: g,
+                                        child: Text(g.name),
+                                      ))
+                                          .toList(),
+                                      onChanged: (val) {
+                                        setState(() {
+                                          selectedGroups = val != null ? [val] : [];
+                                        });
+                                      },
+                                    ),
+                                    const SizedBox(height: 10),
+                                    if (selectedGroups.isNotEmpty)
+                                      Wrap(
+                                        spacing: 8,
+                                        runSpacing: 8,
+                                        children: selectedGroups.map((group) {
+                                          return Chip(
+                                            label: Text(group.name),
+                                            onDeleted: () {
+                                              setState(() {
+                                                selectedGroups.remove(group);
+                                              });
+                                            },
+                                          );
+                                        }).toList(),
+                                      ),
+                                    const SizedBox(height: 20),
+
+                                    // Преподаватель 2 (необязательное поле)
+                                    const Text("Привязать преподавателя 2"),
+                                    const SizedBox(height: 8),
+                                    DropdownButtonFormField<MyUser>(
+                                      isExpanded: true,
+                                      decoration: InputDecoration(
+                                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                      ),
+                                      hint: const Text("Выберите из списка преподавателя"),
+                                      value: selectedTeachers2.isNotEmpty ? selectedTeachers2.first : null,
+                                      items: widget.teachers
+                                          .map((t) => DropdownMenuItem<MyUser>(
+                                        value: t,
+                                        child: Text(t.username),
+                                      ))
+                                          .toList(),
+                                      onChanged: (val) {
+                                        setState(() {
+                                          selectedTeachers2 = val != null ? [val] : [];
+                                        });
+                                      },
+                                    ),
+                                    const SizedBox(height: 10),
+                                    if (selectedTeachers2.isNotEmpty)
+                                      Wrap(
+                                        spacing: 8,
+                                        children: selectedTeachers2.map((teacher) {
+                                          return Chip(
+                                            label: Text(teacher.username),
+                                            onDeleted: () {
+                                              setState(() {
+                                                selectedTeachers2.remove(teacher);
+                                              });
+                                            },
+                                          );
+                                        }).toList(),
+                                      ),
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
                         );
                       },
                     ),
                   ),
+
               ],
             ),
           ),

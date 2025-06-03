@@ -39,7 +39,6 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
 
     if (screenWidth < 500) return const SizedBox.shrink();
     if (screenHeight < 500) return const SizedBox.shrink();
-    // Делаем ширину больше, как на первом скрине, и добавляем большой max
     final dialogWidth = min(800.0, max(420.0, screenWidth * 0.45));
     final dialogHeight = min(1200.0, screenHeight - 60);
 
@@ -47,7 +46,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
       insetPadding: const EdgeInsets.all(0),
       backgroundColor: Colors.transparent,
       child: Padding(
-        padding: const EdgeInsets.only(right: 60), // Увеличенный отступ справа!
+        padding: const EdgeInsets.only(right: 60),
         child: Align(
           alignment: Alignment.centerRight,
           child: SizedBox(
@@ -70,9 +69,8 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // --- Шапка ---
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.center, // ВЫРОВНЯТЬ ПО ВЕРХУ!
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         const Expanded(
                           child: Text(
@@ -102,8 +100,8 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                     );
 
                                     if (result) {
-                                      widget.onCourseAdded(); // Чтобы обновить список
-                                      Navigator.of(context).pop(); // Закрываем диалог
+                                      widget.onCourseAdded();
+                                      Navigator.of(context).pop();
                                     } else {
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         const SnackBar(content: Text('❌ Не удалось добавить курс')),
@@ -120,7 +118,6 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                   ),
                                   padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 0),
                                   minimumSize: const Size(160, 55),
-                                  // <-- высота и ширина!
                                   textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                                 ),
                                 child: const Text('Сохранить'),
@@ -145,7 +142,6 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                       ],
                     ),
                     const SizedBox(height: 32),
-                    // --- Форма ---
                     Expanded(
                       child: SingleChildScrollView(
                         child: Form(
