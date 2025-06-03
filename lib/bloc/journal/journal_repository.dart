@@ -164,20 +164,26 @@ class JournalRepository {
     }
   }
 
-  Future<bool> updateTeacher({
+  Future<bool> updateUser({
     required int userId,
-    required String username,
-    required String position,
-    required String bio,
+    String? username,
+    String? position,
+    String? bio,
+    int? groupId,
+    int? courseId,
+    int? facultyId,
   }) async {
     try {
       final response = await http.put(
-        Uri.parse('http://127.0.0.1:8000/api/update_teacher/$userId/'),
+        Uri.parse('http://127.0.0.1:8000/api/update_user/$userId/'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'username': username,
           'position': position,
           'bio': bio,
+          'group_id': groupId,
+          'course_id': courseId,
+          'faculty_id': facultyId,
         }),
       );
       log('🔍 Отправка обновления для userId: $userId');

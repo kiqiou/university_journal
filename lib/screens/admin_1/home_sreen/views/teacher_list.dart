@@ -386,7 +386,7 @@ class _TeachersList extends State<TeachersList>{
                                                   padding: const EdgeInsets.symmetric(horizontal: 24),
                                                 ),
                                                 onPressed: () async {
-                                                  final success = await journalRepository.updateTeacher(
+                                                  final success = await journalRepository.updateUser(
                                                     userId: widget.teachers[selectedIndex!].id,
                                                     username: usernameController.text,
                                                     position: positionController.text,

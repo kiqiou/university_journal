@@ -6,12 +6,12 @@ class MyUser extends Equatable {
   final int id;
   final String username;
   final String role;
-  String? bio;
-  String? position;
-  int? groupId;
+  final String? bio;
+  final String? position;
+  final int? groupId;
   final List<Course> courses;
 
-  MyUser({
+  const MyUser({
     required this.id,
     required this.username,
     required this.role,
