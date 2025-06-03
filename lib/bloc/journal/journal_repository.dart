@@ -263,7 +263,7 @@ class JournalRepository {
     }
   }
 
-  Future<bool> addCourse({
+  Future<bool> addAndUpdateCourse({
     int? courseId,
     required String name,
     required List<int> teacherIds,
@@ -277,7 +277,7 @@ class JournalRepository {
           'Accept-Charset': 'utf-8',
         },
         body: jsonEncode({
-          'id': courseId, // ← передаём id, если это редактирование
+          'course_id': courseId, // ← передаём id, если это редактирование
           'name': name,
           'teachers': teacherIds,
           'groups': groupIds,

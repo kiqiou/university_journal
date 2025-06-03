@@ -93,7 +93,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                     List<int> teacherIds = selectedTeachers.map((e) => e.id).toList();
                                     List<int> groupIds = selectedGroups.map((e) => e.id).toList();
 
-                                    bool result = await JournalRepository().addCourse(
+                                    bool result = await JournalRepository().addAndUpdateCourse(
                                       name: groupNameController.text,
                                       teacherIds: teacherIds,
                                       groupIds: groupIds,

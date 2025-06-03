@@ -212,7 +212,7 @@ class _CoursesList extends State<CoursesList> {
                                       child: GestureDetector(
                                         onTap: () {
                                           setState(() {
-                                            selectedIndex = index;
+                                            selectedIndex = courses[index].id; // ✅ id дисциплины
                                           });
                                         },
                                         child: Container(
@@ -220,7 +220,7 @@ class _CoursesList extends State<CoursesList> {
                                           decoration: BoxDecoration(
                                             borderRadius: BorderRadius.circular(22.0),
                                             border: Border.all(
-                                              color: selectedIndex == index
+                                              color: selectedIndex == courses[index].id
                                                   ? const Color(0xFF4068EA)
                                                   : Colors.grey.shade300,
                                               width: 1.4,
@@ -399,12 +399,12 @@ class _CoursesList extends State<CoursesList> {
                                     Row(
                                       children: [
                                         const Text(
-                                          "Создание дисциплины",
+                                          "Редактирование дисциплины",
                                           style: TextStyle(fontSize: 22, fontWeight: FontWeight.w400),
                                         ),
                                         const Spacer(),
                                         ElevatedButton(
-                                          onPressed: () {
+                                          onPressed: () async {
                                             setState(() {
                                               nameError = usernameController.text.trim().isEmpty;
                                               lecturesError = lecturesController.text.trim().isEmpty;
@@ -416,6 +416,30 @@ class _CoursesList extends State<CoursesList> {
                                               setState(() {
                                                 showEditDialog = false;
                                               });
+                                            }
+                                            final currentCourse = widget.courses.firstWhere((c) => c.id == selectedIndex);
+
+                                            final name = usernameController.text.trim().isEmpty
+                                                ? currentCourse.name
+                                                : usernameController.text.trim();
+
+                                            List<int> teacherIds = selectedTeachers.map((e) => e.id).toList();
+                                            List<int> groupIds = selectedGroups.map((e) => e.id).toList();
+
+                                            final result = await journalRepository.addAndUpdateCourse(
+                                              courseId: selectedIndex,
+                                              name: name,
+                                              teacherIds: teacherIds,
+                                              groupIds: groupIds,
+                                            );
+
+                                            if (result) {
+                                              await widget.loadCourses();
+                                              setState(() => showEditDialog = false);
+                                            } else {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(content: Text('❌ Не удалось сохранить изменения')),
+                                              );
                                             }
                                           },
                                           style: ElevatedButton.styleFrom(
@@ -688,45 +712,6 @@ class _CoursesList extends State<CoursesList> {
                                         }).toList(),
                                       ),
                                     const SizedBox(height: 20),
-
-                                    // Преподаватель 2 (необязательное поле)
-                                    const Text("Привязать преподавателя 2"),
-                                    const SizedBox(height: 8),
-                                    DropdownButtonFormField<MyUser>(
-                                      isExpanded: true,
-                                      decoration: InputDecoration(
-                                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                                      ),
-                                      hint: const Text("Выберите из списка преподавателя"),
-                                      value: selectedTeachers2.isNotEmpty ? selectedTeachers2.first : null,
-                                      items: widget.teachers
-                                          .map((t) => DropdownMenuItem<MyUser>(
-                                        value: t,
-                                        child: Text(t.username),
-                                      ))
-                                          .toList(),
-                                      onChanged: (val) {
-                                        setState(() {
-                                          selectedTeachers2 = val != null ? [val] : [];
-                                        });
-                                      },
-                                    ),
-                                    const SizedBox(height: 10),
-                                    if (selectedTeachers2.isNotEmpty)
-                                      Wrap(
-                                        spacing: 8,
-                                        children: selectedTeachers2.map((teacher) {
-                                          return Chip(
-                                            label: Text(teacher.username),
-                                            onDeleted: () {
-                                              setState(() {
-                                                selectedTeachers2.remove(teacher);
-                                              });
-                                            },
-                                          );
-                                        }).toList(),
-                                      ),
                                   ],
                                 ),
                               ),
@@ -736,7 +721,6 @@ class _CoursesList extends State<CoursesList> {
                       },
                     ),
                   ),
-
               ],
             ),
           ),
