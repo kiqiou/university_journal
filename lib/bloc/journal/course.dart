@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 import 'package:university_journal/bloc/journal/group.dart';
-
 import '../user/user.dart';
 
 class Course extends Equatable {

@@ -4,13 +4,14 @@ import 'package:university_journal/bloc/user/authentication_user.dart';
 
 class AddStudentDialog extends StatefulWidget {
   final VoidCallback onStudentAdded;
-  final void Function(String studentName, String? group, String? bio) onSave;
+  // onSave теперь принимает факультет и курс, дополнительно к ФИО и группе
+  final void Function(String studentName, String? group, String? faculty, String? course) onSave;
 
   const AddStudentDialog({
-    super.key,
+    Key? key,
     required this.onStudentAdded,
     required this.onSave,
-  });
+  }) : super(key: key);
 
   @override
   State<AddStudentDialog> createState() => _AddStudentDialogState();
@@ -20,16 +21,23 @@ class _AddStudentDialogState extends State<AddStudentDialog> {
   final _formKey = GlobalKey<FormState>();
   String? fio;
   String? group;
-  String? bio;
+  String? faculty;
+  String? course;
+
+  // Варианты для выпадающего меню факультета и курса
+  final List<String> _faculties = ['Экономический', 'Юридический'];
+  final List<String> _courses = ['1 курс', '2 курс', '3 курс', '4 курс'];
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
+    // Если размеры экрана слишком маленькие — ничего не показываем
     if (screenWidth < 500) return const SizedBox.shrink();
     if (screenHeight < 500) return const SizedBox.shrink();
 
+    // Окно располагается сбоку (правее) и имеет чуть меньшую ширину
     final dialogWidth = min(800.0, max(420.0, screenWidth * 0.45));
     final dialogHeight = min(1200.0, screenHeight - 60);
 
@@ -87,11 +95,11 @@ class _AddStudentDialogState extends State<AddStudentDialog> {
                                     await authRepository.signUp(
                                       username: fio ?? '',
                                       password: '123456',
-                                      roleId: 2, // 2 — студент
+                                      roleId: 2, // 2 – студент
                                       position: group ?? '',
-                                      bio: bio ?? '',
+                                      bio: "", // краткая информация убрана
                                     );
-                                    widget.onSave(fio ?? '', group, bio);
+                                    widget.onSave(fio ?? '', group, faculty, course);
                                     widget.onStudentAdded();
                                     Navigator.of(context).pop();
                                   }
@@ -129,39 +137,6 @@ class _AddStudentDialogState extends State<AddStudentDialog> {
                       ],
                     ),
                     const SizedBox(height: 28),
-                    // --- Аватар + кнопка ---
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 200,
-                          height: 260,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFE5E7EB),
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: const Icon(Icons.person, size: 54, color: Color(0xFF9CA3AF)),
-                        ),
-                        const SizedBox(width: 18),
-                        SizedBox(
-                          height: 48,
-                          width: 48,
-                          child: ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF4068EA),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              padding: EdgeInsets.zero,
-                              elevation: 0,
-                            ),
-                            child: const Icon(Icons.add, color: Colors.white, size: 26),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 32),
                     // --- Форма ---
                     Expanded(
                       child: SingleChildScrollView(
@@ -170,6 +145,7 @@ class _AddStudentDialogState extends State<AddStudentDialog> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              // Поле ФИО студента*
                               const Text(
                                 'ФИО студента*',
                                 style: TextStyle(
@@ -186,8 +162,79 @@ class _AddStudentDialogState extends State<AddStudentDialog> {
                                 onSaved: (value) => fio = value,
                               ),
                               const SizedBox(height: 48),
+                              // Выпадающее меню для выбора факультета*
                               const Text(
-                                'Группа',
+                                'Привязать факультет*',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Color(0xFF6B7280),
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                              const SizedBox(height: 18),
+                              DropdownButtonFormField<String>(
+                                value: faculty,
+                                decoration: _inputDecoration('Выберите факультет'),
+                                items: _faculties.map((fac) {
+                                  return DropdownMenuItem(
+                                    value: fac,
+                                    child: Text(
+                                      fac,
+                                      style: const TextStyle(fontSize: 15, color: Color(0xFF6B7280)),
+                                    ),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    faculty = value;
+                                  });
+                                },
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Выберите факультет';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 48),
+                              // Выпадающее меню для выбора курса
+                              const Text(
+                                'Выберите курс',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Color(0xFF6B7280),
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                              const SizedBox(height: 18),
+                              DropdownButtonFormField<String>(
+                                value: course,
+                                decoration: _inputDecoration('Выберите курс'),
+                                items: _courses.map((crs) {
+                                  return DropdownMenuItem(
+                                    value: crs,
+                                    child: Text(
+                                      crs,
+                                      style: const TextStyle(fontSize: 15, color: Color(0xFF6B7280)),
+                                    ),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    course = value;
+                                  });
+                                },
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Выберите курс';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 48),
+                              // Поле "Привязать группу"
+                              const Text(
+                                'Привязать группу',
                                 style: TextStyle(
                                   fontSize: 15,
                                   color: Color(0xFF6B7280),
@@ -197,23 +244,10 @@ class _AddStudentDialogState extends State<AddStudentDialog> {
                               const SizedBox(height: 18),
                               TextFormField(
                                 decoration: _inputDecoration('Введите группу'),
+                                initialValue: '2420', // пример такого значения, как на фото
                                 onSaved: (value) => group = value,
                               ),
                               const SizedBox(height: 48),
-                              const Text(
-                                'Краткая информация',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: Color(0xFF6B7280),
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                              const SizedBox(height: 18),
-                              TextFormField(
-                                decoration: _inputDecoration('Введите краткую информацию'),
-                                maxLines: 2,
-                                onSaved: (value) => bio = value,
-                              ),
                             ],
                           ),
                         ),
@@ -229,6 +263,7 @@ class _AddStudentDialogState extends State<AddStudentDialog> {
     );
   }
 
+  // Единый стиль для полей ввода и выпадающих меню
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,

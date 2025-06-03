@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-
 import '../journal/course.dart';
 
 class MyUser extends Equatable {

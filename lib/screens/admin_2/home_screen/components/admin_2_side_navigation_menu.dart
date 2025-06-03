@@ -3,11 +3,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/bloc/auth/authentication_bloc.dart';
 import 'package:university_journal/components/icon_container.dart';
-import 'package:university_journal/screens/admin_2/home_screen/components/add_student.dart';
+import '../../../../bloc/journal/group.dart';
+import '../../../../bloc/user/user.dart';
+import 'add_student.dart';
+import 'add_group.dart';
 
 class Admin2SideNavigationMenu extends StatefulWidget {
   final Future<void> Function() onStudentAdded;
-  const Admin2SideNavigationMenu({super.key, required this.onStudentAdded});
+  final Future<void> Function() onGroupAdded;
+  final VoidCallback onStudentsListTap;
+  final VoidCallback onGroupsListTap;
+  final List<Group> groups;
+  final List<MyUser> students;
+
+  const Admin2SideNavigationMenu({
+    super.key,
+    required this.onStudentAdded,
+    required this.onGroupAdded,
+    required this.onStudentsListTap,
+    required this.onGroupsListTap,
+    required this.groups,
+    required this.students,
+  });
 
   @override
   State<Admin2SideNavigationMenu> createState() => _Admin2SideNavigationMenuState();
@@ -15,8 +32,8 @@ class Admin2SideNavigationMenu extends StatefulWidget {
 
 class _Admin2SideNavigationMenuState extends State<Admin2SideNavigationMenu> {
   final List<IconData> _icons = [
+    Icons.person_outline,
     Icons.groups_outlined,
-    Icons.library_books,
     Icons.add_circle_outline,
     Icons.add_circle_outline,
   ];
@@ -35,24 +52,24 @@ class _Admin2SideNavigationMenuState extends State<Admin2SideNavigationMenu> {
 
   @override
   Widget build(BuildContext context) {
-    final List<VoidCallback> _functions = [
-          () => print('Переход к списку студентов'),
-          () => print('Переход к списку групп'),
+    final List<VoidCallback> functions = [
+      widget.onStudentsListTap,
+      widget.onGroupsListTap,
           () {
         showDialog(
           context: context,
           builder: (context) => AddStudentDialog(
-            onStudentAdded: widget.onStudentAdded,
-            onSave: (String fio, String? group, String? bio) {
-              // Здесь можно добавить студента, если нужно
-              // Но обычно это делается в основном файле
-            },
+            onStudentAdded: widget.onStudentAdded, onSave: (String studentName, String? group, String? faculty, String? course) {  },
           ),
         );
       },
           () {
-        // Здесь можно вызвать диалог добавления группы, если нужно
-        print('Добавление группы');
+        showDialog(
+          context: context,
+          builder: (context) => AddGroupDialog(
+            onGroupAdded: widget.onGroupAdded, onSave: (String groupName, String? course) {  },
+          ),
+        );
       },
     ];
 
@@ -80,10 +97,7 @@ class _Admin2SideNavigationMenuState extends State<Admin2SideNavigationMenu> {
                 'МИТСО\nМеждународный\nУниверситет',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               )
-                  : const SizedBox(
-                height: 24,
-                width: 24,
-              ),
+                  : const SizedBox(height: 24, width: 24),
             ),
             Expanded(
               child: Column(
@@ -125,7 +139,7 @@ class _Admin2SideNavigationMenuState extends State<Admin2SideNavigationMenu> {
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
                             child: InkWell(
-                              onTap: _functions[index],
+                              onTap: functions[index],
                               child: MyIconContainer(
                                 icon: _icons[index],
                                 width: (_isExpanded ? 250 : 50),
