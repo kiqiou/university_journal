@@ -170,8 +170,6 @@ class JournalRepository {
     String? position,
     String? bio,
     int? groupId,
-    int? courseId,
-    int? facultyId,
   }) async {
     try {
       final response = await http.put(
@@ -182,8 +180,6 @@ class JournalRepository {
           'position': position,
           'bio': bio,
           'group_id': groupId,
-          'course_id': courseId,
-          'faculty_id': facultyId,
         }),
       );
       log('🔍 Отправка обновления для userId: $userId');
