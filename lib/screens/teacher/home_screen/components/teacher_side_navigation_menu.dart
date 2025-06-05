@@ -14,9 +14,9 @@ class TeacherSideNavigationMenu extends StatefulWidget {
   final VoidCallback onProfileTap;
   final VoidCallback onThemeTap;
   final VoidCallback onToggle;
-  late final bool isExpanded;
+  final bool isExpanded;
 
-  TeacherSideNavigationMenu(
+  const TeacherSideNavigationMenu(
       {super.key,
       required this.onSelectType,
       required this.onProfileTap,

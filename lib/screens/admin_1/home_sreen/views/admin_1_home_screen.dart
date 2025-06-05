@@ -24,6 +24,7 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
   List<Course> courses = [];
   List<Group> groups = [];
   bool isLoading = true;
+  bool isMenuExpanded = false;
 
   @override
   void initState() {
@@ -91,32 +92,67 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Row(
+      body: Stack(
         children: [
-          Admin1SideNavigationMenu(
-            onTeacherAdded: () async {
-              await loadTeachers();
-            },
-            onCourseAdded: () async {
-              await loadCourses();
-            },
-            onTeacherListTap: _showTeachersList,
-            onCoursesListTap: _showCoursesList,
-            groups: groups,
-            teachers: teachers,
+          Row(
+            children: [
+              Admin1SideNavigationMenu(
+                onTeacherAdded: () async {
+                  await loadTeachers();
+                },
+                onCourseAdded: () async {
+                  await loadCourses();
+                },
+                onTeacherListTap: _showTeachersList,
+                onCoursesListTap: _showCoursesList,
+                groups: groups,
+                teachers: teachers,
+                isExpanded: isMenuExpanded,
+                onToggle: () {
+                  setState(() {
+                    isMenuExpanded = !isMenuExpanded;
+                  });
+                },
+              ),
+              Expanded(
+                child: Builder(
+                  builder: (context) {
+                    switch (currentScreen) {
+                      case Admin1ContentScreen.teachers:
+                        return TeachersList(loadTeachers: loadTeachers, teachers: teachers,);
+                      case Admin1ContentScreen.courses:
+                        return CoursesList(loadCourses: loadCourses, courses: courses, groups: groups, teachers: teachers,);
+                    }
+                  },
+                ),
+              ),
+            ],
           ),
-          Expanded(
-            child: Builder(
-              builder: (context) {
-                switch (currentScreen) {
-                  case Admin1ContentScreen.teachers:
-                    return TeachersList(loadTeachers: loadTeachers, teachers: teachers,);
-                  case Admin1ContentScreen.courses:
-                    return CoursesList(loadCourses: loadCourses, courses: courses, groups: groups, teachers: teachers,);
-                }
+          isMenuExpanded ?
+          Positioned(
+            top: 40,
+            left: 220,
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  isMenuExpanded = !isMenuExpanded;
+                });
               },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [BoxShadow(blurRadius: 4, color: Colors.black26)],
+                ),
+                padding: EdgeInsets.all(20),
+                child: Icon(
+                  Icons.arrow_back_ios,
+                  color: Colors.grey.shade500,
+                  size: 20,
+                ),
+              ),
             ),
-          ),
+          ) : SizedBox(),
         ],
       ),
     );

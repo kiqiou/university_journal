@@ -79,7 +79,6 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Основной контент: меню + контент
           Row(
             children: [
               TeacherSideNavigationMenu(
@@ -90,7 +89,8 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                   setState(() {
                     isMenuExpanded = !isMenuExpanded;
                   });
-                }, isExpanded: isMenuExpanded,
+                },
+                isExpanded: isMenuExpanded,
               ),
               SizedBox(width: 30),
               Expanded(
