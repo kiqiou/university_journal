@@ -51,20 +51,15 @@ class _Admin2HomeScreenState extends State<Admin2HomeScreen> {
   }
 
   Future<void> loadGroups() async {
-    setState(() {
-      isLoading = true;
-    });
     try {
       final list = await journalRepository.getGroupsList();
       setState(() {
-        groups = list ?? [];
+        groups = list!;
         isLoading = false;
       });
     } catch (e) {
-      print('Ошибка при загрузке групп: $e');
-      setState(() {
-        isLoading = false;
-      });
+      print("Ошибка при загрузке групп: $e");
+      isLoading = false;
     }
   }
 
