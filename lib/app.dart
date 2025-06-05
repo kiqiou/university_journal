@@ -10,6 +10,7 @@ class MyApp extends StatelessWidget {
       title: 'Журнал МИТСО',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        fontFamily: 'Sora',
         colorScheme: ColorScheme.light(
           surface: Colors.grey.shade100,
           onSurface: Colors.black87,

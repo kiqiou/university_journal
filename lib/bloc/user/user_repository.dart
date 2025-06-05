@@ -1,8 +1,9 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:http/http.dart' as http;
 import 'package:university_journal/bloc/user/user.dart';
 
-class AuthRepository {
+class UserRepository {
   Future<MyUser?> signUp({
     required String username,
     required String password,
@@ -80,10 +81,93 @@ class AuthRepository {
     }
     return null;
   }
+
   Future<void> logout() async {
     final response = await http.post(Uri.parse('http://127.0.0.1:8000/auth/logout/'));
     if (response.statusCode != 200) {
       throw Exception('Ошибка при выходе из аккаунта');
+    }
+  }
+
+  Future<List<MyUser>?> getTeacherList() async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://127.0.0.1:8000/api/get_teacher_list/'),
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept-Charset': 'utf-8',
+        },
+        body: jsonEncode({}),
+      );
+
+      final data = jsonDecode(utf8.decode(response.bodyBytes));
+      if (data != null && data is List) {
+        log('📌 Ответ сервера: $data');
+        return data.map((json) => MyUser.fromJson(json)).toList();
+      } else {
+        log('❌ Ошибка: неожиданный формат ответа сервера');
+        return null;
+      }
+    } catch (e) {
+      log('❌ Ошибка соединения: $e');
+      return null;
+    }
+  }
+
+  Future<bool> updateUser({
+    required int userId,
+    String? username,
+    String? position,
+    String? bio,
+    int? groupId,
+  }) async {
+    try {
+      final response = await http.put(
+        Uri.parse('http://127.0.0.1:8000/api/update_user/$userId/'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'username': username,
+          'position': position,
+          'bio': bio,
+          'group_id': groupId,
+        }),
+      );
+      log('🔍 Отправка обновления для userId: $userId');
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        log('❌ Ошибка обновления преподавателя: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      log('❌ Ошибка соединения: $e');
+      return false;
+    }
+  }
+
+  Future<bool> deleteUser({
+    required int userId,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://127.0.0.1:8000/api/delete_user/'),
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept-Charset': 'utf-8',
+        },
+        body: jsonEncode({"user_id": userId}),
+      );
+      final data = jsonDecode(utf8.decode(response.bodyBytes));
+      if (data != null) {
+        log('📌 Ответ сервера: $data');
+        return true;
+      } else {
+        log('❌ Ошибка: неожиданный формат ответа сервера');
+        return false;
+      }
+    } catch (e) {
+      log('❌ Ошибка соединения: $e');
+      return false;
     }
   }
 }

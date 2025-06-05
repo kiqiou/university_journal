@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-import '../journal/course.dart';
+import '../discipline/discipline.dart';
 
 class MyUser extends Equatable {
   final int id;
@@ -9,7 +9,7 @@ class MyUser extends Equatable {
   final String? bio;
   final String? position;
   final int? groupId;
-  final List<Course> courses;
+  final List<Discipline> courses;
 
   const MyUser({
     required this.id,
@@ -36,10 +36,10 @@ class MyUser extends Equatable {
       groupId = data['student_profile']['group_id'];
     }
 
-    List<Course> courses = [];
+    List<Discipline> courses = [];
     if (data.containsKey('courses') && data['courses'] is List) {
       courses = List<Map<String, dynamic>>.from(data['courses'])
-          .map((c) => Course.fromJson(c))
+          .map((c) => Discipline.fromJson(c))
           .toList();
     }
 

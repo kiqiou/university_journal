@@ -3,34 +3,34 @@ import 'package:flutter/material.dart';
 import 'package:multi_select_flutter/dialog/multi_select_dialog_field.dart';
 import 'package:multi_select_flutter/util/multi_select_item.dart';
 
-import '../../../../bloc/journal/course.dart';
-import '../../../../bloc/journal/group.dart';
-import '../../../../bloc/journal/journal_repository.dart';
+import '../../../../bloc/discipline/discipline.dart';
+import '../../../../bloc/discipline/discipline_repository.dart';
+import '../../../../bloc/group/group.dart';
 import '../../../../bloc/user/user.dart';
 
 class CoursesList extends StatefulWidget{
   final Future<void> Function() loadCourses;
-  final List<Course> courses;
+  final List<Discipline> courses;
   final List<Group> groups;
   final List<MyUser> teachers;
 
   const CoursesList({super.key, required this.loadCourses, required this.courses, required this.groups, required this.teachers, });
-
 
   @override
   State<CoursesList> createState() => _CoursesList();
 }
 
 class _CoursesList extends State<CoursesList>{
-  final journalRepository = JournalRepository();
-  int? selectedIndex;
-  bool isLoading = true;
-  bool showDeleteDialog = false;
-  bool showEditDialog = false;
-  final List<Course> courses = [];
+  final disciplineRepository = DisciplineRepository();
   final usernameController = TextEditingController();
   final positionController = TextEditingController();
   final bioController = TextEditingController();
+  bool isLoading = true;
+  bool showDeleteDialog = false;
+  bool showEditDialog = false;
+  int? selectedIndex;
+
+  final List<Discipline> disciplines = [];
   List<MyUser> selectedTeachers = [];
   List<Group> selectedGroups = [];
 
@@ -40,7 +40,7 @@ class _CoursesList extends State<CoursesList>{
     widget.loadCourses;
   }
 
-  void _openEditDialog(Course course) {
+  void _openEditDialog(Discipline course) {
     setState(() {
       selectedIndex = course.id;
       showEditDialog = true;
@@ -329,7 +329,7 @@ class _CoursesList extends State<CoursesList>{
                                     onPressed: () async {
                                       if (selectedIndex != null) {
                                         final courseId = widget.courses[selectedIndex!].id;
-                                        bool success = await journalRepository.deleteCourse(courseId: courseId);
+                                        bool success = await disciplineRepository.deleteCourse(courseId: courseId);
 
                                         if (success) {
                                           await widget.loadCourses();

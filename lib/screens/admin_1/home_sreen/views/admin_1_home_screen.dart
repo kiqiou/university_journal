@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:university_journal/bloc/discipline/discipline_repository.dart';
 import 'package:university_journal/bloc/journal/journal_repository.dart';
 import 'package:university_journal/screens/admin_1/home_sreen/components/admin_1_side_navigation_menu.dart';
 import 'package:university_journal/screens/admin_1/home_sreen/views/teacher_list.dart';
 
-import '../../../../bloc/journal/course.dart';
-import '../../../../bloc/journal/group.dart';
+import '../../../../bloc/discipline/discipline.dart';
+import '../../../../bloc/group/group.dart';
+import '../../../../bloc/group/group_repository.dart';
 import '../../../../bloc/user/user.dart';
+import '../../../../bloc/user/user_repository.dart';
 import 'course_list.dart';
 
 enum Admin1ContentScreen { teachers, courses }
@@ -18,10 +21,13 @@ class Admin1HomeScreen extends StatefulWidget {
 }
 
 class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
+  final groupRepository = GroupRepository();
   final journalRepository = JournalRepository();
+  final userRepository = UserRepository();
+  final disciplineRepository = DisciplineRepository();
   Admin1ContentScreen currentScreen = Admin1ContentScreen.teachers;
   List<MyUser> teachers = [];
-  List<Course> courses = [];
+  List<Discipline> courses = [];
   List<Group> groups = [];
   bool isLoading = true;
   bool isMenuExpanded = false;
@@ -48,7 +54,7 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
 
   Future<void> loadGroups() async {
     try {
-      final list = await journalRepository.getGroupsList();
+      final list = await groupRepository.getGroupsList();
       setState(() {
         groups = list!;
         isLoading = false;
@@ -61,7 +67,7 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
 
   Future<void> loadTeachers() async {
     try {
-      final list = await journalRepository.getTeacherList();
+      final list = await userRepository.getTeacherList();
       setState(() {
         teachers = list!;
         isLoading = false;
@@ -76,7 +82,7 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
 
   Future<void> loadCourses() async {
     try {
-      final list = await journalRepository.getCoursesList();
+      final list = await disciplineRepository.getCoursesList();
       setState(() {
         courses = list!;
         isLoading = false;

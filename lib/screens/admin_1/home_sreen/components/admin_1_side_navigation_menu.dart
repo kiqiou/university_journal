@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/bloc/auth/authentication_bloc.dart';
 import 'package:university_journal/components/icon_container.dart';
 
-import '../../../../bloc/journal/group.dart';
+import '../../../../bloc/group/group.dart';
 import '../../../../bloc/user/user.dart';
 import 'add_course.dart';
 import 'add_teacher.dart';

@@ -3,10 +3,8 @@ import 'package:multi_select_flutter/dialog/multi_select_dialog_field.dart';
 import 'package:multi_select_flutter/util/multi_select_item.dart';
 import 'dart:math';
 
-import 'package:university_journal/bloc/user/authentication_user.dart';
-
-import '../../../../bloc/journal/group.dart';
-import '../../../../bloc/journal/journal_repository.dart';
+import '../../../../bloc/discipline/discipline_repository.dart';
+import '../../../../bloc/group/group.dart';
 import '../../../../bloc/user/user.dart';
 
 class AddCourseDialog extends StatefulWidget {
@@ -39,7 +37,6 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
 
     if (screenWidth < 500) return const SizedBox.shrink();
     if (screenHeight < 500) return const SizedBox.shrink();
-    // Делаем ширину больше, как на первом скрине, и добавляем большой max
     final dialogWidth = min(800.0, max(420.0, screenWidth * 0.45));
     final dialogHeight = min(1200.0, screenHeight - 60);
 
@@ -47,7 +44,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
       insetPadding: const EdgeInsets.all(0),
       backgroundColor: Colors.transparent,
       child: Padding(
-        padding: const EdgeInsets.only(right: 60), // Увеличенный отступ справа!
+        padding: const EdgeInsets.only(right: 60),
         child: Align(
           alignment: Alignment.centerRight,
           child: SizedBox(
@@ -72,7 +69,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                   children: [
                     // --- Шапка ---
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.center, // ВЫРОВНЯТЬ ПО ВЕРХУ!
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         const Expanded(
                           child: Text(
@@ -95,7 +92,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                     List<int> teacherIds = selectedTeachers.map((e) => e.id).toList();
                                     List<int> groupIds = selectedGroups.map((e) => e.id).toList();
 
-                                    bool result = await JournalRepository().addCourse(
+                                    bool result = await DisciplineRepository().addCourse(
                                       name: groupNameController.text,
                                       teacherIds: teacherIds,
                                       groupIds: groupIds,
@@ -254,14 +251,6 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
           ),
         ),
       ),
-    );
-  }
-
-  BoxDecoration _inputDecoration() {
-    return BoxDecoration(
-    color: const Color(0xFFF3F4F6),
-    borderRadius: BorderRadius.circular(11),
-    border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
     );
   }
 }

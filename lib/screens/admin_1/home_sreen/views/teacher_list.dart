@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../bloc/journal/journal_repository.dart';
 import '../../../../bloc/user/user.dart';
+import '../../../../bloc/user/user_repository.dart';
 
 class TeachersList extends StatefulWidget{
   final Future<void> Function() loadTeachers;
@@ -15,7 +16,7 @@ class TeachersList extends StatefulWidget{
 }
 
 class _TeachersList extends State<TeachersList>{
-  final journalRepository = JournalRepository();
+  final userRepository = UserRepository();
   int? selectedIndex;
   bool isLoading = true;
   bool showDeleteDialog = false;
@@ -309,7 +310,7 @@ class _TeachersList extends State<TeachersList>{
                                     onPressed: () async {
                                       if (selectedIndex != null) {
                                         final userId = widget.teachers[selectedIndex!].id;
-                                        bool success = await journalRepository.deleteUser(userId: userId);
+                                        bool success = await userRepository.deleteUser(userId: userId);
 
                                         if (success) {
                                           await widget.loadTeachers();
@@ -386,7 +387,7 @@ class _TeachersList extends State<TeachersList>{
                                                   padding: const EdgeInsets.symmetric(horizontal: 24),
                                                 ),
                                                 onPressed: () async {
-                                                  final success = await journalRepository.updateUser(
+                                                  final success = await userRepository.updateUser(
                                                     userId: widget.teachers[selectedIndex!].id,
                                                     username: usernameController.text,
                                                     position: positionController.text,

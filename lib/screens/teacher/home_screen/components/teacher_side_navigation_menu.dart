@@ -4,10 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/bloc/auth/authentication_bloc.dart';
 import 'package:university_journal/components/icon_container.dart';
-import 'package:university_journal/screens/teacher/account_screen/account_screen.dart';
 
 import '../../../../components/journal_table.dart';
-import '../../../auth/view/sign_up_screen.dart';
 
 class TeacherSideNavigationMenu extends StatefulWidget {
   final Function(String type) onSelectType;
@@ -30,9 +28,9 @@ class TeacherSideNavigationMenu extends StatefulWidget {
 
 class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
   final GlobalKey<JournalTableState> tableKey = GlobalKey<JournalTableState>();
-  bool isHovered = false;
   final double _collapsedWidth = 100;
   final double _expandedWidth = 250;
+  bool isHovered = false;
 
   final List<IconData> _icons = [
     Icons.book,
@@ -91,6 +89,8 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
                                   'МИТСО',
                                   style: TextStyle(
                                     fontSize: 40,
+                                    fontFamily: 'Sora',
+                                    fontWeight: FontWeight.w400,
                                   ),
                                 ),
                               ),
@@ -98,6 +98,8 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
                                 'Международный\nуниверситет',
                                 style: TextStyle(
                                   fontSize: 14,
+                                  fontFamily: 'Sora',
+                                  fontWeight: FontWeight.w400,
                                 ),
                               ),
                             ],

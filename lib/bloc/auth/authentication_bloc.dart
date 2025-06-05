@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:university_journal/bloc/user/authentication_user.dart';
+import 'package:university_journal/bloc/user/user_repository.dart';
 import 'package:university_journal/bloc/user/user.dart';
 
 part 'authentication_event.dart';
@@ -8,9 +8,9 @@ part 'authentication_event.dart';
 part 'authentication_state.dart';
 
 class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> {
-  final AuthRepository authRepository;
+  final UserRepository userRepository;
 
-  AuthenticationBloc({required this.authRepository}) : super(const AuthenticationState.unknown()) {
+  AuthenticationBloc({required this.userRepository}) : super(const AuthenticationState.unknown()) {
 
     on<AuthenticationUserChanged>((event, emit) {
       if (event.user != MyUser.empty) {
@@ -21,7 +21,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
     });
 
     on<AuthenticationLoginRequested>((event, emit) async {
-      final user = await authRepository.login(event.username, event.password);
+      final user = await userRepository.login(event.username, event.password);
       if (user != null) {
         print('👤 Пользователь успешно спарсен: $user');
         emit(AuthenticationState.authenticated(user));
@@ -31,7 +31,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
     });
 
     on<AuthenticationRegisterRequested>((event, emit) async {
-      final user = await authRepository.signUp(
+      final user = await userRepository.signUp(
         username: event.username,
         password: event.password,
         roleId: event.roleId,
@@ -48,7 +48,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
 
     on<AuthenticationLogoutRequested>((event, emit) async {
       print('🔄 Выход из аккаунта...');
-      await authRepository.logout();
+      await userRepository.logout();
       emit(const AuthenticationState.unauthenticated());
     });
 
