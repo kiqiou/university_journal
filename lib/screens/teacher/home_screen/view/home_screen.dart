@@ -27,6 +27,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
   DateTime? _selectedDate;
   String? _selectedEventType;
   bool isLoading = true;
+  bool isMenuExpanded = false;
   String selectedSessionsType = 'Все';
   late List<Session> sessions;
 
@@ -76,87 +77,120 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Row(
+      body: Stack(
         children: [
-          TeacherSideNavigationMenu(
-            onSelectType: _filterBySessionType,
-            onProfileTap: _showAccountScreen,
-            onThemeTap: _showThemeScreen,
-          ),
-          SizedBox(width: 30),
-          Expanded(
-            child: Builder(
-              builder: (context) {
-                switch (currentScreen) {
-                  case TeacherContentScreen.account:
-                    return const AccountScreen();
-                  case TeacherContentScreen.theme:
-                    return ThemeTable(
-                      sessions: sessions,
-                      onUpdate: (sessionId, date, type, topic) async {
-                        final repository = JournalRepository();
-                        final success = await repository.updateSession(
-                          sessionId: sessionId,
-                          date: date,
-                          type: type,
-                          topic: topic,
-                        );
+          // Основной контент: меню + контент
+          Row(
+            children: [
+              TeacherSideNavigationMenu(
+                onSelectType: _filterBySessionType,
+                onProfileTap: _showAccountScreen,
+                onThemeTap: _showThemeScreen,
+                onToggle: () {
+                  setState(() {
+                    isMenuExpanded = !isMenuExpanded;
+                  });
+                }, isExpanded: isMenuExpanded,
+              ),
+              SizedBox(width: 30),
+              Expanded(
+                child: Builder(
+                  builder: (context) {
+                    switch (currentScreen) {
+                      case TeacherContentScreen.account:
+                        return const AccountScreen();
+                      case TeacherContentScreen.theme:
+                        return ThemeTable(
+                          sessions: sessions,
+                          onUpdate: (sessionId, date, type, topic) async {
+                            final repository = JournalRepository();
+                            final success = await repository.updateSession(
+                              sessionId: sessionId,
+                              date: date,
+                              type: type,
+                              topic: topic,
+                            );
 
-                        if (!success) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Не удалось обновить данные')),
-                          );
-                        }
-                        return success;
-                      },
-                    );
-                  case TeacherContentScreen.journal:
-                    return Expanded(
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(top: 35.0, right: 50.0),
-                            child: Align(
-                              alignment: Alignment.centerRight,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  _showAddEventDialog(context);
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: MyColors.blueJournal,
-                                  padding: EdgeInsets.symmetric(horizontal: 25, vertical: 23),
-                                  textStyle: TextStyle(fontSize: 18),
-                                  minimumSize: Size(170, 50),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
+                            if (!success) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Не удалось обновить данные')),
+                              );
+                            }
+                            return success;
+                          },
+                        );
+                      case TeacherContentScreen.journal:
+                        return Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(top: 35.0, right: 50.0),
+                              child: Align(
+                                alignment: Alignment.centerRight,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    _showAddEventDialog(context);
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: MyColors.blueJournal,
+                                    padding: EdgeInsets.symmetric(horizontal: 25, vertical: 23),
+                                    textStyle: TextStyle(fontSize: 18),
+                                    minimumSize: Size(170, 50),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
                                   ),
-                                ),
-                                child: Text(
-                                  'Добавить занятие',
-                                  style: TextStyle(color: Colors.white),
+                                  child: Text(
+                                    'Добавить занятие',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          Expanded(
-                            child: JournalTable(
-                              key: tableKey,
-                              isLoading: isLoading,
-                              sessions: sessions,
-                              onSessionsChanged: (updatedSessions) {
-                                setState(() {
-                                  sessions = updatedSessions;
-                                });
-                              },
+                            Expanded(
+                              child: JournalTable(
+                                key: tableKey,
+                                isLoading: isLoading,
+                                sessions: sessions,
+                                onSessionsChanged: (updatedSessions) {
+                                  setState(() {
+                                    sessions = updatedSessions;
+                                  });
+                                },
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    );
-                }
-              },
-            ),
+                          ],
+                        );
+                    }
+                  },
+                ),
+              ),
+            ],
           ),
+          isMenuExpanded ?
+          Positioned(
+            top: 40,
+            left: 220,
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  isMenuExpanded = !isMenuExpanded;
+                });
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [BoxShadow(blurRadius: 4, color: Colors.black26)],
+                ),
+                padding: EdgeInsets.all(20),
+                child: Icon(
+                  Icons.arrow_back_ios,
+                  color: Colors.grey.shade500,
+                  size: 20,
+                ),
+              ),
+            ),
+          ) : SizedBox(),
         ],
       ),
     );
