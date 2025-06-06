@@ -84,13 +84,11 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
                           child: Column(
                             children: [
                               Padding(
-                                padding: EdgeInsets.only(left: 16.0),
+                                padding: EdgeInsets.only(left: 17.0),
                                 child: Text(
                                   'МИТСО',
                                   style: TextStyle(
                                     fontSize: 40,
-                                    fontFamily: 'Sora',
-                                    fontWeight: FontWeight.w400,
                                   ),
                                 ),
                               ),
@@ -98,8 +96,6 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
                                 'Международный\nуниверситет',
                                 style: TextStyle(
                                   fontSize: 14,
-                                  fontFamily: 'Sora',
-                                  fontWeight: FontWeight.w400,
                                 ),
                               ),
                             ],
@@ -133,7 +129,7 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   'Профиль',
-                                  style: TextStyle(color: Colors.grey, fontSize: 16),
+                                  style: TextStyle(color: Colors.grey, fontSize: 13,),
                                 ),
                               )
                             : Divider(
@@ -188,7 +184,7 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   'Панель навигации',
-                                  style: TextStyle(color: Colors.grey, fontSize: 16),
+                                  style: TextStyle(color: Colors.grey, fontSize: 13),
                                 ),
                               )
                             : Divider(

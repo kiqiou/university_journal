@@ -57,12 +57,12 @@ class _TeachersList extends State<TeachersList>{
                       children: [
                         Row(
                           children: [
-                            const Text(
+                            Text(
                               'Список преподавателей',
                               style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: Colors.grey.shade800,
                                 fontSize: 18,
-                                color: Colors.grey,
-                                fontWeight: FontWeight.w400,
                               ),
                             ),
                             const Spacer(),
@@ -83,7 +83,7 @@ class _TeachersList extends State<TeachersList>{
                                     ),
                                     elevation: 0,
                                   ),
-                                  child: const Text('Удалить преподавателя', style: TextStyle(color: Colors.white)),
+                                  child: const Text('Удалить преподавателя', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                                 ),
                               ),
                               const SizedBox(width: 16),
@@ -103,7 +103,7 @@ class _TeachersList extends State<TeachersList>{
                                     ),
                                     elevation: 0,
                                   ),
-                                  child: const Text('Редактировать информацию', style: TextStyle(color: Colors.white)),
+                                  child: const Text('Редактировать информацию', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                                 ),
                               ),
                               const SizedBox(width: 16),
@@ -120,7 +120,7 @@ class _TeachersList extends State<TeachersList>{
                                     elevation: 0,
                                   ),
                                   child:
-                                  const Text('Привязка дисциплины и группы', style: TextStyle(color: Colors.white)),
+                                  const Text('Привязка дисциплины и группы', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                                 ),
                               ),
                             ],
@@ -130,14 +130,14 @@ class _TeachersList extends State<TeachersList>{
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
                           child: Row(
-                            children: const [
+                            children: [
                               SizedBox(
                                 width: 32,
                                 child: Text(
                                   '№',
                                   style: TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.grey,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.grey.shade800,
                                     fontSize: 14,
                                   ),
                                   textAlign: TextAlign.center,
@@ -149,8 +149,8 @@ class _TeachersList extends State<TeachersList>{
                                   child: Text(
                                     'ФИО преподавателя',
                                     style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.grey,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.grey.shade800,
                                       fontSize: 16,
                                     ),
                                     textAlign: TextAlign.center,

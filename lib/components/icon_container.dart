@@ -40,7 +40,7 @@ class MyIconContainer extends StatelessWidget {
                   SizedBox( width: 8,),
                   Icon(
                     icon,
-                    color: Colors.grey.shade600,
+                    color: Colors.grey.shade700,
                     size: size,
                   ),
                   const SizedBox(width: 8),
@@ -48,7 +48,7 @@ class MyIconContainer extends StatelessWidget {
                     child: Text(
                       text!,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: Colors.grey.shade600),
+                      style: TextStyle(color: Colors.grey.shade800, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
@@ -57,7 +57,7 @@ class MyIconContainer extends StatelessWidget {
           : Center(
               child: Icon(
                 icon,
-                color: Colors.grey.shade600,
+                color: Colors.grey.shade700,
                 size: size,
               ),
             ),

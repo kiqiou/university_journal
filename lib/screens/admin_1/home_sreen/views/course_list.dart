@@ -8,19 +8,25 @@ import '../../../../bloc/discipline/discipline_repository.dart';
 import '../../../../bloc/group/group.dart';
 import '../../../../bloc/user/user.dart';
 
-class CoursesList extends StatefulWidget{
+class CoursesList extends StatefulWidget {
   final Future<void> Function() loadCourses;
   final List<Discipline> courses;
   final List<Group> groups;
   final List<MyUser> teachers;
 
-  const CoursesList({super.key, required this.loadCourses, required this.courses, required this.groups, required this.teachers, });
+  const CoursesList({
+    super.key,
+    required this.loadCourses,
+    required this.courses,
+    required this.groups,
+    required this.teachers,
+  });
 
   @override
   State<CoursesList> createState() => _CoursesList();
 }
 
-class _CoursesList extends State<CoursesList>{
+class _CoursesList extends State<CoursesList> {
   final disciplineRepository = DisciplineRepository();
   final usernameController = TextEditingController();
   final positionController = TextEditingController();
@@ -38,16 +44,6 @@ class _CoursesList extends State<CoursesList>{
   void initState() {
     super.initState();
     widget.loadCourses;
-  }
-
-  void _openEditDialog(Discipline course) {
-    setState(() {
-      selectedIndex = course.id;
-      showEditDialog = true;
-      usernameController.text = course.name;
-      selectedTeachers = widget.teachers.where((t) => course.teachers.contains(t.id)).toList();
-      selectedGroups = widget.groups.where((g) => course.groups.contains(g.id)).toList();
-    });
   }
 
   @override
@@ -76,12 +72,12 @@ class _CoursesList extends State<CoursesList>{
                       children: [
                         Row(
                           children: [
-                            const Text(
+                            Text(
                               'Список дисциплин',
                               style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: Colors.grey.shade800,
                                 fontSize: 18,
-                                color: Colors.grey,
-                                fontWeight: FontWeight.w400,
                               ),
                             ),
                             const Spacer(),
@@ -102,7 +98,8 @@ class _CoursesList extends State<CoursesList>{
                                     ),
                                     elevation: 0,
                                   ),
-                                  child: const Text('Удалить дисциплину', style: TextStyle(color: Colors.white)),
+                                  child: const Text('Удалить дисциплину',
+                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                                 ),
                               ),
                               const SizedBox(width: 16),
@@ -122,7 +119,8 @@ class _CoursesList extends State<CoursesList>{
                                     ),
                                     elevation: 0,
                                   ),
-                                  child: const Text('Редактировать информацию', style: TextStyle(color: Colors.white)),
+                                  child: const Text('Редактировать информацию',
+                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                                 ),
                               ),
                               const SizedBox(width: 16),
@@ -138,8 +136,8 @@ class _CoursesList extends State<CoursesList>{
                                     ),
                                     elevation: 0,
                                   ),
-                                  child:
-                                  const Text('Привязка дисциплины и группы', style: TextStyle(color: Colors.white)),
+                                  child: const Text('Привязка дисциплины и группы',
+                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                                 ),
                               ),
                             ],
@@ -149,14 +147,14 @@ class _CoursesList extends State<CoursesList>{
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
                           child: Row(
-                            children: const [
+                            children: [
                               SizedBox(
                                 width: 32,
                                 child: Text(
                                   '№',
                                   style: TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.grey,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.grey.shade800,
                                     fontSize: 14,
                                   ),
                                   textAlign: TextAlign.center,
@@ -168,8 +166,8 @@ class _CoursesList extends State<CoursesList>{
                                   child: Text(
                                     'Дисциплины',
                                     style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.grey,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.grey.shade800,
                                       fontSize: 16,
                                     ),
                                     textAlign: TextAlign.center,
@@ -436,7 +434,6 @@ class _CoursesList extends State<CoursesList>{
                                                   //   );
                                                   // }
                                                 },
-
                                                 child: const Text('Сохранить', style: TextStyle(color: Colors.white)),
                                               ),
                                             ),
@@ -485,7 +482,8 @@ class _CoursesList extends State<CoursesList>{
                                                   SizedBox(height: constraints.maxHeight * 0.03),
                                                   MultiSelectDialogField<MyUser>(
                                                     items: widget.teachers
-                                                        .map((teacher) => MultiSelectItem<MyUser>(teacher, teacher.username))
+                                                        .map((teacher) =>
+                                                            MultiSelectItem<MyUser>(teacher, teacher.username))
                                                         .toList(),
                                                     title: const Text("Преподаватели"),
                                                     selectedColor: Colors.blue,
@@ -499,8 +497,9 @@ class _CoursesList extends State<CoursesList>{
                                                     onConfirm: (values) {
                                                       selectedTeachers = values;
                                                     },
-                                                    validator: (values) =>
-                                                    (values == null || values.isEmpty) ? 'Выберите хотя бы одного преподавателя' : null,
+                                                    validator: (values) => (values == null || values.isEmpty)
+                                                        ? 'Выберите хотя бы одного преподавателя'
+                                                        : null,
                                                   ),
                                                   const SizedBox(height: 48),
                                                   const Text(
@@ -528,8 +527,9 @@ class _CoursesList extends State<CoursesList>{
                                                     onConfirm: (values) {
                                                       selectedGroups = values;
                                                     },
-                                                    validator: (values) =>
-                                                    (values == null || values.isEmpty) ? 'Выберите хотя бы одну группу' : null,
+                                                    validator: (values) => (values == null || values.isEmpty)
+                                                        ? 'Выберите хотя бы одну группу'
+                                                        : null,
                                                   ),
                                                 ],
                                               ),

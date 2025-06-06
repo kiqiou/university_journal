@@ -141,7 +141,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                   ),
                                   child: Text(
                                     'Добавить занятие',
-                                    style: TextStyle(color: Colors.white),
+                                    style: TextStyle(color: Colors.white, fontFamily: 'Montserrat', fontWeight: FontWeight.w700),
                                   ),
                                 ),
                               ),
