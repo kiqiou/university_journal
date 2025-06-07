@@ -12,10 +12,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         fontFamily: 'Montserrat',
         textTheme: const TextTheme(
-          bodyLarge: TextStyle(fontWeight: FontWeight.w900,),
-          bodyMedium: TextStyle(fontWeight: FontWeight.w900),
-          bodySmall: TextStyle(fontWeight: FontWeight.w900,),
-
+          bodyLarge: TextStyle(fontWeight: FontWeight.w900, color: Colors.black),
+          bodyMedium: TextStyle(fontWeight: FontWeight.w900,  color: Colors.black),
+          bodySmall: TextStyle(fontWeight: FontWeight.w900, color: Colors.black),
         ),
         colorScheme: ColorScheme.light(
           surface: Colors.grey.shade100,

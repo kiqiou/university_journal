@@ -9,7 +9,7 @@ import '../../../../bloc/group/group.dart';
 import '../../../../bloc/group/group_repository.dart';
 import '../../../../bloc/user/user.dart';
 import '../../../../bloc/user/user_repository.dart';
-import 'course_list.dart';
+import 'disciplines_list.dart';
 
 enum Admin1ContentScreen { teachers, courses }
 
@@ -27,7 +27,7 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
   final disciplineRepository = DisciplineRepository();
   Admin1ContentScreen currentScreen = Admin1ContentScreen.teachers;
   List<MyUser> teachers = [];
-  List<Discipline> courses = [];
+  List<Discipline> disciplines = [];
   List<Group> groups = [];
   bool isLoading = true;
   bool isMenuExpanded = false;
@@ -36,7 +36,7 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
   void initState() {
     super.initState();
     loadTeachers();
-    loadCourses();
+    loadDisciplines();
     loadGroups();
   }
 
@@ -80,11 +80,11 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
     }
   }
 
-  Future<void> loadCourses() async {
+  Future<void> loadDisciplines() async {
     try {
       final list = await disciplineRepository.getCoursesList();
       setState(() {
-        courses = list!;
+        disciplines = list!;
         isLoading = false;
       });
     } catch (e) {
@@ -107,7 +107,7 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
                   await loadTeachers();
                 },
                 onCourseAdded: () async {
-                  await loadCourses();
+                  await loadDisciplines();
                 },
                 onTeacherListTap: _showTeachersList,
                 onCoursesListTap: _showCoursesList,
@@ -125,9 +125,9 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
                   builder: (context) {
                     switch (currentScreen) {
                       case Admin1ContentScreen.teachers:
-                        return TeachersList(loadTeachers: loadTeachers, teachers: teachers,);
+                        return TeachersList(loadTeachers: loadTeachers, teachers: teachers, disciplines: disciplines, loadDisciplines: loadDisciplines,);
                       case Admin1ContentScreen.courses:
-                        return CoursesList(loadCourses: loadCourses, courses: courses, groups: groups, teachers: teachers,);
+                        return CoursesList(loadCourses: loadDisciplines, disciplines: disciplines, groups: groups, teachers: teachers,);
                     }
                   },
                 ),
@@ -137,7 +137,7 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
           isMenuExpanded ?
           Positioned(
             top: 40,
-            left: 220,
+            left: 270,
             child: GestureDetector(
               onTap: () {
                 setState(() {

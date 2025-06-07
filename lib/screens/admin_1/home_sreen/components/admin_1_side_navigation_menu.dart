@@ -52,7 +52,7 @@ class _Admin1SideNavigationMenuState extends State<Admin1SideNavigationMenu> {
 
   bool isHovered = false;
   final double _collapsedWidth = 100;
-  final double _expandedWidth = 250;
+  final double _expandedWidth = 300;
 
   @override
   Widget build(BuildContext context) {

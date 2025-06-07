@@ -10,14 +10,14 @@ import '../../../../bloc/user/user.dart';
 
 class CoursesList extends StatefulWidget {
   final Future<void> Function() loadCourses;
-  final List<Discipline> courses;
+  final List<Discipline> disciplines;
   final List<Group> groups;
   final List<MyUser> teachers;
 
   const CoursesList({
     super.key,
     required this.loadCourses,
-    required this.courses,
+    required this.disciplines,
     required this.groups,
     required this.teachers,
   });
@@ -48,7 +48,7 @@ class _CoursesList extends State<CoursesList> {
 
   @override
   Widget build(BuildContext context) {
-    final courses = widget.courses;
+    final courses = widget.disciplines;
     final screenWidth = MediaQuery.of(context).size.width;
     const baseScreenWidth = 1920.0;
     const baseButtonHeight = 40.0;
@@ -326,7 +326,7 @@ class _CoursesList extends State<CoursesList> {
                                     ),
                                     onPressed: () async {
                                       if (selectedIndex != null) {
-                                        final courseId = widget.courses[selectedIndex!].id;
+                                        final courseId = widget.disciplines[selectedIndex!].id;
                                         bool success = await disciplineRepository.deleteCourse(courseId: courseId);
 
                                         if (success) {
@@ -387,9 +387,13 @@ class _CoursesList extends State<CoursesList> {
                                       children: [
                                         Row(
                                           children: [
-                                            const Text(
+                                            Text(
                                               "Информация",
-                                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.grey.shade800,
+                                                fontSize: 16,
+                                              ),
                                             ),
                                             const Spacer(),
                                             SizedBox(
@@ -472,8 +476,14 @@ class _CoursesList extends State<CoursesList> {
                                                     height: constraints.maxHeight * 0.07,
                                                     child: TextField(
                                                       controller: usernameController,
-                                                      decoration: const InputDecoration(
+                                                      decoration: InputDecoration(
                                                         labelText: "Название дисциплины*",
+                                                        labelStyle: TextStyle(
+                                                          fontFamily: 'Montserrat',
+                                                          fontWeight: FontWeight.w600,
+                                                          fontSize: 18,
+                                                          color: Colors.black87,       // или Colors.black
+                                                        ),
                                                         hintText: "Введите название дисциплины",
                                                         border: OutlineInputBorder(),
                                                       ),
@@ -485,7 +495,11 @@ class _CoursesList extends State<CoursesList> {
                                                         .map((teacher) =>
                                                             MultiSelectItem<MyUser>(teacher, teacher.username))
                                                         .toList(),
-                                                    title: const Text("Преподаватели"),
+                                                    title: Text("Преподаватели", style: TextStyle(
+                                                      fontWeight: FontWeight.w700,
+                                                      color: Colors.black,
+                                                      fontSize: 18,
+                                                    ),),
                                                     selectedColor: Colors.blue,
                                                     decoration: BoxDecoration(
                                                       color: const Color(0xFFF3F4F6),
@@ -502,12 +516,12 @@ class _CoursesList extends State<CoursesList> {
                                                         : null,
                                                   ),
                                                   const SizedBox(height: 48),
-                                                  const Text(
+                                                  Text(
                                                     'Привязка группы',
                                                     style: TextStyle(
                                                       fontSize: 15,
-                                                      color: Color(0xFF6B7280),
-                                                      fontWeight: FontWeight.w400,
+                                                      color: Colors.black,
+                                                      fontWeight: FontWeight.w700,
                                                     ),
                                                   ),
                                                   const SizedBox(height: 18),

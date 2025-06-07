@@ -31,20 +31,53 @@ class DisciplineRepository{
   }
 
   Future<bool> addCourse({
-    int? courseId,
     required String name,
     required List<int> teacherIds,
     required List<int> groupIds,
   }) async {
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/api/add_or_update_course/'),
+        Uri.parse('http://127.0.0.1:8000/api/add_course/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
         },
         body: jsonEncode({
-          'id': courseId, // ← передаём id, если это редактирование
+          'name': name,
+          'teachers': teacherIds,
+          'groups': groupIds,
+        }),
+      );
+
+      final data = jsonDecode(utf8.decode(response.bodyBytes));
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        log('✅ Курс успешно сохранён: $data');
+        return true;
+      } else {
+        log('❌ Ошибка сохранения курса: ${response.statusCode}, $data');
+        return false;
+      }
+    } catch (e) {
+      log('❌ Ошибка соединения при сохранении курса: $e');
+      return false;
+    }
+  }
+
+  Future<bool> updateCourse({
+    int? courseId,
+    String? name,
+    List<int>? teacherIds,
+    List<int>? groupIds,
+  }) async {
+    try {
+      final response = await http.put(
+        Uri.parse('http://127.0.0.1:8000/api/update_course/'),
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept-Charset': 'utf-8',
+        },
+        body: jsonEncode({
+          'course_id': courseId,
           'name': name,
           'teachers': teacherIds,
           'groups': groupIds,

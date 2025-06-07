@@ -9,7 +9,7 @@ class MyUser extends Equatable {
   final String? bio;
   final String? position;
   final int? groupId;
-  final List<Discipline> courses;
+  final List<Discipline> disciplines;
 
   const MyUser({
     required this.id,
@@ -18,7 +18,7 @@ class MyUser extends Equatable {
     this.bio,
     this.position,
     this.groupId,
-    this.courses = const [],
+    this.disciplines = const [],
   });
 
   factory MyUser.fromJson(Map<String, dynamic> json) {
@@ -47,7 +47,7 @@ class MyUser extends Equatable {
       id: data['id'] ?? '',
       username: data['username'] ?? '',
       role: data['role']['role'] ?? '',
-      courses: courses,
+      disciplines: courses,
       bio: bio,
       position: position,
       groupId: groupId,
