@@ -603,6 +603,7 @@ class _TeachersList extends State<TeachersList>{
                                                     final result = await disciplineRepository.updateCourse(
                                                       courseId: disciplineId,
                                                       teacherIds: [currentTeacher!.id],
+                                                      appendTeachers: true,
                                                     );
                                                     if (!result) {
                                                       allSuccess = false;

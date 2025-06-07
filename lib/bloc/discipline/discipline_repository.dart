@@ -68,6 +68,7 @@ class DisciplineRepository{
     String? name,
     List<int>? teacherIds,
     List<int>? groupIds,
+    required bool appendTeachers,
   }) async {
     try {
       final response = await http.put(
@@ -81,6 +82,7 @@ class DisciplineRepository{
           'name': name,
           'teachers': teacherIds,
           'groups': groupIds,
+          'append_teachers': appendTeachers,
         }),
       );
 
