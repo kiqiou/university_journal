@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:multi_select_flutter/dialog/multi_select_dialog_field.dart';
 import 'package:multi_select_flutter/util/multi_select_item.dart';
 
@@ -504,6 +505,7 @@ class _TeachersList extends State<TeachersList>{
                                                     child: TextField(
                                                       controller: bioController,
                                                       maxLines: 2,
+                                                      inputFormatters: [LengthLimitingTextInputFormatter(250),],
                                                       decoration: const InputDecoration(
                                                         labelText: "Краткая биография",
                                                         hintText: "Введите краткую биографию",
