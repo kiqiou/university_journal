@@ -3,10 +3,8 @@ import 'package:multi_select_flutter/dialog/multi_select_dialog_field.dart';
 import 'package:multi_select_flutter/util/multi_select_item.dart';
 import 'dart:math';
 
-import 'package:university_journal/bloc/user/authentication_user.dart';
-
-import '../../../../bloc/journal/group.dart';
-import '../../../../bloc/journal/journal_repository.dart';
+import '../../../../bloc/discipline/discipline_repository.dart';
+import '../../../../bloc/group/group.dart';
 import '../../../../bloc/user/user.dart';
 
 class AddCourseDialog extends StatefulWidget {
@@ -93,7 +91,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                     List<int> teacherIds = selectedTeachers.map((e) => e.id).toList();
                                     List<int> groupIds = selectedGroups.map((e) => e.id).toList();
 
-                                    bool result = await JournalRepository().addAndUpdateCourse(
+                                    bool result = await DisciplineRepository().addCourse(
                                       name: groupNameController.text,
                                       teacherIds: teacherIds,
                                       groupIds: groupIds,
@@ -207,7 +205,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                   selectedTeachers = values;
                                 },
                                 validator: (values) =>
-                                (values == null || values.isEmpty) ? 'Выберите хотя бы одного преподавателя' : null,
+                                    (values == null || values.isEmpty) ? 'Выберите хотя бы одного преподавателя' : null,
                               ),
                               const SizedBox(height: 48),
                               const Text(
@@ -220,9 +218,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                               ),
                               const SizedBox(height: 18),
                               MultiSelectDialogField<Group>(
-                                items: widget.groups
-                                    .map((group) => MultiSelectItem<Group>(group, group.name))
-                                    .toList(),
+                                items: widget.groups.map((group) => MultiSelectItem<Group>(group, group.name)).toList(),
                                 title: const Text("Группы"),
                                 selectedColor: Colors.blue,
                                 decoration: BoxDecoration(
@@ -236,7 +232,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                   selectedGroups = values;
                                 },
                                 validator: (values) =>
-                                (values == null || values.isEmpty) ? 'Выберите хотя бы одну группу' : null,
+                                    (values == null || values.isEmpty) ? 'Выберите хотя бы одну группу' : null,
                               )
                             ],
                           ),
@@ -250,14 +246,6 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
           ),
         ),
       ),
-    );
-  }
-
-  BoxDecoration _inputDecoration() {
-    return BoxDecoration(
-    color: const Color(0xFFF3F4F6),
-    borderRadius: BorderRadius.circular(11),
-    border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
     );
   }
 }

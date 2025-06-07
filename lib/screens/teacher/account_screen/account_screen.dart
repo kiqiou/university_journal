@@ -55,7 +55,7 @@ class _AccountScreenState extends State<AccountScreen> {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        ...state.user!.courses.map((course) => _buildDisciplineItem(course.name)),
+                        ...state.user!.disciplines.map((course) => _buildDisciplineItem(course.name)),
                       ],
                     ),
                   ),

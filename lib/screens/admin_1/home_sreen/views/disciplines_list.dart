@@ -3,35 +3,40 @@ import 'package:flutter/material.dart';
 import 'package:multi_select_flutter/dialog/multi_select_dialog_field.dart';
 import 'package:multi_select_flutter/util/multi_select_item.dart';
 
-import '../../../../bloc/journal/course.dart';
-import '../../../../bloc/journal/group.dart';
-import '../../../../bloc/journal/journal_repository.dart';
+import '../../../../bloc/discipline/discipline.dart';
+import '../../../../bloc/discipline/discipline_repository.dart';
+import '../../../../bloc/group/group.dart';
 import '../../../../bloc/user/user.dart';
 
-class CoursesList extends StatefulWidget{
+class CoursesList extends StatefulWidget {
   final Future<void> Function() loadCourses;
-  final List<Course> courses;
+  final List<Discipline> disciplines;
   final List<Group> groups;
   final List<MyUser> teachers;
 
-
-  const CoursesList({super.key, required this.loadCourses, required this.courses, required this.groups, required this.teachers, });
-
+  const CoursesList({
+    super.key,
+    required this.loadCourses,
+    required this.disciplines,
+    required this.groups,
+    required this.teachers,
+  });
 
   @override
   State<CoursesList> createState() => _CoursesList();
 }
 
 class _CoursesList extends State<CoursesList> {
-  final journalRepository = JournalRepository();
-  int? selectedIndex;
+  final disciplineRepository = DisciplineRepository();
+  final usernameController = TextEditingController();
+  final positionController = TextEditingController();
+  final bioController = TextEditingController();
   bool isLoading = true;
   bool showDeleteDialog = false;
   bool showEditDialog = false;
-  final List<Course> courses = [];
-  final usernameController = TextEditingController();
-  final lecturesController = TextEditingController();
-  final labsController = TextEditingController();
+  int? selectedIndex;
+
+  final List<Discipline> disciplines = [];
   List<MyUser> selectedTeachers = [];
   List<Group> selectedGroups = [];
   List<MyUser> selectedTeachers2 = [];
@@ -49,19 +54,9 @@ class _CoursesList extends State<CoursesList> {
     widget.loadCourses;
   }
 
-  void _openEditDialog(Course course) {
-    setState(() {
-      selectedIndex = course.id;
-      showEditDialog = true;
-      usernameController.text = course.name;
-      selectedTeachers = widget.teachers.where((t) => course.teachers.contains(t.id)).toList();
-      selectedGroups = widget.groups.where((g) => course.groups.contains(g.id)).toList();
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    final courses = widget.courses;
+    final courses = widget.disciplines;
     final screenWidth = MediaQuery.of(context).size.width;
     const baseScreenWidth = 1920.0;
     const baseButtonHeight = 40.0;
@@ -84,12 +79,12 @@ class _CoursesList extends State<CoursesList> {
                       children: [
                         Row(
                           children: [
-                            const Text(
+                            Text(
                               'Список дисциплин',
                               style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: Colors.grey.shade800,
                                 fontSize: 18,
-                                color: Colors.grey,
-                                fontWeight: FontWeight.w400,
                               ),
                             ),
                             const Spacer(),
@@ -110,7 +105,8 @@ class _CoursesList extends State<CoursesList> {
                                     ),
                                     elevation: 0,
                                   ),
-                                  child: const Text('Удалить дисциплину', style: TextStyle(color: Colors.white)),
+                                  child: const Text('Удалить дисциплину',
+                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                                 ),
                               ),
                               const SizedBox(width: 16),
@@ -130,7 +126,8 @@ class _CoursesList extends State<CoursesList> {
                                     ),
                                     elevation: 0,
                                   ),
-                                  child: const Text('Редактировать информацию', style: TextStyle(color: Colors.white)),
+                                  child: const Text('Редактировать информацию',
+                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                                 ),
                               ),
                               const SizedBox(width: 16),
@@ -146,8 +143,8 @@ class _CoursesList extends State<CoursesList> {
                                     ),
                                     elevation: 0,
                                   ),
-                                  child:
-                                  const Text('Привязка дисциплины и группы', style: TextStyle(color: Colors.white)),
+                                  child: const Text('Привязка дисциплины и группы',
+                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                                 ),
                               ),
                             ],
@@ -157,14 +154,14 @@ class _CoursesList extends State<CoursesList> {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
                           child: Row(
-                            children: const [
+                            children: [
                               SizedBox(
                                 width: 32,
                                 child: Text(
                                   '№',
                                   style: TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.grey,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.grey.shade800,
                                     fontSize: 14,
                                   ),
                                   textAlign: TextAlign.center,
@@ -176,8 +173,8 @@ class _CoursesList extends State<CoursesList> {
                                   child: Text(
                                     'Дисциплины',
                                     style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.grey,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.grey.shade800,
                                       fontSize: 16,
                                     ),
                                     textAlign: TextAlign.center,
@@ -336,8 +333,8 @@ class _CoursesList extends State<CoursesList> {
                                     ),
                                     onPressed: () async {
                                       if (selectedIndex != null) {
-                                        final courseId = widget.courses[selectedIndex!].id;
-                                        bool success = await journalRepository.deleteCourse(courseId: courseId);
+                                        final courseId = widget.disciplines[selectedIndex!].id;
+                                        bool success = await disciplineRepository.deleteCourse(courseId: courseId);
 
                                         if (success) {
                                           await widget.loadCourses();
@@ -407,7 +404,7 @@ class _CoursesList extends State<CoursesList> {
                                           onPressed: () async {
                                             setState(() {
                                               nameError = usernameController.text.trim().isEmpty;
-                                              lecturesError = lecturesController.text.trim().isEmpty;
+                                              //lecturesError = lecturesController.text.trim().isEmpty;
                                               teacherError = selectedTeachers.length != 1;
                                               groupError = selectedGroups.length != 1;
                                             });
@@ -417,7 +414,7 @@ class _CoursesList extends State<CoursesList> {
                                                 showEditDialog = false;
                                               });
                                             }
-                                            final currentCourse = widget.courses.firstWhere((c) => c.id == selectedIndex);
+                                            final currentCourse = widget.disciplines.firstWhere((c) => c.id == selectedIndex);
 
                                             final name = usernameController.text.trim().isEmpty
                                                 ? currentCourse.name
@@ -426,11 +423,13 @@ class _CoursesList extends State<CoursesList> {
                                             List<int> teacherIds = selectedTeachers.map((e) => e.id).toList();
                                             List<int> groupIds = selectedGroups.map((e) => e.id).toList();
 
-                                            final result = await journalRepository.addAndUpdateCourse(
+                                            final disciplineRepository = DisciplineRepository();
+                                            final result = await disciplineRepository.updateCourse(
                                               courseId: selectedIndex,
                                               name: name,
                                               teacherIds: teacherIds,
                                               groupIds: groupIds,
+                                              appendTeachers: false,
                                             );
 
                                             if (result) {
@@ -572,7 +571,7 @@ class _CoursesList extends State<CoursesList> {
                                               const Text("Лекции*"),
                                               const SizedBox(height: 6),
                                               TextField(
-                                                controller: lecturesController,
+                                                //controller: lecturesController,
                                                 keyboardType: TextInputType.number,
                                                 decoration: InputDecoration(
                                                   hintText: "Введите часы",
@@ -598,7 +597,7 @@ class _CoursesList extends State<CoursesList> {
                                               const Text("Лабораторные"),
                                               const SizedBox(height: 6),
                                               TextField(
-                                                controller: labsController,
+                                                //controller: labsController,
                                                 keyboardType: TextInputType.number,
                                                 decoration: InputDecoration(
                                                   hintText: "Введите часы",

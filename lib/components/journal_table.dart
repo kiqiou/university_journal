@@ -40,21 +40,26 @@ class JournalTableState extends State<JournalTable> {
         selectedColumnIndex: _selectedColumnIndex,
         onHeaderTap: _onHeaderTap,
       );
-      dataSource = JournalDataSource(columns, grouped, sessions, onUpdate: (sessionId, studentId, status, grade) async {
-        final repository = JournalRepository();
-        final success = await repository.updateAttendance(
-          sessionId: sessionId,
-          studentId: studentId,
-          status: status,
-          grade: grade,
-        );
-
-        if (!success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Не удалось обновить данные')),
+      dataSource = JournalDataSource(
+        columns,
+        grouped,
+        sessions,
+        onUpdate: (sessionId, studentId, status, grade) async {
+          final repository = JournalRepository();
+          final success = await repository.updateAttendance(
+            sessionId: sessionId,
+            studentId: studentId,
+            status: status,
+            grade: grade,
           );
-        }
-      },);
+
+          if (!success) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Не удалось обновить данные')),
+            );
+          }
+        },
+      );
     });
   }
 
@@ -73,7 +78,10 @@ class JournalTableState extends State<JournalTable> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Журнал'),
+        title: Text(
+          'Журнал',
+          style: TextStyle(color: Colors.grey.shade800, fontWeight: FontWeight.bold),
+        ),
         automaticallyImplyLeading: false,
       ),
       body: Column(
@@ -84,7 +92,7 @@ class JournalTableState extends State<JournalTable> {
                 final dates = extractUniqueDateTypes(dataSource!.sessions);
                 final toRemove = dates[_selectedColumnIndex!];
                 final session = dataSource?.sessions.firstWhere(
-                      (s) => '${s.date} ${s.sessionType} ${s.sessionId}' == toRemove,
+                  (s) => '${s.date} ${s.sessionType} ${s.sessionId}' == toRemove,
                 );
                 final repository = JournalRepository();
                 final success = await repository.deleteSession(sessionId: session!.sessionId);
@@ -115,7 +123,7 @@ class JournalTableState extends State<JournalTable> {
               ),
               child: Text(
                 'Удалить занятие',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: Colors.white, fontFamily: 'Montserrat', fontWeight: FontWeight.w700),
               ),
             ),
           widget.isLoading || dataSource == null
@@ -156,12 +164,12 @@ class JournalDataSource extends DataGridSource {
     return _controllers[key]!;
   }
 
-  JournalDataSource(this.columns,
-      this._sessionData,
-      this.sessions, {
-        this.onUpdate,
-      })
-      : _dates = extractUniqueDateTypes(sessions).toList(),
+  JournalDataSource(
+    this.columns,
+    this._sessionData,
+    this.sessions, {
+    this.onUpdate,
+  })  : _dates = extractUniqueDateTypes(sessions).toList(),
         _rows = _buildRows(_sessionData, extractUniqueDateTypes(sessions).toList());
 
   void removeColumn(String dateType) {
@@ -172,8 +180,10 @@ class JournalDataSource extends DataGridSource {
     notifyListeners();
   }
 
-  static List<DataGridRow> _buildRows(Map<String, Map<String, Session>> data,
-      List<String> dates,) {
+  static List<DataGridRow> _buildRows(
+    Map<String, Map<String, Session>> data,
+    List<String> dates,
+  ) {
     return data.entries.mapIndexed((index, entry) {
       final name = entry.key;
       final sessionsByDate = entry.value;
@@ -213,7 +223,15 @@ class JournalDataSource extends DataGridSource {
             decoration: BoxDecoration(
               border: Border.all(color: Colors.grey.shade400),
             ),
-            child: Text(cell.value.toString(), textAlign: TextAlign.center),
+            child: Text(
+              cell.value.toString(),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.grey.shade800,
+                fontFamily: 'Montserrat',
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           );
         }
 
@@ -241,7 +259,8 @@ class JournalDataSource extends DataGridSource {
           decoration: BoxDecoration(
             border: Border.all(color: Colors.grey.shade400),
           ),
-          child: IntrinsicHeight(  // чтобы дочерние виджеты растянулись по высоте
+          child: IntrinsicHeight(
+            // чтобы дочерние виджеты растянулись по высоте
             child: Row(
               children: [
                 Expanded(
@@ -292,8 +311,12 @@ class JournalDataSource extends DataGridSource {
                     ],
                     onChanged: (newGrade) async {
                       if (onUpdate != null) {
-                        print('Обновление данных оценивания');
-                        await onUpdate!(session.sessionId, session.student.id, statusController.text, newGrade,);
+                        await onUpdate!(
+                          session.sessionId,
+                          session.student.id,
+                          statusController.text,
+                          newGrade,
+                        );
                       }
                       _sessionData[studentName]?[date]?.grade = newGrade;
                       _rows[rowIndex].getCells()[columnIndex] = DataGridCell<Map<String, String>>(
@@ -316,18 +339,16 @@ class JournalDataSource extends DataGridSource {
   }
 }
 
+List<String> extractUniqueDateTypes(List<Session> sessions) {
+  final Set<String> dateTypes = {};
 
-  List<String> extractUniqueDateTypes(List<Session> sessions) {
-    final Set<String> dateTypes = {};
-
-    for (var session in sessions) {
-      dateTypes.add('${session.date} ${session.sessionType} ${session.sessionId}');
-    }
-    final sorted = dateTypes.toList()
-      ..sort((a, b) => a.compareTo(b));
-
-    return sorted;
+  for (var session in sessions) {
+    dateTypes.add('${session.date} ${session.sessionType} ${session.sessionId}');
   }
+  final sorted = dateTypes.toList()..sort((a, b) => a.compareTo(b));
+
+  return sorted;
+}
 
 Map<String, Map<String, Session>> groupSessionsByStudent(List<Session> sessions) {
   final Map<String, Map<String, Session>> result = {};
@@ -337,104 +358,111 @@ Map<String, Map<String, Session>> groupSessionsByStudent(List<Session> sessions)
     final dateTypeKey = '${session.date} ${session.sessionType} ${session.sessionId}';
 
     result.putIfAbsent(studentName, () => {});
-    result[studentName]![dateTypeKey] = session; // ⬅️ берём только одну сессию (последнюю)
+    result[studentName]![dateTypeKey] = session;
   }
 
   return result;
 }
 
-  List<GridColumn> buildColumns({
-    required List<Session> sessions,
-    required int? selectedColumnIndex,
-    required void Function(int index) onHeaderTap,
-  }) {
-    final dateTypeColumns = extractUniqueDateTypes(sessions);
+List<GridColumn> buildColumns({
+  required List<Session> sessions,
+  required int? selectedColumnIndex,
+  required void Function(int index) onHeaderTap,
+}) {
+  final dateTypeColumns = extractUniqueDateTypes(sessions);
 
-    const sessionTypeShortNames = {
-      'Лекция': 'Лек',
-      'Практика': 'Практ',
-      'Семинар': 'Сем',
-      'Лабораторная': 'Лаб',
-    };
+  const sessionTypeShortNames = {
+    'Лекция': 'Лек',
+    'Практика': 'Практ',
+    'Семинар': 'Сем',
+    'Лабораторная': 'Лаб',
+  };
 
-    final columns = <GridColumn>[
-      // №
-      GridColumn(
-        columnName: '№',
-        width: 50,
-        allowSorting: true,
-        label: Container(
-          decoration: BoxDecoration(
-            color: Colors.grey.shade300,
-            border: Border.all(color: Colors.grey.shade400),
-          ),
-          alignment: Alignment.center,
-          padding: const EdgeInsets.all(8),
-          child: const Text('№'),
+  final columns = <GridColumn>[
+    // №
+    GridColumn(
+      columnName: '№',
+      width: 50,
+      allowSorting: true,
+      label: Container(
+        decoration: BoxDecoration(
+          color: Colors.grey.shade300,
+          border: Border.all(color: Colors.grey.shade400),
+        ),
+        alignment: Alignment.center,
+        padding: const EdgeInsets.all(8),
+        child: Text(
+          '№',
+          style: TextStyle(color: Colors.grey.shade900, fontFamily: 'Montserrat', fontWeight: FontWeight.w700),
         ),
       ),
-      // ФИО
-      GridColumn(
-        columnName: 'ФИО',
-        width: 200,
-        allowSorting: true,
-        label: Container(
-          decoration: BoxDecoration(
-            color: Colors.grey.shade300,
-            border: Border.all(color: Colors.grey.shade400),
-          ),
-          alignment: Alignment.center,
-          padding: const EdgeInsets.all(8),
-          child: const Text('ФИО'),
+    ),
+    // ФИО
+    GridColumn(
+      columnName: 'ФИО',
+      width: 200,
+      allowSorting: true,
+      label: Container(
+        decoration: BoxDecoration(
+          color: Colors.grey.shade300,
+          border: Border.all(color: Colors.grey.shade400),
+        ),
+        alignment: Alignment.center,
+        padding: const EdgeInsets.all(8),
+        child: Text(
+          'ФИО',
+          style: TextStyle(color: Colors.grey.shade900, fontFamily: 'Montserrat', fontWeight: FontWeight.w700),
         ),
       ),
-    ];
+    ),
+  ];
 
-    for (var entry in dateTypeColumns.asMap().entries) {
-      final index = entry.key;
-      final dateType = entry.value;
+  for (var entry in dateTypeColumns.asMap().entries) {
+    final index = entry.key;
+    final dateType = entry.value;
 
-      final parts = dateType.split(' ');
-      final sessionType = parts.length > 1 ? parts[1] : '';
+    final parts = dateType.split(' ');
+    final sessionType = parts.length > 1 ? parts[1] : '';
 
-      columns.add(
-        GridColumn(
-          columnName: dateType,
-          width: 80,
-          allowSorting: true,
-          label: GestureDetector(
-            onTap: () => onHeaderTap(index),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                border: Border.all(
-                  color: selectedColumnIndex == index ? MyColors.blueJournal : Colors.grey.shade400,
+    columns.add(
+      GridColumn(
+        columnName: dateType,
+        width: 80,
+        allowSorting: true,
+        label: GestureDetector(
+          onTap: () => onHeaderTap(index),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.grey.shade300,
+              border: Border.all(
+                color: selectedColumnIndex == index ? MyColors.blueJournal : Colors.grey.shade400,
+              ),
+            ),
+            padding: const EdgeInsets.all(4),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                RotatedBox(
+                  quarterTurns: 3,
+                  child: Text(
+                    dateType.split(' ').first,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontFamily: 'Sora', color: Colors.grey.shade800, fontSize: 12),
+                  ),
                 ),
-              ),
-              padding: const EdgeInsets.all(4),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  RotatedBox(
-                    quarterTurns: 3,
-                    child: Text(
-                      dateType.split(' ').first,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  Divider(height: 2, color: Colors.grey.shade400),
-                  Text(
-                    sessionTypeShortNames[sessionType] ?? sessionType,
-                    style: const TextStyle(fontSize: 12),
-                  ),
-                ],
-              ),
+                Divider(height: 2, color: Colors.grey.shade400),
+                Text(
+                  sessionTypeShortNames[sessionType] ?? sessionType,
+                  style: TextStyle(
+                      fontSize: 12, color: Colors.grey.shade900, fontFamily: 'Montserrat', fontWeight: FontWeight.w700),
+                ),
+              ],
             ),
           ),
         ),
-      );
-    }
-
-    return columns;
+      ),
+    );
   }
 
+  return columns;
+}

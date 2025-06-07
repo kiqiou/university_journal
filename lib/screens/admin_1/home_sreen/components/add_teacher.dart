@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 
-import 'package:university_journal/bloc/user/authentication_user.dart';
+import 'package:university_journal/bloc/user/user_repository.dart';
 
 class AddTeacherDialog extends StatefulWidget {
   final VoidCallback onTeacherAdded;
@@ -77,9 +77,9 @@ class _AddTeacherDialogState extends State<AddTeacherDialog> {
                                 onPressed: () async {
                                   if (_formKey.currentState!.validate()) {
                                     _formKey.currentState!.save();
-                                    final authRepository = AuthRepository();
+                                    final userRepository = UserRepository();
 
-                                    await authRepository.signUp(
+                                    await userRepository.signUp(
                                         username: fio ?? '',
                                         password: '123456',
                                         roleId: 1,

@@ -1,13 +1,20 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:multi_select_flutter/dialog/multi_select_dialog_field.dart';
+import 'package:multi_select_flutter/util/multi_select_item.dart';
 
-import '../../../../bloc/journal/journal_repository.dart';
+import '../../../../bloc/discipline/discipline.dart';
+import '../../../../bloc/discipline/discipline_repository.dart';
 import '../../../../bloc/user/user.dart';
+import '../../../../bloc/user/user_repository.dart';
 
 class TeachersList extends StatefulWidget{
   final Future<void> Function() loadTeachers;
+  final Future<void> Function() loadDisciplines;
   final List<MyUser> teachers;
-  const TeachersList({super.key, required this.loadTeachers,required this.teachers,});
+  final List<Discipline> disciplines;
+  const TeachersList({super.key, required this.loadTeachers,required this.teachers, required this.disciplines, required this.loadDisciplines,});
 
 
   @override
@@ -15,11 +22,13 @@ class TeachersList extends StatefulWidget{
 }
 
 class _TeachersList extends State<TeachersList>{
-  final journalRepository = JournalRepository();
+  final userRepository = UserRepository();
   int? selectedIndex;
   bool isLoading = true;
   bool showDeleteDialog = false;
   bool showEditDialog = false;
+  bool showLinkDisciplineDialog = false;
+  List<Discipline> selectedDisciplines = [];
 
   final usernameController = TextEditingController();
   final positionController = TextEditingController();
@@ -56,12 +65,12 @@ class _TeachersList extends State<TeachersList>{
                       children: [
                         Row(
                           children: [
-                            const Text(
+                            Text(
                               'Список преподавателей',
                               style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: Colors.grey.shade800,
                                 fontSize: 18,
-                                color: Colors.grey,
-                                fontWeight: FontWeight.w400,
                               ),
                             ),
                             const Spacer(),
@@ -82,7 +91,7 @@ class _TeachersList extends State<TeachersList>{
                                     ),
                                     elevation: 0,
                                   ),
-                                  child: const Text('Удалить преподавателя', style: TextStyle(color: Colors.white)),
+                                  child: const Text('Удалить преподавателя', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                                 ),
                               ),
                               const SizedBox(width: 16),
@@ -102,7 +111,7 @@ class _TeachersList extends State<TeachersList>{
                                     ),
                                     elevation: 0,
                                   ),
-                                  child: const Text('Редактировать информацию', style: TextStyle(color: Colors.white)),
+                                  child: const Text('Редактировать информацию', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                                 ),
                               ),
                               const SizedBox(width: 16),
@@ -110,7 +119,11 @@ class _TeachersList extends State<TeachersList>{
                                 width: buttonWidths[2],
                                 height: buttonHeights,
                                 child: ElevatedButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    setState(() {
+                                      showLinkDisciplineDialog = true;
+                                    });
+                                  },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF4068EA),
                                     shape: RoundedRectangleBorder(
@@ -119,7 +132,7 @@ class _TeachersList extends State<TeachersList>{
                                     elevation: 0,
                                   ),
                                   child:
-                                  const Text('Привязка дисциплины и группы', style: TextStyle(color: Colors.white)),
+                                  const Text('Привязка дисциплины и группы', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                                 ),
                               ),
                             ],
@@ -129,14 +142,14 @@ class _TeachersList extends State<TeachersList>{
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
                           child: Row(
-                            children: const [
+                            children: [
                               SizedBox(
                                 width: 32,
                                 child: Text(
                                   '№',
                                   style: TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.grey,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.grey.shade800,
                                     fontSize: 14,
                                   ),
                                   textAlign: TextAlign.center,
@@ -148,8 +161,8 @@ class _TeachersList extends State<TeachersList>{
                                   child: Text(
                                     'ФИО преподавателя',
                                     style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.grey,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.grey.shade800,
                                       fontSize: 16,
                                     ),
                                     textAlign: TextAlign.center,
@@ -309,7 +322,7 @@ class _TeachersList extends State<TeachersList>{
                                     onPressed: () async {
                                       if (selectedIndex != null) {
                                         final userId = widget.teachers[selectedIndex!].id;
-                                        bool success = await journalRepository.deleteUser(userId: userId);
+                                        bool success = await userRepository.deleteUser(userId: userId);
 
                                         if (success) {
                                           await widget.loadTeachers();
@@ -386,7 +399,7 @@ class _TeachersList extends State<TeachersList>{
                                                   padding: const EdgeInsets.symmetric(horizontal: 24),
                                                 ),
                                                 onPressed: () async {
-                                                  final success = await journalRepository.updateUser(
+                                                  final success = await userRepository.updateUser(
                                                     userId: widget.teachers[selectedIndex!].id,
                                                     username: usernameController.text,
                                                     position: positionController.text,
@@ -492,12 +505,184 @@ class _TeachersList extends State<TeachersList>{
                                                     child: TextField(
                                                       controller: bioController,
                                                       maxLines: 2,
+                                                      inputFormatters: [LengthLimitingTextInputFormatter(250),],
                                                       decoration: const InputDecoration(
                                                         labelText: "Краткая биография",
                                                         hintText: "Введите краткую биографию",
                                                         border: OutlineInputBorder(),
                                                       ),
                                                     ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                if (showLinkDisciplineDialog && selectedIndex != null)
+                  Positioned(
+                    top: 32,
+                    right: 32,
+                    child: Builder(
+                      builder: (context) {
+                        final media = MediaQuery.of(context).size;
+                        final double dialogWidth = (media.width - 32 - 80).clamp(320, 600);
+                        final double dialogHeight = (media.height - 64).clamp(480, 1100);
+
+                        return Material(
+                          color: Colors.transparent,
+                          child: Container(
+                            width: dialogWidth,
+                            height: dialogHeight,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: Color(0xFF4068EA), width: 2),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black12,
+                                  blurRadius: 24,
+                                  offset: Offset(0, 8),
+                                ),
+                              ],
+                            ),
+                            child: LayoutBuilder(
+                              builder: (context, constraints) {
+                                // constraints.maxWidth == dialogWidth, constraints.maxHeight == dialogHeight
+                                return SingleChildScrollView(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(32),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Text(
+                                              "Информация",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.grey.shade800,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                            const Spacer(),
+                                            SizedBox(
+                                              height: 36,
+                                              child: ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: Color(0xFF4068EA),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.circular(8),
+                                                  ),
+                                                  elevation: 0,
+                                                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                                                ),
+                                                onPressed: () async {
+                                                  debugPrint("selectedIndex: $selectedIndex");
+                                                  debugPrint("widget.teachers ids: ${widget.teachers.map((t) => t.id).toList()}");
+
+                                                  final disciplineRepository = DisciplineRepository();
+                                                  final currentTeacher = (selectedIndex! < widget.teachers.length)
+                                                      ? widget.teachers[selectedIndex!]
+                                                      : null;
+
+                                                  final disciplinesIds = selectedDisciplines.isEmpty
+                                                      ? currentTeacher?.disciplines.map((d) => d.id).toList()
+                                                      : selectedDisciplines.map((e) => e.id).toList();
+
+                                                  bool allSuccess = true;
+                                                  for (final disciplineId in disciplinesIds!) {
+                                                    final result = await disciplineRepository.updateCourse(
+                                                      courseId: disciplineId,
+                                                      teacherIds: [currentTeacher!.id],
+                                                      appendTeachers: true,
+                                                    );
+                                                    if (!result) {
+                                                      allSuccess = false;
+                                                    }
+                                                  }
+
+                                                  if (allSuccess) {
+                                                    await widget.loadDisciplines();
+
+                                                    setState(() {
+                                                      showLinkDisciplineDialog = false;
+                                                      selectedIndex = null;
+                                                    });
+                                                  } else {
+                                                    ScaffoldMessenger.of(context).showSnackBar(
+                                                      const SnackBar(content: Text('❌ Некоторые дисциплины не удалось привязать')),
+                                                    );
+                                                  }
+                                                },
+                                                child: const Text('Сохранить', style: TextStyle(color: Colors.white)),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 12),
+                                            InkWell(
+                                              onTap: () {
+                                                setState(() {
+                                                  showEditDialog = false;
+                                                });
+                                              },
+                                              borderRadius: BorderRadius.circular(10),
+                                              child: Container(
+                                                width: 36,
+                                                height: 36,
+                                                decoration: BoxDecoration(
+                                                  color: Color(0xFF4068EA),
+                                                  borderRadius: BorderRadius.circular(10),
+                                                ),
+                                                child: const Icon(
+                                                  Icons.close,
+                                                  color: Colors.white,
+                                                  size: 22,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: constraints.maxHeight * 0.03),
+                                        Row(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Expanded(
+                                              child: Column(
+                                                children: [
+                                                  MultiSelectDialogField<Discipline>(
+                                                    items: widget.disciplines
+                                                        .map((discipline) =>
+                                                        MultiSelectItem<Discipline>(discipline, discipline.name))
+                                                        .toList(),
+                                                    title: Text("Дисциплины", style: TextStyle(
+                                                      fontWeight: FontWeight.w700,
+                                                      color: Colors.black,
+                                                      fontSize: 18,
+                                                    ),),
+                                                    selectedColor: Colors.blue,
+                                                    decoration: BoxDecoration(
+                                                      color: const Color(0xFFF3F4F6),
+                                                      borderRadius: BorderRadius.circular(11),
+                                                      border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
+                                                    ),
+                                                    buttonIcon: const Icon(Icons.group_add),
+                                                    buttonText: const Text("Дисциплины"),
+                                                    onConfirm: (values) {
+                                                      selectedDisciplines = values;
+                                                    },
+                                                    validator: (values) => (values == null || values.isEmpty)
+                                                        ? 'Выберите хотя бы одну дисциплину'
+                                                        : null,
                                                   ),
                                                 ],
                                               ),
