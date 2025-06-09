@@ -1,7 +1,11 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:university_journal/bloc/user/user.dart';
+
+import 'package:mime/mime.dart';
+import 'package:http_parser/http_parser.dart';
 
 class UserRepository {
   Future<MyUser?> signUp({
@@ -11,33 +15,40 @@ class UserRepository {
     int? groupId,
     String? position,
     String? bio,
+    Uint8List? photoBytes,
+    String? photoName,
   }) async {
     try {
-      final Map<String, dynamic> requestBody = {
-        'username': username,
-        'password': password,
-        'role_id': roleId,
-      };
+      final uri = Uri.parse('http://127.0.0.1:8000/auth/api/register/');
+      final request = http.MultipartRequest('POST', uri);
+
+      request.fields['username'] = username;
+      request.fields['password'] = password;
+      request.fields['role_id'] = roleId.toString();
 
       if (roleId == 1) {
-        requestBody['position'] = position;
-        requestBody['bio'] = bio;
-      } else if (roleId == 2) {
-        requestBody['group_id'] = groupId;
+        if (position != null) request.fields['position'] = position;
+        if (bio != null) request.fields['bio'] = bio;
+        request.files.add(
+          http.MultipartFile.fromBytes(
+            'photo',
+            photoBytes as List<int>,
+            filename: photoName,
+            contentType: MediaType.parse(lookupMimeType(photoName!) ?? 'application/octet-stream'),
+          ),
+        );
+        }
+      else if (roleId == 2 && groupId != null) {
+        request.fields['group_id'] = groupId.toString();
       }
 
-      final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/auth/api/register/'),
-        headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-          'Accept-Charset': 'utf-8',
-        },
-        body: jsonEncode(requestBody),
-      );
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 201) {
-        final data = jsonDecode(utf8.decode(response.bodyBytes));
+        final data = jsonDecode(response.body);
         print('📦 Ответ сервера: $data');
+
         if (data['username'] != null && data['role'] != null) {
           print('✅ Username: ${data['username']}');
           return MyUser.fromJson(data);
@@ -47,11 +58,12 @@ class UserRepository {
         }
       } else {
         print('❌ Ошибка регистрации: ${response.body}');
+        return null;
       }
     } catch (e) {
       print('❌ Ошибка соединения: $e');
+      return null;
     }
-    return null;
   }
 
   Future<MyUser?> login(String username, String password) async {

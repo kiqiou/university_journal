@@ -1,10 +1,13 @@
-import 'package:flutter/material.dart';
 import 'dart:math';
-
+import 'dart:typed_data';
+import 'dart:html' as html;
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
 import 'package:university_journal/bloc/user/user_repository.dart';
 
 class AddTeacherDialog extends StatefulWidget {
   final VoidCallback onTeacherAdded;
+
   const AddTeacherDialog({super.key, required this.onTeacherAdded});
 
   @override
@@ -16,6 +19,32 @@ class _AddTeacherDialogState extends State<AddTeacherDialog> {
   String? fio;
   String? position;
   String? bio;
+  Uint8List? _selectedPhotoBytes;
+  String? _photoPreviewUrl;
+  String? _photoName;
+
+  void _pickImage() {
+    html.FileUploadInputElement uploadInput = html.FileUploadInputElement();
+    uploadInput.accept = 'image/*';
+    uploadInput.click();
+
+    uploadInput.onChange.listen((event) {
+      final files = uploadInput.files;
+      if (files != null && files.isNotEmpty) {
+        final file = files[0];
+        final reader = html.FileReader();
+
+        reader.readAsArrayBuffer(file);
+        reader.onLoadEnd.listen((event) {
+          setState(() {
+            _selectedPhotoBytes = reader.result as Uint8List;
+            _photoPreviewUrl = html.Url.createObjectUrlFromBlob(file);
+            _photoName = file.name;
+          });
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,12 +109,14 @@ class _AddTeacherDialogState extends State<AddTeacherDialog> {
                                     final userRepository = UserRepository();
 
                                     await userRepository.signUp(
-                                        username: fio ?? '',
-                                        password: '123456',
-                                        roleId: 1,
-                                        position: position ?? '',
-                                        bio: bio ?? '',
-                                      );
+                                      username: fio ?? '',
+                                      password: '123456',
+                                      roleId: 1,
+                                      position: position,
+                                      bio: bio,
+                                      photoBytes: _selectedPhotoBytes,
+                                      photoName: _photoName, // обязательно передай имя файла
+                                    );
                                     widget.onTeacherAdded();
                                     Navigator.of(context).pop();
                                   }
@@ -98,7 +129,8 @@ class _AddTeacherDialogState extends State<AddTeacherDialog> {
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 0),
-                                  minimumSize: const Size(160, 55), // <-- высота и ширина!
+                                  minimumSize: const Size(160, 55),
+                                  // <-- высота и ширина!
                                   textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                                 ),
                                 child: const Text('Сохранить'),
@@ -134,14 +166,16 @@ class _AddTeacherDialogState extends State<AddTeacherDialog> {
                             color: const Color(0xFFE5E7EB),
                             borderRadius: BorderRadius.circular(14),
                           ),
-                          child: const Icon(Icons.person, size: 54, color: Color(0xFF9CA3AF)),
+                          child: _photoPreviewUrl != null
+                              ? Image.network(_photoPreviewUrl!)
+                              : Icon(Icons.person, size: 54, color: Color(0xFF9CA3AF)),
                         ),
                         const SizedBox(width: 18),
                         SizedBox(
                           height: 48,
                           width: 48,
                           child: ElevatedButton(
-                            onPressed: () {},
+                            onPressed: _pickImage,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF4068EA),
                               shape: RoundedRectangleBorder(
@@ -150,7 +184,7 @@ class _AddTeacherDialogState extends State<AddTeacherDialog> {
                               padding: EdgeInsets.zero,
                               elevation: 0,
                             ),
-                            child: const Icon(Icons.add, color: Colors.white, size: 26),
+                            child: Icon(Icons.add, color: Colors.white, size: 26),
                           ),
                         ),
                       ],
@@ -176,7 +210,7 @@ class _AddTeacherDialogState extends State<AddTeacherDialog> {
                               TextFormField(
                                 decoration: _inputDecoration('Введите ФИО преподавателя'),
                                 validator: (value) =>
-                                value == null || value.isEmpty ? 'Введите ФИО преподавателя' : null,
+                                    value == null || value.isEmpty ? 'Введите ФИО преподавателя' : null,
                                 onSaved: (value) => fio = value,
                               ),
                               const SizedBox(height: 48),

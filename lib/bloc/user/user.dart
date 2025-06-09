@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:equatable/equatable.dart';
 
 import '../discipline/discipline.dart';
@@ -9,6 +11,7 @@ class MyUser extends Equatable {
   final String? bio;
   final String? position;
   final int? groupId;
+  final String? photoUrl;
   final List<Discipline> disciplines;
 
   const MyUser({
@@ -18,6 +21,7 @@ class MyUser extends Equatable {
     this.bio,
     this.position,
     this.groupId,
+    this.photoUrl,
     this.disciplines = const [],
   });
 
@@ -26,10 +30,12 @@ class MyUser extends Equatable {
     String? bio;
     String? position;
     int? groupId;
+    String? photoUrl;
 
     if (data['teacher_profile'] != null) {
       bio = data['teacher_profile']['bio'];
       position = data['teacher_profile']['position'];
+      photoUrl = data['teacher_profile']['photo'];
     }
 
     if (data['student_profile'] != null) {
@@ -51,6 +57,7 @@ class MyUser extends Equatable {
       bio: bio,
       position: position,
       groupId: groupId,
+      photoUrl: photoUrl,
     );
   }
 
