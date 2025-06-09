@@ -10,6 +10,9 @@ class MyUser extends Equatable {
   final String? bio;
   final String? position;
   final int? groupId;
+  final String? groupName;
+  final String? facultyName;
+  final String? courseName;
   final String? photoUrl;
   final List<Discipline> disciplines;
 
@@ -20,6 +23,9 @@ class MyUser extends Equatable {
     this.bio,
     this.position,
     this.groupId,
+    this.groupName,
+    this.facultyName,
+    this.courseName,
     this.photoUrl,
     this.disciplines = const [],
   });
@@ -29,7 +35,10 @@ class MyUser extends Equatable {
     String? bio;
     String? position;
     int? groupId;
+    String? groupName;
     String? photoUrl;
+    String? facultyName;
+    String? courseName;
 
     if (data['teacher_profile'] != null) {
       bio = data['teacher_profile']['bio'];
@@ -40,7 +49,10 @@ class MyUser extends Equatable {
     }
 
     if (data['student_profile'] != null) {
-      groupId = data['student_profile']['group_id'];
+      groupId = data['group']['id'];
+      groupName = data['group']['name'];
+      facultyName = data['group']['faculty']['name'];
+      courseName = data['group']['course']['name'];
     }
 
     List<Discipline> courses = [];
@@ -58,6 +70,9 @@ class MyUser extends Equatable {
       bio: bio,
       position: position,
       groupId: groupId,
+      groupName: groupName,
+      facultyName: facultyName,
+      courseName: courseName,
       photoUrl: photoUrl,
     );
   }
