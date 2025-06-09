@@ -29,6 +29,7 @@ dependencies:
   shared_preferences: ^2.5.3
   rxdart: ^0.27.7
   table_calendar: ^3.0.9
+  mime: ^2.0.0
 
 dev_dependencies:
   flutter_test:
@@ -46,11 +47,14 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
   uses-material-design: true
+  fonts:
+    - family: Sora
+      fonts:
+        - asset: assets/fonts/Sora-VariableFont_wght.ttf
+    - family: Montserrat
+      fonts:
+        - asset: assets/fonts/Montserrat-VariableFont_wght.ttf
 
   # To add assets to your application, add an assets section, like this:
   # assets:

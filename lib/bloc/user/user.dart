@@ -1,23 +1,27 @@
+import 'dart:ui';
+
 import 'package:equatable/equatable.dart';
-import '../journal/course.dart';
+import '../discipline/discipline.dart';
 
 class MyUser extends Equatable {
   final int id;
   final String username;
   final String role;
-  String? bio;
-  String? position;
-  int? groupId;
-  final List<Course> courses;
+  final String? bio;
+  final String? position;
+  final int? groupId;
+  final String? photoUrl;
+  final List<Discipline> disciplines;
 
-  MyUser({
+  const MyUser({
     required this.id,
     required this.username,
     required this.role,
     this.bio,
     this.position,
     this.groupId,
-    this.courses = const [],
+    this.photoUrl,
+    this.disciplines = const [],
   });
 
   factory MyUser.fromJson(Map<String, dynamic> json) {
@@ -25,20 +29,24 @@ class MyUser extends Equatable {
     String? bio;
     String? position;
     int? groupId;
+    String? photoUrl;
 
     if (data['teacher_profile'] != null) {
       bio = data['teacher_profile']['bio'];
       position = data['teacher_profile']['position'];
+      photoUrl = data['teacher_profile']?['photo'] != null
+          ? 'http://127.0.0.1:8000${data['teacher_profile']['photo']}'
+          : null;
     }
 
     if (data['student_profile'] != null) {
       groupId = data['student_profile']['group_id'];
     }
 
-    List<Course> courses = [];
+    List<Discipline> courses = [];
     if (data.containsKey('courses') && data['courses'] is List) {
       courses = List<Map<String, dynamic>>.from(data['courses'])
-          .map((c) => Course.fromJson(c))
+          .map((c) => Discipline.fromJson(c))
           .toList();
     }
 
@@ -46,10 +54,11 @@ class MyUser extends Equatable {
       id: data['id'] ?? '',
       username: data['username'] ?? '',
       role: data['role']['role'] ?? '',
-      courses: courses,
+      disciplines: courses,
       bio: bio,
       position: position,
       groupId: groupId,
+      photoUrl: photoUrl,
     );
   }
 

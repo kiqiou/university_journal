@@ -59,7 +59,7 @@ class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMix
                   );
                 }
               },
-              child: Text('Войти'),
+              child: Text('Войти', style: TextStyle(color: Colors.grey.shade800, fontFamily: 'Montserrat', fontWeight: FontWeight.w600,)),
             ),
           ],
         ),

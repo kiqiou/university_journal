@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../bloc/journal/group.dart';
+import '../../../../bloc/group/group.dart';
 import '../../../../bloc/journal/journal_repository.dart';
 
 class GroupsList extends StatefulWidget {

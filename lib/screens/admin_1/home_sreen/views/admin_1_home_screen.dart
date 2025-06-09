@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:university_journal/bloc/discipline/discipline_repository.dart';
 import 'package:university_journal/bloc/journal/journal_repository.dart';
 import 'package:university_journal/screens/admin_1/home_sreen/components/admin_1_side_navigation_menu.dart';
 import 'package:university_journal/screens/admin_1/home_sreen/views/teacher_list.dart';
-import '../../../../bloc/journal/course.dart';
-import '../../../../bloc/journal/group.dart';
-
+import '../../../../bloc/discipline/discipline.dart';
+import '../../../../bloc/group/group.dart';
+import '../../../../bloc/group/group_repository.dart';
 import '../../../../bloc/user/user.dart';
-import 'course_list.dart';
+import '../../../../bloc/user/user_repository.dart';
+import 'disciplines_list.dart';
 
 enum Admin1ContentScreen { teachers, courses }
 
@@ -18,18 +20,22 @@ class Admin1HomeScreen extends StatefulWidget {
 }
 
 class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
+  final groupRepository = GroupRepository();
   final journalRepository = JournalRepository();
+  final userRepository = UserRepository();
+  final disciplineRepository = DisciplineRepository();
   Admin1ContentScreen currentScreen = Admin1ContentScreen.teachers;
   List<MyUser> teachers = [];
-  List<Course> courses = [];
+  List<Discipline> disciplines = [];
   List<Group> groups = [];
   bool isLoading = true;
+  bool isMenuExpanded = false;
 
   @override
   void initState() {
     super.initState();
     loadTeachers();
-    loadCourses();
+    loadDisciplines();
     loadGroups();
   }
 
@@ -47,7 +53,7 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
 
   Future<void> loadGroups() async {
     try {
-      final list = await journalRepository.getGroupsList();
+      final list = await groupRepository.getGroupsList();
       setState(() {
         groups = list!;
         isLoading = false;
@@ -60,7 +66,7 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
 
   Future<void> loadTeachers() async {
     try {
-      final list = await journalRepository.getTeacherList();
+      final list = await userRepository.getTeacherList();
       setState(() {
         teachers = list!;
         isLoading = false;
@@ -73,11 +79,11 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
     }
   }
 
-  Future<void> loadCourses() async {
+  Future<void> loadDisciplines() async {
     try {
-      final list = await journalRepository.getCoursesList();
+      final list = await disciplineRepository.getCoursesList();
       setState(() {
-        courses = list!;
+        disciplines = list!;
         isLoading = false;
       });
     } catch (e) {
@@ -91,32 +97,67 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Row(
+      body: Stack(
         children: [
-          Admin1SideNavigationMenu(
-            onTeacherAdded: () async {
-              await loadTeachers();
-            },
-            onCourseAdded: () async {
-              await loadCourses();
-            },
-            onTeacherListTap: _showTeachersList,
-            onCoursesListTap: _showCoursesList,
-            groups: groups,
-            teachers: teachers,
+          Row(
+            children: [
+              Admin1SideNavigationMenu(
+                onTeacherAdded: () async {
+                  await loadTeachers();
+                },
+                onCourseAdded: () async {
+                  await loadDisciplines();
+                },
+                onTeacherListTap: _showTeachersList,
+                onCoursesListTap: _showCoursesList,
+                groups: groups,
+                teachers: teachers,
+                isExpanded: isMenuExpanded,
+                onToggle: () {
+                  setState(() {
+                    isMenuExpanded = !isMenuExpanded;
+                  });
+                },
+              ),
+              Expanded(
+                child: Builder(
+                  builder: (context) {
+                    switch (currentScreen) {
+                      case Admin1ContentScreen.teachers:
+                        return TeachersList(loadTeachers: loadTeachers, teachers: teachers, disciplines: disciplines, loadDisciplines: loadDisciplines,);
+                      case Admin1ContentScreen.courses:
+                        return CoursesList(loadCourses: loadDisciplines, disciplines: disciplines, groups: groups, teachers: teachers,);
+                    }
+                  },
+                ),
+              ),
+            ],
           ),
-          Expanded(
-            child: Builder(
-              builder: (context) {
-                switch (currentScreen) {
-                  case Admin1ContentScreen.teachers:
-                    return TeachersList(loadTeachers: loadTeachers, teachers: teachers,);
-                  case Admin1ContentScreen.courses:
-                    return CoursesList(loadCourses: loadCourses, courses: courses, groups: groups, teachers: teachers,);
-                }
+          isMenuExpanded ?
+          Positioned(
+            top: 40,
+            left: 270,
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  isMenuExpanded = !isMenuExpanded;
+                });
               },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [BoxShadow(blurRadius: 4, color: Colors.black26)],
+                ),
+                padding: EdgeInsets.all(20),
+                child: Icon(
+                  Icons.arrow_back_ios,
+                  color: Colors.grey.shade500,
+                  size: 20,
+                ),
+              ),
             ),
-          ),
+          ) : SizedBox(),
         ],
       ),
     );

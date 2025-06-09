@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/bloc/auth/authentication_bloc.dart';
 import 'package:university_journal/components/icon_container.dart';
 
-import '../../../../bloc/journal/group.dart';
+import '../../../../bloc/group/group.dart';
 import '../../../../bloc/user/user.dart';
 import 'add_course.dart';
 import 'add_teacher.dart';
@@ -12,10 +12,12 @@ import 'add_teacher.dart';
 class Admin1SideNavigationMenu extends StatefulWidget {
   final Future<void> Function() onTeacherAdded;
   final Future<void> Function() onCourseAdded;
+  final VoidCallback onToggle;
   final VoidCallback onTeacherListTap;
   final VoidCallback onCoursesListTap;
   final List<Group> groups;
   final List<MyUser> teachers;
+  final bool isExpanded;
 
   const Admin1SideNavigationMenu({
     super.key,
@@ -25,6 +27,8 @@ class Admin1SideNavigationMenu extends StatefulWidget {
     required this.groups,
     required this.teachers,
     required this.onCourseAdded,
+    required this.isExpanded,
+    required this.onToggle,
   });
 
   @override
@@ -46,23 +50,22 @@ class _Admin1SideNavigationMenuState extends State<Admin1SideNavigationMenu> {
     'Добавить дисциплину',
   ];
 
-  bool _isExpanded = false;
   bool isHovered = false;
   final double _collapsedWidth = 100;
-  final double _expandedWidth = 250;
+  final double _expandedWidth = 300;
 
   @override
   Widget build(BuildContext context) {
     final List<VoidCallback> functions = [
-          widget.onTeacherListTap,
-          widget.onCoursesListTap,
-          () {
+      widget.onTeacherListTap,
+      widget.onCoursesListTap,
+      () {
         showDialog(
           context: context,
           builder: (context) => AddTeacherDialog(onTeacherAdded: widget.onTeacherAdded),
         );
       },
-    () {
+      () {
         showDialog(
           context: context,
           builder: (context) => AddCourseDialog(
@@ -75,80 +78,88 @@ class _Admin1SideNavigationMenuState extends State<Admin1SideNavigationMenu> {
     ];
 
     return GestureDetector(
-      onTap: () {
-        if (_isExpanded) {
-          setState(() {
-            _isExpanded = false;
-          });
-        }
-      },
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
         color: Colors.grey.shade300,
         duration: const Duration(milliseconds: 300),
-        width: _isExpanded ? _expandedWidth : _collapsedWidth,
+        width: widget.isExpanded ? _expandedWidth : _collapsedWidth,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: _isExpanded
-                  ? const Text(
-                'МИТСО\nМеждународный\nУниверситет',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              )
-                  : const SizedBox(
-                height: 24,
-                width: 24,
-              ),
+              padding: const EdgeInsets.all(4.0),
+              child: widget.isExpanded
+                  ? const Expanded(
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(left: 16.0),
+                            child: Text(
+                              'МИТСО',
+                              style: TextStyle(
+                                fontSize: 40,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            'Международный\nуниверситет',
+                            style: TextStyle(
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : const SizedBox(),
             ),
             Expanded(
               child: Column(
                 children: [
-                  if (!_isExpanded)
+                  if (!widget.isExpanded)
                     InkWell(
                       onTap: () {
-                        setState(() {
-                          _isExpanded = !_isExpanded;
-                        });
+                        widget.onToggle();
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
                         child: MyIconContainer(
                           icon: Icons.menu,
-                          width: (_isExpanded ? 250 : 50),
+                          width: (widget.isExpanded ? 250 : 50),
                         ),
                       ),
                     ),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 20),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                    child: _isExpanded
+                    child: widget.isExpanded
                         ? const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Панель навигации',
-                        style: TextStyle(color: Colors.grey, fontSize: 16),
-                      ),
-                    )
-                        : const Divider(height: 1),
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'Панель навигации',
+                              style: TextStyle(color: Colors.grey, fontSize: 16),
+                            ),
+                          )
+                        : const Divider(
+                            height: 1,
+                            color: Colors.grey,
+                          ),
                   ),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 20),
                   Expanded(
                     child: ListView.builder(
                       itemCount: _icons.length,
                       itemBuilder: (BuildContext context, int index) {
                         return Center(
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+                            padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 4.0),
                             child: InkWell(
                               onTap: functions[index],
                               child: MyIconContainer(
                                 icon: _icons[index],
-                                width: (_isExpanded ? 250 : 50),
+                                width: (widget.isExpanded ? 250 : 50),
                                 text: _texts[index],
-                                withText: _isExpanded,
+                                withText: widget.isExpanded,
                               ),
                             ),
                           ),
@@ -161,7 +172,7 @@ class _Admin1SideNavigationMenuState extends State<Admin1SideNavigationMenu> {
             ),
             Center(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+                padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 50.0),
                 child: InkWell(
                   onHover: (hovering) {
                     setState(() {
@@ -175,7 +186,7 @@ class _Admin1SideNavigationMenuState extends State<Admin1SideNavigationMenu> {
                   child: MyIconContainer(
                     borderRadius: 100,
                     icon: Icons.arrow_back,
-                    width: (_isExpanded ? 250 : 50),
+                    width: (widget.isExpanded ? 250 : 50),
                   ),
                 ),
               ),

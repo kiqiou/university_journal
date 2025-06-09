@@ -1,17 +1,17 @@
 import 'package:equatable/equatable.dart';
-import 'package:university_journal/bloc/journal/group.dart';
+import 'package:university_journal/bloc/group/group.dart';
 import '../user/user.dart';
 
-class Course extends Equatable {
+class Discipline extends Equatable {
   final int id;
   final String name;
   final List<Group> groups;
   final List<MyUser> teachers;
 
-  const Course({required this.id, required this.name, required this.groups, required this.teachers});
+  const Discipline({required this.id, required this.name, required this.groups, required this.teachers});
 
-  factory Course.fromJson(Map<String, dynamic> json) {
-    return Course(
+  factory Discipline.fromJson(Map<String, dynamic> json) {
+    return Discipline(
       id: json['id'],
       name: json['name'],
       groups: (json['groups'] as List<dynamic>)

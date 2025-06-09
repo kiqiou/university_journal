@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:university_journal/bloc/group/group_repository.dart';
 import 'package:university_journal/bloc/journal/journal_repository.dart';
-import '../../../../bloc/journal/group.dart';
+import '../../../../bloc/group/group.dart';
 import '../../../../bloc/user/user.dart';
 import 'package:university_journal/screens/admin_2/home_screen/components/admin_2_side_navigation_menu.dart';
 import 'package:university_journal/screens/admin_2/home_screen/views/student_list.dart';
 import 'package:university_journal/screens/admin_2/home_screen/views/group_list.dart';
+
+import '../../../../bloc/user/user_repository.dart';
 
 enum Admin2ContentScreen { students, groups }
 
@@ -16,7 +19,8 @@ class Admin2HomeScreen extends StatefulWidget {
 }
 
 class _Admin2HomeScreenState extends State<Admin2HomeScreen> {
-  final JournalRepository journalRepository = JournalRepository();
+  final userRepository = UserRepository();
+  final groupRepository = GroupRepository();
 
   Admin2ContentScreen currentScreen = Admin2ContentScreen.students;
 
@@ -37,7 +41,7 @@ class _Admin2HomeScreenState extends State<Admin2HomeScreen> {
       isLoading = true;
     });
     try {
-      final list = await journalRepository.getStudentList();
+      final list = await userRepository.getStudentList();
       setState(() {
         students = list ?? [];
         isLoading = false;
@@ -52,7 +56,7 @@ class _Admin2HomeScreenState extends State<Admin2HomeScreen> {
 
   Future<void> loadGroups() async {
     try {
-      final list = await journalRepository.getGroupsList();
+      final list = await groupRepository.getGroupsList();
       setState(() {
         groups = list!;
         isLoading = false;

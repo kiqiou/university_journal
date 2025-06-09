@@ -55,7 +55,7 @@ class _AccountScreenState extends State<AccountScreen> {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        ...state.user!.courses.map((course) => _buildDisciplineItem(course.name)),
+                        ...state.user!.disciplines.map((course) => _buildDisciplineItem(course.name)),
                       ],
                     ),
                   ),
@@ -74,11 +74,13 @@ class _AccountScreenState extends State<AccountScreen> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Center(
-                          child: Icon(
-                            Icons.person_outline,
-                            size: 80,
-                            color: Colors.grey[400],
-                          ),
+                          child: state.user!.photoUrl != null
+                              ? Image.network(state.user!.photoUrl!)
+                              : Icon(
+                                  Icons.person_outline,
+                                  size: 80,
+                                  color: Colors.grey[400],
+                                ),
                         ),
                       ),
                       const SizedBox(height: 16),

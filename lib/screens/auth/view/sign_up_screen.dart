@@ -76,7 +76,7 @@ Widget build(BuildContext context) {
                 );
               }
             },
-            child: Text('Зарегистрироваться'),
+            child: Text('Зарегистрироваться', style: TextStyle(color: Colors.grey.shade800, fontFamily: 'Montserrat', fontWeight: FontWeight.w600,),),
           ),
           SizedBox(height: 10,),
           ElevatedButton(
@@ -88,7 +88,7 @@ Widget build(BuildContext context) {
                 ),
               );
             },
-            child: Text('Войти'),
+            child: Text('Войти', style: TextStyle(color: Colors.grey.shade800, fontFamily: 'Montserrat', fontWeight: FontWeight.w600,)),
           ),
           SizedBox(height: 10,),
         ],
