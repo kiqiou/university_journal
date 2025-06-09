@@ -132,27 +132,38 @@ class UserRepository {
     String? position,
     String? bio,
     int? groupId,
+    Uint8List? photoBytes,
+    String? photoName,
   }) async {
     try {
-      final response = await http.put(
-        Uri.parse('http://127.0.0.1:8000/api/update_user/$userId/'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'username': username,
-          'position': position,
-          'bio': bio,
-          'group_id': groupId,
-        }),
-      );
-      log('🔍 Отправка обновления для userId: $userId');
-      if (response.statusCode == 200) {
-        return true;
-      } else {
-        log('❌ Ошибка обновления преподавателя: ${response.body}');
-        return false;
+      final uri = Uri.parse('http://127.0.0.1:8000/api/update_user/$userId/');
+      final request = http.MultipartRequest('PUT', uri);
+
+      request.fields['username'] = username ?? '';
+      request.fields['position'] = position ?? '';
+      request.fields['bio'] = bio ?? '';
+      if (groupId != null) {
+        request.fields['group_id'] = groupId.toString();
       }
+
+      if (photoBytes != null && photoName != null) {
+        request.files.add(
+          http.MultipartFile.fromBytes(
+            'photo',
+            photoBytes,
+            filename: photoName,
+          ),
+        );
+      }
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      log('🔍 Ответ сервера: ${response.statusCode} ${response.body}');
+
+      return response.statusCode == 200;
     } catch (e) {
-      log('❌ Ошибка соединения: $e');
+      log('❌ Ошибка обновления: $e');
       return false;
     }
   }

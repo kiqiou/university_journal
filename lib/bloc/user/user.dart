@@ -35,7 +35,9 @@ class MyUser extends Equatable {
     if (data['teacher_profile'] != null) {
       bio = data['teacher_profile']['bio'];
       position = data['teacher_profile']['position'];
-      photoUrl = data['teacher_profile']['photo'];
+      photoUrl = data['teacher_profile']?['photo'] != null
+          ? 'http://127.0.0.1:8000${data['teacher_profile']['photo']}'
+          : null;
     }
 
     if (data['student_profile'] != null) {
