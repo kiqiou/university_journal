@@ -217,7 +217,7 @@ class _CoursesList extends State<CoursesList> {
                                       child: GestureDetector(
                                         onTap: () {
                                           setState(() {
-                                            selectedIndex = courses[index].id; // ✅ id дисциплины
+                                            selectedIndex = index; // ✅ id дисциплины
                                           });
                                         },
                                         child: Container(
@@ -225,7 +225,7 @@ class _CoursesList extends State<CoursesList> {
                                           decoration: BoxDecoration(
                                             borderRadius: BorderRadius.circular(22.0),
                                             border: Border.all(
-                                              color: selectedIndex == courses[index].id
+                                              color: selectedIndex == index
                                                   ? const Color(0xFF4068EA)
                                                   : Colors.grey.shade300,
                                               width: 1.4,

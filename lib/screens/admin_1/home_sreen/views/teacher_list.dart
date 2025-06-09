@@ -1,27 +1,37 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:multi_select_flutter/dialog/multi_select_dialog_field.dart';
 import 'package:multi_select_flutter/util/multi_select_item.dart';
+import 'dart:typed_data';
+import 'dart:html' as html;
 
+import '../../../../bloc/auth/authentication_bloc.dart';
 import '../../../../bloc/discipline/discipline.dart';
 import '../../../../bloc/discipline/discipline_repository.dart';
 import '../../../../bloc/user/user.dart';
 import '../../../../bloc/user/user_repository.dart';
 
-class TeachersList extends StatefulWidget{
+class TeachersList extends StatefulWidget {
   final Future<void> Function() loadTeachers;
   final Future<void> Function() loadDisciplines;
   final List<MyUser> teachers;
   final List<Discipline> disciplines;
-  const TeachersList({super.key, required this.loadTeachers,required this.teachers, required this.disciplines, required this.loadDisciplines,});
 
+  const TeachersList({
+    super.key,
+    required this.loadTeachers,
+    required this.teachers,
+    required this.disciplines,
+    required this.loadDisciplines,
+  });
 
   @override
   State<TeachersList> createState() => _TeachersList();
 }
 
-class _TeachersList extends State<TeachersList>{
+class _TeachersList extends State<TeachersList> {
   final userRepository = UserRepository();
   int? selectedIndex;
   bool isLoading = true;
@@ -91,7 +101,8 @@ class _TeachersList extends State<TeachersList>{
                                     ),
                                     elevation: 0,
                                   ),
-                                  child: const Text('Удалить преподавателя', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                  child: const Text('Удалить преподавателя',
+                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                                 ),
                               ),
                               const SizedBox(width: 16),
@@ -111,7 +122,8 @@ class _TeachersList extends State<TeachersList>{
                                     ),
                                     elevation: 0,
                                   ),
-                                  child: const Text('Редактировать информацию', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                  child: const Text('Редактировать информацию',
+                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                                 ),
                               ),
                               const SizedBox(width: 16),
@@ -131,8 +143,8 @@ class _TeachersList extends State<TeachersList>{
                                     ),
                                     elevation: 0,
                                   ),
-                                  child:
-                                  const Text('Привязка дисциплины и группы', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                  child: const Text('Привязка дисциплины и группы',
+                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                                 ),
                               ),
                             ],
@@ -353,6 +365,32 @@ class _TeachersList extends State<TeachersList>{
                         final media = MediaQuery.of(context).size;
                         final double dialogWidth = (media.width - 32 - 80).clamp(320, 600);
                         final double dialogHeight = (media.height - 64).clamp(480, 1100);
+                        Uint8List? _selectedPhotoBytes;
+                        String? _photoPreviewUrl;
+                        String? _photoName;
+
+                        void _pickImage() {
+                          html.FileUploadInputElement uploadInput = html.FileUploadInputElement();
+                          uploadInput.accept = 'image/*';
+                          uploadInput.click();
+
+                          uploadInput.onChange.listen((event) {
+                            final files = uploadInput.files;
+                            if (files != null && files.isNotEmpty) {
+                              final file = files[0];
+                              final reader = html.FileReader();
+
+                              reader.readAsArrayBuffer(file);
+                              reader.onLoadEnd.listen((event) {
+                                setState(() {
+                                  _selectedPhotoBytes = reader.result as Uint8List;
+                                  _photoPreviewUrl = html.Url.createObjectUrlFromBlob(file);
+                                  _photoName = file.name;
+                                });
+                              });
+                            }
+                          });
+                        }
 
                         return Material(
                           color: Colors.transparent,
@@ -404,6 +442,8 @@ class _TeachersList extends State<TeachersList>{
                                                     username: usernameController.text,
                                                     position: positionController.text,
                                                     bio: bioController.text,
+                                                    photoBytes: _selectedPhotoBytes,
+                                                    photoName: _photoName,
                                                   );
 
                                                   if (success) {
@@ -454,11 +494,19 @@ class _TeachersList extends State<TeachersList>{
                                                     color: Colors.grey[200],
                                                     borderRadius: BorderRadius.circular(8),
                                                   ),
-                                                  child: const Icon(Icons.person, size: 48, color: Colors.grey),
+                                                  child: _photoPreviewUrl != null
+                                                      ? Image.network(_photoPreviewUrl!)
+                                                      : widget.teachers[selectedIndex!].photoUrl != null
+                                                          ? Image.network(widget.teachers[selectedIndex!].photoUrl!)
+                                                          : Icon(
+                                                              Icons.person_outline,
+                                                              size: 48,
+                                                              color: Colors.grey[400],
+                                                            ),
                                                 ),
                                                 SizedBox(height: constraints.maxHeight * 0.01 + 4),
                                                 InkWell(
-                                                  onTap: () {},
+                                                  onTap: _pickImage,
                                                   borderRadius: BorderRadius.circular(8),
                                                   child: Container(
                                                     width: 32,
@@ -505,7 +553,9 @@ class _TeachersList extends State<TeachersList>{
                                                     child: TextField(
                                                       controller: bioController,
                                                       maxLines: 2,
-                                                      inputFormatters: [LengthLimitingTextInputFormatter(250),],
+                                                      inputFormatters: [
+                                                        LengthLimitingTextInputFormatter(250),
+                                                      ],
                                                       decoration: const InputDecoration(
                                                         labelText: "Краткая биография",
                                                         hintText: "Введите краткую биографию",
@@ -589,7 +639,8 @@ class _TeachersList extends State<TeachersList>{
                                                 ),
                                                 onPressed: () async {
                                                   debugPrint("selectedIndex: $selectedIndex");
-                                                  debugPrint("widget.teachers ids: ${widget.teachers.map((t) => t.id).toList()}");
+                                                  debugPrint(
+                                                      "widget.teachers ids: ${widget.teachers.map((t) => t.id).toList()}");
 
                                                   final disciplineRepository = DisciplineRepository();
                                                   final currentTeacher = (selectedIndex! < widget.teachers.length)
@@ -621,7 +672,8 @@ class _TeachersList extends State<TeachersList>{
                                                     });
                                                   } else {
                                                     ScaffoldMessenger.of(context).showSnackBar(
-                                                      const SnackBar(content: Text('❌ Некоторые дисциплины не удалось привязать')),
+                                                      const SnackBar(
+                                                          content: Text('❌ Некоторые дисциплины не удалось привязать')),
                                                     );
                                                   }
                                                 },
@@ -662,13 +714,16 @@ class _TeachersList extends State<TeachersList>{
                                                   MultiSelectDialogField<Discipline>(
                                                     items: widget.disciplines
                                                         .map((discipline) =>
-                                                        MultiSelectItem<Discipline>(discipline, discipline.name))
+                                                            MultiSelectItem<Discipline>(discipline, discipline.name))
                                                         .toList(),
-                                                    title: Text("Дисциплины", style: TextStyle(
-                                                      fontWeight: FontWeight.w700,
-                                                      color: Colors.black,
-                                                      fontSize: 18,
-                                                    ),),
+                                                    title: Text(
+                                                      "Дисциплины",
+                                                      style: TextStyle(
+                                                        fontWeight: FontWeight.w700,
+                                                        color: Colors.black,
+                                                        fontSize: 18,
+                                                      ),
+                                                    ),
                                                     selectedColor: Colors.blue,
                                                     decoration: BoxDecoration(
                                                       color: const Color(0xFFF3F4F6),
