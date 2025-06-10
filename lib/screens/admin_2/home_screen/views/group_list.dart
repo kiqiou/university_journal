@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../bloc/group/group.dart';
 import '../../../../bloc/group/group_repository.dart';
-import '../../../../bloc/journal/journal_repository.dart';
 
 class GroupsList extends StatefulWidget {
   final Future<void> Function() loadGroups;

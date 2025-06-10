@@ -138,23 +138,6 @@ class _CoursesList extends State<CoursesList> {
                                       style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                                 ),
                               ),
-                              const SizedBox(width: 16),
-                              SizedBox(
-                                width: buttonWidths[2],
-                                height: buttonHeights,
-                                child: ElevatedButton(
-                                  onPressed: () {},
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF4068EA),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    elevation: 0,
-                                  ),
-                                  child: const Text('Привязка дисциплины и группы',
-                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                                ),
-                              ),
                             ],
                           ],
                         ),

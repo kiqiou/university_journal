@@ -36,9 +36,6 @@ class _Admin2HomeScreenState extends State<Admin2HomeScreen> {
   }
 
   Future<void> loadStudents() async {
-    setState(() {
-      isLoading = true;
-    });
     try {
       final list = await userRepository.getStudentList();
       setState(() {
@@ -46,7 +43,7 @@ class _Admin2HomeScreenState extends State<Admin2HomeScreen> {
         isLoading = false;
       });
     } catch (e) {
-      print('Ошибка при загрузке студентов: $e');
+      print("Ошибка при загрузке преподавателей: $e");
       setState(() {
         isLoading = false;
       });
@@ -96,21 +93,13 @@ class _Admin2HomeScreenState extends State<Admin2HomeScreen> {
             students: students,
           ),
           Expanded(
-            child: isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : Builder(
+            child: Builder(
               builder: (context) {
                 switch (currentScreen) {
                   case Admin2ContentScreen.students:
-                    return StudentsList(
-                      students: students,
-                      loadStudents: loadStudents,
-                    );
+                    return StudentsList(students: students, loadStudents: loadStudents);
                   case Admin2ContentScreen.groups:
-                    return GroupsList(
-                      groups: groups,
-                      loadGroups: loadGroups,
-                    );
+                    return GroupsList(groups: groups, loadGroups: loadGroups);
                 }
               },
             ),

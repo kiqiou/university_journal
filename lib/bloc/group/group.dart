@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class Group {
   final int id;
   final String name;
