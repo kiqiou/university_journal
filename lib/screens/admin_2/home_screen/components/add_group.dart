@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:university_journal/bloc/group/group_repository.dart';
 
 import '../../../../bloc/user/user.dart';
+import '../../../../components/multiselect.dart';
 
 class AddGroupDialog extends StatefulWidget {
   final VoidCallback onGroupAdded;
@@ -174,37 +175,40 @@ class _AddGroupDialogState extends State<AddGroupDialog> {
                             },
                           ),
                           const SizedBox(height: 18),
-                          DropdownButtonFormField<MyUser>(
-                            isExpanded: true,
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Colors.grey.shade400,
-                                  width: 1.5,
+                          GestureDetector(
+                            onTap: () async {
+                              final selected = await showDialog<List<MyUser>>(
+                                context: context,
+                                builder: (_) => MultiSelectDialog(
+                                  items: widget.students,
+                                  initiallySelected: selectedStudents,
+                                  itemLabel: (user) => user.username,
                                 ),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                            ),
-                            hint: const Text("Выберите из списка студента"),
-                            value: selectedStudents.isNotEmpty ? selectedStudents.first : null,
-                            items: widget.students
-                                .map((t) => DropdownMenuItem<MyUser>(
-                                      value: t,
-                                      child: Text(t.username),
-                                    ))
-                                .toList(),
-                            onChanged: (val) {
-                              setState(() {
-                                selectedStudents = val != null ? [val] : [];
-                              });
-                            },
-                            validator: (value) {
-                              if (value == null) {
-                                return 'Обязательное поле. Выберите хотя бы одного студента.';
+                              );
+
+                              if (selected != null) {
+                                setState(() {
+                                  selectedStudents = selected;
+                                });
                               }
-                              return null;
                             },
+                            child: InputDecorator(
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(
+                                    color: Colors.grey.shade400,
+                                    width: 1.5,
+                                  ),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                              ),
+                              child: Text(
+                                selectedStudents.isEmpty
+                                    ? "Выберите из списка студента"
+                                    : selectedStudents.map((s) => s.username).join(', '),
+                              ),
+                            ),
                           ),
                           const SizedBox(height: 18),
                           if (selectedStudents.isNotEmpty)

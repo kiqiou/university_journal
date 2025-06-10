@@ -20,13 +20,11 @@ class Admin2HomeScreen extends StatefulWidget {
 class _Admin2HomeScreenState extends State<Admin2HomeScreen> {
   final userRepository = UserRepository();
   final groupRepository = GroupRepository();
-
   Admin2ContentScreen currentScreen = Admin2ContentScreen.students;
-
   List<MyUser> students = [];
   List<Group> groups = [];
-
   bool isLoading = true;
+  bool isMenuExpanded = false;
 
   @override
   void initState() {
@@ -78,32 +76,67 @@ class _Admin2HomeScreenState extends State<Admin2HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Row(
+      body: Stack(
         children: [
-          Admin2SideNavigationMenu(
-            onStudentAdded: () async {
-              await loadStudents();
-            },
-            onGroupAdded: () async {
-              await loadGroups();
-            },
-            onStudentsListTap: _showStudentsList,
-            onGroupsListTap: _showGroupsList,
-            groups: groups,
-            students: students,
+          Row(
+            children: [
+              Admin2SideNavigationMenu(
+                onStudentAdded: () async {
+                  await loadStudents();
+                },
+                onGroupAdded: () async {
+                  await loadGroups();
+                },
+                onStudentsListTap: _showStudentsList,
+                onGroupsListTap: _showGroupsList,
+                groups: groups,
+                students: students,
+                isExpanded: isMenuExpanded,
+                onToggle: () {
+                  setState(() {
+                    isMenuExpanded = !isMenuExpanded;
+                  });
+                },
+              ),
+              Expanded(
+                child: Builder(
+                  builder: (context) {
+                    switch (currentScreen) {
+                      case Admin2ContentScreen.students:
+                        return StudentsList(students: students, loadStudents: loadStudents);
+                      case Admin2ContentScreen.groups:
+                        return GroupsList(groups: groups, loadGroups: loadGroups);
+                    }
+                  },
+                ),
+              ),
+            ],
           ),
-          Expanded(
-            child: Builder(
-              builder: (context) {
-                switch (currentScreen) {
-                  case Admin2ContentScreen.students:
-                    return StudentsList(students: students, loadStudents: loadStudents);
-                  case Admin2ContentScreen.groups:
-                    return GroupsList(groups: groups, loadGroups: loadGroups);
-                }
+          isMenuExpanded ?
+          Positioned(
+            top: 40,
+            left: 270,
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  isMenuExpanded = !isMenuExpanded;
+                });
               },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [BoxShadow(blurRadius: 4, color: Colors.black26)],
+                ),
+                padding: EdgeInsets.all(20),
+                child: Icon(
+                  Icons.arrow_back_ios,
+                  color: Colors.grey.shade500,
+                  size: 20,
+                ),
+              ),
             ),
-          ),
+          ) : SizedBox(),
         ],
       ),
     );

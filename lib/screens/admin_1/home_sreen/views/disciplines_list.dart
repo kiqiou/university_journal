@@ -7,6 +7,7 @@ import '../../../../bloc/discipline/discipline.dart';
 import '../../../../bloc/discipline/discipline_repository.dart';
 import '../../../../bloc/group/group.dart';
 import '../../../../bloc/user/user.dart';
+import '../../../../components/multiselect.dart';
 
 class CoursesList extends StatefulWidget {
   final Future<void> Function() loadCourses;
@@ -652,34 +653,42 @@ class _CoursesList extends State<CoursesList> {
                                       style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
                                     ),
                                     const SizedBox(height: 4),
-                                    DropdownButtonFormField<MyUser>(
-                                      isExpanded: true,
-                                      decoration: InputDecoration(
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                          borderSide: BorderSide(
-                                            color: teacherError ? Colors.red : Colors.grey,
-                                            width: 1.5,
+                                    GestureDetector(
+                                      onTap: () async {
+                                        final selected = await showDialog<List<MyUser>>(
+                                          context: context,
+                                          builder: (_) => MultiSelectDialog(
+                                            items: widget.teachers,
+                                            initiallySelected: selectedTeachers,
+                                            itemLabel: (user) => user.username,
                                           ),
-                                        ),
-                                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                                        errorText: teacherError ? 'Обязательное поле. Выберите хотя бы одного преподавателя.' : null,
-                                      ),
-                                      hint: const Text("Выберите из списка преподавателя"),
-                                      value: selectedTeachers.isNotEmpty ? selectedTeachers.first : null,
-                                      items: widget.teachers
-                                          .map((t) => DropdownMenuItem<MyUser>(
-                                        value: t,
-                                        child: Text(t.username),
-                                      ))
-                                          .toList(),
-                                      onChanged: (val) {
-                                        setState(() {
-                                          selectedTeachers = val != null ? [val] : [];
-                                        });
+                                        );
+
+                                        if (selected != null) {
+                                          setState(() {
+                                            selectedTeachers = selected;
+                                          });
+                                        }
                                       },
+                                      child: InputDecorator(
+                                        decoration: InputDecoration(
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: BorderSide(
+                                              color: Colors.grey.shade400,
+                                              width: 1.5,
+                                            ),
+                                          ),
+                                          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                        ),
+                                        child: Text(
+                                          selectedTeachers.isEmpty
+                                              ? "Выберите из списка преподавателей"
+                                              : selectedTeachers.map((s) => s.username).join(', '),
+                                        ),
+                                      ),
                                     ),
-                                    const SizedBox(height: 10),
+                                    const SizedBox(height: 18),
                                     if (selectedTeachers.isNotEmpty)
                                       Wrap(
                                         spacing: 8,
@@ -699,39 +708,46 @@ class _CoursesList extends State<CoursesList> {
                                     // Группа
                                     const Text("Привязать группу"),
                                     const SizedBox(height: 4),
-                                    DropdownButtonFormField<Group>(
-                                      isExpanded: true,
-                                      decoration: InputDecoration(
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                          borderSide: BorderSide(
-                                            color: groupError ? Colors.red : Colors.grey,
-                                            width: 1.5,
+                                    GestureDetector(
+                                      onTap: () async {
+                                        final selected = await showDialog<List<Group>>(
+                                          context: context,
+                                          builder: (_) => MultiSelectDialog(
+                                            items: widget.groups,
+                                            initiallySelected:  selectedGroups,
+                                            itemLabel: (group) => group.name,
                                           ),
-                                        ),
-                                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                                        errorText: groupError ? 'Обязательное поле. Выберите хотя бы одну группу.' : null,
-                                      ),
-                                      hint: const Text("Выберите из списка группу"),
-                                      value: selectedGroups.isNotEmpty ? selectedGroups.first : null,
-                                      items: widget.groups
-                                          .map((g) => DropdownMenuItem<Group>(
-                                        value: g,
-                                        child: Text(g.name),
-                                      ))
-                                          .toList(),
-                                      onChanged: (val) {
-                                        setState(() {
-                                          selectedGroups = val != null ? [val] : [];
-                                        });
+                                        );
+
+                                        if (selected != null) {
+                                          setState(() {
+                                            selectedGroups = selected;
+                                          });
+                                        }
                                       },
+                                      child: InputDecorator(
+                                        decoration: InputDecoration(
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: BorderSide(
+                                              color: Colors.grey.shade400,
+                                              width: 1.5,
+                                            ),
+                                          ),
+                                          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                        ),
+                                        child: Text(
+                                          selectedGroups.isEmpty
+                                              ? "Выберите из списка групп"
+                                              :  selectedGroups.map((s) => s.name).join(', '),
+                                        ),
+                                      ),
                                     ),
-                                    const SizedBox(height: 10),
-                                    if (selectedGroups.isNotEmpty)
+                                    const SizedBox(height: 18),
+                                    if ( selectedGroups.isNotEmpty)
                                       Wrap(
                                         spacing: 8,
-                                        runSpacing: 8,
-                                        children: selectedGroups.map((group) {
+                                        children:  selectedGroups.map((group) {
                                           return Chip(
                                             label: Text(group.name),
                                             onDeleted: () {

@@ -12,6 +12,7 @@ import '../../../../bloc/discipline/discipline.dart';
 import '../../../../bloc/discipline/discipline_repository.dart';
 import '../../../../bloc/user/user.dart';
 import '../../../../bloc/user/user_repository.dart';
+import '../../../../components/multiselect.dart';
 
 class TeachersList extends StatefulWidget {
   final Future<void> Function() loadTeachers;
@@ -711,34 +712,56 @@ class _TeachersList extends State<TeachersList> {
                                             Expanded(
                                               child: Column(
                                                 children: [
-                                                  MultiSelectDialogField<Discipline>(
-                                                    items: widget.disciplines
-                                                        .map((discipline) =>
-                                                            MultiSelectItem<Discipline>(discipline, discipline.name))
-                                                        .toList(),
-                                                    title: Text(
-                                                      "Дисциплины",
-                                                      style: TextStyle(
-                                                        fontWeight: FontWeight.w700,
-                                                        color: Colors.black,
-                                                        fontSize: 18,
+                                                  GestureDetector(
+                                                    onTap: () async {
+                                                      final selected = await showDialog<List<Discipline>>(
+                                                        context: context,
+                                                        builder: (_) => MultiSelectDialog(
+                                                          items: widget.disciplines,
+                                                          initiallySelected: selectedDisciplines,
+                                                          itemLabel: (discipline) => discipline.name,
+                                                        ),
+                                                      );
+
+                                                      if (selected != null) {
+                                                        setState(() {
+                                                          selectedDisciplines = selected;
+                                                        });
+                                                      }
+                                                    },
+                                                    child: InputDecorator(
+                                                      decoration: InputDecoration(
+                                                        border: OutlineInputBorder(
+                                                          borderRadius: BorderRadius.circular(12),
+                                                          borderSide: BorderSide(
+                                                            color: Colors.grey.shade400,
+                                                            width: 1.5,
+                                                          ),
+                                                        ),
+                                                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                                      ),
+                                                      child: Text(
+                                                        selectedDisciplines.isEmpty
+                                                            ? "Выберите из списка дисциплин"
+                                                            : selectedDisciplines.map((s) => s.name).join(', '),
                                                       ),
                                                     ),
-                                                    selectedColor: Colors.blue,
-                                                    decoration: BoxDecoration(
-                                                      color: const Color(0xFFF3F4F6),
-                                                      borderRadius: BorderRadius.circular(11),
-                                                      border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
-                                                    ),
-                                                    buttonIcon: const Icon(Icons.group_add),
-                                                    buttonText: const Text("Дисциплины"),
-                                                    onConfirm: (values) {
-                                                      selectedDisciplines = values;
-                                                    },
-                                                    validator: (values) => (values == null || values.isEmpty)
-                                                        ? 'Выберите хотя бы одну дисциплину'
-                                                        : null,
                                                   ),
+                                                  const SizedBox(height: 18),
+                                                  if (selectedDisciplines.isNotEmpty)
+                                                    Wrap(
+                                                      spacing: 8,
+                                                      children: selectedDisciplines.map((discipline) {
+                                                        return Chip(
+                                                          label: Text(discipline.name),
+                                                          onDeleted: () {
+                                                            setState(() {
+                                                              selectedDisciplines.remove(discipline);
+                                                            });
+                                                          },
+                                                        );
+                                                      }).toList(),
+                                                    ),
                                                 ],
                                               ),
                                             ),

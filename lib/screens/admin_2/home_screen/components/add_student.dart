@@ -10,10 +10,10 @@ class AddStudentDialog extends StatefulWidget {
   final void Function(String studentName, String? group) onSave;
 
   const AddStudentDialog({
-    Key? key,
+    super.key,
     required this.onStudentAdded,
     required this.onSave, required this.groups,
-  }) : super(key: key);
+  });
 
   @override
   State<AddStudentDialog> createState() => _AddStudentDialogState();
@@ -90,7 +90,7 @@ class _AddStudentDialogState extends State<AddStudentDialog> {
                                     await authRepository.signUp(
                                       username: fio ?? '',
                                       password: '123456',
-                                      roleId: 2, // 2 – студент
+                                      roleId: 5,
                                       position: group ?? '',
                                       bio: "",
                                     );

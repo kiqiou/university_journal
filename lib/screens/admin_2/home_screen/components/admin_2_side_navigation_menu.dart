@@ -11,10 +11,12 @@ import 'add_group.dart';
 class Admin2SideNavigationMenu extends StatefulWidget {
   final Future<void> Function() onStudentAdded;
   final Future<void> Function() onGroupAdded;
+  final VoidCallback onToggle;
   final VoidCallback onStudentsListTap;
   final VoidCallback onGroupsListTap;
   final List<Group> groups;
   final List<MyUser> students;
+  final bool isExpanded;
 
   const Admin2SideNavigationMenu({
     super.key,
@@ -24,6 +26,8 @@ class Admin2SideNavigationMenu extends StatefulWidget {
     required this.onGroupsListTap,
     required this.groups,
     required this.students,
+    required this.onToggle,
+    required this.isExpanded,
   });
 
   @override
@@ -45,90 +49,106 @@ class _Admin2SideNavigationMenuState extends State<Admin2SideNavigationMenu> {
     'Добавить группу',
   ];
 
-  bool _isExpanded = false;
   bool isHovered = false;
   final double _collapsedWidth = 100;
-  final double _expandedWidth = 250;
+  final double _expandedWidth = 300;
 
   @override
   Widget build(BuildContext context) {
     final List<VoidCallback> functions = [
       widget.onStudentsListTap,
       widget.onGroupsListTap,
-          () {
+      () {
         showDialog(
           context: context,
           builder: (context) => AddStudentDialog(
-            onStudentAdded: widget.onStudentAdded, onSave: (String studentName, String? group,) {  }, groups:widget.groups,
+            onStudentAdded: widget.onStudentAdded,
+            onSave: (
+              String studentName,
+              String? group,
+            ) {},
+            groups: widget.groups,
           ),
         );
       },
-          () {
+      () {
         showDialog(
           context: context,
           builder: (context) => AddGroupDialog(
-            onGroupAdded: widget.onGroupAdded, students: widget.students,
+            onGroupAdded: widget.onGroupAdded,
+            students: widget.students,
           ),
         );
       },
     ];
 
     return GestureDetector(
-      onTap: () {
-        if (_isExpanded) {
-          setState(() {
-            _isExpanded = false;
-          });
-        }
-      },
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
         color: Colors.grey.shade300,
         duration: const Duration(milliseconds: 300),
-        width: _isExpanded ? _expandedWidth : _collapsedWidth,
+        width: widget.isExpanded ? _expandedWidth : _collapsedWidth,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: _isExpanded
-                  ? const Text(
-                'МИТСО\nМеждународный\nУниверситет',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              )
-                  : const SizedBox(height: 24, width: 24),
+              padding: const EdgeInsets.all(4.0),
+              child: widget.isExpanded
+                  ? const Expanded(
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(left: 16.0),
+                            child: Text(
+                              'МИТСО',
+                              style: TextStyle(
+                                fontSize: 40,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            'Международный\nуниверситет',
+                            style: TextStyle(
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : const SizedBox(),
             ),
             Expanded(
               child: Column(
                 children: [
-                  if (!_isExpanded)
+                  if (!widget.isExpanded)
                     InkWell(
                       onTap: () {
-                        setState(() {
-                          _isExpanded = !_isExpanded;
-                        });
+                        widget.onToggle();
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
                         child: MyIconContainer(
                           icon: Icons.menu,
-                          width: (_isExpanded ? 250 : 50),
+                          width: (widget.isExpanded ? 250 : 50),
                         ),
                       ),
                     ),
                   const SizedBox(height: 5),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                    child: _isExpanded
+                    child: widget.isExpanded
                         ? const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Панель навигации',
-                        style: TextStyle(color: Colors.grey, fontSize: 16),
-                      ),
-                    )
-                        : const Divider(height: 1),
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'Панель навигации',
+                              style: TextStyle(color: Colors.grey, fontSize: 16),
+                            ),
+                          )
+                        : const Divider(
+                            height: 1,
+                            color: Colors.grey,
+                          ),
                   ),
                   const SizedBox(height: 5),
                   Expanded(
@@ -137,14 +157,14 @@ class _Admin2SideNavigationMenuState extends State<Admin2SideNavigationMenu> {
                       itemBuilder: (BuildContext context, int index) {
                         return Center(
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+                            padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 4.0),
                             child: InkWell(
                               onTap: functions[index],
                               child: MyIconContainer(
                                 icon: _icons[index],
-                                width: (_isExpanded ? 250 : 50),
+                                width: (widget.isExpanded ? 250 : 50),
                                 text: _texts[index],
-                                withText: _isExpanded,
+                                withText: widget.isExpanded,
                               ),
                             ),
                           ),
@@ -157,7 +177,7 @@ class _Admin2SideNavigationMenuState extends State<Admin2SideNavigationMenu> {
             ),
             Center(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+                padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 50.0),
                 child: InkWell(
                   onHover: (hovering) {
                     setState(() {
@@ -171,7 +191,7 @@ class _Admin2SideNavigationMenuState extends State<Admin2SideNavigationMenu> {
                   child: MyIconContainer(
                     borderRadius: 100,
                     icon: Icons.arrow_back,
-                    width: (_isExpanded ? 250 : 50),
+                    width: (widget.isExpanded ? 250 : 50),
                   ),
                 ),
               ),
