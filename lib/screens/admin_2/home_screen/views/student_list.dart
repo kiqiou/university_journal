@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
+import '../../../../bloc/group/group.dart';
 import '../../../../bloc/user/user.dart';
 import '../../../../bloc/user/user_repository.dart';
 
 class StudentsList extends StatefulWidget {
   final Future<void> Function() loadStudents;
   final List<MyUser> students;
+  final List<Group> groups;
 
   const StudentsList({
     super.key,
     required this.loadStudents,
-    required this.students,
+    required this.students, required this.groups,
   });
 
   @override
@@ -19,6 +21,7 @@ class StudentsList extends StatefulWidget {
 class _StudentsListState extends State<StudentsList> {
   final userRepository = UserRepository();
   int? selectedIndex;
+  Group? selectedGroup;
   bool isLoading = true;
   bool showDeleteDialog = false;
   bool showEditDialog = false;
@@ -276,7 +279,7 @@ class _StudentsListState extends State<StudentsList> {
                             ),
                             const SizedBox(height: 16),
                             const Text(
-                              "Вы действительно хотите удалить преподавателя?",
+                              "Вы действительно хотите удалить студента?",
                               style: TextStyle(fontSize: 15),
                             ),
                             const SizedBox(height: 32),
@@ -370,17 +373,20 @@ class _StudentsListState extends State<StudentsList> {
                                               padding: const EdgeInsets.symmetric(horizontal: 24),
                                             ),
                                             onPressed: () async {
-                                              // final success = await groupRepository.updateGroup(
-                                              //   groupId: widget.groups[selectedIndex!].id,
-                                              //   name: nameController.text,
-                                              // );
-                                              //
-                                              // if (success) {
-                                              //   setState(() async {
-                                              //     await widget.loadGroups();
-                                              //     showEditDialog = false;
-                                              //   });
-                                              // }
+                                              int groupId = selectedGroup!.id;
+
+                                              final success = await userRepository.updateUser(
+                                                userId: widget.students[selectedIndex!].id,
+                                                groupId: groupId,
+                                                username: nameController.text,
+                                              );
+
+                                              if (success) {
+                                                setState(() async {
+                                                  await widget.loadStudents();
+                                                  showEditDialog = false;
+                                                });
+                                              }
                                             },
                                             child: const Text('Сохранить', style: TextStyle(color: Colors.white)),
                                           ),
@@ -422,13 +428,47 @@ class _StudentsListState extends State<StudentsList> {
                                                 child: TextField(
                                                   controller: nameController,
                                                   decoration: const InputDecoration(
-                                                    labelText: "ФИО преподавателя*",
-                                                    hintText: "Введите ФИО преподавателя",
+                                                    labelText: "ФИО студента*",
+                                                    hintText: "Введите ФИО студента",
                                                     border: OutlineInputBorder(),
                                                   ),
                                                 ),
                                               ),
                                               SizedBox(height: constraints.maxHeight * 0.03),
+                                              const Text(
+                                                'Привязка группы',
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                  color: Color(0xFF6B7280),
+                                                  fontWeight: FontWeight.w400,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 18),
+                                              DropdownButtonFormField<Group>(
+                                                items: widget.groups
+                                                    .map((group) => DropdownMenuItem<Group>(
+                                                  value: group,
+                                                  child: Text(group.name),
+                                                ))
+                                                    .toList(),
+                                                decoration: InputDecoration(
+                                                  labelText: 'Группа',
+                                                  filled: true,
+                                                  fillColor: Color(0xFFF3F4F6),
+                                                  border: OutlineInputBorder(
+                                                    borderRadius: BorderRadius.circular(11),
+                                                    borderSide: BorderSide(color: Color(0xFFE5E7EB), width: 1),
+                                                  ),
+                                                ),
+                                                value: selectedGroup,
+                                                onChanged: (Group? value) {
+                                                  setState(() {
+                                                    selectedGroup = value!;
+                                                  });
+                                                },
+                                                validator: (value) =>
+                                                value == null ? 'Выберите одну группу' : null,
+                                              )
                                             ],
                                           ),
                                         ),

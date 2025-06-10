@@ -103,7 +103,7 @@ class _Admin2HomeScreenState extends State<Admin2HomeScreen> {
                   builder: (context) {
                     switch (currentScreen) {
                       case Admin2ContentScreen.students:
-                        return StudentsList(students: students, loadStudents: loadStudents);
+                        return StudentsList(students: students, loadStudents: loadStudents, groups: groups,);
                       case Admin2ContentScreen.groups:
                         return GroupsList(groups: groups, loadGroups: loadGroups);
                     }
