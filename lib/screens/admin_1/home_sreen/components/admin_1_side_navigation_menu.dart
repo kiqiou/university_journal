@@ -6,7 +6,7 @@ import 'package:university_journal/components/icon_container.dart';
 
 import '../../../../bloc/group/group.dart';
 import '../../../../bloc/user/user.dart';
-import 'add_course.dart';
+import 'add_discipline.dart';
 import 'add_teacher.dart';
 
 class Admin1SideNavigationMenu extends StatefulWidget {

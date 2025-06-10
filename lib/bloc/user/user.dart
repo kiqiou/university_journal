@@ -48,7 +48,7 @@ class MyUser extends Equatable {
           : null;
     }
 
-    if (data['student_profile'] != null) {
+    if (data['group'] != null) {
       groupId = data['group']['id'];
       groupName = data['group']['name'];
       facultyName = data['group']['faculty']['name'];

@@ -30,7 +30,6 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
   final TextEditingController lectureHoursController = TextEditingController();
   final TextEditingController labHoursController = TextEditingController();
 
-
   final List<Discipline> disciplines = [];
   List<MyUser> selectedTeachers = [];
   List<Group> selectedGroups = [];
@@ -57,6 +56,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
   ];
 
   bool get showLectureHours => selectedLessonType == 'Лекции';
+
   bool get showLabHours => selectedLessonType == 'Лабораторные';
 
   @override
@@ -114,8 +114,23 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                               ElevatedButton(
                                 onPressed: () async {
                                   if (_formKey.currentState!.validate()) {
-                                    widget.onCourseAdded();
-                                    Navigator.of(context).pop();
+                                    List<int> teacherIds = selectedTeachers.map((e) => e.id).toList();
+                                    List<int> groupIds = selectedGroups.map((e) => e.id).toList();
+
+                                    bool result = await DisciplineRepository().addCourse(
+                                      name: nameController.text,
+                                      teacherIds: teacherIds,
+                                      groupIds: groupIds,
+                                    );
+
+                                    if (result) {
+                                      widget.onCourseAdded();
+                                      Navigator.of(context).pop();
+                                    } else {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('❌ Не удалось добавить курс')),
+                                      );
+                                    }
                                   }
                                 },
                                 style: ElevatedButton.styleFrom(
@@ -185,8 +200,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                     borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
                                   ),
                                 ),
-                                validator: (value) =>
-                                value == null || value.isEmpty ? 'Обязательное поле' : null,
+                                validator: (value) => value == null || value.isEmpty ? 'Обязательное поле' : null,
                               ),
                               const SizedBox(height: 24),
 
@@ -240,7 +254,8 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                               const SizedBox(height: 24),
 
                               // Контейнеры для часов
-                              if (selectedLessonTypes.contains('Лекции') || selectedLessonTypes.contains('Лабораторные'))
+                              if (selectedLessonTypes.contains('Лекции') ||
+                                  selectedLessonTypes.contains('Лабораторные'))
                                 Row(
                                   children: [
                                     if (selectedLessonTypes.contains('Лекции'))
@@ -273,12 +288,14 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                                     borderRadius: BorderRadius.circular(16),
                                                     borderSide: const BorderSide(color: Color(0xFF4068EA), width: 1.2),
                                                   ),
-                                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                                  contentPadding:
+                                                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                                                   filled: true,
                                                   fillColor: Colors.white,
                                                 ),
                                                 validator: (value) {
-                                                  if (selectedLessonTypes.contains('Лекции') && (value == null || value.isEmpty)) {
+                                                  if (selectedLessonTypes.contains('Лекции') &&
+                                                      (value == null || value.isEmpty)) {
                                                     return 'Обязательное поле';
                                                   }
                                                   return null;
@@ -300,7 +317,8 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              const Text('Лабораторные*', style: TextStyle(fontWeight: FontWeight.w500)),
+                                              const Text('Лабораторные*',
+                                                  style: TextStyle(fontWeight: FontWeight.w500)),
                                               const SizedBox(height: 8),
                                               TextFormField(
                                                 controller: labHoursController,
@@ -318,12 +336,14 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                                     borderRadius: BorderRadius.circular(16),
                                                     borderSide: const BorderSide(color: Color(0xFF4068EA), width: 1.2),
                                                   ),
-                                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                                  contentPadding:
+                                                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                                                   filled: true,
                                                   fillColor: Colors.white,
                                                 ),
                                                 validator: (value) {
-                                                  if (selectedLessonTypes.contains('Лабораторные') && (value == null || value.isEmpty)) {
+                                                  if (selectedLessonTypes.contains('Лабораторные') &&
+                                                      (value == null || value.isEmpty)) {
                                                     return 'Обязательное поле';
                                                   }
                                                   return null;
@@ -355,9 +375,9 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                 value: selectedTeachers.isNotEmpty ? selectedTeachers.first : null,
                                 items: widget.teachers
                                     .map((t) => DropdownMenuItem<MyUser>(
-                                  value: t,
-                                  child: Text(t.username),
-                                ))
+                                          value: t,
+                                          child: Text(t.username),
+                                        ))
                                     .toList(),
                                 onChanged: (val) {
                                   setState(() {
@@ -407,9 +427,9 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                 value: selectedGroups.isNotEmpty ? selectedGroups.first : null,
                                 items: widget.groups
                                     .map((g) => DropdownMenuItem<Group>(
-                                  value: g,
-                                  child: Text(g.name),
-                                ))
+                                          value: g,
+                                          child: Text(g.name),
+                                        ))
                                     .toList(),
                                 onChanged: (val) {
                                   setState(() {
@@ -455,4 +475,3 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
     );
   }
 }
-
