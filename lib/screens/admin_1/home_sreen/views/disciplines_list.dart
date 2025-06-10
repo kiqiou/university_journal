@@ -410,19 +410,18 @@ class _CoursesList extends State<CoursesList> {
                                         const Spacer(),
                                         ElevatedButton(
                                           onPressed: () async {
-                                            setState(() {
-                                              nameError = usernameController.text.trim().isEmpty;
-                                              //lecturesError = lecturesController.text.trim().isEmpty;
-                                              teacherError = selectedTeachers.length != 1;
-                                              groupError = selectedGroups.length != 1;
-                                            });
-                                            if (!nameError && !lecturesError && !teacherError && !groupError) {
-                                              // TODO: Сохранить изменения
-                                              setState(() {
-                                                showEditDialog = false;
-                                              });
-                                            }
-                                            final currentCourse = widget.disciplines.firstWhere((c) => c.id == selectedIndex);
+                                            // setState(() {
+                                            //   nameError = usernameController.text.trim().isEmpty;
+                                            //   //lecturesError = lecturesController.text.trim().isEmpty;
+                                            //   teacherError = selectedTeachers.length != 1;
+                                            //   groupError = selectedGroups.length != 1;
+                                            // });
+                                            // if (!nameError && !lecturesError && !teacherError && !groupError) {
+                                            //   setState(() {
+                                            //     showEditDialog = false;
+                                            //   });
+                                            // }
+                                            final currentCourse = widget.disciplines[selectedIndex!];
 
                                             final name = usernameController.text.trim().isEmpty
                                                 ? currentCourse.name
@@ -433,7 +432,7 @@ class _CoursesList extends State<CoursesList> {
 
                                             final disciplineRepository = DisciplineRepository();
                                             final result = await disciplineRepository.updateCourse(
-                                              courseId: selectedIndex,
+                                              courseId: currentCourse.id,
                                               name: name,
                                               teacherIds: teacherIds,
                                               groupIds: groupIds,
@@ -566,9 +565,6 @@ class _CoursesList extends State<CoursesList> {
                                       ],
                                     ),
                                     const SizedBox(height: 28),
-
-                                    // Часы
-                                    // Часы
                                     if (selectedTypes.contains('lecture') || selectedTypes.contains('lab'))
                                       Row(
                                         children: [
