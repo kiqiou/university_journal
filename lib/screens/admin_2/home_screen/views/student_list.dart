@@ -60,7 +60,7 @@ class _StudentsListState extends State<StudentsList> {
                     Row(
                       children: [
                         Text(
-                          'Список групп',
+                          'Список студентов',
                           style: TextStyle(
                             fontWeight: FontWeight.w700,
                             color: Colors.grey.shade800,
@@ -85,8 +85,8 @@ class _StudentsListState extends State<StudentsList> {
                                 ),
                                 elevation: 0,
                               ),
-                              child: const Text('Удалить группу',
-                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                              child: const Text('Удалить студента',
+                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
                             ),
                           ),
                           const SizedBox(width: 16),
@@ -106,8 +106,8 @@ class _StudentsListState extends State<StudentsList> {
                                 ),
                                 elevation: 0,
                               ),
-                              child: const Text('Редактировать информацию',
-                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                              child: const Text('Редактировать студента',
+                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
                             ),
                           ),
                         ],
@@ -147,7 +147,6 @@ class _StudentsListState extends State<StudentsList> {
                         ],
                       ),
                     ),
-                    // Список преподавателей
                     Expanded(
                       child: ListView.builder(
                         itemCount: widget.students.length,
