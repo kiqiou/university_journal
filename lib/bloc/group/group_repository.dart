@@ -25,9 +25,8 @@ class GroupRepository {
   }
 
   Future<bool> addGroup({
-    required int groupId,
     required String name,
-    required List<int> studentIds,
+    required List<int> studentsIds,
     required int courseId,
     required int facultyId,
   }) async {
@@ -39,9 +38,8 @@ class GroupRepository {
           'Accept-Charset': 'utf-8',
         },
         body: jsonEncode({
-          'id': groupId,
           'name': name,
-          'students': studentIds,
+          'students': studentsIds,
           'faculty': facultyId,
           'course': courseId,
         }),

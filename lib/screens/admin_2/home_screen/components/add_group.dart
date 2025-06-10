@@ -1,13 +1,17 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:university_journal/bloc/group/group_repository.dart';
+
+import '../../../../bloc/user/user.dart';
 
 class AddGroupDialog extends StatefulWidget {
   final VoidCallback onGroupAdded;
-  final void Function(String groupName, String? course) onSave;
+  final List<MyUser> students;
 
   const AddGroupDialog({
     super.key,
-    required this.onSave, required this.onGroupAdded,
+    required this.onGroupAdded,
+    required this.students,
   });
 
   @override
@@ -16,11 +20,13 @@ class AddGroupDialog extends StatefulWidget {
 
 class _AddGroupDialogState extends State<AddGroupDialog> {
   final _formKey = GlobalKey<FormState>();
-  String? groupName;
-  String? course;
+  final nameController = TextEditingController();
+  List<MyUser> selectedStudents = [];
+  int? selectedCourseIndex;
+  int? selectedFacultyIndex;
 
-  // Варианты выбора курса
   final List<String> _courses = ['1 курс', '2 курс', '3 курс', '4 курс'];
+  final List<String> _faculties = ['Экономический', 'Юридический'];
 
   @override
   Widget build(BuildContext context) {
@@ -95,10 +101,9 @@ class _AddGroupDialogState extends State<AddGroupDialog> {
                           ),
                           const SizedBox(height: 18),
                           TextFormField(
+                            controller: nameController,
                             decoration: _inputDecoration('Название группы'),
-                            validator: (value) =>
-                            value == null || value.isEmpty ? 'Введите название группы' : null,
-                            onSaved: (value) => groupName = value,
+                            validator: (value) => value == null || value.isEmpty ? 'Введите название группы' : null,
                           ),
                           const SizedBox(height: 48),
                           // Выбор курса
@@ -111,38 +116,137 @@ class _AddGroupDialogState extends State<AddGroupDialog> {
                             ),
                           ),
                           const SizedBox(height: 18),
-                          DropdownButtonFormField<String>(
-                            value: course,
+                          DropdownButtonFormField<int>(
+                            value: selectedCourseIndex,
                             decoration: _inputDecoration('Выберите курс'),
-                            items: _courses.map((crs) {
-                              return DropdownMenuItem(
-                                value: crs,
+                            items: List.generate(_courses.length, (index) {
+                              return DropdownMenuItem<int>(
+                                value: index,
                                 child: Text(
-                                  crs,
+                                  _courses[index],
                                   style: const TextStyle(fontSize: 15, color: Color(0xFF6B7280)),
                                 ),
                               );
                             }).toList(),
                             onChanged: (value) {
                               setState(() {
-                                course = value;
+                                selectedCourseIndex = value;
                               });
                             },
                             validator: (value) {
-                              if (value == null || value.isEmpty) {
+                              if (value == null) {
                                 return 'Выберите курс';
                               }
                               return null;
                             },
                           ),
+                          const SizedBox(height: 18),
+                          const Text(
+                            'Выберите факультет*',
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Color(0xFF6B7280),
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                          DropdownButtonFormField<int>(
+                            value: selectedFacultyIndex,
+                            decoration: _inputDecoration('Выберите Факультет'),
+                              items: List.generate(_faculties.length, (index) {
+                                return DropdownMenuItem<int>(
+                                  value: index,
+                                  child: Text(
+                                    _faculties[index],
+                                    style: const TextStyle(fontSize: 15, color: Color(0xFF6B7280)),
+                                  ),
+                                );
+                              }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                selectedFacultyIndex = value;
+                              });
+                            },
+                            validator: (value) {
+                              if (value == null) {
+                                return 'Выберите курс';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 18),
+                          DropdownButtonFormField<MyUser>(
+                            isExpanded: true,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade400,
+                                  width: 1.5,
+                                ),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                            ),
+                            hint: const Text("Выберите из списка студента"),
+                            value: selectedStudents.isNotEmpty ? selectedStudents.first : null,
+                            items: widget.students
+                                .map((t) => DropdownMenuItem<MyUser>(
+                                      value: t,
+                                      child: Text(t.username),
+                                    ))
+                                .toList(),
+                            onChanged: (val) {
+                              setState(() {
+                                selectedStudents = val != null ? [val] : [];
+                              });
+                            },
+                            validator: (value) {
+                              if (value == null) {
+                                return 'Обязательное поле. Выберите хотя бы одного студента.';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 18),
+                          if (selectedStudents.isNotEmpty)
+                            Wrap(
+                              spacing: 8,
+                              children: selectedStudents.map((teacher) {
+                                return Chip(
+                                  label: Text(teacher.username),
+                                  onDeleted: () {
+                                    setState(() {
+                                      selectedStudents.remove(teacher);
+                                    });
+                                  },
+                                );
+                              }).toList(),
+                            ),
                           const SizedBox(height: 48),
                           // Кнопка "Сохранить"
                           ElevatedButton(
-                            onPressed: () {
+                            onPressed: () async {
                               if (_formKey.currentState!.validate()) {
                                 _formKey.currentState!.save();
-                                widget.onSave(groupName!, course);
-                                Navigator.of(context).pop();
+
+                                List<int> studentsIds = selectedStudents.map((e) => e.id).toList();
+                                int facultyId = selectedFacultyIndex! + 1;
+                                int courseId = selectedCourseIndex! + 1;
+
+                                final groupRepository = GroupRepository();
+                                final result = await groupRepository.addGroup(
+                                    name: nameController.text,
+                                    studentsIds: studentsIds,
+                                    courseId: courseId,
+                                    facultyId: facultyId);
+
+                                if (result) {
+                                  widget.onGroupAdded();
+                                  Navigator.of(context).pop();
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('❌ Не удалось добавить группу')),
+                                  );
+                                }
                               }
                             },
                             style: ElevatedButton.styleFrom(

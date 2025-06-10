@@ -67,7 +67,7 @@ class _Admin2SideNavigationMenuState extends State<Admin2SideNavigationMenu> {
         showDialog(
           context: context,
           builder: (context) => AddGroupDialog(
-            onGroupAdded: widget.onGroupAdded, onSave: (String groupName, String? course) {  },
+            onGroupAdded: widget.onGroupAdded, students: widget.students,
           ),
         );
       },
