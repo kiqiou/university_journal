@@ -91,8 +91,7 @@ class _AddStudentDialogState extends State<AddStudentDialog> {
                                       username: fio ?? '',
                                       password: '123456',
                                       roleId: 5,
-                                      position: group ?? '',
-                                      bio: "",
+                                      groupId: selectedGroup?.id,
                                     );
                                     widget.onSave(fio ?? '', group);
                                     widget.onStudentAdded();

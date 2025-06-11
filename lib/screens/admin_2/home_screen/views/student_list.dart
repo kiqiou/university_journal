@@ -391,6 +391,7 @@ class _StudentsListState extends State<StudentsList> {
                                               if (success) {
                                                 setState(() async {
                                                   await widget.loadStudents();
+                                                  selectedIndex = null;
                                                   showEditDialog = false;
                                                 });
                                               }
