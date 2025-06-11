@@ -26,7 +26,7 @@ class GroupRepository {
 
   Future<bool> addGroup({
     required String name,
-    required List<int> studentsIds,
+    required List<int> studentIds,
     required int courseId,
     required int facultyId,
   }) async {
@@ -39,7 +39,7 @@ class GroupRepository {
         },
         body: jsonEncode({
           'name': name,
-          'students': studentsIds,
+          'students': studentIds,
           'faculty': facultyId,
           'course': courseId,
         }),
@@ -60,11 +60,11 @@ class GroupRepository {
   }
 
   Future<bool> updateGroup({
-    int? groupId,
-    required String name,
-    required List<int> studentIds,
-    required int courseId,
-    required int facultyId,
+    required int groupId,
+    String? name,
+    List<int>? studentIds,
+    int? courseId,
+    int? facultyId,
   }) async {
     try {
       final response = await http.put(
@@ -74,7 +74,7 @@ class GroupRepository {
           'Accept-Charset': 'utf-8',
         },
         body: jsonEncode({
-          'id': groupId,
+          'group_id': groupId,
           'name': name,
           'students': studentIds,
           'faculty': facultyId,

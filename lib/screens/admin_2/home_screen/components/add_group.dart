@@ -239,7 +239,7 @@ class _AddGroupDialogState extends State<AddGroupDialog> {
                                 final groupRepository = GroupRepository();
                                 final result = await groupRepository.addGroup(
                                     name: nameController.text,
-                                    studentsIds: studentsIds,
+                                    studentIds: studentsIds,
                                     courseId: courseId,
                                     facultyId: facultyId);
 
