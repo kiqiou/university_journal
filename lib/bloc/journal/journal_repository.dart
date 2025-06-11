@@ -121,6 +121,7 @@ class JournalRepository {
     required String type,
     required String date,
     required int courseId,
+    required int groupId,
   }) async {
     try {
       final response = await http.post(
@@ -129,15 +130,22 @@ class JournalRepository {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
         },
-        body: jsonEncode({"type": type, "date": date, "course_id": 1}),
+        body: jsonEncode({
+          "type": type,
+          "date": date,
+          "course_id": courseId,
+          "group_id": groupId,
+        }),
       );
 
-      final data = jsonDecode(utf8.decode(response.bodyBytes));
-      if (data != null && data.containsKey("course")) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = jsonDecode(utf8.decode(response.bodyBytes));
         print('📌 Ответ сервера: $data');
-        return Session.fromJson(data);
+
+        return Session.fromJson({'session': data, 'student': {}});
+
       } else {
-        print('❌ Ошибка: неожиданный формат ответа сервера');
+        print('❌ Ошибка сервера: ${response.statusCode} - ${response.body}');
         return null;
       }
     } catch (e) {

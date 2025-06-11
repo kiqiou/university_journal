@@ -441,7 +441,8 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                 await journalRepository.addSession(
                   type: _selectedEventType!,
                   date: formattedDate,
-                  courseId: 1,
+                  courseId: disciplines[selectedDisciplineIndex!].id,
+                  groupId: selectedGroupId!,
                 );
                 final newSessions = await journalRepository.journalData(
                   courseId: disciplines[selectedDisciplineIndex!].id,
