@@ -12,7 +12,9 @@ class TeacherSideNavigationMenu extends StatefulWidget {
   final VoidCallback onProfileTap;
   final VoidCallback onThemeTap;
   final VoidCallback onToggle;
+  final VoidCallback onGroupSelect;
   final bool isExpanded;
+  final bool showGroupSelect;
 
   const TeacherSideNavigationMenu(
       {super.key,
@@ -20,7 +22,8 @@ class TeacherSideNavigationMenu extends StatefulWidget {
       required this.onProfileTap,
       required this.onThemeTap,
       required this.onToggle,
-      required this.isExpanded});
+      required this.isExpanded, required this.showGroupSelect, required this.onGroupSelect,
+      });
 
   @override
   State<TeacherSideNavigationMenu> createState() => _TeacherSideNavigationMenuState();
@@ -129,7 +132,10 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   'Профиль',
-                                  style: TextStyle(color: Colors.grey, fontSize: 13,),
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 13,
+                                  ),
                                 ),
                               )
                             : Divider(
@@ -171,6 +177,41 @@ class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
                                 );
                               }
                             },
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                        child: widget.isExpanded
+                            ? Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'Выбор группы',
+                                  style: TextStyle(color: Colors.grey, fontSize: 13),
+                                ),
+                              )
+                            : Divider(
+                                height: 1,
+                                color: Colors.grey,
+                              ),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      InkWell(
+                        onTap: () {
+                          widget.onGroupSelect();
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 4.0),
+                          child: MyIconContainer(
+                            icon: Icons.groups_outlined,
+                            width: (widget.isExpanded ? 250 : 50),
+                            text: 'Выбор группы',
+                            withText: widget.isExpanded,
                           ),
                         ),
                       ),

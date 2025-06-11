@@ -22,8 +22,8 @@ class _ThemeTableState extends State<ThemeTable> {
     final unique = <Session>[];
 
     for (final s in sessions) {
-      if (!seenIds.contains(s.sessionId)) {
-        seenIds.add(s.sessionId);
+      if (!seenIds.contains(s.id)) {
+        seenIds.add(s.id);
         unique.add(s);
       }
     }
@@ -84,7 +84,7 @@ class _ThemeTableState extends State<ThemeTable> {
                           hintText: 'Введите тему', hintStyle: TextStyle(color: Colors.grey.shade300)),
                       onChanged: (newTopic) async {
                         if (widget.onUpdate != null) {
-                          final success = await widget.onUpdate!(session.sessionId, null, null, newTopic,);
+                          final success = await widget.onUpdate!(session.id, null, null, newTopic,);
                           if (success) {
                             log('обновление вызвано');
                             ScaffoldMessenger.of(context).showSnackBar(

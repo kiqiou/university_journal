@@ -5,27 +5,65 @@ import 'package:http/http.dart' as http;
 import 'package:university_journal/bloc/journal/journal.dart';
 
 class JournalRepository {
-  Future<List<Session>> journalData() async {
-    final response = await http.post(
-      Uri.parse('http://127.0.0.1:8000/api/attendance/'),
+  Future<List<Session>> journalData({
+    required int courseId,
+    required int groupId,
+  }) async {
+    final uri = Uri.parse('http://127.0.0.1:8000/api/get_attendance/')
+        .replace(queryParameters: {
+      'course_id': courseId.toString(),
+      'group_id': groupId.toString(),
+    });
+
+    final response = await http.get(
+      uri,
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
         'Accept-Charset': 'utf-8',
       },
-      body: jsonEncode({"session": 1, "student": 3, "status": "п", "grade": 8}),
     );
-    if (response.statusCode == 201) {
-      final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    if (response.statusCode == 200) {
+      final decodedResponse = utf8.decode(response.bodyBytes);
       final data = jsonDecode(decodedResponse);
+      log('$data');
 
       if (data is List) {
-        return data.map((json) => Session.fromJson(json)).toList();
+        final List<Session> sessions = [];
+
+        for (var sessionJson in data) {
+          final sessionWrapper = {
+            'session': {
+              'id': sessionJson['id'],
+              'date': sessionJson['date'],
+              'type': sessionJson['type'],
+              'topic': sessionJson['topic'],
+              'course': {
+                'id': sessionJson['course'],
+                'name': '—',
+              }
+            }
+          };
+
+          for (var att in sessionJson['attendances']) {
+            final item = {
+              ...sessionWrapper,
+              'student': att['student'],
+              'status': att['status'],
+              'grade': att['grade'],
+            };
+
+            sessions.add(Session.fromJson(item));
+          }
+        }
+
+        return sessions;
       } else {
-        print('❌ Ожидался список, но получен одиночный объект: $data');
+        print('❌ Ожидался список сессий, но получен объект: $data');
         return [];
       }
     } else {
-      print('❌ Ошибка: ${response.statusCode}, ${response.body}');
+      print('❌ Ошибка загрузки сессий: ${response.statusCode}, ${response.body}');
       return [];
     }
   }

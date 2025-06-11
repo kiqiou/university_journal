@@ -37,8 +37,7 @@ class UserRepository {
             contentType: MediaType.parse(lookupMimeType(photoName!) ?? 'application/octet-stream'),
           ),
         );
-        }
-      else if (roleId == 2 && groupId != null) {
+      } else if (roleId == 2 && groupId != null) {
         request.fields['group_id'] = groupId.toString();
       }
 
@@ -151,6 +150,33 @@ class UserRepository {
     }
   }
 
+  Future<List<MyUser>?> getStudentsByGroupList(int groupId) async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://127.0.0.1:8000/api/get_student_by_group_list/'),
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept-Charset': 'utf-8',
+        },
+        body: jsonEncode({
+          'group_id': groupId,
+        }),
+      );
+
+      final data = jsonDecode(utf8.decode(response.bodyBytes));
+      if (data != null && data is List) {
+        log('📌 Ответ сервера: $data');
+        return data.map((json) => MyUser.fromJson(json)).toList();
+      } else {
+        log('❌ Ошибка: неожиданный формат ответа сервера');
+        return null;
+      }
+    } catch (e) {
+      log('❌ Ошибка соединения: $e');
+      return null;
+    }
+  }
+
   Future<bool> updateUser({
     required int userId,
     String? username,
@@ -219,5 +245,3 @@ class UserRepository {
     }
   }
 }
-
-

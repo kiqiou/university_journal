@@ -5,6 +5,7 @@ import 'package:collection/collection.dart';
 
 import '../../../bloc/journal/journal.dart';
 import '../bloc/journal/journal_repository.dart';
+import '../bloc/user/user.dart';
 import 'colors/colors.dart';
 
 class JournalTable extends StatefulWidget {
@@ -12,7 +13,7 @@ class JournalTable extends StatefulWidget {
   final List<Session> sessions;
   final void Function(List<Session>)? onSessionsChanged;
 
-  const JournalTable({super.key, required this.isLoading, required this.sessions, this.onSessionsChanged});
+  const JournalTable({super.key, required this.isLoading, required this.sessions, this.onSessionsChanged,});
 
   @override
   State<JournalTable> createState() => JournalTableState();
@@ -67,7 +68,7 @@ class JournalTableState extends State<JournalTable> {
     setState(() {
       _selectedColumnIndex = index;
       columns = buildColumns(
-        sessions: _sessions, // ⬅️ используем сохранённые сессии
+        sessions: _sessions,
         selectedColumnIndex: _selectedColumnIndex,
         onHeaderTap: _onHeaderTap,
       );
@@ -92,14 +93,14 @@ class JournalTableState extends State<JournalTable> {
                 final dates = extractUniqueDateTypes(dataSource!.sessions);
                 final toRemove = dates[_selectedColumnIndex!];
                 final session = dataSource?.sessions.firstWhere(
-                  (s) => '${s.date} ${s.sessionType} ${s.sessionId}' == toRemove,
+                  (s) => '${s.date} ${s.sessionType} ${s.id}' == toRemove,
                 );
                 final repository = JournalRepository();
-                final success = await repository.deleteSession(sessionId: session!.sessionId);
+                final success = await repository.deleteSession(sessionId: session!.id);
 
                 if (success) {
                   final updatedSessions = List<Session>.from(dataSource!.sessions)
-                    ..removeWhere((s) => s.sessionId == session.sessionId);
+                    ..removeWhere((s) => s.id == session.id);
 
                   setState(() {
                     _selectedColumnIndex = null;
@@ -278,7 +279,7 @@ class JournalDataSource extends DataGridSource {
                     onChanged: (newStatus) async {
                       if (onUpdate != null) {
                         print('Обновление данных оценивания');
-                        await onUpdate!(session.sessionId, session.student.id, newStatus, gradeController.text);
+                        await onUpdate!(session.id, session.student.id, newStatus, gradeController.text);
                       }
                       _sessionData[studentName]?[date]?.status = newStatus;
                       _rows[rowIndex].getCells()[columnIndex] = DataGridCell<Map<String, String>>(
@@ -312,7 +313,7 @@ class JournalDataSource extends DataGridSource {
                     onChanged: (newGrade) async {
                       if (onUpdate != null) {
                         await onUpdate!(
-                          session.sessionId,
+                          session.id,
                           session.student.id,
                           statusController.text,
                           newGrade,
@@ -343,7 +344,7 @@ List<String> extractUniqueDateTypes(List<Session> sessions) {
   final Set<String> dateTypes = {};
 
   for (var session in sessions) {
-    dateTypes.add('${session.date} ${session.sessionType} ${session.sessionId}');
+    dateTypes.add('${session.date} ${session.sessionType} ${session.id}');
   }
   final sorted = dateTypes.toList()..sort((a, b) => a.compareTo(b));
 
@@ -355,7 +356,7 @@ Map<String, Map<String, Session>> groupSessionsByStudent(List<Session> sessions)
 
   for (var session in sessions) {
     final studentName = session.student.username;
-    final dateTypeKey = '${session.date} ${session.sessionType} ${session.sessionId}';
+    final dateTypeKey = '${session.date} ${session.sessionType} ${session.id}';
 
     result.putIfAbsent(studentName, () => {});
     result[studentName]![dateTypeKey] = session;

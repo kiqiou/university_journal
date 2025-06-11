@@ -339,7 +339,11 @@ class _GroupsListState extends State<GroupsList> {
                                             IconButton(
                                               icon: const Icon(Icons.close, size: 28, color: Colors.black54),
                                               splashRadius: 24,
-                                              onPressed: () => Navigator.of(context).pop(),
+                                              onPressed: () {
+                                                setState(() {
+                                                  showEditDialog = false;
+                                                });
+                                              },
                                             ),
                                           ],
                                         ),

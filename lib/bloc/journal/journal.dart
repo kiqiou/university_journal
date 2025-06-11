@@ -2,8 +2,8 @@ import '../user/user.dart';
 import 'package:intl/intl.dart';
 
 class Session {
-  final int sessionId;
-  final int courseId;
+  final int id;
+  final int disciplineId;
   final String? courseName;
   final String date;
   final String sessionType;
@@ -12,8 +12,8 @@ class Session {
   String? status;
   String? grade;
 
-  Session({required this.courseId, required this.date, required this.sessionType, required this.grade,
-    required this.student, required this.status, this.courseName, required this.sessionId, this.topic});
+  Session({required this.disciplineId, required this.date, required this.sessionType, required this.grade,
+    required this.student, required this.status, this.courseName, required this.id, this.topic});
 
   factory Session.fromJson(Map<String, dynamic> json) {
     String rawDate = json['session']['date'] ?? '';
@@ -26,8 +26,8 @@ class Session {
     }
 
     return Session(
-      sessionId: json['session']['id'] ?? 0,
-      courseId: json['session']['course']['id'] ?? 0,
+      id: json['session']['id'] ?? 0,
+      disciplineId: json['session']['course']['id'] ?? 0,
       courseName: json['session']['course']['name'],
       date: formattedDate,
       sessionType: json['session']['type'] ?? '',
