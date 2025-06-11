@@ -71,179 +71,187 @@ class _TeachersList extends State<TeachersList> {
                   color: Colors.white,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              'Список преподавателей',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                color: Colors.grey.shade800,
-                                fontSize: 18,
-                              ),
-                            ),
-                            const Spacer(),
-                            if (selectedIndex != null) ...[
-                              SizedBox(
-                                width: buttonWidths[0],
-                                height: buttonHeights,
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      showDeleteDialog = true;
-                                    });
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF4068EA),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    elevation: 0,
-                                  ),
-                                  child: const Text('Удалить преподавателя',
-                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              SizedBox(
-                                width: buttonWidths[1],
-                                height: buttonHeights,
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      showEditDialog = true;
-                                    });
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF4068EA),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    elevation: 0,
-                                  ),
-                                  child: const Text('Редактировать информацию',
-                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              SizedBox(
-                                width: buttonWidths[2],
-                                height: buttonHeights,
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      showLinkDisciplineDialog = true;
-                                    });
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF4068EA),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    elevation: 0,
-                                  ),
-                                  child: const Text('Привязка дисциплины и группы',
-                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-                          child: Row(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () {
+                        setState(() {
+                          selectedIndex = null;
+                        });
+                      },
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
                             children: [
-                              SizedBox(
-                                width: 32,
-                                child: Text(
-                                  '№',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.grey.shade800,
-                                    fontSize: 14,
-                                  ),
-                                  textAlign: TextAlign.center,
+                              Text(
+                                'Список преподавателей',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.grey.shade800,
+                                  fontSize: 18,
                                 ),
                               ),
-                              SizedBox(width: 8),
-                              Expanded(
-                                child: Center(
+                              const Spacer(),
+                              if (selectedIndex != null) ...[
+                                SizedBox(
+                                  width: buttonWidths[0],
+                                  height: buttonHeights,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        showDeleteDialog = true;
+                                      });
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF4068EA),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      elevation: 0,
+                                    ),
+                                    child: const Text('Удалить преподавателя',
+                                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                SizedBox(
+                                  width: buttonWidths[1],
+                                  height: buttonHeights,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        showEditDialog = true;
+                                      });
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF4068EA),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      elevation: 0,
+                                    ),
+                                    child: const Text('Редактировать информацию',
+                                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                SizedBox(
+                                  width: buttonWidths[2],
+                                  height: buttonHeights,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        showLinkDisciplineDialog = true;
+                                      });
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF4068EA),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      elevation: 0,
+                                    ),
+                                    child: const Text('Привязка дисциплины и группы',
+                                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  width: 32,
                                   child: Text(
-                                    'ФИО преподавателя',
+                                    '№',
                                     style: TextStyle(
                                       fontWeight: FontWeight.w700,
                                       color: Colors.grey.shade800,
-                                      fontSize: 16,
+                                      fontSize: 14,
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        // Список преподавателей
-                        Expanded(
-                          child: ListView.builder(
-                            itemCount: widget.teachers.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 6.0),
-                                child: Row(
-                                  children: [
-                                    SizedBox(
-                                      width: 32,
-                                      child: Text(
-                                        '${index + 1}',
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.black54,
-                                        ),
-                                        textAlign: TextAlign.center,
+                                SizedBox(width: 8),
+                                Expanded(
+                                  child: Center(
+                                    child: Text(
+                                      'ФИО преподавателя',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.grey.shade800,
+                                        fontSize: 16,
                                       ),
+                                      textAlign: TextAlign.center,
                                     ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            selectedIndex = index;
-                                          });
-                                        },
-                                        child: Container(
-                                          height: 55,
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(22.0),
-                                            border: Border.all(
-                                              color: selectedIndex == index
-                                                  ? const Color(0xFF4068EA)
-                                                  : Colors.grey.shade300,
-                                              width: 1.4,
-                                            ),
-                                            color: Colors.white,
-                                          ),
-                                          alignment: Alignment.centerLeft,
-                                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                                          child: Text(
-                                            widget.teachers[index].username,
-                                            style: const TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.black87,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                                  ),
                                 ),
-                              );
-                            },
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                          // Список преподавателей
+                          Expanded(
+                            child: ListView.builder(
+                              itemCount: widget.teachers.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 6.0),
+                                  child: Row(
+                                    children: [
+                                      SizedBox(
+                                        width: 32,
+                                        child: Text(
+                                          '${index + 1}',
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.black54,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              selectedIndex = index;
+                                            });
+                                          },
+                                          child: Container(
+                                            height: 55,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(22.0),
+                                              border: Border.all(
+                                                color: selectedIndex == index
+                                                    ? const Color(0xFF4068EA)
+                                                    : Colors.grey.shade300,
+                                                width: 1.4,
+                                              ),
+                                              color: Colors.white,
+                                            ),
+                                            alignment: Alignment.centerLeft,
+                                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                            child: Text(
+                                              widget.teachers[index].username,
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

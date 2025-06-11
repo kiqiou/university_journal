@@ -85,194 +85,202 @@ class _GroupsListState extends State<GroupsList> {
                   color: Colors.white,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Заголовок и кнопки действий
-                        Row(
-                          children: [
-                            Text(
-                              'Список групп',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                color: Colors.grey.shade800,
-                                fontSize: 18,
-                              ),
-                            ),
-                            const Spacer(),
-                            if (selectedIndex != null) ...[
-                              SizedBox(
-                                width: buttonWidths[0],
-                                height: buttonHeights,
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      showDeleteDialog = true;
-                                    });
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF4068EA),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    elevation: 0,
-                                  ),
-                                  child: const Text(
-                                    'Удалить группу',
-                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              SizedBox(
-                                width: buttonWidths[1],
-                                height: buttonHeights,
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      showEditDialog = true;
-                                    });
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF4068EA),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    elevation: 0,
-                                  ),
-                                  child: const Text(
-                                    'Редактировать группу',
-                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-                        // Заголовок списка
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-                          child: Row(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () {
+                        setState(() {
+                          selectedIndex = null;
+                        });
+                      },
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Заголовок и кнопки действий
+                          Row(
                             children: [
-                              SizedBox(
-                                width: 32,
-                                child: Text(
-                                  '№',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.grey.shade800,
-                                    fontSize: 14,
-                                  ),
-                                  textAlign: TextAlign.center,
+                              Text(
+                                'Список групп',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.grey.shade800,
+                                  fontSize: 18,
                                 ),
                               ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Center(
+                              const Spacer(),
+                              if (selectedIndex != null) ...[
+                                SizedBox(
+                                  width: buttonWidths[0],
+                                  height: buttonHeights,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        showDeleteDialog = true;
+                                      });
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF4068EA),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      elevation: 0,
+                                    ),
+                                    child: const Text(
+                                      'Удалить группу',
+                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                SizedBox(
+                                  width: buttonWidths[1],
+                                  height: buttonHeights,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        showEditDialog = true;
+                                      });
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF4068EA),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      elevation: 0,
+                                    ),
+                                    child: const Text(
+                                      'Редактировать группу',
+                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                          // Заголовок списка
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  width: 32,
                                   child: Text(
-                                    'Номер группы',
+                                    '№',
                                     style: TextStyle(
                                       fontWeight: FontWeight.w700,
                                       color: Colors.grey.shade800,
-                                      fontSize: 16,
+                                      fontSize: 14,
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
                                 ),
-                              ),
-                            ],
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Center(
+                                    child: Text(
+                                      'Номер группы',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.grey.shade800,
+                                        fontSize: 16,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        // Список групп, сгруппированный по курсу
-                        Expanded(
-                          child: ListView.builder(
-                            itemCount: sortedCourses.length,
-                            itemBuilder: (context, courseIndex) {
-                              final course = sortedCourses[courseIndex];
-                              final courseGroups = groupedData[course]!;
-                              courseGroups.sort((a, b) => a.name.compareTo(b.name));
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 16.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // Заголовок курса (например, "1 курс")
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                                      child: Text(
-                                        '$course курс',
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
+                          // Список групп, сгруппированный по курсу
+                          Expanded(
+                            child: ListView.builder(
+                              itemCount: sortedCourses.length,
+                              itemBuilder: (context, courseIndex) {
+                                final course = sortedCourses[courseIndex];
+                                final courseGroups = groupedData[course]!;
+                                courseGroups.sort((a, b) => a.name.compareTo(b.name));
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 16.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      // Заголовок курса (например, "1 курс")
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                                        child: Text(
+                                          '$course курс',
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    // Список групп в данном курсе
-                                    Column(
-                                      children: courseGroups.asMap().entries.map((entry) {
-                                        final indexInCourse = entry.key;
-                                        final group = entry.value;
-                                        final bool isSelected =
-                                            selectedIndex != null && widget.groups[selectedIndex!].id == group.id;
-                                        return Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              setState(() {
-                                                selectedIndex = widget.groups.indexWhere((g) => g.id == group.id);
-                                              });
-                                            },
-                                            child: Container(
-                                              height: 55,
-                                              decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.circular(22.0),
-                                                border: Border.all(
-                                                  color: isSelected ? const Color(0xFF4068EA) : Colors.grey.shade300,
-                                                  width: 1.4,
+                                      // Список групп в данном курсе
+                                      Column(
+                                        children: courseGroups.asMap().entries.map((entry) {
+                                          final indexInCourse = entry.key;
+                                          final group = entry.value;
+                                          final bool isSelected =
+                                              selectedIndex != null && widget.groups[selectedIndex!].id == group.id;
+                                          return Padding(
+                                            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                setState(() {
+                                                  selectedIndex = widget.groups.indexWhere((g) => g.id == group.id);
+                                                });
+                                              },
+                                              child: Container(
+                                                height: 55,
+                                                decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.circular(22.0),
+                                                  border: Border.all(
+                                                    color: isSelected ? const Color(0xFF4068EA) : Colors.grey.shade300,
+                                                    width: 1.4,
+                                                  ),
+                                                  color: Colors.white,
                                                 ),
-                                                color: isSelected ? const Color(0xFFE6EDFF) : Colors.white,
-                                              ),
-                                              alignment: Alignment.centerLeft,
-                                              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                                              child: Row(
-                                                children: [
-                                                  // Порядковый номер внутри курса
-                                                  SizedBox(
-                                                    width: 32,
-                                                    child: Text(
-                                                      '${indexInCourse + 1}',
-                                                      style: const TextStyle(
-                                                        fontSize: 16,
-                                                        color: Colors.black54,
-                                                      ),
-                                                      textAlign: TextAlign.center,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 8),
-                                                  Expanded(
-                                                    child: Text(
-                                                      group.name,
-                                                      style: const TextStyle(
-                                                        fontSize: 16,
-                                                        color: Colors.black87,
+                                                alignment: Alignment.centerLeft,
+                                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                                child: Row(
+                                                  children: [
+                                                    // Порядковый номер внутри курса
+                                                    SizedBox(
+                                                      width: 32,
+                                                      child: Text(
+                                                        '${indexInCourse + 1}',
+                                                        style: const TextStyle(
+                                                          fontSize: 16,
+                                                          color: Colors.black54,
+                                                        ),
+                                                        textAlign: TextAlign.center,
                                                       ),
                                                     ),
-                                                  ),
-                                                ],
+                                                    const SizedBox(width: 8),
+                                                    Expanded(
+                                                      child: Text(
+                                                        group.name,
+                                                        style: const TextStyle(
+                                                          fontSize: 16,
+                                                          color: Colors.black87,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        );
-                                      }).toList(),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
+                                          );
+                                        }).toList(),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
