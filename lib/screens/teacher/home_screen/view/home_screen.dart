@@ -3,10 +3,9 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/bloc/discipline/discipline.dart';
-import 'package:university_journal/bloc/discipline/discipline_repository.dart';
 import 'package:university_journal/bloc/journal/journal_repository.dart';
 import 'package:university_journal/bloc/user/user_repository.dart';
-import 'package:university_journal/screens/teacher/home_screen/components/teacher_side_navigation_menu.dart';
+import 'package:university_journal/screens/teacher/home_screen/components/side_navigation_menu.dart';
 
 import '../../../../bloc/auth/authentication_bloc.dart';
 import '../../../../bloc/journal/journal.dart';
@@ -124,7 +123,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
         children: [
           Row(
             children: [
-              TeacherSideNavigationMenu(
+              SideNavigationMenu(
                 onSelectType: _filterBySessionType,
                 onProfileTap: _showAccountScreen,
                 onThemeTap: _showThemeScreen,

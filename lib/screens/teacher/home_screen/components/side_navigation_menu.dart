@@ -7,7 +7,7 @@ import 'package:university_journal/components/icon_container.dart';
 
 import '../../../../components/journal_table.dart';
 
-class TeacherSideNavigationMenu extends StatefulWidget {
+class SideNavigationMenu extends StatefulWidget {
   final Function(String type) onSelectType;
   final VoidCallback onProfileTap;
   final VoidCallback onThemeTap;
@@ -16,7 +16,7 @@ class TeacherSideNavigationMenu extends StatefulWidget {
   final bool isExpanded;
   final bool showGroupSelect;
 
-  const TeacherSideNavigationMenu(
+  const SideNavigationMenu(
       {super.key,
       required this.onSelectType,
       required this.onProfileTap,
@@ -26,10 +26,10 @@ class TeacherSideNavigationMenu extends StatefulWidget {
       });
 
   @override
-  State<TeacherSideNavigationMenu> createState() => _TeacherSideNavigationMenuState();
+  State<SideNavigationMenu> createState() => _SideNavigationMenuState();
 }
 
-class _TeacherSideNavigationMenuState extends State<TeacherSideNavigationMenu> {
+class _SideNavigationMenuState extends State<SideNavigationMenu> {
   final GlobalKey<JournalTableState> tableKey = GlobalKey<JournalTableState>();
   final double _collapsedWidth = 100;
   final double _expandedWidth = 250;

@@ -18,6 +18,7 @@ class AppView extends StatelessWidget {
     return BlocBuilder<AuthenticationBloc, AuthenticationState>(
       builder: (context, state) {
         log('➡️ Обновление состояния: ${state.status}');
+        log('🔐 Пользователь с ролью: ${state.user?.role ?? 'Не определено'}');
         Widget? nextScreen;
 
         if (state.status == AuthenticationStatus.authenticated) {
@@ -49,6 +50,7 @@ class AppView extends StatelessWidget {
 
         if (nextScreen != null) {
           log('🔄 Переход на: ${nextScreen.runtimeType}');
+
           WidgetsBinding.instance.addPostFrameCallback((_) {
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (_) => nextScreen!),

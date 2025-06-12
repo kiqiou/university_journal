@@ -209,7 +209,7 @@ class _CoursesList extends State<CoursesList> {
                                         child: GestureDetector(
                                           onTap: () {
                                             setState(() {
-                                              selectedIndex = index; // ✅ id дисциплины
+                                              selectedIndex = index;
                                             });
                                           },
                                           child: Container(
@@ -434,7 +434,10 @@ class _CoursesList extends State<CoursesList> {
 
                                             if (result) {
                                               await widget.loadCourses();
-                                              setState(() => showEditDialog = false);
+                                              setState(() {
+                                                selectedIndex = null;
+                                                showEditDialog = false;
+                                              });
                                             } else {
                                               ScaffoldMessenger.of(context).showSnackBar(
                                                 const SnackBar(content: Text('❌ Не удалось сохранить изменения')),

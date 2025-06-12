@@ -45,7 +45,8 @@ class UserRepository {
       final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 201) {
-        final data = jsonDecode(response.body);
+        final decodedBody = utf8.decode(response.bodyBytes);
+        final data = jsonDecode(decodedBody);
         print('📦 Ответ сервера: $data');
 
         if (data['username'] != null && data['role'] != null) {
