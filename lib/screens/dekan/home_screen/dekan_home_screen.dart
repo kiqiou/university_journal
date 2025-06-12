@@ -8,7 +8,6 @@ import '../../../bloc/journal/journal.dart';
 import '../../../bloc/journal/journal_repository.dart';
 import '../../../bloc/user/user.dart';
 import '../../../bloc/user/user_repository.dart';
-import '../../../components/colors/colors.dart';
 import '../../../components/journal_table.dart';
 import '../../teacher/home_screen/components/side_navigation_menu.dart';
 import '../../teacher/home_screen/components/theme_table.dart';
