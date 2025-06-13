@@ -381,11 +381,10 @@ class _StudentsListState extends State<StudentsList> {
                                               padding: const EdgeInsets.symmetric(horizontal: 24),
                                             ),
                                             onPressed: () async {
-                                              int groupId = selectedGroup!.id;
 
                                               final success = await userRepository.updateUser(
                                                 userId: widget.students[selectedIndex!].id,
-                                                groupId: groupId,
+                                                groupId: selectedGroup?.id,
                                                 username: nameController.text,
                                               );
 
@@ -492,8 +491,6 @@ class _StudentsListState extends State<StudentsList> {
                                               selectedGroup = value!;
                                             });
                                           },
-                                          validator: (value) =>
-                                          value == null ? 'Выберите одну группу' : null,
                                         ),
                                       ],
                                     ),
