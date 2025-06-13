@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../bloc/journal/journal.dart';
 
@@ -31,9 +32,27 @@ class _ThemeTableState extends State<ThemeTable> {
     return unique;
   }
 
+
+  List<Session> sortSessionsByDate(List<Session> sessions) {
+    final dateFormat = DateFormat('dd.MM.yyyy');
+
+    sessions.sort((a, b) {
+      try {
+        final dateA = dateFormat.parse(a.date);
+        final dateB = dateFormat.parse(b.date);
+        return dateA.compareTo(dateB);
+      } catch (e) {
+        return a.date.compareTo(b.date); // Фолбэк на строковое сравнение
+      }
+    });
+
+    return sessions;
+  }
+
   @override
   Widget build(BuildContext context) {
     final sessions = getUniqueSessions(widget.sessions);
+    final sortedSessions = sortSessionsByDate(sessions);
     return Scaffold(
       appBar: AppBar(title: const Text('Темы'), automaticallyImplyLeading: false),
       body: SingleChildScrollView(
@@ -69,7 +88,7 @@ class _ThemeTableState extends State<ThemeTable> {
                 ),
               ],
             ),
-            ...sessions.map((session) {
+            ...sortedSessions.map((session) {
               final topicController = TextEditingController(text: session.topic ?? '');
               return TableRow(
                 children: [
