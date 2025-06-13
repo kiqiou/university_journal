@@ -7,6 +7,7 @@ import '../../../../bloc/discipline/discipline.dart';
 import '../../../../bloc/discipline/discipline_repository.dart';
 import '../../../../bloc/group/group.dart';
 import '../../../../bloc/user/user.dart';
+import '../../../../components/colors/colors.dart';
 import '../../../../components/multiselect.dart';
 
 class AddCourseDialog extends StatefulWidget {
@@ -194,7 +195,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(11),
-                                    borderSide: BorderSide(color: Colors.grey.shade500, width: 1.5),
+                                    borderSide: BorderSide(color: MyColors.blueJournal, width: 1.5),
                                   ),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(11),
