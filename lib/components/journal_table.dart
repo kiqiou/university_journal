@@ -93,7 +93,7 @@ class JournalTableState extends State<JournalTable> {
                 final dates = extractUniqueDateTypes(dataSource!.sessions);
                 final toRemove = dates[_selectedColumnIndex!];
                 final session = dataSource?.sessions.firstWhere(
-                  (s) => '${s.date} ${s.sessionType} ${s.id}' == toRemove,
+                      (s) => '${s.date} ${s.sessionType} ${s.id}' == toRemove,
                 );
                 final repository = JournalRepository();
                 final success = await repository.deleteSession(sessionId: session!.id);
@@ -130,12 +130,12 @@ class JournalTableState extends State<JournalTable> {
           widget.isLoading || dataSource == null
               ? const Center(child: CircularProgressIndicator())
               : SfDataGrid(
-                  gridLinesVisibility: GridLinesVisibility.none,
-                  headerGridLinesVisibility: GridLinesVisibility.none,
-                  source: dataSource!,
-                  columns: columns,
-                  headerRowHeight: 100,
-                ),
+            gridLinesVisibility: GridLinesVisibility.none,
+            headerGridLinesVisibility: GridLinesVisibility.none,
+            source: dataSource!,
+            columns: columns,
+            headerRowHeight: 100,
+          ),
         ],
       ),
     );
@@ -166,11 +166,11 @@ class JournalDataSource extends DataGridSource {
   }
 
   JournalDataSource(
-    this.columns,
-    this._sessionData,
-    this.sessions, {
-    this.onUpdate,
-  })  : _dates = extractUniqueDateTypes(sessions).toList(),
+      this.columns,
+      this._sessionData,
+      this.sessions, {
+        this.onUpdate,
+      })  : _dates = extractUniqueDateTypes(sessions).toList(),
         _rows = _buildRows(_sessionData, extractUniqueDateTypes(sessions).toList());
 
   void removeColumn(String dateType) {
@@ -182,9 +182,9 @@ class JournalDataSource extends DataGridSource {
   }
 
   static List<DataGridRow> _buildRows(
-    Map<String, Map<String, Session>> data,
-    List<String> dates,
-  ) {
+      Map<String, Map<String, Session>> data,
+      List<String> dates,
+      ) {
     return data.entries.mapIndexed((index, entry) {
       final name = entry.key;
       final sessionsByDate = entry.value;

@@ -14,10 +14,6 @@ class _AccountScreenState extends State<AccountScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: const Text('Преподаватель'),
-      ),
       body: BlocBuilder<AuthenticationBloc, AuthenticationState>(
         builder: (context, state) {
           return Padding(
@@ -32,27 +28,23 @@ class _AccountScreenState extends State<AccountScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        const Text('Преподаватель', style: TextStyle(fontSize: 23, color: Colors.black87), ),
+                        SizedBox(
+                          height: 60,
+                        ),
                         const Text(
                           'Краткая биография',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.black87,
-                          ),
+                          style: TextStyle(fontSize: 16, color: Colors.black54),
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          state.user!.position.toString(),
-                          style: const TextStyle(fontSize: 14, color: Colors.black54),
+                          state.user!.bio.toString(),
+                          style: const TextStyle(fontSize: 17, color: Colors.black87),
                         ),
                         const SizedBox(height: 24),
                         const Text(
                           'Основные дисциплины',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.black87,
-                          ),
+                          style: TextStyle(fontSize: 16, color: Colors.black54),
                         ),
                         const SizedBox(height: 12),
                         ...state.user!.disciplines.map((course) => _buildDisciplineItem(course.name)),
@@ -66,9 +58,12 @@ class _AccountScreenState extends State<AccountScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      SizedBox(
+                        height: 120,
+                      ),
                       Container(
-                        width: double.infinity,
-                        height: 250,
+                        width: 300,
+                        height: 400,
                         decoration: BoxDecoration(
                           color: Colors.grey[300],
                           borderRadius: BorderRadius.circular(8),
@@ -94,10 +89,7 @@ class _AccountScreenState extends State<AccountScreen> {
                       const SizedBox(height: 4),
                       Text(
                         state.user!.username.toString(),
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style: TextStyle(fontSize: 17, color: Colors.black87),
                       ),
                       const SizedBox(height: 16),
                       const Text(
@@ -110,10 +102,7 @@ class _AccountScreenState extends State<AccountScreen> {
                       const SizedBox(height: 4),
                       Text(
                         state.user!.position.toString(),
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style: const TextStyle(fontSize: 17, color: Colors.black87),
                       ),
                       const SizedBox(height: 16),
                       const Text(
@@ -126,10 +115,7 @@ class _AccountScreenState extends State<AccountScreen> {
                       const SizedBox(height: 4),
                       const Text(
                         'ул. Казинца, д. 21, к.3 220099 г. Минск',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style: TextStyle(fontSize: 17, color: Colors.black87),
                       ),
                     ],
                   ),
@@ -149,12 +135,18 @@ class _AccountScreenState extends State<AccountScreen> {
         children: [
           const Text(
             '- ',
-            style: TextStyle(fontSize: 14, color: Colors.black54),
+            style: TextStyle(
+              fontSize: 17,
+                color: Colors.black87
+            ),
           ),
           Expanded(
             child: Text(
               title,
-              style: const TextStyle(fontSize: 14, color: Colors.black54),
+              style: const TextStyle(
+                fontSize: 17,
+                  color: Colors.black87
+              ),
             ),
           ),
         ],

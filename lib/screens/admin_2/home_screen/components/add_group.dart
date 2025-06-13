@@ -175,6 +175,15 @@ class _AddGroupDialogState extends State<AddGroupDialog> {
                             },
                           ),
                           const SizedBox(height: 18),
+                          const Text(
+                            'Выберите студентов*',
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Color(0xFF6B7280),
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                          const SizedBox(height: 18),
                           GestureDetector(
                             onTap: () async {
                               final selected = await showDialog<List<MyUser>>(

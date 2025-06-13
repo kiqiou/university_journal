@@ -1,13 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:multi_select_flutter/dialog/multi_select_dialog_field.dart';
-import 'package:multi_select_flutter/util/multi_select_item.dart';
 import 'dart:typed_data';
 import 'dart:html' as html;
 
-import '../../../../bloc/auth/authentication_bloc.dart';
 import '../../../../bloc/discipline/discipline.dart';
 import '../../../../bloc/discipline/discipline_repository.dart';
 import '../../../../bloc/user/user.dart';
@@ -151,7 +147,7 @@ class _TeachersList extends State<TeachersList> {
                                       ),
                                       elevation: 0,
                                     ),
-                                    child: const Text('Привязка дисциплины и группы',
+                                    child: const Text('Привязка дисциплины',
                                         style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                                   ),
                                 ),
@@ -458,6 +454,7 @@ class _TeachersList extends State<TeachersList> {
                                                   if (success) {
                                                     setState(() async {
                                                       await widget.loadTeachers();
+                                                      selectedIndex = null;
                                                       showEditDialog = false;
                                                     });
                                                   }
@@ -596,7 +593,7 @@ class _TeachersList extends State<TeachersList> {
                       builder: (context) {
                         final media = MediaQuery.of(context).size;
                         final double dialogWidth = (media.width - 32 - 80).clamp(320, 600);
-                        final double dialogHeight = (media.height - 64).clamp(480, 1100);
+                        final double dialogHeight = (media.height - 64).clamp(480, 550);
 
                         return Material(
                           color: Colors.transparent,
@@ -693,7 +690,7 @@ class _TeachersList extends State<TeachersList> {
                                             InkWell(
                                               onTap: () {
                                                 setState(() {
-                                                  showEditDialog = false;
+                                                  showLinkDisciplineDialog = false;
                                                 });
                                               },
                                               borderRadius: BorderRadius.circular(10),

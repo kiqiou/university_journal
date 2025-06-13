@@ -333,7 +333,7 @@ class _StudentsListState extends State<StudentsList> {
                   builder: (context) {
                     final media = MediaQuery.of(context).size;
                     final double dialogWidth = (media.width - 32 - 80).clamp(320, 600);
-                    final double dialogHeight = (media.height - 64).clamp(480, 1100);
+                    final double dialogHeight = (media.height - 64).clamp(480, 500);
 
                     return Material(
                       color: Colors.transparent,
