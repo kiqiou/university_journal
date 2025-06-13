@@ -74,7 +74,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
       backgroundColor: Colors.transparent,
       insetPadding: EdgeInsets.zero,
       child: Padding(
-        padding: const EdgeInsets.only(right: 0),
+        padding: const EdgeInsets.only(right: 30),
         child: Align(
           alignment: Alignment.centerRight,
           child: ConstrainedBox(
@@ -102,10 +102,10 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                     // Заголовок и кнопки
                     Row(
                       children: [
-                        const Expanded(
+                        Expanded(
                           child: Text(
                             'Создание дисциплины',
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400, color: Colors.black),
+                            style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
                           ),
                         ),
                         SizedBox(
@@ -175,9 +175,9 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               // Название дисциплины
-                              const Text(
-                                'Название дисциплины',
-                                style: TextStyle(fontSize: 15, color: Color(0xFF6B7280)),
+                              Text(
+                                'Название дисциплины*',
+                                style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
                               ),
                               const SizedBox(height: 8),
                               TextFormField(
@@ -186,19 +186,19 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                   hintText: 'Введите название дисциплины',
                                   hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
                                   filled: true,
-                                  fillColor: const Color(0xFFF3F4F6),
+                                  fillColor: Colors.white,
                                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(11),
-                                    borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
+                                    borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(11),
-                                    borderSide: const BorderSide(color: Color(0xFF4068EA), width: 1.2),
+                                    borderSide: BorderSide(color: Colors.grey.shade500, width: 1.5),
                                   ),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(11),
-                                    borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
+                                    borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
                                   ),
                                 ),
                                 validator: (value) => value == null || value.isEmpty ? 'Обязательное поле' : null,
@@ -206,13 +206,9 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                               const SizedBox(height: 24),
 
                               // Виды занятий
-                              const Text(
+                              Text(
                                 'Выберите вид занятий',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: Color(0xFF6B7280),
-                                  fontWeight: FontWeight.w400,
-                                ),
+                                style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
                               ),
                               const SizedBox(height: 10),
                               Wrap(
@@ -235,8 +231,8 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                       decoration: BoxDecoration(
                                         color: isSelected ? const Color(0xFF4068EA) : Colors.white,
                                         border: Border.all(
-                                          color: isSelected ? const Color(0xFF4068EA) : const Color(0xFFE5E7EB),
-                                          width: 2,
+                                          color: isSelected ? const Color(0xFF4068EA) : Colors.grey.shade400,
+                                          width: 1.5,
                                         ),
                                         borderRadius: BorderRadius.circular(14),
                                       ),
@@ -328,14 +324,15 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                                   hintText: 'Введите часы',
                                                   border: OutlineInputBorder(
                                                     borderRadius: BorderRadius.circular(16),
+                                                    borderSide: BorderSide(color: Colors.grey.shade400, width: 1),
                                                   ),
                                                   enabledBorder: OutlineInputBorder(
                                                     borderRadius: BorderRadius.circular(16),
-                                                    borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
+                                                    borderSide: BorderSide(color: Colors.grey.shade400, width: 1),
                                                   ),
                                                   focusedBorder: OutlineInputBorder(
                                                     borderRadius: BorderRadius.circular(16),
-                                                    borderSide: const BorderSide(color: Color(0xFF4068EA), width: 1.2),
+                                                    borderSide: BorderSide(color: Colors.grey.shade400, width: 1.2),
                                                   ),
                                                   contentPadding:
                                                       const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -358,8 +355,9 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                 ),
 
                               // Привязка преподавателя
-                              const Text("Привязать преподавателя"),
-                              const SizedBox(height: 4),
+                              Text("Привязать преподавателя",
+                                  style: TextStyle(color: Color(0xFF6B7280), fontSize: 15)),
+                              const SizedBox(height: 18),
                               GestureDetector(
                                 onTap: () async {
                                   final selected = await showDialog<List<MyUser>>(
@@ -381,10 +379,15 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                   decoration: InputDecoration(
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
-                                      borderSide: BorderSide(
-                                        color: Colors.grey.shade400,
-                                        width: 1.5,
-                                      ),
+                                      borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
                                     ),
                                     contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                                   ),
@@ -392,6 +395,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                     selectedTeachers.isEmpty
                                         ? "Выберите из списка преподавателей"
                                         : selectedTeachers.map((s) => s.username).join(', '),
+                                    style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 13),
                                   ),
                                 ),
                               ),
@@ -399,9 +403,14 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                               if (selectedTeachers.isNotEmpty)
                                 Wrap(
                                   spacing: 8,
+                                  runSpacing: 8,
                                   children: selectedTeachers.map((teacher) {
                                     return Chip(
                                       label: Text(teacher.username),
+                                      side: BorderSide(color: Colors.grey.shade500),
+                                      backgroundColor: Colors.white,
+                                      deleteIcon: Icon(Icons.close, size: 18),
+                                      deleteIconColor: Colors.grey.shade500,
                                       onDeleted: () {
                                         setState(() {
                                           selectedTeachers.remove(teacher);
@@ -413,15 +422,18 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                               const SizedBox(height: 20),
 
                               // Привязка группы
-                              const Text("Привязать группу"),
-                              const SizedBox(height: 4),
+                              Text(
+                                "Привязать группу",
+                                style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+                              ),
+                              const SizedBox(height: 18),
                               GestureDetector(
                                 onTap: () async {
                                   final selected = await showDialog<List<Group>>(
                                     context: context,
                                     builder: (_) => MultiSelectDialog(
                                       items: widget.groups,
-                                      initiallySelected:  selectedGroups,
+                                      initiallySelected: selectedGroups,
                                       itemLabel: (group) => group.name,
                                     ),
                                   );
@@ -436,27 +448,39 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                   decoration: InputDecoration(
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
-                                      borderSide: BorderSide(
-                                        color: Colors.grey.shade400,
-                                        width: 1.5,
-                                      ),
+                                      borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide:
+                                          BorderSide(color: Colors.grey.shade400, width: 1.5), // чуть ярче при фокусе
                                     ),
                                     contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                                   ),
                                   child: Text(
                                     selectedGroups.isEmpty
                                         ? "Выберите из списка групп"
-                                        :  selectedGroups.map((s) => s.name).join(', '),
+                                        : selectedGroups.map((s) => s.name).join(', '),
+                                    style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 13),
                                   ),
                                 ),
                               ),
                               const SizedBox(height: 18),
-                              if ( selectedGroups.isNotEmpty)
+                              if (selectedGroups.isNotEmpty)
                                 Wrap(
                                   spacing: 8,
-                                  children:  selectedGroups.map((group) {
+                                  runSpacing: 8,
+                                  children: selectedGroups.map((group) {
                                     return Chip(
                                       label: Text(group.name),
+                                      side: BorderSide(color: Colors.grey.shade500),
+                                      backgroundColor: Colors.white,
+                                      deleteIcon: Icon(Icons.close, size: 18),
+                                      deleteIconColor: Colors.grey.shade500,
                                       onDeleted: () {
                                         setState(() {
                                           selectedGroups.remove(group);
