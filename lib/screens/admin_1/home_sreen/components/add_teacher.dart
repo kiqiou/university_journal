@@ -214,6 +214,8 @@ class _AddTeacherDialogState extends State<AddTeacherDialog> {
                               const SizedBox(height: 18),
                               TextFormField(
                                 decoration: _inputDecoration('Введите пасаду'),
+                                validator: (value) =>
+                                value == null || value.isEmpty ? 'Введите пасаду преподавателя' : null,
                                 onSaved: (value) => position = value,
                               ),
                               const SizedBox(height: 48),
@@ -225,6 +227,8 @@ class _AddTeacherDialogState extends State<AddTeacherDialog> {
                               TextFormField(
                                 decoration: _inputDecoration('Введите краткую биографию'),
                                 maxLines: 2,
+                                validator: (value) =>
+                                value == null || value.isEmpty ? 'Введите биографию преподавателя' : null,
                                 onSaved: (value) => bio = value,
                               ),
                             ],

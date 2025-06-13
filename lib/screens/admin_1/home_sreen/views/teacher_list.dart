@@ -8,6 +8,7 @@ import '../../../../bloc/discipline/discipline.dart';
 import '../../../../bloc/discipline/discipline_repository.dart';
 import '../../../../bloc/user/user.dart';
 import '../../../../bloc/user/user_repository.dart';
+import '../../../../components/colors/colors.dart';
 import '../../../../components/multiselect.dart';
 
 class TeachersList extends StatefulWidget {
@@ -30,16 +31,16 @@ class TeachersList extends StatefulWidget {
 
 class _TeachersList extends State<TeachersList> {
   final userRepository = UserRepository();
+  final usernameController = TextEditingController();
+  final positionController = TextEditingController();
+  final bioController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
   int? selectedIndex;
   bool isLoading = true;
   bool showDeleteDialog = false;
   bool showEditDialog = false;
   bool showLinkDisciplineDialog = false;
   List<Discipline> selectedDisciplines = [];
-
-  final usernameController = TextEditingController();
-  final positionController = TextEditingController();
-  final bioController = TextEditingController();
 
   @override
   void initState() {
@@ -361,7 +362,7 @@ class _TeachersList extends State<TeachersList> {
                     ),
                   ),
                 // Окно редактирования информации
-                if (showEditDialog && selectedIndex != null)
+                if (showEditDialog && selectedIndex != null) ...[
                   Positioned(
                     top: 32,
                     right: 32,
@@ -370,6 +371,7 @@ class _TeachersList extends State<TeachersList> {
                         final media = MediaQuery.of(context).size;
                         final double dialogWidth = (media.width - 32 - 80).clamp(320, 600);
                         final double dialogHeight = (media.height - 64).clamp(480, 1100);
+
                         Uint8List? _selectedPhotoBytes;
                         String? _photoPreviewUrl;
                         String? _photoName;
@@ -416,7 +418,6 @@ class _TeachersList extends State<TeachersList> {
                             ),
                             child: LayoutBuilder(
                               builder: (context, constraints) {
-                                // constraints.maxWidth == dialogWidth, constraints.maxHeight == dialogHeight
                                 return SingleChildScrollView(
                                   child: Padding(
                                     padding: const EdgeInsets.all(32),
@@ -425,10 +426,7 @@ class _TeachersList extends State<TeachersList> {
                                       children: [
                                         Row(
                                           children: [
-                                            const Text(
-                                              "Информация",
-                                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-                                            ),
+                                            Text("Информация", style: TextStyle(fontSize: 15, color: Colors.grey.shade700),),
                                             const Spacer(),
                                             SizedBox(
                                               height: 36,
@@ -452,8 +450,8 @@ class _TeachersList extends State<TeachersList> {
                                                   );
 
                                                   if (success) {
-                                                    setState(() async {
-                                                      await widget.loadTeachers();
+                                                    await widget.loadTeachers();
+                                                    setState(() {
                                                       selectedIndex = null;
                                                       showEditDialog = false;
                                                     });
@@ -477,97 +475,89 @@ class _TeachersList extends State<TeachersList> {
                                                   color: Color(0xFF4068EA),
                                                   borderRadius: BorderRadius.circular(10),
                                                 ),
-                                                child: const Icon(
-                                                  Icons.close,
-                                                  color: Colors.white,
-                                                  size: 22,
-                                                ),
+                                                child: const Icon(Icons.close, color: Colors.white, size: 22),
                                               ),
                                             ),
                                           ],
                                         ),
-                                        SizedBox(height: constraints.maxHeight * 0.03),
-                                        Row(
+                                        const SizedBox(height: 32),
+                                        Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            // Аватар
-                                            Column(
+                                            Row(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 Container(
-                                                  width: constraints.maxWidth * 0.15,
-                                                  height: constraints.maxWidth * 0.19,
+                                                  width: 200,
+                                                  height: 260,
                                                   decoration: BoxDecoration(
-                                                    color: Colors.grey[200],
-                                                    borderRadius: BorderRadius.circular(8),
+                                                    color: const Color(0xFFE5E7EB),
+                                                    borderRadius: BorderRadius.circular(14),
                                                   ),
-                                                  child: _photoPreviewUrl != null
-                                                      ? Image.network(_photoPreviewUrl!)
-                                                      : widget.teachers[selectedIndex!].photoUrl != null
-                                                          ? Image.network(widget.teachers[selectedIndex!].photoUrl!)
-                                                          : Icon(
-                                                              Icons.person_outline,
-                                                              size: 48,
-                                                              color: Colors.grey[400],
-                                                            ),
+                                                  child: ClipRRect(
+                                                    borderRadius: BorderRadius.circular(14),
+                                                    child: _photoPreviewUrl != null
+                                                        ? Image.network(_photoPreviewUrl!, fit: BoxFit.cover)
+                                                        : (widget.teachers[selectedIndex!].photoUrl != null &&
+                                                        widget.teachers[selectedIndex!].photoUrl!.isNotEmpty)
+                                                        ? Image.network(widget.teachers[selectedIndex!].photoUrl!, fit: BoxFit.cover)
+                                                        : const Icon(Icons.person, size: 54, color: Color(0xFF9CA3AF)),
+                                                  ),
                                                 ),
-                                                SizedBox(height: constraints.maxHeight * 0.01 + 4),
-                                                InkWell(
-                                                  onTap: _pickImage,
-                                                  borderRadius: BorderRadius.circular(8),
-                                                  child: Container(
-                                                    width: 32,
-                                                    height: 32,
-                                                    decoration: BoxDecoration(
-                                                      color: Color(0xFF4068EA),
-                                                      borderRadius: BorderRadius.circular(8),
+                                                const SizedBox(width: 18),
+                                                SizedBox(
+                                                  height: 48,
+                                                  width: 48,
+                                                  child: ElevatedButton(
+                                                    onPressed: _pickImage,
+                                                    style: ElevatedButton.styleFrom(
+                                                      backgroundColor: const Color(0xFF4068EA),
+                                                      shape: RoundedRectangleBorder(
+                                                        borderRadius: BorderRadius.circular(12),
+                                                      ),
+                                                      padding: EdgeInsets.zero,
+                                                      elevation: 0,
                                                     ),
-                                                    child: const Icon(Icons.add, color: Colors.white, size: 20),
+                                                    child: Icon(Icons.add, color: Colors.white, size: 26),
                                                   ),
                                                 ),
                                               ],
                                             ),
-                                            SizedBox(width: constraints.maxWidth * 0.07),
-                                            Expanded(
+                                            const SizedBox(height: 32),
+                                            Form(
+                                              key: _formKey,
                                               child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
-                                                  SizedBox(
-                                                    height: constraints.maxHeight * 0.07,
-                                                    child: TextField(
-                                                      controller: usernameController,
-                                                      decoration: const InputDecoration(
-                                                        labelText: "ФИО преподавателя*",
-                                                        hintText: "Введите ФИО преподавателя",
-                                                        border: OutlineInputBorder(),
-                                                      ),
-                                                    ),
+                                                  Text(
+                                                    'ФИО преподавателя*',
+                                                    style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
                                                   ),
-                                                  SizedBox(height: constraints.maxHeight * 0.03),
-                                                  SizedBox(
-                                                    height: constraints.maxHeight * 0.07,
-                                                    child: TextField(
-                                                      controller: positionController,
-                                                      decoration: const InputDecoration(
-                                                        labelText: "Должность",
-                                                        hintText: "Введите должность",
-                                                        border: OutlineInputBorder(),
-                                                      ),
-                                                    ),
+                                                  const SizedBox(height: 18),
+                                                  TextFormField(
+                                                    controller: usernameController,
+                                                    decoration: _inputDecoration('Введите ФИО преподавателя'),
                                                   ),
-                                                  SizedBox(height: constraints.maxHeight * 0.03),
-                                                  SizedBox(
-                                                    height: constraints.maxHeight * 0.11,
-                                                    child: TextField(
-                                                      controller: bioController,
-                                                      maxLines: 2,
-                                                      inputFormatters: [
-                                                        LengthLimitingTextInputFormatter(250),
-                                                      ],
-                                                      decoration: const InputDecoration(
-                                                        labelText: "Краткая биография",
-                                                        hintText: "Введите краткую биографию",
-                                                        border: OutlineInputBorder(),
-                                                      ),
-                                                    ),
+                                                  const SizedBox(height: 48),
+                                                  Text(
+                                                    'Пасада',
+                                                    style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+                                                  ),
+                                                  const SizedBox(height: 18),
+                                                  TextFormField(
+                                                    decoration: _inputDecoration('Введите пасаду'),
+                                                    controller: positionController,
+                                                  ),
+                                                  const SizedBox(height: 48),
+                                                  Text(
+                                                    'Краткая биография',
+                                                    style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+                                                  ),
+                                                  const SizedBox(height: 18),
+                                                  TextFormField(
+                                                    decoration: _inputDecoration('Введите краткую биографию'),
+                                                    maxLines: 2,
+                                                    controller: bioController,
                                                   ),
                                                 ],
                                               ),
@@ -585,6 +575,8 @@ class _TeachersList extends State<TeachersList> {
                       },
                     ),
                   ),
+                ],
+
                 if (showLinkDisciplineDialog && selectedIndex != null)
                   Positioned(
                     top: 32,
@@ -739,15 +731,15 @@ class _TeachersList extends State<TeachersList> {
                                                       decoration: InputDecoration(
                                                         border: OutlineInputBorder(
                                                           borderRadius: BorderRadius.circular(12),
-                                                          borderSide: BorderSide(color: Colors.grey.shade500, width: 1.5),
+                                                          borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
                                                         ),
                                                         enabledBorder: OutlineInputBorder(
                                                           borderRadius: BorderRadius.circular(12),
-                                                          borderSide: BorderSide(color: Colors.grey.shade500, width: 1.5),
+                                                          borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
                                                         ),
                                                         focusedBorder: OutlineInputBorder(
                                                           borderRadius: BorderRadius.circular(12),
-                                                          borderSide: BorderSide(color: Colors.grey.shade600, width: 1.5), // чуть ярче при фокусе
+                                                          borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5), // чуть ярче при фокусе
                                                         ),
                                                         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                                                       ),
@@ -755,6 +747,7 @@ class _TeachersList extends State<TeachersList> {
                                                         selectedDisciplines.isEmpty
                                                             ? "Выберите из списка дисциплин"
                                                             : selectedDisciplines.map((s) => s.name).join(', '),
+                                                        style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
                                                       ),
                                                     ),
                                                   ),
@@ -798,6 +791,27 @@ class _TeachersList extends State<TeachersList> {
             ),
           ),
         ],
+      ),
+    );
+  }
+  InputDecoration _inputDecoration(String hint) {
+    return InputDecoration(
+      hintText: 'Введите название дисциплины',
+      hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
+      filled: true,
+      fillColor: Colors.white,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(11),
+        borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(11),
+        borderSide: BorderSide(color: MyColors.blueJournal, width: 1.5),
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(11),
+        borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
       ),
     );
   }
