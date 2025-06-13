@@ -628,7 +628,7 @@ class _TeachersList extends State<TeachersList> {
                                               style: TextStyle(
                                                 fontWeight: FontWeight.w700,
                                                 color: Colors.grey.shade800,
-                                                fontSize: 16,
+                                                fontSize: 17,
                                               ),
                                             ),
                                             const Spacer(),
@@ -717,6 +717,7 @@ class _TeachersList extends State<TeachersList> {
                                             Expanded(
                                               child: Column(
                                                 children: [
+                                                  SizedBox(height: 20),
                                                   GestureDetector(
                                                     onTap: () async {
                                                       final selected = await showDialog<List<Discipline>>(
@@ -739,8 +740,7 @@ class _TeachersList extends State<TeachersList> {
                                                         border: OutlineInputBorder(
                                                           borderRadius: BorderRadius.circular(12),
                                                           borderSide: BorderSide(
-                                                            color: Colors.grey.shade400,
-                                                            width: 1.5,
+                                                            color: Colors.grey,
                                                           ),
                                                         ),
                                                         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),

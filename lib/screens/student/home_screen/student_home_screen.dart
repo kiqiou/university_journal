@@ -12,7 +12,7 @@ import '../../../bloc/user/user.dart';
 import '../../../bloc/user/user_repository.dart';
 import '../../../components/journal_table.dart';
 import '../../teacher/home_screen/components/side_navigation_menu.dart';
-import '../../teacher/home_screen/components/theme_table.dart';
+import '../../../components/theme_table.dart';
 
 enum StudentContentScreen { journal, theme }
 
@@ -172,7 +172,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                               );
                             }
                             return success;
-                          },
+                          }, isEditable: false,
                         );
                       case StudentContentScreen.journal:
                         return selectedDisciplineIndex != null

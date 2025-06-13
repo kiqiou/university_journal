@@ -14,7 +14,7 @@ import '../../../../components/colors/colors.dart';
 import '../../../../components/journal_table.dart';
 import '../../account_screen/account_screen.dart';
 import '../components/add_classes_dialog.dart';
-import '../components/theme_table.dart';
+import '../../../../components/theme_table.dart';
 
 enum TeacherContentScreen { journal, account, theme }
 
@@ -170,7 +170,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                               );
                             }
                             return success;
-                          },
+                          }, isEditable: true,
                         );
                       case TeacherContentScreen.journal:
                         return selectedGroupId != null ? Column(

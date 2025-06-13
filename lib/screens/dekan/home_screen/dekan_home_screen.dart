@@ -10,7 +10,7 @@ import '../../../bloc/user/user.dart';
 import '../../../bloc/user/user_repository.dart';
 import '../../../components/journal_table.dart';
 import '../../teacher/home_screen/components/side_navigation_menu.dart';
-import '../../teacher/home_screen/components/theme_table.dart';
+import '../../../components/theme_table.dart';
 
 enum DekanContentScreen { journal, theme }
 
@@ -164,7 +164,7 @@ class _DekanHomeScreenState extends State<DekanHomeScreen> {
                               );
                             }
                             return success;
-                          },
+                          }, isEditable: false,
                         );
                       case DekanContentScreen.journal:
                         return selectedGroupId != null

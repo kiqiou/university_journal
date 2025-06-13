@@ -3,13 +3,14 @@ import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../bloc/journal/journal.dart';
+import '../bloc/journal/journal.dart';
 
 class ThemeTable extends StatefulWidget {
   final List<Session> sessions;
+  final bool isEditable;
   final Future<bool> Function(int sessionId, String? date, String? type, String? topic)? onUpdate;
 
-  const ThemeTable({super.key, required this.sessions, this.onUpdate});
+  const ThemeTable({super.key, required this.sessions, this.onUpdate, required this.isEditable});
 
   @override
   State<ThemeTable> createState() => _ThemeTableState();
@@ -79,6 +80,7 @@ class _ThemeTableState extends State<ThemeTable> {
                   Padding(
                     padding: const EdgeInsets.all(4.0),
                     child: TextField(
+                      enabled: widget.isEditable,
                       controller: topicController,
                       decoration: InputDecoration.collapsed(
                           hintText: 'Введите тему', hintStyle: TextStyle(color: Colors.grey.shade300)),
