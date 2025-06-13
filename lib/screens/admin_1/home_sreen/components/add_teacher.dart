@@ -54,7 +54,6 @@ class _AddTeacherDialogState extends State<AddTeacherDialog> {
 
     if (screenWidth < 500) return const SizedBox.shrink();
     if (screenHeight < 500) return const SizedBox.shrink();
-    // Делаем ширину больше, как на первом скрине, и добавляем большой max
     final dialogWidth = min(800.0, max(420.0, screenWidth * 0.45));
     final dialogHeight = min(1200.0, screenHeight - 60);
 
@@ -62,7 +61,7 @@ class _AddTeacherDialogState extends State<AddTeacherDialog> {
       insetPadding: const EdgeInsets.all(0),
       backgroundColor: Colors.transparent,
       child: Padding(
-        padding: const EdgeInsets.only(right: 60), // Увеличенный отступ справа!
+        padding: const EdgeInsets.only(right: 60),
         child: Align(
           alignment: Alignment.centerRight,
           child: SizedBox(

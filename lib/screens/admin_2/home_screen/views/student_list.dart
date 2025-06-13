@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../bloc/group/group.dart';
 import '../../../../bloc/user/user.dart';
 import '../../../../bloc/user/user_repository.dart';
+import '../../../../components/colors/colors.dart';
 
 class StudentsList extends StatefulWidget {
   final Future<void> Function() loadStudents;
@@ -251,9 +252,9 @@ class _StudentsListState extends State<StudentsList> {
                           children: [
                             Row(
                               children: [
-                                const Text(
-                                  "Удаление группы",
-                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400),
+                                Text(
+                                  "Удаление студента",
+                                  style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
                                 ),
                                 const Spacer(),
                                 InkWell(
@@ -363,9 +364,9 @@ class _StudentsListState extends State<StudentsList> {
                                   children: [
                                     Row(
                                       children: [
-                                        const Text(
-                                          "Информация",
-                                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+                                       Text(
+                                          "Редактирование студента",
+                                          style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
                                         ),
                                         const Spacer(),
                                         SizedBox(
@@ -423,62 +424,76 @@ class _StudentsListState extends State<StudentsList> {
                                         ),
                                       ],
                                     ),
-                                    SizedBox(height: constraints.maxHeight * 0.03),
-                                    Row(
+                                    SizedBox(height: constraints.maxHeight * 0.1),
+                                    Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        SizedBox(width: constraints.maxWidth * 0.07),
-                                        Expanded(
-                                          child: Column(
-                                            children: [
-                                              SizedBox(
-                                                height: constraints.maxHeight * 0.07,
-                                                child: TextField(
-                                                  controller: nameController,
-                                                  decoration: const InputDecoration(
-                                                    labelText: "ФИО студента*",
-                                                    hintText: "Введите ФИО студента",
-                                                    border: OutlineInputBorder(),
-                                                  ),
-                                                ),
+                                        Text(
+                                          'ФИО студента',
+                                          style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+                                        ),
+                                        const SizedBox(height: 18),
+                                        TextFormField(
+                                          controller: nameController,
+                                          decoration:   InputDecoration(
+                                              hintText: 'Введите ФИО студента',
+                                              hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
+                                              filled: true,
+                                              fillColor: Colors.white,
+                                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                              enabledBorder: OutlineInputBorder(
+                                                borderRadius: BorderRadius.circular(11),
+                                                borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
                                               ),
-                                              SizedBox(height: constraints.maxHeight * 0.03),
-                                              const Text(
-                                                'Привязка группы',
-                                                style: TextStyle(
-                                                  fontSize: 15,
-                                                  color: Color(0xFF6B7280),
-                                                  fontWeight: FontWeight.w400,
-                                                ),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderRadius: BorderRadius.circular(11),
+                                                borderSide: BorderSide(color: MyColors.blueJournal, width: 1.5),
                                               ),
-                                              const SizedBox(height: 18),
-                                              DropdownButtonFormField<Group>(
-                                                items: widget.groups
-                                                    .map((group) => DropdownMenuItem<Group>(
-                                                  value: group,
-                                                  child: Text(group.name),
-                                                ))
-                                                    .toList(),
-                                                decoration: InputDecoration(
-                                                  labelText: 'Группа',
-                                                  filled: true,
-                                                  fillColor: Color(0xFFF3F4F6),
-                                                  border: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(11),
-                                                    borderSide: BorderSide(color: Color(0xFFE5E7EB), width: 1),
-                                                  ),
-                                                ),
-                                                value: selectedGroup,
-                                                onChanged: (Group? value) {
-                                                  setState(() {
-                                                    selectedGroup = value!;
-                                                  });
-                                                },
-                                                validator: (value) =>
-                                                value == null ? 'Выберите одну группу' : null,
-                                              )
-                                            ],
+                                              border: OutlineInputBorder(
+                                                borderRadius: BorderRadius.circular(11),
+                                                borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                              ),
+                                            )
+                                        ),
+                                        const SizedBox(height: 48),
+                                        Text(
+                                          'Привязка группы',
+                                          style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+                                        ),
+                                        const SizedBox(height: 18),
+                                        DropdownButtonFormField<Group>(
+                                          items: widget.groups
+                                              .map((group) => DropdownMenuItem<Group>(
+                                            value: group,
+                                            child: Text(group.name),
+                                          ))
+                                              .toList(),
+                                          decoration: InputDecoration(
+                                            labelText: 'Группа',
+                                            filled: true,
+                                            fillColor: Colors.white,
+                                            border: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(12),
+                                              borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                            ),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(12),
+                                              borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(12),
+                                              borderSide: BorderSide(
+                                                  color: MyColors.blueJournal, width: 1.5),
+                                            ),
                                           ),
+                                          value: selectedGroup,
+                                          onChanged: (Group? value) {
+                                            setState(() {
+                                              selectedGroup = value!;
+                                            });
+                                          },
+                                          validator: (value) =>
+                                          value == null ? 'Выберите одну группу' : null,
                                         ),
                                       ],
                                     ),

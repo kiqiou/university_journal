@@ -252,7 +252,6 @@ class _TeachersList extends State<TeachersList> {
                     ),
                   ),
                 ),
-                // Окно удаления преподавателя
                 if (showDeleteDialog && selectedIndex != null)
                   Positioned(
                     top: 32,
@@ -290,7 +289,7 @@ class _TeachersList extends State<TeachersList> {
                                   children: [
                                     const Text(
                                       "Удаление преподавателя",
-                                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400),
+                                      style: TextStyle(fontSize: 18,),
                                     ),
                                     const Spacer(),
                                     InkWell(
@@ -319,7 +318,7 @@ class _TeachersList extends State<TeachersList> {
                                 const SizedBox(height: 24),
                                 Text(
                                   widget.teachers[selectedIndex!].username,
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Colors.black),
                                 ),
                                 const SizedBox(height: 16),
                                 const Text(
@@ -616,7 +615,7 @@ class _TeachersList extends State<TeachersList> {
                                         Row(
                                           children: [
                                             Text(
-                                              "Информация",
+                                              "Привязка дисциплины",
                                               style: TextStyle(
                                                 fontWeight: FontWeight.w700,
                                                 color: Colors.grey.shade800,
