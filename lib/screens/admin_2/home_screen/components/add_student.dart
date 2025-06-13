@@ -3,6 +3,7 @@ import 'dart:math';
 
 import '../../../../bloc/group/group.dart';
 import '../../../../bloc/user/user_repository.dart';
+import '../../../../components/colors/colors.dart';
 
 class AddStudentDialog extends StatefulWidget {
   final VoidCallback onStudentAdded;
@@ -67,14 +68,10 @@ class _AddStudentDialogState extends State<AddStudentDialog> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const Expanded(
+                        Expanded(
                           child: Text(
                             'Создание студента',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.black,
-                            ),
+                            style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
                           ),
                         ),
                         SizedBox(
@@ -130,7 +127,7 @@ class _AddStudentDialogState extends State<AddStudentDialog> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 28),
+                    const SizedBox(height: 25),
                     // --- Форма ---
                     Expanded(
                       child: SingleChildScrollView(
@@ -140,30 +137,40 @@ class _AddStudentDialogState extends State<AddStudentDialog> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               // Поле ФИО студента*
-                              const Text(
+                              Text(
                                 'ФИО студента*',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: Color(0xFF6B7280),
-                                  fontWeight: FontWeight.w400,
-                                ),
+                                style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
                               ),
                               const SizedBox(height: 18),
                               TextFormField(
-                                decoration: _inputDecoration('Введите ФИО студента'),
+                                    decoration:   InputDecoration(
+                                      hintText: 'Введите ФИО студента',
+                                      hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
+                                      filled: true,
+                                      fillColor: Colors.white,
+                                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(11),
+                                        borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(11),
+                                        borderSide: BorderSide(color: MyColors.blueJournal, width: 1.5),
+                                      ),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(11),
+                                        borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                      ),
+                                    ),
                                 validator: (value) =>
                                 value == null || value.isEmpty ? 'Введите ФИО студента' : null,
                                 onSaved: (value) => fio = value,
                               ),
                               const SizedBox(height: 48),
                               // Поле "Привязать группу"
-                              const Text(
+                              Text(
                                 'Привязка группы',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: Color(0xFF6B7280),
-                                  fontWeight: FontWeight.w400,
-                                ),
+                                style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
                               ),
                               const SizedBox(height: 18),
                               DropdownButtonFormField<Group>(
@@ -175,14 +182,24 @@ class _AddStudentDialogState extends State<AddStudentDialog> {
                                     .toList(),
                                 decoration: InputDecoration(
                                   labelText: 'Группа',
+                                  labelStyle: TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
                                   filled: true,
-                                  fillColor: Color(0xFFF3F4F6),
+                                  fillColor: Colors.white,
                                   border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(11),
-                                    borderSide: BorderSide(color: Color(0xFFE5E7EB), width: 1),
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(
+                                        color: MyColors.blueJournal, width: 1.5),
                                   ),
                                 ),
-                                value: selectedGroup, // переменная для выбранной группы
+                                value: selectedGroup,
                                 onChanged: (Group? value) {
                                   setState(() {
                                     selectedGroup = value!;
