@@ -108,9 +108,6 @@ class _ThemeTableState extends State<ThemeTable> {
                           final success = await widget.onUpdate!(session.id, null, null, newTopic,);
                           if (success) {
                             log('обновление вызвано');
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Тема обновлена')),
-                            );
                           }
                         }
                       },

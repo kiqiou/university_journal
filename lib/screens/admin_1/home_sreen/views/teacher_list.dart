@@ -739,9 +739,15 @@ class _TeachersList extends State<TeachersList> {
                                                       decoration: InputDecoration(
                                                         border: OutlineInputBorder(
                                                           borderRadius: BorderRadius.circular(12),
-                                                          borderSide: BorderSide(
-                                                            color: Colors.grey,
-                                                          ),
+                                                          borderSide: BorderSide(color: Colors.grey.shade500, width: 1.5),
+                                                        ),
+                                                        enabledBorder: OutlineInputBorder(
+                                                          borderRadius: BorderRadius.circular(12),
+                                                          borderSide: BorderSide(color: Colors.grey.shade500, width: 1.5),
+                                                        ),
+                                                        focusedBorder: OutlineInputBorder(
+                                                          borderRadius: BorderRadius.circular(12),
+                                                          borderSide: BorderSide(color: Colors.grey.shade600, width: 1.5), // чуть ярче при фокусе
                                                         ),
                                                         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                                                       ),
@@ -756,9 +762,14 @@ class _TeachersList extends State<TeachersList> {
                                                   if (selectedDisciplines.isNotEmpty)
                                                     Wrap(
                                                       spacing: 8,
+                                                      runSpacing: 8,
                                                       children: selectedDisciplines.map((discipline) {
                                                         return Chip(
                                                           label: Text(discipline.name),
+                                                          side: BorderSide(color: Colors.grey.shade500),
+                                                          backgroundColor: Colors.white,
+                                                          deleteIcon: Icon(Icons.close, size: 18),
+                                                          deleteIconColor: Colors.grey.shade500,
                                                           onDeleted: () {
                                                             setState(() {
                                                               selectedDisciplines.remove(discipline);

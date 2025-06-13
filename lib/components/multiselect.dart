@@ -28,6 +28,10 @@ class _MultiSelectDialogState<T> extends State<MultiSelectDialog<T>> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey.shade200, width: 1.5),
+      ),
       title: const Text('Выберите элементы'),
       content: SingleChildScrollView(
         child: ListBody(
@@ -35,6 +39,7 @@ class _MultiSelectDialogState<T> extends State<MultiSelectDialog<T>> {
             final isSelected = selected.contains(item);
             return CheckboxListTile(
               value: isSelected,
+              side: BorderSide(color: Colors.grey.shade700),
               title: Text(widget.itemLabel(item)),
               onChanged: (bool? value) {
                 setState(() {
@@ -49,7 +54,7 @@ class _MultiSelectDialogState<T> extends State<MultiSelectDialog<T>> {
           }).toList(),
         ),
       ),
-      actions: [
+    actions: [
         TextButton(
           child: const Text('Отмена'),
           onPressed: () => Navigator.pop(context),
