@@ -180,7 +180,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                 'Название дисциплины*',
                                 style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 18),
                               TextFormField(
                                 controller: nameController,
                                 decoration: InputDecoration(
@@ -211,7 +211,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                 'Выберите вид занятий',
                                 style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
                               ),
-                              const SizedBox(height: 10),
+                              const SizedBox(height: 18),
                               Wrap(
                                 spacing: 12,
                                 runSpacing: 12,
@@ -396,7 +396,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                     selectedTeachers.isEmpty
                                         ? "Выберите из списка преподавателей"
                                         : selectedTeachers.map((s) => s.username).join(', '),
-                                    style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 13),
+                                    style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
                                   ),
                                 ),
                               ),
@@ -466,7 +466,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                     selectedGroups.isEmpty
                                         ? "Выберите из списка групп"
                                         : selectedGroups.map((s) => s.name).join(', '),
-                                    style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 13),
+                                    style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
                                   ),
                                 ),
                               ),

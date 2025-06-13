@@ -7,6 +7,7 @@ import '../../../../bloc/discipline/discipline.dart';
 import '../../../../bloc/discipline/discipline_repository.dart';
 import '../../../../bloc/group/group.dart';
 import '../../../../bloc/user/user.dart';
+import '../../../../components/colors/colors.dart';
 import '../../../../components/multiselect.dart';
 
 class CoursesList extends StatefulWidget {
@@ -51,12 +52,12 @@ class _CoursesList extends State<CoursesList> {
   bool groupError = false;
   bool lecturesError = false;
 
-
   @override
   void initState() {
     super.initState();
     widget.loadCourses;
   }
+
   @override
   void dispose() {
     lectureHoursController.dispose();
@@ -396,9 +397,9 @@ class _CoursesList extends State<CoursesList> {
                                     // Верхняя панель
                                     Row(
                                       children: [
-                                        const Text(
+                                        Text(
                                           "Редактирование дисциплины",
-                                          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w400),
+                                          style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
                                         ),
                                         const Spacer(),
                                         ElevatedButton(
@@ -446,13 +447,18 @@ class _CoursesList extends State<CoursesList> {
                                           },
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor: const Color(0xFF4068EA),
-                                            minimumSize: const Size(130, 52),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(14),
-                                            ),
+                                            foregroundColor: Colors.white,
                                             elevation: 0,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 0),
+                                            minimumSize: const Size(140, 48),
+                                            textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                                           ),
-                                          child: const Text("Сохранить", style: TextStyle(fontSize: 19, color: Colors.white)),
+                                          child: const Text(
+                                            "Сохранить",
+                                          ),
                                         ),
                                         const SizedBox(width: 16),
                                         InkWell(
@@ -463,11 +469,11 @@ class _CoursesList extends State<CoursesList> {
                                           },
                                           borderRadius: BorderRadius.circular(16),
                                           child: Container(
-                                            width: 54,
-                                            height: 54,
+                                            width: 48,
+                                            height: 48,
                                             decoration: BoxDecoration(
                                               color: const Color(0xFF4068EA),
-                                              borderRadius: BorderRadius.circular(16),
+                                              borderRadius: BorderRadius.circular(12),
                                             ),
                                             child: const Icon(
                                               Icons.close,
@@ -481,26 +487,41 @@ class _CoursesList extends State<CoursesList> {
                                     const SizedBox(height: 30),
 
                                     // Название дисциплины
-                                    const Text("Название дисциплины*"),
-                                    const SizedBox(height: 8),
-                                    TextField(
+                                    Text(
+                                      "Название дисциплины*",
+                                      style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+                                    ),
+                                    const SizedBox(height: 18),
+                                    TextFormField(
                                       controller: usernameController,
                                       decoration: InputDecoration(
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                          borderSide: BorderSide(
-                                            color: nameError ? Colors.red : Colors.grey,
-                                            width: 1.5,
-                                          ),
+                                        hintText: 'Введите название дисциплины',
+                                        hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(11),
+                                          borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
                                         ),
-                                        contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                                        errorText: nameError ? 'Обязательное поле' : null,
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(11),
+                                          borderSide: BorderSide(color: MyColors.blueJournal, width: 1.5),
+                                        ),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(11),
+                                          borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                        ),
                                       ),
+                                      validator: (value) => value == null || value.isEmpty ? 'Обязательное поле' : null,
                                     ),
                                     const SizedBox(height: 28),
 
                                     // Виды занятий
-                                    const Text("Выберите вид занятий*"),
+                                    Text(
+                                      "Выберите вид занятий*",
+                                      style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+                                    ),
                                     const SizedBox(height: 10),
                                     Wrap(
                                       spacing: 18,
@@ -533,8 +554,8 @@ class _CoursesList extends State<CoursesList> {
                                                 decoration: BoxDecoration(
                                                   color: isSelected ? const Color(0xFF4068EA) : Colors.transparent,
                                                   border: Border.all(
-                                                    color: isSelected ? const Color(0xFF4068EA) : Colors.grey.shade300,
-                                                    width: 2,
+                                                    color: isSelected ? const Color(0xFF4068EA) : Colors.grey.shade400,
+                                                    width: 1.5,
                                                   ),
                                                   borderRadius: BorderRadius.circular(14),
                                                 ),
@@ -576,7 +597,8 @@ class _CoursesList extends State<CoursesList> {
                                                 child: Column(
                                                   crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: [
-                                                    const Text('Лекции*', style: TextStyle(fontWeight: FontWeight.w500)),
+                                                    const Text('Лекции*',
+                                                        style: TextStyle(fontWeight: FontWeight.w500)),
                                                     const SizedBox(height: 8),
                                                     TextFormField(
                                                       controller: lectureHoursController,
@@ -588,18 +610,22 @@ class _CoursesList extends State<CoursesList> {
                                                         ),
                                                         enabledBorder: OutlineInputBorder(
                                                           borderRadius: BorderRadius.circular(16),
-                                                          borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
+                                                          borderSide:
+                                                              const BorderSide(color: Color(0xFFE5E7EB), width: 1),
                                                         ),
                                                         focusedBorder: OutlineInputBorder(
                                                           borderRadius: BorderRadius.circular(16),
-                                                          borderSide: const BorderSide(color: Color(0xFF4068EA), width: 1.2),
+                                                          borderSide:
+                                                              const BorderSide(color: Color(0xFF4068EA), width: 1.2),
                                                         ),
-                                                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                                        contentPadding:
+                                                            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                                                         filled: true,
                                                         fillColor: Colors.white,
                                                       ),
                                                       validator: (value) {
-                                                        if (selectedTypes.contains('lecture') && (value == null || value.isEmpty)) {
+                                                        if (selectedTypes.contains('lecture') &&
+                                                            (value == null || value.isEmpty)) {
                                                           return 'Обязательное поле';
                                                         }
                                                         return null;
@@ -621,7 +647,8 @@ class _CoursesList extends State<CoursesList> {
                                                 child: Column(
                                                   crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: [
-                                                    const Text('Лабораторные*', style: TextStyle(fontWeight: FontWeight.w500)),
+                                                    const Text('Лабораторные*',
+                                                        style: TextStyle(fontWeight: FontWeight.w500)),
                                                     const SizedBox(height: 8),
                                                     TextFormField(
                                                       controller: labHoursController,
@@ -633,18 +660,22 @@ class _CoursesList extends State<CoursesList> {
                                                         ),
                                                         enabledBorder: OutlineInputBorder(
                                                           borderRadius: BorderRadius.circular(16),
-                                                          borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
+                                                          borderSide:
+                                                              const BorderSide(color: Color(0xFFE5E7EB), width: 1),
                                                         ),
                                                         focusedBorder: OutlineInputBorder(
                                                           borderRadius: BorderRadius.circular(16),
-                                                          borderSide: const BorderSide(color: Color(0xFF4068EA), width: 1.2),
+                                                          borderSide:
+                                                              const BorderSide(color: Color(0xFF4068EA), width: 1.2),
                                                         ),
-                                                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                                        contentPadding:
+                                                            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                                                         filled: true,
                                                         fillColor: Colors.white,
                                                       ),
                                                       validator: (value) {
-                                                        if (selectedTypes.contains('lab') && (value == null || value.isEmpty)) {
+                                                        if (selectedTypes.contains('lab') &&
+                                                            (value == null || value.isEmpty)) {
                                                           return 'Обязательное поле';
                                                         }
                                                         return null;
@@ -658,13 +689,11 @@ class _CoursesList extends State<CoursesList> {
                                       ),
 
                                     // Преподаватель 1
-                                    const Text("Привязать преподавателя"),
-                                    const SizedBox(height: 4),
                                     Text(
-                                      "Выберите одного преподавателя и выберите одну группу",
-                                      style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                                      "Привязать преподавателя",
+                                      style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
                                     ),
-                                    const SizedBox(height: 4),
+                                    const SizedBox(height: 18),
                                     GestureDetector(
                                       onTap: () async {
                                         final selected = await showDialog<List<MyUser>>(
@@ -686,10 +715,16 @@ class _CoursesList extends State<CoursesList> {
                                         decoration: InputDecoration(
                                           border: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(12),
+                                            borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
                                             borderSide: BorderSide(
-                                              color: Colors.grey.shade400,
-                                              width: 1.5,
-                                            ),
+                                                color: Colors.grey.shade400, width: 1.5), // чуть ярче при фокусе
                                           ),
                                           contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                                         ),
@@ -697,6 +732,7 @@ class _CoursesList extends State<CoursesList> {
                                           selectedTeachers.isEmpty
                                               ? "Выберите из списка преподавателей"
                                               : selectedTeachers.map((s) => s.username).join(', '),
+                                          style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
                                         ),
                                       ),
                                     ),
@@ -704,9 +740,14 @@ class _CoursesList extends State<CoursesList> {
                                     if (selectedTeachers.isNotEmpty)
                                       Wrap(
                                         spacing: 8,
+                                        runSpacing: 8,
                                         children: selectedTeachers.map((teacher) {
                                           return Chip(
                                             label: Text(teacher.username),
+                                            side: BorderSide(color: Colors.grey.shade500),
+                                            backgroundColor: Colors.white,
+                                            deleteIcon: Icon(Icons.close, size: 18),
+                                            deleteIconColor: Colors.grey.shade500,
                                             onDeleted: () {
                                               setState(() {
                                                 selectedTeachers.remove(teacher);
@@ -718,15 +759,18 @@ class _CoursesList extends State<CoursesList> {
                                     const SizedBox(height: 20),
 
                                     // Группа
-                                    const Text("Привязать группу"),
-                                    const SizedBox(height: 4),
+                                    Text(
+                                      "Привязать группу",
+                                      style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+                                    ),
+                                    const SizedBox(height: 18),
                                     GestureDetector(
                                       onTap: () async {
                                         final selected = await showDialog<List<Group>>(
                                           context: context,
                                           builder: (_) => MultiSelectDialog(
                                             items: widget.groups,
-                                            initiallySelected:  selectedGroups,
+                                            initiallySelected: selectedGroups,
                                             itemLabel: (group) => group.name,
                                           ),
                                         );
@@ -741,27 +785,39 @@ class _CoursesList extends State<CoursesList> {
                                         decoration: InputDecoration(
                                           border: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(12),
+                                            borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
                                             borderSide: BorderSide(
-                                              color: Colors.grey.shade400,
-                                              width: 1.5,
-                                            ),
+                                                color: Colors.grey.shade400, width: 1.5), // чуть ярче при фокусе
                                           ),
                                           contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                                         ),
                                         child: Text(
                                           selectedGroups.isEmpty
                                               ? "Выберите из списка групп"
-                                              :  selectedGroups.map((s) => s.name).join(', '),
+                                              : selectedGroups.map((s) => s.name).join(', '),
+                                          style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
                                         ),
                                       ),
                                     ),
                                     const SizedBox(height: 18),
-                                    if ( selectedGroups.isNotEmpty)
+                                    if (selectedGroups.isNotEmpty)
                                       Wrap(
                                         spacing: 8,
-                                        children:  selectedGroups.map((group) {
+                                        runSpacing: 8,
+                                        children: selectedGroups.map((group) {
                                           return Chip(
                                             label: Text(group.name),
+                                            side: BorderSide(color: Colors.grey.shade500),
+                                            backgroundColor: Colors.white,
+                                            deleteIcon: Icon(Icons.close, size: 18),
+                                            deleteIconColor: Colors.grey.shade500,
                                             onDeleted: () {
                                               setState(() {
                                                 selectedGroups.remove(group);
