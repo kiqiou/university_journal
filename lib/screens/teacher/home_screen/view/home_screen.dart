@@ -50,7 +50,10 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
   Future<void> loadSessions() async {
     log("Загрузка данных сессий...");
     final journalRepository = JournalRepository();
-    final list = await journalRepository.journalData(courseId: disciplines[selectedDisciplineIndex!].id, groupId: selectedGroupId!,);
+    final list = await journalRepository.journalData(
+      courseId: disciplines[selectedDisciplineIndex!].id,
+      groupId: selectedGroupId!,
+    );
     setState(() {
       sessions = list;
       isLoading = false;
@@ -170,60 +173,62 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                               );
                             }
                             return success;
-                          }, isEditable: true,
+                          },
+                          isEditable: true,
                         );
                       case TeacherContentScreen.journal:
                         return selectedGroupId != null
                             ? Scaffold(
-                          appBar: AppBar(
-                            title: Text(
-                              'Журнал',
-                              style: TextStyle(color: Colors.grey.shade800, fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          body: Column(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(top: 20.0, right: 20.0),
-                                child: Align(
-                                  alignment: Alignment.centerRight,
-                                  child: ElevatedButton(
-                                    onPressed: () => _showAddEventDialog(context),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: MyColors.blueJournal,
-                                      padding: EdgeInsets.symmetric(horizontal: 25, vertical: 23),
-                                      textStyle: TextStyle(fontSize: 18),
-                                      minimumSize: Size(170, 50),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      'Добавить занятие',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontFamily: 'Montserrat',
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
+                                appBar: AppBar(
+                                  automaticallyImplyLeading: false,
+                                  title: Text(
+                                    'Журнал',
+                                    style: TextStyle(color: Colors.grey.shade800, fontWeight: FontWeight.bold),
                                   ),
                                 ),
-                              ),
-                              Expanded(
-                                child: JournalTable(
-                                  key: tableKey,
-                                  isLoading: isLoading,
-                                  sessions: sessions,
-                                  onSessionsChanged: (updatedSessions) {
-                                    setState(() {
-                                      sessions = updatedSessions;
-                                    });
-                                  },
+                                body: Column(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 20.0, right: 20.0),
+                                      child: Align(
+                                        alignment: Alignment.centerRight,
+                                        child: ElevatedButton(
+                                          onPressed: () => _showAddEventDialog(context),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: MyColors.blueJournal,
+                                            padding: EdgeInsets.symmetric(horizontal: 25, vertical: 23),
+                                            textStyle: TextStyle(fontSize: 18),
+                                            minimumSize: Size(170, 50),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(10),
+                                            ),
+                                          ),
+                                          child: Text(
+                                            'Добавить занятие',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontFamily: 'Montserrat',
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: JournalTable(
+                                        key: tableKey,
+                                        isLoading: isLoading,
+                                        sessions: sessions,
+                                        onSessionsChanged: (updatedSessions) {
+                                          setState(() {
+                                            sessions = updatedSessions;
+                                          });
+                                        }, isEditable: true,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ],
-                          ),
-                        )
+                              )
                             : const Center(child: Text('Выберите группу'));
                     }
                   },

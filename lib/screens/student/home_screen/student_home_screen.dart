@@ -176,23 +176,33 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                         );
                       case StudentContentScreen.journal:
                         return selectedDisciplineIndex != null
-                            ? Column(
-                          children: [
-                            Expanded(
-                              child: JournalTable(
-                                key: tableKey,
-                                isLoading: isLoading,
-                                sessions: sessions,
-                                onSessionsChanged: (updatedSessions) {
-                                  setState(() {
-                                    sessions = updatedSessions;
-                                  });
-                                },
-                              ),
+                            ? Scaffold(
+                          appBar: AppBar(
+                            automaticallyImplyLeading: false,
+                            title: Text(
+                              'Журнал',
+                              style: TextStyle(color: Colors.grey.shade800, fontWeight: FontWeight.bold),
                             ),
-                          ],
+                          ),
+                          body: Column(
+                            children: [
+                              SizedBox(height: 50,),
+                              Expanded(
+                                child: JournalTable(
+                                  key: tableKey,
+                                  isLoading: isLoading,
+                                  sessions: sessions,
+                                  onSessionsChanged: (updatedSessions) {
+                                    setState(() {
+                                      sessions = updatedSessions;
+                                    });
+                                  }, isEditable: false,
+                                ),
+                              ),
+                            ],
+                          ),
                         )
-                            : Text('Выберите Дисциплину');
+                            : Center(child: Text('Выберите дисциплину'));
                     }
                   },
                 ),

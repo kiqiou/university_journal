@@ -111,7 +111,7 @@ class _AddTeacherDialogState extends State<AddTeacherDialog> {
                                       position: position,
                                       bio: bio,
                                       photoBytes: _selectedPhotoBytes,
-                                      photoName: _photoName, // обязательно передай имя файла
+                                      photoName: _photoName,
                                     );
                                     widget.onTeacherAdded();
                                     Navigator.of(context).pop();
@@ -247,7 +247,7 @@ class _AddTeacherDialogState extends State<AddTeacherDialog> {
 
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
-      hintText: 'Введите название дисциплины',
+      hintText: hint,
       hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
       filled: true,
       fillColor: Colors.white,

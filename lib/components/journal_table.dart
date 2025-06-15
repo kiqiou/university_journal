@@ -9,10 +9,11 @@ import 'colors/colors.dart';
 
 class JournalTable extends StatefulWidget {
   final bool isLoading;
+  final bool isEditable;
   final List<Session> sessions;
   final void Function(List<Session>)? onSessionsChanged;
 
-  const JournalTable({super.key, required this.isLoading, required this.sessions, this.onSessionsChanged,});
+  const JournalTable({super.key, required this.isLoading, required this.sessions, this.onSessionsChanged, required this.isEditable});
 
   @override
   State<JournalTable> createState() => JournalTableState();
@@ -23,6 +24,7 @@ class JournalTableState extends State<JournalTable> {
   List<GridColumn> columns = [];
   List<Session> _sessions = [];
   int? _selectedColumnIndex;
+
 
   @override
   void initState() {
@@ -44,6 +46,7 @@ class JournalTableState extends State<JournalTable> {
         columns,
         grouped,
         sessions,
+        widget.isEditable,
         onUpdate: (sessionId, studentId, status, grade) async {
           final repository = JournalRepository();
           final success = await repository.updateAttendance(
@@ -64,14 +67,16 @@ class JournalTableState extends State<JournalTable> {
   }
 
   void _onHeaderTap(int index) {
-    setState(() {
-      _selectedColumnIndex = index;
-      columns = buildColumns(
-        sessions: _sessions,
-        selectedColumnIndex: _selectedColumnIndex,
-        onHeaderTap: _onHeaderTap,
-      );
-    });
+    if (widget.isEditable) {
+      setState(() {
+        _selectedColumnIndex = index;
+        columns = buildColumns(
+          sessions: _sessions,
+          selectedColumnIndex: _selectedColumnIndex,
+          onHeaderTap: _onHeaderTap,
+        );
+      });
+    }
   }
 
   @override
@@ -136,15 +141,14 @@ class JournalTableState extends State<JournalTable> {
 
 /// Источник данных для таблицы
 class JournalDataSource extends DataGridSource {
+  final Future<void> Function(int sessionId, int studentId, String status, String grade)? onUpdate;
+  final Map<String, TextEditingController> _controllers = {};
+  final Map<String, Map<String, Session>> _sessionData;
   final List<DataGridRow> _rows;
   final List<GridColumn> columns;
   final List<String> _dates;
-  final Map<String, Map<String, Session>> _sessionData;
   final List<Session> sessions;
-
-  final Future<void> Function(int sessionId, int studentId, String status, String grade)? onUpdate;
-
-  final Map<String, TextEditingController> _controllers = {};
+  final bool isEditable;
 
   TextEditingController _getController(String key, String initialText) {
     if (!_controllers.containsKey(key)) {
@@ -160,7 +164,7 @@ class JournalDataSource extends DataGridSource {
   JournalDataSource(
       this.columns,
       this._sessionData,
-      this.sessions, {
+      this.sessions, this.isEditable, {
         this.onUpdate,
       })  : _dates = extractUniqueDateTypes(sessions).toList(),
         _rows = _buildRows(_sessionData, extractUniqueDateTypes(sessions).toList());
@@ -253,16 +257,21 @@ class JournalDataSource extends DataGridSource {
             border: Border.all(color: Colors.grey.shade400),
           ),
           child: IntrinsicHeight(
-            // чтобы дочерние виджеты растянулись по высоте
             child: Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: statusController,
                     textAlign: TextAlign.center,
-                    decoration: const InputDecoration(
+                    readOnly: !isEditable,
+                    //enabled: isEditable,
+                    style: TextStyle(
+                      color: Colors.grey.shade700,
+                    ),
+                    decoration: InputDecoration(
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                      disabledBorder: InputBorder.none,
                     ),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp(r'[нН]')),
@@ -294,9 +303,15 @@ class JournalDataSource extends DataGridSource {
                   child: TextField(
                     controller: gradeController,
                     textAlign: TextAlign.center,
-                    decoration: const InputDecoration(
+                    readOnly: !isEditable,
+                    //enabled: isEditable,
+                    style: TextStyle(
+                      color: Colors.grey.shade700,
+                    ),
+                    decoration: InputDecoration(
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                      disabledBorder: InputBorder.none,
                     ),
                     inputFormatters: [
                       LengthLimitingTextInputFormatter(2),
