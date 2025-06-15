@@ -173,47 +173,58 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                           }, isEditable: true,
                         );
                       case TeacherContentScreen.journal:
-                        return selectedGroupId != null ? Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(top: 35.0, right: 50.0),
-                              child: Align(
-                                alignment: Alignment.centerRight,
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    _showAddEventDialog(context);
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: MyColors.blueJournal,
-                                    padding: EdgeInsets.symmetric(horizontal: 25, vertical: 23),
-                                    textStyle: TextStyle(fontSize: 18),
-                                    minimumSize: Size(170, 50),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
+                        return selectedGroupId != null
+                            ? Scaffold(
+                          appBar: AppBar(
+                            title: Text(
+                              'Журнал',
+                              style: TextStyle(color: Colors.grey.shade800, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          body: Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(top: 20.0, right: 20.0),
+                                child: Align(
+                                  alignment: Alignment.centerRight,
+                                  child: ElevatedButton(
+                                    onPressed: () => _showAddEventDialog(context),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: MyColors.blueJournal,
+                                      padding: EdgeInsets.symmetric(horizontal: 25, vertical: 23),
+                                      textStyle: TextStyle(fontSize: 18),
+                                      minimumSize: Size(170, 50),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
                                     ),
-                                  ),
-                                  child: Text(
-                                    'Добавить занятие',
-                                    style: TextStyle(
-                                        color: Colors.white, fontFamily: 'Montserrat', fontWeight: FontWeight.w700),
+                                    child: Text(
+                                      'Добавить занятие',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: 'Montserrat',
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            Expanded(
-                              child: JournalTable(
-                                key: tableKey,
-                                isLoading: isLoading,
-                                sessions: sessions,
-                                onSessionsChanged: (updatedSessions) {
-                                  setState(() {
-                                    sessions = updatedSessions;
-                                  });
-                                },
+                              Expanded(
+                                child: JournalTable(
+                                  key: tableKey,
+                                  isLoading: isLoading,
+                                  sessions: sessions,
+                                  onSessionsChanged: (updatedSessions) {
+                                    setState(() {
+                                      sessions = updatedSessions;
+                                    });
+                                  },
+                                ),
                               ),
-                            ),
-                          ],
-                        ) : Text('Выберите группу');
+                            ],
+                          ),
+                        )
+                            : const Center(child: Text('Выберите группу'));
                     }
                   },
                 ),

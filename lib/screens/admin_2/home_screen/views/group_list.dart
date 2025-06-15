@@ -345,14 +345,21 @@ class _GroupsListState extends State<GroupsList> {
                                                 onPressed: () async {
                                                   if (_formKey.currentState!.validate()) {
                                                     _formKey.currentState!.save();
-
-                                                    List<int> studentIds = selectedStudents.map((e) => e.id).toList();
-                                                    int facultyId = selectedFacultyIndex! + 1;
-                                                    int courseId = selectedCourseIndex! + 1;
-
                                                     final groupRepository = GroupRepository();
-
                                                     final groupId = widget.groups[selectedIndex!].id;
+
+                                                    List<int>? studentIds = selectedStudents.isNotEmpty
+                                                        ? selectedStudents.map((e) => e.id).toList()
+                                                        : null;
+
+                                                    int? facultyId = selectedFacultyIndex != null
+                                                        ? selectedFacultyIndex! + 1
+                                                        : null;
+
+                                                    int? courseId = selectedCourseIndex != null
+                                                        ? selectedCourseIndex! + 1
+                                                        : null;
+
                                                     final result = await groupRepository.updateGroup(
                                                       groupId: groupId,
                                                       name: nameController.text,
@@ -478,12 +485,6 @@ class _GroupsListState extends State<GroupsList> {
                                                     selectedCourseIndex = value;
                                                   });
                                                 },
-                                                validator: (value) {
-                                                  if (value == null) {
-                                                    return 'Выберите курс';
-                                                  }
-                                                  return null;
-                                                },
                                               ),
                                               const SizedBox(height: 28),
                                               Text(
@@ -523,12 +524,6 @@ class _GroupsListState extends State<GroupsList> {
                                                   setState(() {
                                                     selectedFacultyIndex = value;
                                                   });
-                                                },
-                                                validator: (value) {
-                                                  if (value == null) {
-                                                    return 'Выберите курс';
-                                                  }
-                                                  return null;
                                                 },
                                               ),
                                               const SizedBox(height: 28),

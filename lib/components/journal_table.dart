@@ -5,7 +5,6 @@ import 'package:collection/collection.dart';
 
 import '../../../bloc/journal/journal.dart';
 import '../bloc/journal/journal_repository.dart';
-import '../bloc/user/user.dart';
 import 'colors/colors.dart';
 
 class JournalTable extends StatefulWidget {
@@ -77,15 +76,7 @@ class JournalTableState extends State<JournalTable> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Журнал',
-          style: TextStyle(color: Colors.grey.shade800, fontWeight: FontWeight.bold),
-        ),
-        automaticallyImplyLeading: false,
-      ),
-      body: Column(
+    return Column(
         children: [
           if (_selectedColumnIndex != null)
             ElevatedButton(
@@ -127,18 +118,19 @@ class JournalTableState extends State<JournalTable> {
                 style: TextStyle(color: Colors.white, fontFamily: 'Montserrat', fontWeight: FontWeight.w700),
               ),
             ),
-          widget.isLoading || dataSource == null
-              ? const Center(child: CircularProgressIndicator())
-              : SfDataGrid(
-            gridLinesVisibility: GridLinesVisibility.none,
-            headerGridLinesVisibility: GridLinesVisibility.none,
-            source: dataSource!,
-            columns: columns,
-            headerRowHeight: 100,
+          Expanded(
+            child: widget.isLoading || dataSource == null
+                ? const Center(child: CircularProgressIndicator())
+                : SfDataGrid(
+              gridLinesVisibility: GridLinesVisibility.none,
+              headerGridLinesVisibility: GridLinesVisibility.none,
+              source: dataSource!,
+              columns: columns,
+              headerRowHeight: 100,
+            ),
           ),
         ],
-      ),
-    );
+      );
   }
 }
 
