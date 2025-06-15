@@ -35,6 +35,11 @@ class Admin2SideNavigationMenu extends StatefulWidget {
 }
 
 class _Admin2SideNavigationMenuState extends State<Admin2SideNavigationMenu> {
+  final double _collapsedWidth = 100;
+  final double _expandedWidth = 300;
+  bool isHovered = false;
+  int? selectedIndex;
+
   final List<IconData> _icons = [
     Icons.person_outline,
     Icons.groups_outlined,
@@ -48,10 +53,6 @@ class _Admin2SideNavigationMenuState extends State<Admin2SideNavigationMenu> {
     'Добавить студента',
     'Добавить группу',
   ];
-
-  bool isHovered = false;
-  final double _collapsedWidth = 100;
-  final double _expandedWidth = 300;
 
   @override
   Widget build(BuildContext context) {
@@ -159,12 +160,20 @@ class _Admin2SideNavigationMenuState extends State<Admin2SideNavigationMenu> {
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 4.0),
                             child: InkWell(
-                              onTap: functions[index],
+                              onTap: () {
+                                functions[index]();
+                                if(index < 2){
+                                  setState(() {
+                                    selectedIndex = index;
+                                  });
+                                }
+                              },
                               child: MyIconContainer(
                                 icon: _icons[index],
                                 width: (widget.isExpanded ? 250 : 50),
                                 text: _texts[index],
                                 withText: widget.isExpanded,
+                                isSelected: selectedIndex == index,
                               ),
                             ),
                           ),

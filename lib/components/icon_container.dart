@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'colors/colors.dart';
+
 class MyIconContainer extends StatelessWidget {
   final double borderRadius;
   final IconData icon;
@@ -7,6 +9,7 @@ class MyIconContainer extends StatelessWidget {
   final double width;
   final double height;
   Color? containerColor;
+  bool? isSelected;
   bool? withText;
   String? text;
 
@@ -19,6 +22,7 @@ class MyIconContainer extends StatelessWidget {
     this.width = 50,
     this.containerColor,
     this.withText = false,
+    this.isSelected = false,
     this.text,
   });
 
@@ -30,7 +34,7 @@ class MyIconContainer extends StatelessWidget {
       color: containerColor,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(borderRadius),
-        border: Border.all(color: Colors.grey.shade400),
+        border: Border.all(color: isSelected! ? MyColors.blueJournal : Colors.grey.shade400),
       ),
       child: withText!
           ? Align(

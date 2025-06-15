@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/bloc/auth/authentication_bloc.dart';
 import 'package:university_journal/components/icon_container.dart';
 
-import '../../../../components/journal_table.dart';
+import 'journal_table.dart';
 
 class SideNavigationMenu extends StatefulWidget {
   final Function(String type) onSelectType;
@@ -36,6 +36,7 @@ class _SideNavigationMenuState extends State<SideNavigationMenu> {
   final double _collapsedWidth = 100;
   final double _expandedWidth = 250;
   bool isHovered = false;
+  int? selectedIndex;
 
   final List<IconData> _icons = [
     Icons.book,
@@ -153,6 +154,9 @@ class _SideNavigationMenuState extends State<SideNavigationMenu> {
                           InkWell(
                             onTap: () {
                               widget.onProfileTap();
+                              setState(() {
+                                selectedIndex = -2;
+                              });
                             },
                             child: Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 15.0),
@@ -164,6 +168,7 @@ class _SideNavigationMenuState extends State<SideNavigationMenu> {
                                       width: (widget.isExpanded ? 250 : 50),
                                       withText: widget.isExpanded,
                                       text: state.user!.username,
+                                      isSelected: selectedIndex == -2,
                                     );
                                   } else if (state.status == AuthenticationStatus.unauthenticated) {
                                     return MyIconContainer(
@@ -213,6 +218,9 @@ class _SideNavigationMenuState extends State<SideNavigationMenu> {
                           InkWell(
                             onTap: () {
                               widget.onGroupSelect();
+                              setState(() {
+                                selectedIndex = -1;
+                              });
                             },
                             child: Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 4.0),
@@ -221,6 +229,7 @@ class _SideNavigationMenuState extends State<SideNavigationMenu> {
                                 width: (widget.isExpanded ? 250 : 50),
                                 text: state.user?.role == 'Студент' ? 'Выбор дисциплины' : 'Выбор группы',
                                 withText: widget.isExpanded,
+                                isSelected: selectedIndex == -1,
                               ),
                             ),
                           ),
@@ -254,6 +263,9 @@ class _SideNavigationMenuState extends State<SideNavigationMenu> {
                                     padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 4.0),
                                     child: InkWell(
                                       onTap: () {
+                                        setState(() {
+                                          selectedIndex = index;
+                                        });
                                         if (index == _icons.length - 1) {
                                           widget.onThemeTap();
                                         } else {
@@ -266,6 +278,7 @@ class _SideNavigationMenuState extends State<SideNavigationMenu> {
                                         width: (widget.isExpanded ? 250 : 50),
                                         text: _texts[index],
                                         withText: widget.isExpanded,
+                                        isSelected: selectedIndex == index,
                                       ),
                                     ),
                                   ),
