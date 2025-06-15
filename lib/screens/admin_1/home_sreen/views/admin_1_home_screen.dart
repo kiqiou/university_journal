@@ -68,7 +68,7 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
     try {
       final list = await userRepository.getTeacherList();
       setState(() {
-        teachers = list!;
+        teachers = list!..sort((a, b) => a.username.compareTo(b.username));
         isLoading = false;
       });
     } catch (e) {
@@ -83,7 +83,7 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
     try {
       final list = await disciplineRepository.getCoursesList();
       setState(() {
-        disciplines = list!;
+        disciplines = list!..sort((a, b) => a.name.compareTo(b.name));
         isLoading = false;
       });
     } catch (e) {

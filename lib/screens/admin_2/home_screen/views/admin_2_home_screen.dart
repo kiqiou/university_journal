@@ -37,7 +37,7 @@ class _Admin2HomeScreenState extends State<Admin2HomeScreen> {
     try {
       final list = await userRepository.getStudentList();
       setState(() {
-        students = list!;
+        students = list!..sort((a, b) => a.username.compareTo(b.username));
         isLoading = false;
       });
     } catch (e) {
