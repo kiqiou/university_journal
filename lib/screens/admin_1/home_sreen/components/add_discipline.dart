@@ -224,48 +224,79 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
 
                               // Виды занятий
                               Text(
-                                'Выберите вид занятий',
+                                "Выберите вид занятий*",
                                 style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
                               ),
-                              const SizedBox(height: 18),
+                              const SizedBox(height: 10),
                               Wrap(
-                                spacing: 12,
-                                runSpacing: 12,
-                                children: lessonTypes.map((type) {
-                                  final isSelected = selectedLessonTypes.contains(type);
-                                  return GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        if (isSelected) {
-                                          selectedLessonTypes.remove(type);
-                                        } else {
-                                          selectedLessonTypes.add(type);
-                                        }
-                                      });
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
-                                      decoration: BoxDecoration(
-                                        color: isSelected ? const Color(0xFF4068EA) : Colors.white,
-                                        border: Border.all(
-                                          color: isSelected ? const Color(0xFF4068EA) : Colors.grey.shade400,
-                                          width: 1.5,
+                                spacing: 18,
+                                runSpacing: 14,
+                                children: [
+                                  ...[
+                                    {'key': 'lecture', 'label': 'Лекции'},
+                                    {'key': 'seminar', 'label': 'Семинар'},
+                                    {'key': 'practice', 'label': 'Практика'},
+                                    {'key': 'lab', 'label': 'Лабораторные'},
+                                    {'key': 'current', 'label': 'Текущая аттестация'},
+                                    {'key': 'final', 'label': 'Промежуточная аттестация'},
+                                  ].map((type) {
+                                    final isSelected = selectedTypes.contains(type['key']);
+                                    return IntrinsicWidth(
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            if (isSelected) {
+                                              selectedTypes.remove(type['key']);
+                                            } else {
+                                              selectedTypes.add(type['key']!);
+                                            }
+                                          });
+                                        },
+                                        child: Container(
+                                          height: 48,
+                                          margin: const EdgeInsets.symmetric(vertical: 2),
+                                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                                          decoration: BoxDecoration(
+                                            color: Colors.transparent,
+                                            borderRadius: BorderRadius.circular(14),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              AnimatedContainer(
+                                                duration: Duration(milliseconds: 150),
+                                                width: 50,
+                                                height: 64,
+                                                decoration: BoxDecoration(
+                                                  color: isSelected ? Color(0xFF4068EA) : Colors.blueJurnal,
+                                                  border: Border.all(
+                                                    color: Color(0xFF4068EA),
+                                                    width: 2,
+                                                  ),
+                                                  borderRadius: BorderRadius.circular(8),
+                                                ),
+                                                child: isSelected
+                                                    ? Icon(Icons.check, color: Colors.white, size: 22)
+                                                    : null,
+                                              ),
+                                              const SizedBox(width: 12),
+                                              Text(
+                                                type['label']!,
+                                                style: TextStyle(
+                                                  color: Colors.black87,
+                                                  fontWeight: FontWeight.w500,
+                                                  fontSize: 18,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                        borderRadius: BorderRadius.circular(14),
                                       ),
-                                      child: Text(
-                                        type,
-                                        style: TextStyle(
-                                          color: isSelected ? Colors.white : Colors.black,
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
+                                    );
+                                  })
+                                ],
                               ),
-                              const SizedBox(height: 24),
+                              const SizedBox(height: 28),
 
                               // Контейнеры для часов
                               if (selectedLessonTypes.isNotEmpty)

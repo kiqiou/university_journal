@@ -266,6 +266,7 @@ class _CoursesList extends State<CoursesList> {
                   ),
                 ),
                 // Окно удаления преподавателя
+
                 if (showDeleteDialog && selectedIndex != null)
                   Positioned(
                     top: 32,
@@ -375,6 +376,7 @@ class _CoursesList extends State<CoursesList> {
                     ),
                   ),
                 // Окно редактирования информации
+
                 if (showEditDialog)
                   Positioned(
                     top: 0,
@@ -567,27 +569,37 @@ class _CoursesList extends State<CoursesList> {
                                               child: Container(
                                                 height: 48,
                                                 margin: const EdgeInsets.symmetric(vertical: 2),
-                                                padding: const EdgeInsets.symmetric(horizontal: 20),
+                                                padding: const EdgeInsets.symmetric(horizontal: 16),
                                                 decoration: BoxDecoration(
-                                                  color: isSelected ? const Color(0xFF4068EA) : Colors.transparent,
-                                                  border: Border.all(
-                                                    color: isSelected ? const Color(0xFF4068EA) : Colors.grey.shade400,
-                                                    width: 1.5,
-                                                  ),
+                                                  color: Colors.transparent,
                                                   borderRadius: BorderRadius.circular(14),
                                                 ),
                                                 child: Row(
                                                   mainAxisSize: MainAxisSize.min,
                                                   children: [
-                                                    if (isSelected)
-                                                      const Icon(Icons.check, color: Colors.white, size: 22),
-                                                    if (isSelected) const SizedBox(width: 6),
+                                                    AnimatedContainer(
+                                                      duration: Duration(milliseconds: 150),
+                                                      width: 50,
+                                                      height: 64,
+                                                      decoration: BoxDecoration(
+                                                        color: isSelected ? Color(0xFF4068EA) : Colors.blueJurnal,
+                                                        border: Border.all(
+                                                          color: Color(0xFF4068EA),
+                                                          width: 2,
+                                                        ),
+                                                        borderRadius: BorderRadius.circular(8),
+                                                      ),
+                                                      child: isSelected
+                                                          ? Icon(Icons.check, color: Colors.white, size: 22)
+                                                          : null,
+                                                    ),
+                                                    const SizedBox(width: 12),
                                                     Text(
                                                       type['label']!,
                                                       style: TextStyle(
-                                                        color: isSelected ? Colors.white : Colors.black87,
+                                                        color: Colors.black87,
                                                         fontWeight: FontWeight.w500,
-                                                        fontSize: 16,
+                                                        fontSize: 18,
                                                       ),
                                                     ),
                                                   ],
@@ -600,19 +612,28 @@ class _CoursesList extends State<CoursesList> {
                                     ),
                                     const SizedBox(height: 28),
 
-                                    //часы
-                                    if (selectedLessonTypes.isNotEmpty)
+                                    if (selectedTypes.isNotEmpty)
                                       ...List.generate(
-                                        (selectedLessonTypes.length / 2).ceil(),
+                                        (selectedTypes.length / 2).ceil(),
                                             (rowIndex) {
                                           final start = rowIndex * 2;
-                                          final end = (start + 2 < selectedLessonTypes.length) ? start + 2 : selectedLessonTypes.length;
-                                          final rowTypes = selectedLessonTypes.sublist(start, end);
+                                          final end = (start + 2 < selectedTypes.length) ? start + 2 : selectedTypes.length;
+                                          final rowTypes = selectedTypes.sublist(start, end);
                                           return Row(
-                                            children: rowTypes.map((type) {
+                                            children: rowTypes.map((typeKey) {
+                                              final type = [
+                                                {'key': 'lecture', 'label': 'Лекции'},
+                                                {'key': 'seminar', 'label': 'Семинар'},
+                                                {'key': 'practice', 'label': 'Практика'},
+                                                {'key': 'lab', 'label': 'Лабораторные'},
+                                                {'key': 'current', 'label': 'Текущая аттестация'},
+                                                {'key': 'final', 'label': 'Промежуточная аттестация'},
+                                              ].firstWhere((t) => t['key'] == typeKey);
+
+                                              // hoursControllers должен быть Map<String, TextEditingController>
                                               return Expanded(
                                                 child: Container(
-                                                  margin: EdgeInsets.only(right: rowTypes.last == type ? 0 : 12, bottom: 12),
+                                                  margin: EdgeInsets.only(right: rowTypes.last == typeKey ? 0 : 12, bottom: 12),
                                                   padding: EdgeInsets.all(16),
                                                   decoration: BoxDecoration(
                                                     color: Colors.white,
@@ -621,10 +642,16 @@ class _CoursesList extends State<CoursesList> {
                                                   child: Column(
                                                     crossAxisAlignment: CrossAxisAlignment.start,
                                                     children: [
-                                                      Text('$type*', style: TextStyle(fontWeight: FontWeight.w500)),
+                                                      Text(
+                                                        '${type['label']}*',
+                                                        style: TextStyle(
+                                                          fontWeight: FontWeight.w500,
+                                                          color: Color(0xFF9CA3AF),
+                                                        ),
+                                                      ),
                                                       SizedBox(height: 8),
                                                       TextFormField(
-                                                        controller: hoursControllers[type],
+                                                        controller: hoursControllers[typeKey],
                                                         keyboardType: TextInputType.number,
                                                         decoration: InputDecoration(
                                                           hintText: 'Введите часы',
@@ -644,7 +671,7 @@ class _CoursesList extends State<CoursesList> {
                                                           fillColor: Colors.white,
                                                         ),
                                                         validator: (value) {
-                                                          if (selectedLessonTypes.contains(type) && (value == null || value.isEmpty)) {
+                                                          if (selectedTypes.contains(typeKey) && (value == null || value.isEmpty)) {
                                                             return 'Обязательное поле';
                                                           }
                                                           return null;
