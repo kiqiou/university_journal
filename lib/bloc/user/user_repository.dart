@@ -29,14 +29,16 @@ class UserRepository {
       if (roleId == 1) {
         if (position != null) request.fields['position'] = position;
         if (bio != null) request.fields['bio'] = bio;
-        request.files.add(
-          http.MultipartFile.fromBytes(
-            'photo',
-            photoBytes as List<int>,
-            filename: photoName,
-            contentType: MediaType.parse(lookupMimeType(photoName!) ?? 'application/octet-stream'),
-          ),
-        );
+        if (photoBytes != null && photoName != null) {
+          request.files.add(
+            http.MultipartFile.fromBytes(
+              'photo',
+              photoBytes,
+              filename: photoName,
+              contentType: MediaType.parse(lookupMimeType(photoName) ?? 'application/octet-stream'),
+            ),
+          );
+        }
       } else if (roleId == 5 && groupId != null) {
         request.fields['group_id'] = groupId.toString();
       }
