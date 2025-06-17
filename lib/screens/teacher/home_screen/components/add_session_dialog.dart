@@ -250,9 +250,8 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
                 Text(
                   'Добавить занятие в журнал',
                   style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey,
+                    fontSize: 15,
+                    color: Colors.grey.shade700,
                   ),
                 ),
                 Row(

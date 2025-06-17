@@ -13,7 +13,7 @@ import '../../../../bloc/user/user.dart';
 import '../../../../components/colors/colors.dart';
 import '../../../../components/journal_table.dart';
 import '../../account_screen/account_screen.dart';
-import '../components/add_classes_dialog.dart';
+import '../components/add_session_dialog.dart';
 import '../../../../components/theme_table.dart';
 
 enum TeacherContentScreen { journal, account, theme }
@@ -131,7 +131,6 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     tableKey.currentState?.updateDataSource(filtered, students);
   }
 
-
   void _showAccountScreen() {
     setState(() {
       currentScreen = TeacherContentScreen.account;
@@ -206,65 +205,79 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                       case TeacherContentScreen.journal:
                         return selectedGroupId != null
                             ? Scaffold(
-                                appBar: AppBar(
-                                  automaticallyImplyLeading: false,
-                                  title: Text(
-                                    'Журнал',
-                                    style: TextStyle(
-                                        color: Colors.grey.shade800,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
                                 body: Column(
                                   children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                          top: 20.0, right: 20.0),
-                                      child: Align(
-                                        alignment: Alignment.centerRight,
-                                        child: ElevatedButton(
-                                          onPressed: () =>
-                                              _showAddEventDialog(context),
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor:
+                                    SizedBox(height: 40,),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          selectedSessionsType == 'Все'
+                                              ? 'Журнал'
+                                              : selectedSessionsType,
+                                          style: TextStyle(
+                                              color: Colors.grey.shade800,
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        Spacer(),
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              top: 20.0, right: 20.0),
+                                          child: Align(
+                                            alignment: Alignment.centerRight,
+                                            child: ElevatedButton(
+                                              onPressed: () =>
+                                                  _showAddEventDialog(context),
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor:
                                                 MyColors.blueJournal,
-                                            padding: EdgeInsets.symmetric(
-                                                horizontal: 25, vertical: 23),
-                                            textStyle: TextStyle(fontSize: 18),
-                                            minimumSize: Size(170, 50),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
+                                                padding: EdgeInsets.symmetric(
+                                                    horizontal: 25, vertical: 23),
+                                                textStyle: TextStyle(fontSize: 18),
+                                                minimumSize: Size(170, 50),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
                                                   BorderRadius.circular(10),
-                                            ),
-                                          ),
-                                          child: Text(
-                                            'Добавить занятие',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontFamily: 'Montserrat',
-                                              fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
+                                              child: Text(
+                                                'Добавить занятие',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontFamily: 'Montserrat',
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ),
+                                      ],
                                     ),
+                                    SizedBox(height: 40,),
                                     FutureBuilder<Map<String, dynamic>>(
                                       future: journalDataFuture,
                                       builder: (context, snapshot) {
                                         if (journalDataFuture == null) {
-                                          return Center(child: Text('Выберите группу'));
+                                          return Center(
+                                              child: Text('Выберите группу'));
                                         }
-                                        if (snapshot.connectionState == ConnectionState.waiting) {
-                                          return Center(child: CircularProgressIndicator());
+                                        if (snapshot.connectionState ==
+                                            ConnectionState.waiting) {
+                                          return Center(
+                                              child:
+                                                  CircularProgressIndicator());
                                         }
                                         if (snapshot.hasError) {
-                                          return Center(child: Text('Ошибка загрузки'));
+                                          return Center(
+                                              child: Text('Ошибка загрузки'));
                                         }
                                         if (!snapshot.hasData) {
-                                          return Center(child: Text('Нет данных'));
+                                          return Center(
+                                              child: Text('Нет данных'));
                                         }
 
-                                        final students = snapshot.data!['students'] as List<MyUser>;
+                                        final students = snapshot
+                                            .data!['students'] as List<MyUser>;
 
                                         return Expanded(
                                           child: JournalTable(
@@ -273,10 +286,13 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                             sessions: sessions,
                                             isEditable: true,
                                             isLoading: false,
-                                            onSessionsChanged: (updatedSessions) {
-                                              print('Загружено занятий: $updatedSessions');
+                                            onSessionsChanged:
+                                                (updatedSessions) {
+                                              print(
+                                                  'Загружено занятий: $updatedSessions');
                                               sessions = updatedSessions;
-                                              _filterBySessionType(selectedSessionsType);
+                                              _filterBySessionType(
+                                                  selectedSessionsType);
                                             },
                                           ),
                                         );
@@ -407,8 +423,8 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                         const SizedBox(height: 18),
                                         DropdownButtonFormField<int>(
                                           value: selectedDisciplineIndex,
-                                          decoration:
-                                              _inputDecoration('Выберите дисциплину'),
+                                          decoration: _inputDecoration(
+                                              'Выберите дисциплину'),
                                           items: List.generate(
                                               disciplines.length, (index) {
                                             return DropdownMenuItem<int>(
@@ -463,27 +479,37 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                         const SizedBox(height: 18),
                                         ElevatedButton(
                                           onPressed: () async {
-                                            if (!_formKey.currentState!.validate()) return; // Проверка формы
+                                            if (!_formKey.currentState!
+                                                .validate())
+                                              return; // Проверка формы
 
                                             setState(() {
                                               showGroupSelect = false;
                                               isLoading = true;
-                                              journalDataFuture = loadJournalData(selectedGroupId!);
+                                              journalDataFuture =
+                                                  loadJournalData(
+                                                      selectedGroupId!);
                                             });
 
                                             try {
-                                              final data = await journalDataFuture!;
+                                              final data =
+                                                  await journalDataFuture!;
                                               setState(() {
-                                                students = data['students'] as List<MyUser>;
-                                                sessions = data['sessions'] as List<Session>;
+                                                students = data['students']
+                                                    as List<MyUser>;
+                                                sessions = data['sessions']
+                                                    as List<Session>;
                                                 isLoading = false;
                                               });
                                             } catch (e) {
                                               setState(() {
                                                 isLoading = false;
                                               });
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(content: Text('Ошибка при загрузке данных')),
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                    content: Text(
+                                                        'Ошибка при загрузке данных')),
                                               );
                                             }
                                           },
