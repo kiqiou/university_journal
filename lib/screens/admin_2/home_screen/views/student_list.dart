@@ -10,10 +10,11 @@ class StudentsList extends StatefulWidget {
   final List<Group> groups;
 
   const StudentsList({
-    super.key,
+    Key? key,
     required this.loadStudents,
-    required this.students, required this.groups,
-  });
+    required this.students,
+    required this.groups,
+  }) : super(key: key);
 
   @override
   State<StudentsList> createState() => _StudentsListState();
@@ -23,10 +24,8 @@ class _StudentsListState extends State<StudentsList> {
   final userRepository = UserRepository();
   int? selectedIndex;
   Group? selectedGroup;
-  bool isLoading = true;
   bool showDeleteDialog = false;
   bool showEditDialog = false;
-
   final TextEditingController nameController = TextEditingController();
   final TextEditingController bioController = TextEditingController();
 
@@ -36,9 +35,21 @@ class _StudentsListState extends State<StudentsList> {
     widget.loadStudents();
   }
 
+  /// По значению student.groupId ищется соответствующий объект Group в widget.groups.
+  /// Если найден, возвращается его courseId (при условии, что он от 1 до 4), иначе null.
+  int? getStudentCourse(MyUser student) {
+    try {
+      final group = widget.groups.firstWhere((g) => g.id == student.groupId);
+      final courseId = group.courseId;
+      return (courseId >= 1 && courseId <= 4) ? courseId : null;
+    } catch (e) {
+      return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    // Масштабирование кнопок (из вашего кода)
     final screenWidth = MediaQuery.of(context).size.width;
     const baseScreenWidth = 1920.0;
     const baseButtonHeight = 40.0;
@@ -46,468 +57,622 @@ class _StudentsListState extends State<StudentsList> {
     final scale = screenWidth / baseScreenWidth;
     final buttonHeights = baseButtonHeight * scale;
     final buttonWidths = baseWidths.map((w) => w * scale).toList();
-    return Scaffold(
-      body: Row(children: [
-        Expanded(
-          child: Stack(children: [
-            // Основной контент
-            Container(
-              color: Colors.white,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+
+    // Группировка студентов по курсам (1..4) и секция "Без группы"
+    final List<MyUser> flatStudentList = [];
+    final List<Widget> studentListWidgets = [];
+
+    // Для курсов от 1 до 4
+    for (int course = 1; course <= 4; course++) {
+      List<MyUser> courseStudents = widget.students
+          .where((student) => getStudentCourse(student) == course)
+          .toList();
+      if (courseStudents.isNotEmpty) {
+        // Заголовок секции курса
+        studentListWidgets.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+            child: Text(
+              '$course курс',
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+          ),
+        );
+        // Группируем студентов в данном курсе по groupId
+        Map<int, List<MyUser>> groupsMap = {};
+        for (var student in courseStudents) {
+          if (student.groupId != null) {
+            groupsMap.putIfAbsent(student.groupId!, () => []).add(student);
+          }
+        }
+        groupsMap.forEach((groupId, studentsInGroup) {
+          // Получаем объект группы для отображения полного номера группы
+          Group? currentGroup;
+          try {
+            currentGroup = widget.groups.firstWhere((g) => g.id == groupId);
+          } catch (e) {
+            currentGroup = null;
+          }
+          String groupDisplay =
+          currentGroup != null ? currentGroup.name : groupId.toString();
+          // Заголовок группы – полный номер группы (например, "2421")
+          studentListWidgets.add(
+            Padding(
+              padding: const EdgeInsets.only(left: 16.0, top: 6.0, bottom: 4.0),
+              child: Text(
+                groupDisplay,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey,
+                ),
+              ),
+            ),
+          );
+          // Вывод студентов данной группы – каждый студент отображается в рамочке;
+          // если студент выбран, рамочка становится синей.
+          for (var student in studentsInGroup) {
+            flatStudentList.add(student);
+            final currentIndex = flatStudentList.length - 1;
+            studentListWidgets.add(
+              Padding(
+                padding:
+                const EdgeInsets.symmetric(horizontal: 24.0, vertical: 4.0),
                 child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
                   onTap: () {
                     setState(() {
-                      selectedIndex = null;
+                      selectedIndex = currentIndex;
                     });
                   },
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            'Список студентов',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              color: Colors.grey.shade800,
-                              fontSize: 18,
-                            ),
-                          ),
-                          const Spacer(),
-                          if (selectedIndex != null) ...[
-                            SizedBox(
-                              width: buttonWidths[0],
-                              height: buttonHeights,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  setState(() {
-                                    showDeleteDialog = true;
-                                  });
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF4068EA),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  elevation: 0,
-                                ),
-                                child: const Text('Удалить студента',
-                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            SizedBox(
-                              width: buttonWidths[1],
-                              height: buttonHeights,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  setState(() {
-                                    showEditDialog = true;
-                                  });
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF4068EA),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  elevation: 0,
-                                ),
-                                child: const Text('Редактировать студента',
-                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
-                              ),
-                            ),
-                          ],
-                        ],
+                  child: Container(
+                    height: 55,
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: (selectedIndex == currentIndex)
+                            ? const Color(0xFF4068EA)
+                            : Colors.grey.shade300,
+                        width: 1,
                       ),
-                      const SizedBox(height: 24),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-                        child: Row(
-                          children: [
-                            SizedBox(
-                              width: 32,
-                              child: Text(
-                                '№',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.grey.shade800,
-                                  fontSize: 14,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                            SizedBox(width: 8),
-                            Expanded(
-                              child: Center(
-                                child: Text(
-                                  'Номер группы',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.grey.shade800,
-                                    fontSize: 16,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                      borderRadius: BorderRadius.circular(16),
+                      color: Colors.white,
+                    ),
+                    alignment: Alignment.centerLeft,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      student.username,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
                       ),
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: widget.students.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 6.0),
-                              child: Row(
-                                children: [
-                                  SizedBox(
-                                    width: 32,
-                                    child: Text(
-                                      '${index + 1}',
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.black54,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          selectedIndex = index;
-                                        });
-                                      },
-                                      child: Container(
-                                        height: 55,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(22.0),
-                                          border: Border.all(
-                                            color:
-                                            selectedIndex == index ? const Color(0xFF4068EA) : Colors.grey.shade300,
-                                            width: 1.4,
-                                          ),
-                                          color: Colors.white,
-                                        ),
-                                        alignment: Alignment.centerLeft,
-                                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                                        child: Text(
-                                          widget.students[index].username,
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.black87,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }
+        });
+      }
+    }
+
+    // Секция для студентов без группы
+    List<MyUser> studentsWithoutGroup =
+    widget.students.where((student) => student.groupId == null).toList();
+    if (studentsWithoutGroup.isNotEmpty) {
+      studentListWidgets.add(
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+          child: Text(
+            'Без группы',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+        ),
+      );
+      for (var student in studentsWithoutGroup) {
+        flatStudentList.add(student);
+        final currentIndex = flatStudentList.length - 1;
+        studentListWidgets.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 4.0),
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  selectedIndex = currentIndex;
+                });
+              },
+              child: Container(
+                height: 55,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: (selectedIndex == currentIndex)
+                        ? const Color(0xFF4068EA)
+                        : Colors.grey.shade300,
+                    width: 1,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  color: Colors.white,
+                ),
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  student.username,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
                   ),
                 ),
               ),
             ),
-            // Окно удаления преподавателя
-            if (showDeleteDialog && selectedIndex != null)
-              Positioned(
-                top: 32,
-                right: 32,
-                child: Builder(
-                  builder: (context) {
-                    final dialogMaxWidth = 420.0;
-                    final dialogMinWidth = 280.0;
-                    final availableWidth = MediaQuery.of(context).size.width - 32 - 80;
-                    final dialogWidth = availableWidth < dialogMaxWidth
-                        ? availableWidth.clamp(dialogMinWidth, dialogMaxWidth)
-                        : dialogMaxWidth;
+          ),
+        );
+      }
+    }
 
-                    return Material(
-                      color: Colors.transparent,
-                      child: Container(
-                        width: dialogWidth,
-                        padding: const EdgeInsets.all(32),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 24,
-                              offset: Offset(0, 8),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  "Удаление студента",
-                                  style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+    return Scaffold(
+      body: Row(
+        children: [
+          Expanded(
+            child: Stack(
+              children: [
+                // Основной контент – отображение списка студентов
+                Container(
+                  color: Colors.white,
+                  child: Padding(
+                    padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () {
+                        setState(() {
+                          selectedIndex = null;
+                        });
+                      },
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Заголовок страницы и кнопки управления (при выборе студента)
+                          Row(
+                            children: [
+                              Text(
+                                'Список студентов',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
                                 ),
-                                const Spacer(),
-                                InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      showDeleteDialog = false;
-                                    });
-                                  },
-                                  borderRadius: BorderRadius.circular(10),
-                                  child: Container(
-                                    width: 36,
-                                    height: 36,
-                                    decoration: BoxDecoration(
-                                      color: Color(0xFF4068EA),
-                                      borderRadius: BorderRadius.circular(10),
+                              ),
+                              const Spacer(),
+                              if (selectedIndex != null) ...[
+                                SizedBox(
+                                  width: buttonWidths[0],
+                                  height: buttonHeights,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        showDeleteDialog = true;
+                                      });
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF4068EA),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      elevation: 0,
                                     ),
-                                    child: const Icon(
-                                      Icons.close,
-                                      color: Colors.white,
-                                      size: 22,
+                                    child: const Text(
+                                      'Удалить студента',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                SizedBox(
+                                  width: buttonWidths[1],
+                                  height: buttonHeights,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        if (flatStudentList[selectedIndex!].groupId != null) {
+                                          selectedGroup = widget.groups.firstWhere((g) =>
+                                          g.id == flatStudentList[selectedIndex!].groupId);
+                                        } else {
+                                          selectedGroup = null;
+                                        }
+                                        nameController.text = flatStudentList[selectedIndex!].username;
+                                        showEditDialog = true;
+                                      });
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF4068EA),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      elevation: 0,
+                                    ),
+                                    child: const Text(
+                                      'Редактировать студента',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                          Expanded(
+                            child: ListView(
+                              children: studentListWidgets,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                // Диалог удаления студента
+                if (showDeleteDialog && selectedIndex != null)
+                  Positioned(
+                    top: 32,
+                    right: 32,
+                    child: Builder(
+                      builder: (context) {
+                        final dialogMaxWidth = 420.0;
+                        final dialogMinWidth = 280.0;
+                        final availableWidth =
+                            MediaQuery.of(context).size.width - 32 - 80;
+                        final dialogWidth = availableWidth < dialogMaxWidth
+                            ? availableWidth.clamp(dialogMinWidth, dialogMaxWidth)
+                            : dialogMaxWidth;
+                        return Material(
+                          color: Colors.transparent,
+                          child: Container(
+                            width: dialogWidth,
+                            padding: const EdgeInsets.all(32),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black12,
+                                  blurRadius: 24,
+                                  offset: Offset(0, 8),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      "Удаление студента",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.grey.shade700,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    InkWell(
+                                      onTap: () {
+                                        setState(() {
+                                          showDeleteDialog = false;
+                                        });
+                                      },
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: Container(
+                                        width: 36,
+                                        height: 36,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF4068EA),
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        child: const Icon(
+                                          Icons.close,
+                                          color: Colors.white,
+                                          size: 22,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 24),
+                                Text(
+                                  flatStudentList[selectedIndex!].username,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    color: Colors.black87,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                const Text(
+                                  "Вы действительно хотите удалить студента?",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                const SizedBox(height: 32),
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: 44,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF4068EA),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    onPressed: () async {
+                                      if (selectedIndex != null) {
+                                        final userId = flatStudentList[selectedIndex!].id;
+                                        bool success = await userRepository.deleteUser(userId: userId);
+                                        if (success) {
+                                          await widget.loadStudents();
+                                          setState(() {
+                                            showDeleteDialog = false;
+                                            selectedIndex = null;
+                                          });
+                                        }
+                                      }
+                                    },
+                                    child: const Text(
+                                      "Удалить",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 24),
-                            Text(
-                              widget.students[selectedIndex!].username,
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                            ),
-                            const SizedBox(height: 16),
-                            const Text(
-                              "Вы действительно хотите удалить студента?",
-                              style: TextStyle(fontSize: 15),
-                            ),
-                            const SizedBox(height: 32),
-                            SizedBox(
-                              width: double.infinity,
-                              height: 44,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF4068EA),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                // Диалог редактирования студента
+                if (showEditDialog && selectedIndex != null)
+                  Positioned(
+                    top: 32,
+                    right: 32,
+                    child: Builder(
+                      builder: (context) {
+                        final media = MediaQuery.of(context).size;
+                        final double dialogWidth = (media.width - 32 - 80).clamp(320, 600);
+                        final double dialogHeight = (media.height - 64).clamp(480, 500);
+                        return Material(
+                          color: Colors.transparent,
+                          child: Container(
+                            width: dialogWidth,
+                            height: dialogHeight,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: const Color(0xFF4068EA), width: 2),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black12,
+                                  blurRadius: 24,
+                                  offset: Offset(0, 8),
                                 ),
-                                onPressed: () async {
-                                  if (selectedIndex != null) {
-                                    final userId = widget.students[selectedIndex!].id;
-                                    bool success = await userRepository.deleteUser(userId: userId);
-
-                                    if (success) {
-                                      await widget.loadStudents();
-                                      setState(() {
-                                        showDeleteDialog = false;
-                                        selectedIndex = null;
-                                      });
-                                    }
-                                  }
-                                },
-                                child: const Text("Удалить", style: TextStyle(color: Colors.white)),
-                              ),
+                              ],
                             ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            // Окно редактирования информации
-            if (showEditDialog && selectedIndex != null)
-              Positioned(
-                top: 32,
-                right: 32,
-                child: Builder(
-                  builder: (context) {
-                    final media = MediaQuery.of(context).size;
-                    final double dialogWidth = (media.width - 32 - 80).clamp(320, 600);
-                    final double dialogHeight = (media.height - 64).clamp(480, 500);
-
-                    return Material(
-                      color: Colors.transparent,
-                      child: Container(
-                        width: dialogWidth,
-                        height: dialogHeight,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Color(0xFF4068EA), width: 2),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 24,
-                              offset: Offset(0, 8),
-                            ),
-                          ],
-                        ),
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            // constraints.maxWidth == dialogWidth, constraints.maxHeight == dialogHeight
-                            return SingleChildScrollView(
-                              child: Padding(
-                                padding: const EdgeInsets.all(32),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                       Text(
-                                          "Редактирование студента",
-                                          style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
-                                        ),
-                                        const Spacer(),
-                                        SizedBox(
-                                          height: 36,
-                                          child: ElevatedButton(
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: Color(0xFF4068EA),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(8),
-                                              ),
-                                              elevation: 0,
-                                              padding: const EdgeInsets.symmetric(horizontal: 24),
-                                            ),
-                                            onPressed: () async {
-
-                                              final success = await userRepository.updateUser(
-                                                userId: widget.students[selectedIndex!].id,
-                                                groupId: selectedGroup?.id,
-                                                username: nameController.text,
-                                              );
-
-                                              if (success) {
-                                                setState(() async {
-                                                  await widget.loadStudents();
-                                                  selectedIndex = null;
-                                                  showEditDialog = false;
-                                                });
-                                              }
-                                            },
-                                            child: const Text('Сохранить', style: TextStyle(color: Colors.white)),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        InkWell(
-                                          onTap: () {
-                                            setState(() {
-                                              showEditDialog = false;
-                                            });
-                                          },
-                                          borderRadius: BorderRadius.circular(10),
-                                          child: Container(
-                                            width: 36,
-                                            height: 36,
-                                            decoration: BoxDecoration(
-                                              color: Color(0xFF4068EA),
-                                              borderRadius: BorderRadius.circular(10),
-                                            ),
-                                            child: const Icon(
-                                              Icons.close,
-                                              color: Colors.white,
-                                              size: 22,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(height: constraints.maxHeight * 0.1),
-                                    Column(
+                            child: LayoutBuilder(
+                              builder: (context, constraints) {
+                                return SingleChildScrollView(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(32),
+                                    child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text(
-                                          'ФИО студента',
-                                          style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
-                                        ),
-                                        const SizedBox(height: 18),
-                                        TextFormField(
-                                          controller: nameController,
-                                          decoration:   InputDecoration(
-                                              hintText: 'Введите ФИО студента',
-                                              hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
-                                              filled: true,
-                                              fillColor: Colors.white,
-                                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                                              enabledBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(11),
-                                                borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                        Row(
+                                          children: [
+                                            Text(
+                                              "Редактирование студента",
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.grey.shade700,
+                                                fontWeight: FontWeight.w500,
                                               ),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(11),
-                                                borderSide: BorderSide(color: MyColors.blueJournal, width: 1.5),
+                                            ),
+                                            const Spacer(),
+                                            SizedBox(
+                                              height: 36,
+                                              child: ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: const Color(0xFF4068EA),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.circular(8),
+                                                  ),
+                                                  elevation: 0,
+                                                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                                                ),
+                                                onPressed: () async {
+                                                  final success = await userRepository.updateUser(
+                                                    userId: flatStudentList[selectedIndex!].id,
+                                                    groupId: selectedGroup?.id,
+                                                    username: nameController.text,
+                                                  );
+                                                  if (success) {
+                                                    await widget.loadStudents();
+                                                    setState(() {
+                                                      selectedIndex = null;
+                                                      showEditDialog = false;
+                                                    });
+                                                  }
+                                                },
+                                                child: const Text(
+                                                  'Сохранить',
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
                                               ),
-                                              border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(11),
-                                                borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                            ),
+                                            const SizedBox(width: 12),
+                                            InkWell(
+                                              onTap: () {
+                                                setState(() {
+                                                  showEditDialog = false;
+                                                });
+                                              },
+                                              borderRadius: BorderRadius.circular(10),
+                                              child: Container(
+                                                width: 36,
+                                                height: 36,
+                                                decoration: BoxDecoration(
+                                                  color: const Color(0xFF4068EA),
+                                                  borderRadius: BorderRadius.circular(10),
+                                                ),
+                                                child: const Icon(
+                                                  Icons.close,
+                                                  color: Colors.white,
+                                                  size: 22,
+                                                ),
                                               ),
-                                            )
+                                            ),
+                                          ],
                                         ),
-                                        const SizedBox(height: 48),
-                                        Text(
-                                          'Привязка группы',
-                                          style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
-                                        ),
-                                        const SizedBox(height: 18),
-                                        DropdownButtonFormField<Group>(
-                                          items: widget.groups
-                                              .map((group) => DropdownMenuItem<Group>(
-                                            value: group,
-                                            child: Text(group.name),
-                                          ))
-                                              .toList(),
-                                          decoration: InputDecoration(
-                                            labelText: 'Группа',
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            border: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(12),
-                                              borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                        SizedBox(height: constraints.maxHeight * 0.1),
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'ФИО студента',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.grey.shade700,
+                                                fontWeight: FontWeight.w500,
+                                              ),
                                             ),
-                                            enabledBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(12),
-                                              borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                            const SizedBox(height: 18),
+                                            TextFormField(
+                                              controller: nameController,
+                                              decoration: InputDecoration(
+                                                hintText: 'Введите ФИО студента',
+                                                hintStyle: const TextStyle(
+                                                  color: Color(0xFF9CA3AF),
+                                                  fontSize: 15,
+                                                ),
+                                                filled: true,
+                                                fillColor: Colors.white,
+                                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                                enabledBorder: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(11),
+                                                  borderSide: BorderSide(
+                                                    color: Colors.grey.shade400,
+                                                    width: 1.5,
+                                                  ),
+                                                ),
+                                                focusedBorder: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(11),
+                                                  borderSide: BorderSide(
+                                                      color: MyColors.blueJournal,
+                                                      width: 1.5),
+                                                ),
+                                                border: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(11),
+                                                  borderSide: BorderSide(
+                                                    color: Colors.grey.shade400,
+                                                    width: 1.5,
+                                                  ),
+                                                ),
+                                              ),
                                             ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(12),
-                                              borderSide: BorderSide(
-                                                  color: MyColors.blueJournal, width: 1.5),
+                                            const SizedBox(height: 48),
+                                            Text(
+                                              'Привязка группы',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.grey.shade700,
+                                                fontWeight: FontWeight.w500,
+                                              ),
                                             ),
-                                          ),
-                                          value: selectedGroup,
-                                          onChanged: (Group? value) {
-                                            setState(() {
-                                              selectedGroup = value!;
-                                            });
-                                          },
+                                            const SizedBox(height: 18),
+                                            DropdownButtonFormField<Group>(
+                                              items: widget.groups
+                                                  .map((group) => DropdownMenuItem<Group>(
+                                                value: group,
+                                                child: Text(
+                                                  group.name,
+                                                  style: const TextStyle(fontSize: 16),
+                                                ),
+                                              ))
+                                                  .toList(),
+                                              decoration: InputDecoration(
+                                                labelText: 'Группа',
+                                                filled: true,
+                                                fillColor: Colors.white,
+                                                border: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(12),
+                                                  borderSide: BorderSide(
+                                                    color: Colors.grey.shade400,
+                                                    width: 1.5,
+                                                  ),
+                                                ),
+                                                enabledBorder: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(12),
+                                                  borderSide: BorderSide(
+                                                    color: Colors.grey.shade400,
+                                                    width: 1.5,
+                                                  ),
+                                                ),
+                                                focusedBorder: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(12),
+                                                  borderSide: BorderSide(
+                                                      color: MyColors.blueJournal,
+                                                      width: 1.5),
+                                                ),
+                                              ),
+                                              value: selectedGroup,
+                                              onChanged: (Group? value) {
+                                                setState(() {
+                                                  selectedGroup = value;
+                                                });
+                                              },
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-          ]),
-        ),
-      ]),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
