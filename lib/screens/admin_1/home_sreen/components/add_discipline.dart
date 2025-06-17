@@ -31,6 +31,22 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController lectureHoursController = TextEditingController();
   final TextEditingController labHoursController = TextEditingController();
+  final Map<String, TextEditingController> hoursControllers = {};
+
+  @override
+  void initState() {
+    super.initState();
+    for (var type in lessonTypes) {
+      hoursControllers[type] = TextEditingController();
+    }
+  }
+  @override
+  void dispose() {
+    for (var controller in hoursControllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
 
   final List<Discipline> disciplines = [];
   List<MyUser> selectedTeachers = [];
@@ -208,153 +224,150 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
 
                               // Виды занятий
                               Text(
-                                'Выберите вид занятий',
+                                "Выберите вид занятий*",
                                 style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
                               ),
-                              const SizedBox(height: 18),
+                              const SizedBox(height: 10),
                               Wrap(
-                                spacing: 12,
-                                runSpacing: 12,
-                                children: lessonTypes.map((type) {
-                                  final isSelected = selectedLessonTypes.contains(type);
-                                  return GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        if (isSelected) {
-                                          selectedLessonTypes.remove(type);
-                                        } else {
-                                          selectedLessonTypes.add(type);
-                                        }
-                                      });
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
-                                      decoration: BoxDecoration(
-                                        color: isSelected ? const Color(0xFF4068EA) : Colors.white,
-                                        border: Border.all(
-                                          color: isSelected ? const Color(0xFF4068EA) : Colors.grey.shade400,
-                                          width: 1.5,
+                                spacing: 18,
+                                runSpacing: 14,
+                                children: [
+                                  ...[
+                                    {'key': 'lecture', 'label': 'Лекции'},
+                                    {'key': 'seminar', 'label': 'Семинар'},
+                                    {'key': 'practice', 'label': 'Практика'},
+                                    {'key': 'lab', 'label': 'Лабораторные'},
+                                    {'key': 'current', 'label': 'Текущая аттестация'},
+                                    {'key': 'final', 'label': 'Промежуточная аттестация'},
+                                  ].map((type) {
+                                    final isSelected = selectedTypes.contains(type['key']);
+                                    return IntrinsicWidth(
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            if (isSelected) {
+                                              selectedTypes.remove(type['key']);
+                                            } else {
+                                              selectedTypes.add(type['key']!);
+                                            }
+                                          });
+                                        },
+                                        child: Container(
+                                          height: 48,
+                                          margin: const EdgeInsets.symmetric(vertical: 2),
+                                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                                          decoration: BoxDecoration(
+                                            color: Colors.transparent,
+                                            borderRadius: BorderRadius.circular(14),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              AnimatedContainer(
+                                                duration: Duration(milliseconds: 150),
+                                                width: 50,
+                                                height: 64,
+                                                decoration: BoxDecoration(
+                                                  color: isSelected ? Color(0xFF4068EA) : MyColors.blueJournal,
+                                                  border: Border.all(
+                                                    color: Color(0xFF4068EA),
+                                                    width: 2,
+                                                  ),
+                                                  borderRadius: BorderRadius.circular(8),
+                                                ),
+                                                child: isSelected
+                                                    ? Icon(Icons.check, color: Colors.white, size: 22)
+                                                    : null,
+                                              ),
+                                              const SizedBox(width: 12),
+                                              Text(
+                                                type['label']!,
+                                                style: TextStyle(
+                                                  color: Colors.black87,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                        borderRadius: BorderRadius.circular(14),
                                       ),
-                                      child: Text(
-                                        type,
-                                        style: TextStyle(
-                                          color: isSelected ? Colors.white : Colors.black,
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
+                                    );
+                                  })
+                                ],
                               ),
-                              const SizedBox(height: 24),
+                              const SizedBox(height: 28),
+                              if (selectedTypes.isNotEmpty)
+                                ...List.generate(
+                                  (selectedTypes.length / 2).ceil(),
+                                      (rowIndex) {
+                                    final start = rowIndex * 2;
+                                    final end = (start + 2 < selectedTypes.length) ? start + 2 : selectedTypes.length;
+                                    final rowTypes = selectedTypes.sublist(start, end);
+                                    return Row(
+                                      children: rowTypes.map((typeKey) {
+                                        final type = [
+                                          {'key': 'lecture', 'label': 'Лекции'},
+                                          {'key': 'seminar', 'label': 'Семинар'},
+                                          {'key': 'practice', 'label': 'Практика'},
+                                          {'key': 'lab', 'label': 'Лабораторные'},
+                                          {'key': 'current', 'label': 'Текущая аттестация'},
+                                          {'key': 'final', 'label': 'Промежуточная аттестация'},
+                                        ].firstWhere((t) => t['key'] == typeKey);
 
-                              // Контейнеры для часов
-                              if (selectedLessonTypes.contains('Лекции') ||
-                                  selectedLessonTypes.contains('Лабораторные'))
-                                Row(
-                                  children: [
-                                    if (selectedLessonTypes.contains('Лекции'))
-                                      Expanded(
-                                        child: Container(
-                                          margin: const EdgeInsets.only(right: 12),
-                                          padding: const EdgeInsets.all(16),
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius: BorderRadius.circular(22),
-                                          ),
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              const Text('Лекции*', style: TextStyle(fontWeight: FontWeight.w500)),
-                                              const SizedBox(height: 8),
-                                              TextFormField(
-                                                controller: lectureHoursController,
-                                                keyboardType: TextInputType.number,
-                                                decoration: InputDecoration(
-                                                  hintText: 'Введите часы',
-                                                  border: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(16),
-                                                  ),
-                                                  enabledBorder: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(16),
-                                                    borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
-                                                  ),
-                                                  focusedBorder: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(16),
-                                                    borderSide: const BorderSide(color: Color(0xFF4068EA), width: 1.2),
-                                                  ),
-                                                  contentPadding:
-                                                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                                                  filled: true,
-                                                  fillColor: Colors.white,
+                                        // hoursControllers должен быть Map<String, TextEditingController>
+                                        return Expanded(
+                                          child: Container(
+                                            margin: EdgeInsets.only(right: rowTypes.last == typeKey ? 0 : 12, bottom: 12),
+                                            padding: EdgeInsets.all(16),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.circular(22),
+                                            ),
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  '${type['label']}*',
+                                                  style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
                                                 ),
-                                                validator: (value) {
-                                                  if (selectedLessonTypes.contains('Лекции') &&
-                                                      (value == null || value.isEmpty)) {
-                                                    return 'Обязательное поле';
-                                                  }
-                                                  return null;
-                                                },
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    if (selectedLessonTypes.contains('Лабораторные'))
-                                      Expanded(
-                                        child: Container(
-                                          margin: const EdgeInsets.only(left: 12),
-                                          padding: const EdgeInsets.all(16),
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius: BorderRadius.circular(22),
-                                          ),
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              const Text('Лабораторные*',
-                                                  style: TextStyle(fontWeight: FontWeight.w500)),
-                                              const SizedBox(height: 8),
-                                              TextFormField(
-                                                controller: labHoursController,
-                                                keyboardType: TextInputType.number,
-                                                decoration: InputDecoration(
-                                                  hintText: 'Введите часы',
-                                                  border: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(16),
-                                                    borderSide: BorderSide(color: Colors.grey.shade400, width: 1),
+                                                SizedBox(height: 8),
+                                                TextFormField(
+                                                  controller: hoursControllers[typeKey],
+                                                  keyboardType: TextInputType.number,
+                                                  decoration: InputDecoration(
+                                                    hintText: 'Введите часы',
+                                                    hintStyle: TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
+                                                    filled: true,
+                                                    fillColor: Colors.white,
+                                                    enabledBorder: OutlineInputBorder(
+                                                      borderRadius: BorderRadius.circular(11),
+                                                      borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                                    ),
+                                                    focusedBorder: OutlineInputBorder(
+                                                      borderRadius: BorderRadius.circular(11),
+                                                      borderSide: BorderSide(color: MyColors.blueJournal, width: 1.5),
+                                                    ),
+                                                    border: OutlineInputBorder(
+                                                      borderRadius: BorderRadius.circular(11),
+                                                      borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                                    ),
+                                                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                                                   ),
-                                                  enabledBorder: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(16),
-                                                    borderSide: BorderSide(color: Colors.grey.shade400, width: 1),
-                                                  ),
-                                                  focusedBorder: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(16),
-                                                    borderSide: BorderSide(color: Colors.grey.shade400, width: 1.2),
-                                                  ),
-                                                  contentPadding:
-                                                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                                                  filled: true,
-                                                  fillColor: Colors.white,
+                                                  validator: (value) {
+                                                    if (selectedTypes.contains(typeKey) && (value == null || value.isEmpty)) {
+                                                      return 'Обязательное поле';
+                                                    }
+                                                    return null;
+                                                  },
                                                 ),
-                                                validator: (value) {
-                                                  if (selectedLessonTypes.contains('Лабораторные') &&
-                                                      (value == null || value.isEmpty)) {
-                                                    return 'Обязательное поле';
-                                                  }
-                                                  return null;
-                                                },
-                                              ),
-                                            ],
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                      ),
-                                  ],
+                                        );
+                                      }).toList(),
+                                    );
+                                  },
                                 ),
-
                               // Привязка преподавателя
                               Text("Привязать преподавателя",
                                   style: TextStyle(color: Color(0xFF6B7280), fontSize: 15)),
