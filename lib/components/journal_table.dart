@@ -13,6 +13,7 @@ class JournalTable extends StatefulWidget {
   final bool isEditable;
   final List<Session> sessions;
   final List<MyUser> students;
+  final void Function(int)? onColumnSelected;
   final void Function(List<Session>)? onSessionsChanged;
 
   const JournalTable(
@@ -21,7 +22,8 @@ class JournalTable extends StatefulWidget {
       required this.sessions,
       this.onSessionsChanged,
       required this.isEditable,
-      required this.students});
+      required this.students,
+      this.onColumnSelected});
 
   @override
   State<JournalTable> createState() => JournalTableState();
@@ -91,6 +93,7 @@ class JournalTableState extends State<JournalTable> {
           onHeaderTap: _onHeaderTap,
         );
       });
+      widget.onColumnSelected?.call(index);
     }
   }
 
@@ -98,50 +101,6 @@ class JournalTableState extends State<JournalTable> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        if (_selectedColumnIndex != null)
-          ElevatedButton(
-            onPressed: () async {
-              final dates = extractUniqueDateTypes(dataSource!.sessions);
-              final toRemove = dates[_selectedColumnIndex!];
-              final session = dataSource?.sessions.firstWhere(
-                (s) => '${s.date} ${s.sessionType} ${s.id}' == toRemove,
-              );
-              final repository = JournalRepository();
-              final success =
-                  await repository.deleteSession(sessionId: session!.id);
-
-              if (success) {
-                final updatedSessions = List<Session>.from(dataSource!.sessions)
-                  ..removeWhere((s) => s.id == session.id);
-
-                setState(() {
-                  _selectedColumnIndex = null;
-                  updateDataSource(updatedSessions, widget.students);
-                  widget.onSessionsChanged?.call(updatedSessions);
-                });
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Ошибка при удалении занятия')),
-                );
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: MyColors.blueJournal,
-              padding: EdgeInsets.symmetric(horizontal: 25, vertical: 23),
-              textStyle: TextStyle(fontSize: 18),
-              minimumSize: Size(170, 50),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            child: Text(
-              'Удалить занятие',
-              style: TextStyle(
-                  color: Colors.white,
-                  fontFamily: 'Montserrat',
-                  fontWeight: FontWeight.w700),
-            ),
-          ),
         Expanded(
           child: widget.isLoading || dataSource == null
               ? const Center(child: CircularProgressIndicator())
@@ -200,9 +159,9 @@ class JournalDataSource extends DataGridSource {
   }
 
   static List<DataGridRow> _buildRows(
-      Map<String, Map<String, Session>> data,
-      List<String> dates,
-      ) {
+    Map<String, Map<String, Session>> data,
+    List<String> dates,
+  ) {
     return data.entries.mapIndexed((index, entry) {
       final studentName = entry.key;
       final sessionsByDate = entry.value;
@@ -409,9 +368,9 @@ List<String> extractUniqueDateTypes(List<Session> sessions) {
 }
 
 Map<String, Map<String, Session>> groupSessionsByStudent(
-    List<Session> sessions,
-    List<MyUser> students,
-    ) {
+  List<Session> sessions,
+  List<MyUser> students,
+) {
   final Map<String, Map<String, Session>> result = {};
 
   for (var student in students) {

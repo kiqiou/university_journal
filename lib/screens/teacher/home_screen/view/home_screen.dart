@@ -38,6 +38,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
   bool showGroupSelect = false;
   int? selectedDisciplineIndex;
   int? selectedGroupId;
+  int? _selectedColumnIndex;
   String selectedSessionsType = 'Все';
   List<Session> sessions = [];
   List<MyUser> students = [];
@@ -207,7 +208,9 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                             ? Scaffold(
                                 body: Column(
                                   children: [
-                                    SizedBox(height: 40,),
+                                    SizedBox(
+                                      height: 40,
+                                    ),
                                     Row(
                                       children: [
                                         Text(
@@ -220,6 +223,146 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                               fontWeight: FontWeight.bold),
                                         ),
                                         Spacer(),
+                                        if (_selectedColumnIndex != null) ...[
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                top: 20.0, right: 20.0),
+                                            child: Align(
+                                              alignment: Alignment.centerRight,
+                                              child: ElevatedButton(
+                                                onPressed: () async {
+                                                  final dates =
+                                                      extractUniqueDateTypes(
+                                                          sessions);
+                                                  final toRemove = dates[
+                                                      _selectedColumnIndex!];
+
+                                                  final session =
+                                                      sessions.firstWhere(
+                                                    (s) =>
+                                                        '${s.date} ${s.sessionType} ${s.id}' ==
+                                                        toRemove,
+                                                  );
+
+                                                  final repository =
+                                                      JournalRepository();
+                                                  final success = await repository
+                                                      .deleteSession(
+                                                          sessionId: session.id);
+
+                                                  if (success) {
+                                                    final updatedSessions =
+                                                        List<Session>.from(
+                                                            sessions)
+                                                          ..removeWhere((s) =>
+                                                              s.id == session.id);
+
+                                                    setState(() {
+                                                      _selectedColumnIndex = null;
+                                                      sessions = updatedSessions;
+                                                    });
+
+                                                    // Обновляем таблицу
+                                                    tableKey.currentState
+                                                        ?.updateDataSource(
+                                                            updatedSessions,
+                                                            students);
+                                                  } else {
+                                                    ScaffoldMessenger.of(context)
+                                                        .showSnackBar(
+                                                      const SnackBar(
+                                                          content: Text(
+                                                              'Ошибка при удалении занятия')),
+                                                    );
+                                                  }
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor:
+                                                      MyColors.blueJournal,
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: 25,
+                                                      vertical: 23),
+                                                  textStyle:
+                                                      TextStyle(fontSize: 18),
+                                                  minimumSize: Size(170, 50),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(10),
+                                                  ),
+                                                ),
+                                                child: Text(
+                                                  'Удалить занятие',
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontFamily: 'Montserrat',
+                                                    fontWeight: FontWeight.w700,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                top: 20.0, right: 20.0),
+                                            child: Align(
+                                              alignment: Alignment.centerRight,
+                                              child: ElevatedButton(
+                                                onPressed: () async {
+                                                  final dates = extractUniqueDateTypes(sessions);
+                                                  final toRemove = dates[_selectedColumnIndex!];
+
+                                                  final session = sessions.firstWhere((s) => '${s.date} ${s.sessionType} ${s.id}' == toRemove);
+
+                                                  final repository = JournalRepository();
+                                                  final success = await repository.deleteSession(
+                                                      sessionId: session.id,
+                                                  );
+
+                                                  if (success) {
+                                                    final updatedSessions =
+                                                    List<Session>.from(sessions)..removeWhere((s) => s.id == session.id);
+
+                                                    setState(() {
+                                                      _selectedColumnIndex = null;
+                                                      sessions = updatedSessions;
+                                                    });
+
+                                                    tableKey.currentState?.updateDataSource(updatedSessions, students);
+                                                  } else {
+                                                    ScaffoldMessenger.of(context)
+                                                        .showSnackBar(
+                                                      const SnackBar(
+                                                          content: Text(
+                                                              'Ошибка при удалении занятия')),
+                                                    );
+                                                  }
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor:
+                                                  MyColors.blueJournal,
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: 25,
+                                                      vertical: 23),
+                                                  textStyle:
+                                                  TextStyle(fontSize: 18),
+                                                  minimumSize: Size(170, 50),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                    BorderRadius.circular(10),
+                                                  ),
+                                                ),
+                                                child: Text(
+                                                  'Редактировать занятие',
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontFamily: 'Montserrat',
+                                                    fontWeight: FontWeight.w700,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                         Padding(
                                           padding: const EdgeInsets.only(
                                               top: 20.0, right: 20.0),
@@ -230,14 +373,16 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                                   _showAddEventDialog(context),
                                               style: ElevatedButton.styleFrom(
                                                 backgroundColor:
-                                                MyColors.blueJournal,
+                                                    MyColors.blueJournal,
                                                 padding: EdgeInsets.symmetric(
-                                                    horizontal: 25, vertical: 23),
-                                                textStyle: TextStyle(fontSize: 18),
+                                                    horizontal: 25,
+                                                    vertical: 23),
+                                                textStyle:
+                                                    TextStyle(fontSize: 18),
                                                 minimumSize: Size(170, 50),
                                                 shape: RoundedRectangleBorder(
                                                   borderRadius:
-                                                  BorderRadius.circular(10),
+                                                      BorderRadius.circular(10),
                                                 ),
                                               ),
                                               child: Text(
@@ -253,7 +398,9 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                         ),
                                       ],
                                     ),
-                                    SizedBox(height: 40,),
+                                    SizedBox(
+                                      height: 40,
+                                    ),
                                     FutureBuilder<Map<String, dynamic>>(
                                       future: journalDataFuture,
                                       builder: (context, snapshot) {
@@ -286,6 +433,11 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                             sessions: sessions,
                                             isEditable: true,
                                             isLoading: false,
+                                            onColumnSelected: (int index) {
+                                              setState(() {
+                                                _selectedColumnIndex = index;
+                                              });
+                                            },
                                             onSessionsChanged:
                                                 (updatedSessions) {
                                               print(
