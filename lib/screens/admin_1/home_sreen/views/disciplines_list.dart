@@ -598,7 +598,6 @@ class _CoursesList extends State<CoursesList> {
                                                       type['label']!,
                                                       style: TextStyle(
                                                         color: Colors.black87,
-
                                                         fontSize: 14,
                                                       ),
                                                     ),

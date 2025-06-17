@@ -284,8 +284,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                                 type['label']!,
                                                 style: TextStyle(
                                                   color: Colors.black87,
-                                                  fontWeight: FontWeight.w500,
-                                                  fontSize: 18,
+                                                  fontSize: 14,
                                                 ),
                                               ),
                                             ],
@@ -297,20 +296,28 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                 ],
                               ),
                               const SizedBox(height: 28),
-
-                              // Контейнеры для часов
-                              if (selectedLessonTypes.isNotEmpty)
+                              if (selectedTypes.isNotEmpty)
                                 ...List.generate(
-                                  (selectedLessonTypes.length / 2).ceil(),
+                                  (selectedTypes.length / 2).ceil(),
                                       (rowIndex) {
                                     final start = rowIndex * 2;
-                                    final end = (start + 2 < selectedLessonTypes.length) ? start + 2 : selectedLessonTypes.length;
-                                    final rowTypes = selectedLessonTypes.sublist(start, end);
+                                    final end = (start + 2 < selectedTypes.length) ? start + 2 : selectedTypes.length;
+                                    final rowTypes = selectedTypes.sublist(start, end);
                                     return Row(
-                                      children: rowTypes.map((type) {
+                                      children: rowTypes.map((typeKey) {
+                                        final type = [
+                                          {'key': 'lecture', 'label': 'Лекции'},
+                                          {'key': 'seminar', 'label': 'Семинар'},
+                                          {'key': 'practice', 'label': 'Практика'},
+                                          {'key': 'lab', 'label': 'Лабораторные'},
+                                          {'key': 'current', 'label': 'Текущая аттестация'},
+                                          {'key': 'final', 'label': 'Промежуточная аттестация'},
+                                        ].firstWhere((t) => t['key'] == typeKey);
+
+                                        // hoursControllers должен быть Map<String, TextEditingController>
                                         return Expanded(
                                           child: Container(
-                                            margin: EdgeInsets.only(right: rowTypes.last == type ? 0 : 12, bottom: 12),
+                                            margin: EdgeInsets.only(right: rowTypes.last == typeKey ? 0 : 12, bottom: 12),
                                             padding: EdgeInsets.all(16),
                                             decoration: BoxDecoration(
                                               color: Colors.white,
@@ -319,30 +326,35 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                             child: Column(
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
-                                                Text('$type*', style: TextStyle(fontWeight: FontWeight.w500)),
+                                                Text(
+                                                  '${type['label']}*',
+                                                  style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+                                                ),
                                                 SizedBox(height: 8),
                                                 TextFormField(
-                                                  controller: hoursControllers[type],
+                                                  controller: hoursControllers[typeKey],
                                                   keyboardType: TextInputType.number,
                                                   decoration: InputDecoration(
                                                     hintText: 'Введите часы',
-                                                    border: OutlineInputBorder(
-                                                      borderRadius: BorderRadius.circular(16),
-                                                    ),
-                                                    enabledBorder: OutlineInputBorder(
-                                                      borderRadius: BorderRadius.circular(16),
-                                                      borderSide: BorderSide(color: Color(0xFFE5E7EB), width: 1),
-                                                    ),
-                                                    focusedBorder: OutlineInputBorder(
-                                                      borderRadius: BorderRadius.circular(16),
-                                                      borderSide: BorderSide(color: Color(0xFF4068EA), width: 1.2),
-                                                    ),
-                                                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                                    hintStyle: TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
                                                     filled: true,
                                                     fillColor: Colors.white,
+                                                    enabledBorder: OutlineInputBorder(
+                                                      borderRadius: BorderRadius.circular(11),
+                                                      borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                                    ),
+                                                    focusedBorder: OutlineInputBorder(
+                                                      borderRadius: BorderRadius.circular(11),
+                                                      borderSide: BorderSide(color: MyColors.blueJournal, width: 1.5),
+                                                    ),
+                                                    border: OutlineInputBorder(
+                                                      borderRadius: BorderRadius.circular(11),
+                                                      borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                                    ),
+                                                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                                                   ),
                                                   validator: (value) {
-                                                    if (selectedLessonTypes.contains(type) && (value == null || value.isEmpty)) {
+                                                    if (selectedTypes.contains(typeKey) && (value == null || value.isEmpty)) {
                                                       return 'Обязательное поле';
                                                     }
                                                     return null;
@@ -356,7 +368,6 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                     );
                                   },
                                 ),
-
                               // Привязка преподавателя
                               Text("Привязать преподавателя",
                                   style: TextStyle(color: Color(0xFF6B7280), fontSize: 15)),
