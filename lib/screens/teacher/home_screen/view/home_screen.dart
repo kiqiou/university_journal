@@ -367,13 +367,12 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                   // --- Заголовок и кнопка закрытия ---
                                   Row(
                                     children: [
-                                      const Expanded(
+                                      Expanded(
                                         child: Text(
                                           'Выберите дисциплину и группу',
                                           style: TextStyle(
                                             fontSize: 18,
-                                            fontWeight: FontWeight.w400,
-                                            color: Colors.black,
+                                            color: Colors.grey.shade700,
                                           ),
                                         ),
                                       ),
@@ -398,19 +397,18 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         // Название группы
-                                        const Text(
+                                        Text(
                                           'Выберите дисциплину*',
                                           style: TextStyle(
                                             fontSize: 15,
-                                            color: Color(0xFF6B7280),
-                                            fontWeight: FontWeight.w400,
+                                            color: Colors.grey.shade700,
                                           ),
                                         ),
                                         const SizedBox(height: 18),
                                         DropdownButtonFormField<int>(
                                           value: selectedDisciplineIndex,
                                           decoration:
-                                              _inputDecoration('Выберите курс'),
+                                              _inputDecoration('Выберите дисциплину'),
                                           items: List.generate(
                                               disciplines.length, (index) {
                                             return DropdownMenuItem<int>(
