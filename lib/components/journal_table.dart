@@ -5,15 +5,23 @@ import 'package:collection/collection.dart';
 
 import '../../../bloc/journal/journal.dart';
 import '../bloc/journal/journal_repository.dart';
+import '../bloc/user/user.dart';
 import 'colors/colors.dart';
 
 class JournalTable extends StatefulWidget {
   final bool isLoading;
   final bool isEditable;
   final List<Session> sessions;
+  final List<MyUser> students;
   final void Function(List<Session>)? onSessionsChanged;
 
-  const JournalTable({super.key, required this.isLoading, required this.sessions, this.onSessionsChanged, required this.isEditable});
+  const JournalTable(
+      {super.key,
+      required this.isLoading,
+      required this.sessions,
+      this.onSessionsChanged,
+      required this.isEditable,
+      required this.students});
 
   @override
   State<JournalTable> createState() => JournalTableState();
@@ -25,23 +33,30 @@ class JournalTableState extends State<JournalTable> {
   List<Session> _sessions = [];
   int? _selectedColumnIndex;
 
-
   @override
   void initState() {
     super.initState();
-    updateDataSource(widget.sessions);
+    updateDataSource(widget.sessions, widget.students);
   }
 
-  void updateDataSource(List<Session> sessions) {
-    final grouped = groupSessionsByStudent(sessions);
+  void updateDataSource(List<Session> sessions, List<MyUser> students) {
+    print('✅ Обновление таблицы:');
+    print('students: $students');
+    print('sessions: $sessions');
+
+    final grouped = groupSessionsByStudent(sessions, students);
 
     setState(() {
       _sessions = sessions;
+
+      extractUniqueDateTypes(sessions);
+
       columns = buildColumns(
         sessions: sessions,
         selectedColumnIndex: _selectedColumnIndex,
         onHeaderTap: _onHeaderTap,
       );
+
       dataSource = JournalDataSource(
         columns,
         grouped,
@@ -82,66 +97,71 @@ class JournalTableState extends State<JournalTable> {
   @override
   Widget build(BuildContext context) {
     return Column(
-        children: [
-          if (_selectedColumnIndex != null)
-            ElevatedButton(
-              onPressed: () async {
-                final dates = extractUniqueDateTypes(dataSource!.sessions);
-                final toRemove = dates[_selectedColumnIndex!];
-                final session = dataSource?.sessions.firstWhere(
-                      (s) => '${s.date} ${s.sessionType} ${s.id}' == toRemove,
+      children: [
+        if (_selectedColumnIndex != null)
+          ElevatedButton(
+            onPressed: () async {
+              final dates = extractUniqueDateTypes(dataSource!.sessions);
+              final toRemove = dates[_selectedColumnIndex!];
+              final session = dataSource?.sessions.firstWhere(
+                (s) => '${s.date} ${s.sessionType} ${s.id}' == toRemove,
+              );
+              final repository = JournalRepository();
+              final success =
+                  await repository.deleteSession(sessionId: session!.id);
+
+              if (success) {
+                final updatedSessions = List<Session>.from(dataSource!.sessions)
+                  ..removeWhere((s) => s.id == session.id);
+
+                setState(() {
+                  _selectedColumnIndex = null;
+                  updateDataSource(updatedSessions, widget.students);
+                  widget.onSessionsChanged?.call(updatedSessions);
+                });
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Ошибка при удалении занятия')),
                 );
-                final repository = JournalRepository();
-                final success = await repository.deleteSession(sessionId: session!.id);
-
-                if (success) {
-                  final updatedSessions = List<Session>.from(dataSource!.sessions)
-                    ..removeWhere((s) => s.id == session.id);
-
-                  setState(() {
-                    _selectedColumnIndex = null;
-                    updateDataSource(updatedSessions);
-                    widget.onSessionsChanged?.call(updatedSessions);
-                  });
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Ошибка при удалении занятия')),
-                  );
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: MyColors.blueJournal,
-                padding: EdgeInsets.symmetric(horizontal: 25, vertical: 23),
-                textStyle: TextStyle(fontSize: 18),
-                minimumSize: Size(170, 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              child: Text(
-                'Удалить занятие',
-                style: TextStyle(color: Colors.white, fontFamily: 'Montserrat', fontWeight: FontWeight.w700),
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: MyColors.blueJournal,
+              padding: EdgeInsets.symmetric(horizontal: 25, vertical: 23),
+              textStyle: TextStyle(fontSize: 18),
+              minimumSize: Size(170, 50),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
               ),
             ),
-          Expanded(
-            child: widget.isLoading || dataSource == null
-                ? const Center(child: CircularProgressIndicator())
-                : SfDataGrid(
-              gridLinesVisibility: GridLinesVisibility.none,
-              headerGridLinesVisibility: GridLinesVisibility.none,
-              source: dataSource!,
-              columns: columns,
-              headerRowHeight: 100,
+            child: Text(
+              'Удалить занятие',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.w700),
             ),
           ),
-        ],
-      );
+        Expanded(
+          child: widget.isLoading || dataSource == null
+              ? const Center(child: CircularProgressIndicator())
+              : SfDataGrid(
+                  gridLinesVisibility: GridLinesVisibility.none,
+                  headerGridLinesVisibility: GridLinesVisibility.none,
+                  source: dataSource!,
+                  columns: columns,
+                  headerRowHeight: 100,
+                ),
+        ),
+      ],
+    );
   }
 }
 
 /// Источник данных для таблицы
 class JournalDataSource extends DataGridSource {
-  final Future<void> Function(int sessionId, int studentId, String status, String grade)? onUpdate;
+  final Future<void> Function(
+      int sessionId, int studentId, String status, String grade)? onUpdate;
   final Map<String, TextEditingController> _controllers = {};
   final Map<String, Map<String, Session>> _sessionData;
   final List<DataGridRow> _rows;
@@ -162,12 +182,14 @@ class JournalDataSource extends DataGridSource {
   }
 
   JournalDataSource(
-      this.columns,
-      this._sessionData,
-      this.sessions, this.isEditable, {
-        this.onUpdate,
-      })  : _dates = extractUniqueDateTypes(sessions).toList(),
-        _rows = _buildRows(_sessionData, extractUniqueDateTypes(sessions).toList());
+    this.columns,
+    this._sessionData,
+    this.sessions,
+    this.isEditable, {
+    this.onUpdate,
+  })  : _dates = extractUniqueDateTypes(sessions).toList(),
+        _rows =
+            _buildRows(_sessionData, extractUniqueDateTypes(sessions).toList());
 
   void removeColumn(String dateType) {
     for (var row in _rows) {
@@ -182,13 +204,13 @@ class JournalDataSource extends DataGridSource {
       List<String> dates,
       ) {
     return data.entries.mapIndexed((index, entry) {
-      final name = entry.key;
+      final studentName = entry.key;
       final sessionsByDate = entry.value;
 
       return DataGridRow(
         cells: [
           DataGridCell<int>(columnName: '№', value: index + 1),
-          DataGridCell<String>(columnName: 'ФИО', value: name),
+          DataGridCell<String>(columnName: 'ФИО', value: studentName),
           for (final date in dates)
             DataGridCell<Object>(
               columnName: date,
@@ -207,6 +229,29 @@ class JournalDataSource extends DataGridSource {
 
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
+    if (row.getCells().length <= 2) {
+      // Только № и ФИО
+      return DataGridRowAdapter(
+        cells: row.getCells().map((cell) {
+          return Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey.shade400),
+            ),
+            child: Text(
+              cell.value.toString(),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.grey.shade800,
+                fontFamily: 'Montserrat',
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          );
+        }).toList(),
+      );
+    }
     return DataGridRowAdapter(
       cells: row.getCells().asMap().entries.map((entry) {
         final columnIndex = entry.key;
@@ -270,7 +315,8 @@ class JournalDataSource extends DataGridSource {
                     ),
                     decoration: InputDecoration(
                       border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                      contentPadding:
+                          EdgeInsets.symmetric(vertical: 8, horizontal: 4),
                       disabledBorder: InputBorder.none,
                     ),
                     inputFormatters: [
@@ -280,10 +326,12 @@ class JournalDataSource extends DataGridSource {
                     onChanged: (newStatus) async {
                       if (onUpdate != null) {
                         print('Обновление данных оценивания');
-                        await onUpdate!(session.id, session.student.id, newStatus, gradeController.text);
+                        await onUpdate!(session.id, session.student.id,
+                            newStatus, gradeController.text);
                       }
                       _sessionData[studentName]?[date]?.status = newStatus;
-                      _rows[rowIndex].getCells()[columnIndex] = DataGridCell<Map<String, String>>(
+                      _rows[rowIndex].getCells()[columnIndex] =
+                          DataGridCell<Map<String, String>>(
                         columnName: date,
                         value: {
                           'status': newStatus,
@@ -310,7 +358,8 @@ class JournalDataSource extends DataGridSource {
                     ),
                     decoration: InputDecoration(
                       border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                      contentPadding:
+                          EdgeInsets.symmetric(vertical: 8, horizontal: 4),
                       disabledBorder: InputBorder.none,
                     ),
                     inputFormatters: [
@@ -327,7 +376,8 @@ class JournalDataSource extends DataGridSource {
                         );
                       }
                       _sessionData[studentName]?[date]?.grade = newGrade;
-                      _rows[rowIndex].getCells()[columnIndex] = DataGridCell<Map<String, String>>(
+                      _rows[rowIndex].getCells()[columnIndex] =
+                          DataGridCell<Map<String, String>>(
                         columnName: date,
                         value: {
                           'status': statusController.text,
@@ -358,13 +408,19 @@ List<String> extractUniqueDateTypes(List<Session> sessions) {
   return sorted;
 }
 
-Map<String, Map<String, Session>> groupSessionsByStudent(List<Session> sessions) {
+Map<String, Map<String, Session>> groupSessionsByStudent(
+    List<Session> sessions,
+    List<MyUser> students,
+    ) {
   final Map<String, Map<String, Session>> result = {};
+
+  for (var student in students) {
+    result[student.username] = {};
+  }
 
   for (var session in sessions) {
     final studentName = session.student.username;
     final dateTypeKey = '${session.date} ${session.sessionType} ${session.id}';
-
     result.putIfAbsent(studentName, () => {});
     result[studentName]![dateTypeKey] = session;
   }
@@ -387,7 +443,6 @@ List<GridColumn> buildColumns({
   };
 
   final columns = <GridColumn>[
-    // №
     GridColumn(
       columnName: '№',
       width: 50,
@@ -401,11 +456,13 @@ List<GridColumn> buildColumns({
         padding: const EdgeInsets.all(8),
         child: Text(
           '№',
-          style: TextStyle(color: Colors.grey.shade900, fontFamily: 'Montserrat', fontWeight: FontWeight.w700),
+          style: TextStyle(
+              color: Colors.grey.shade900,
+              fontFamily: 'Montserrat',
+              fontWeight: FontWeight.w700),
         ),
       ),
     ),
-    // ФИО
     GridColumn(
       columnName: 'ФИО',
       width: 200,
@@ -419,11 +476,18 @@ List<GridColumn> buildColumns({
         padding: const EdgeInsets.all(8),
         child: Text(
           'ФИО',
-          style: TextStyle(color: Colors.grey.shade900, fontFamily: 'Montserrat', fontWeight: FontWeight.w700),
+          style: TextStyle(
+              color: Colors.grey.shade900,
+              fontFamily: 'Montserrat',
+              fontWeight: FontWeight.w700),
         ),
       ),
     ),
   ];
+
+  if (dateTypeColumns.isEmpty) {
+    return columns; // Только № и ФИО
+  }
 
   for (var entry in dateTypeColumns.asMap().entries) {
     final index = entry.key;
@@ -443,7 +507,9 @@ List<GridColumn> buildColumns({
             decoration: BoxDecoration(
               color: Colors.grey.shade300,
               border: Border.all(
-                color: selectedColumnIndex == index ? MyColors.blueJournal : Colors.grey.shade400,
+                color: selectedColumnIndex == index
+                    ? MyColors.blueJournal
+                    : Colors.grey.shade400,
               ),
             ),
             padding: const EdgeInsets.all(4),
@@ -455,14 +521,20 @@ List<GridColumn> buildColumns({
                   child: Text(
                     dateType.split(' ').first,
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontFamily: 'Sora', color: Colors.grey.shade800, fontSize: 12),
+                    style: TextStyle(
+                        fontFamily: 'Sora',
+                        color: Colors.grey.shade800,
+                        fontSize: 12),
                   ),
                 ),
                 Divider(height: 2, color: Colors.grey.shade400),
                 Text(
                   sessionTypeShortNames[sessionType] ?? sessionType,
                   style: TextStyle(
-                      fontSize: 12, color: Colors.grey.shade900, fontFamily: 'Montserrat', fontWeight: FontWeight.w700),
+                      fontSize: 12,
+                      color: Colors.grey.shade900,
+                      fontFamily: 'Montserrat',
+                      fontWeight: FontWeight.w700),
                 ),
               ],
             ),

@@ -36,7 +36,7 @@ class _SideNavigationMenuState extends State<SideNavigationMenu> {
   final double _collapsedWidth = 100;
   final double _expandedWidth = 250;
   bool isHovered = false;
-  int? selectedIndex;
+  int? selectedIndex = 0;
 
   final List<IconData> _icons = [
     Icons.book,
@@ -218,9 +218,6 @@ class _SideNavigationMenuState extends State<SideNavigationMenu> {
                           InkWell(
                             onTap: () {
                               widget.onGroupSelect();
-                              setState(() {
-                                selectedIndex = -1;
-                              });
                             },
                             child: Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 4.0),

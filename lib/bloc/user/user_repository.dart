@@ -156,7 +156,7 @@ class UserRepository {
   Future<List<MyUser>?> getStudentsByGroupList(int groupId) async {
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/api/get_student_by_group_list/'),
+        Uri.parse('http://127.0.0.1:8000/api/get_students_by_group/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',

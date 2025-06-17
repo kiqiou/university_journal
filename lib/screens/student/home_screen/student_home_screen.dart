@@ -62,7 +62,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
       });
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        tableKey.currentState?.updateDataSource(sessions);
+        tableKey.currentState?.updateDataSource(sessions, students);
       });
 
       setState(() {
@@ -111,7 +111,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
 
     final filtered = type == 'Все' ? sessions : sessions.where((s) => s.sessionType == type).toList();
 
-    tableKey.currentState?.updateDataSource(filtered);
+    tableKey.currentState?.updateDataSource(filtered, students);
   }
 
   void _showThemeScreen() {
@@ -196,7 +196,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                                     setState(() {
                                       sessions = updatedSessions;
                                     });
-                                  }, isEditable: false,
+                                  }, isEditable: false, students: students,
                                 ),
                               ),
                             ],

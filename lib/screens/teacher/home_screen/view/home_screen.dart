@@ -28,6 +28,7 @@ class TeacherHomeScreen extends StatefulWidget {
 class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
   final GlobalKey<JournalTableState> tableKey = GlobalKey<JournalTableState>();
   final _formKey = GlobalKey<FormState>();
+  final userRepository = UserRepository;
   TeacherContentScreen currentScreen = TeacherContentScreen.journal;
 
   DateTime? _selectedDate;
@@ -41,6 +42,8 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
   List<Session> sessions = [];
   List<MyUser> students = [];
   List<Discipline> disciplines = [];
+
+  Future<Map<String, dynamic>>? journalDataFuture;
 
   @override
   void initState() {
@@ -60,7 +63,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      tableKey.currentState?.updateDataSource(sessions);
+      tableKey.currentState?.updateDataSource(sessions, students);
     });
 
     setState(() {
@@ -84,6 +87,25 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     }
   }
 
+  Future<Map<String, dynamic>> loadJournalData(int groupId) async {
+    final userRepository = UserRepository();
+    final journalRepository = JournalRepository();
+
+    final studentsFuture = userRepository.getStudentsByGroupList(groupId);
+    final sessionsFuture = journalRepository.journalData(
+      courseId: disciplines[selectedDisciplineIndex!].id,
+      groupId: groupId,
+    );
+
+    final students = await studentsFuture;
+    final sessions = await sessionsFuture;
+
+    return {
+      'students': students ?? [],
+      'sessions': sessions ?? [],
+    };
+  }
+
   void loadTeacherDisciplines() {
     final authState = context.read<AuthenticationBloc>().state;
 
@@ -102,10 +124,13 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
       currentScreen = TeacherContentScreen.journal;
     });
 
-    final filtered = type == 'Все' ? sessions : sessions.where((s) => s.sessionType == type).toList();
+    final filtered = type == 'Все'
+        ? sessions
+        : sessions.where((s) => s.sessionType == type).toList();
 
-    tableKey.currentState?.updateDataSource(filtered);
+    tableKey.currentState?.updateDataSource(filtered, students);
   }
+
 
   void _showAccountScreen() {
     setState(() {
@@ -169,7 +194,9 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
 
                             if (!success) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Не удалось обновить данные')),
+                                const SnackBar(
+                                    content:
+                                        Text('Не удалось обновить данные')),
                               );
                             }
                             return success;
@@ -183,24 +210,31 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                   automaticallyImplyLeading: false,
                                   title: Text(
                                     'Журнал',
-                                    style: TextStyle(color: Colors.grey.shade800, fontWeight: FontWeight.bold),
+                                    style: TextStyle(
+                                        color: Colors.grey.shade800,
+                                        fontWeight: FontWeight.bold),
                                   ),
                                 ),
                                 body: Column(
                                   children: [
                                     Padding(
-                                      padding: const EdgeInsets.only(top: 20.0, right: 20.0),
+                                      padding: const EdgeInsets.only(
+                                          top: 20.0, right: 20.0),
                                       child: Align(
                                         alignment: Alignment.centerRight,
                                         child: ElevatedButton(
-                                          onPressed: () => _showAddEventDialog(context),
+                                          onPressed: () =>
+                                              _showAddEventDialog(context),
                                           style: ElevatedButton.styleFrom(
-                                            backgroundColor: MyColors.blueJournal,
-                                            padding: EdgeInsets.symmetric(horizontal: 25, vertical: 23),
+                                            backgroundColor:
+                                                MyColors.blueJournal,
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 25, vertical: 23),
                                             textStyle: TextStyle(fontSize: 18),
                                             minimumSize: Size(170, 50),
                                             shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(10),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
                                             ),
                                           ),
                                           child: Text(
@@ -214,22 +248,46 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                         ),
                                       ),
                                     ),
-                                    Expanded(
-                                      child: JournalTable(
-                                        key: tableKey,
-                                        isLoading: isLoading,
-                                        sessions: sessions,
-                                        onSessionsChanged: (updatedSessions) {
-                                          setState(() {
-                                            sessions = updatedSessions;
-                                          });
-                                        }, isEditable: true,
-                                      ),
+                                    FutureBuilder<Map<String, dynamic>>(
+                                      future: journalDataFuture,
+                                      builder: (context, snapshot) {
+                                        if (journalDataFuture == null) {
+                                          return Center(child: Text('Выберите группу'));
+                                        }
+                                        if (snapshot.connectionState == ConnectionState.waiting) {
+                                          return Center(child: CircularProgressIndicator());
+                                        }
+                                        if (snapshot.hasError) {
+                                          return Center(child: Text('Ошибка загрузки'));
+                                        }
+                                        if (!snapshot.hasData) {
+                                          return Center(child: Text('Нет данных'));
+                                        }
+
+                                        final students = snapshot.data!['students'] as List<MyUser>;
+
+                                        return Expanded(
+                                          child: JournalTable(
+                                            key: tableKey,
+                                            students: students,
+                                            sessions: sessions,
+                                            isEditable: true,
+                                            isLoading: false,
+                                            onSessionsChanged: (updatedSessions) {
+                                              print('Загружено занятий: $updatedSessions');
+                                              sessions = updatedSessions;
+                                              _filterBySessionType(selectedSessionsType);
+                                            },
+                                          ),
+                                        );
+                                      },
                                     ),
                                   ],
                                 ),
                               )
-                            : const Center(child: Text('Выберите группу'));
+                            : const Center(
+                                child: Text('Выберите группу'),
+                              );
                     }
                   },
                 ),
@@ -250,7 +308,9 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         shape: BoxShape.circle,
-                        boxShadow: [BoxShadow(blurRadius: 4, color: Colors.black26)],
+                        boxShadow: [
+                          BoxShadow(blurRadius: 4, color: Colors.black26)
+                        ],
                       ),
                       padding: EdgeInsets.all(20),
                       child: Icon(
@@ -269,12 +329,15 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
               child: Builder(
                 builder: (context) {
                   final media = MediaQuery.of(context).size;
-                  final double dialogWidth = (media.width - 32 - 80).clamp(320, 600);
+                  final double dialogWidth =
+                      (media.width - 32 - 80).clamp(320, 600);
                   (media.height - 64).clamp(480, 1100);
                   final screenWidth = MediaQuery.of(context).size.width;
                   final screenHeight = MediaQuery.of(context).size.height;
 
-                  if (screenWidth < 500 || screenHeight < 500) return const SizedBox.shrink();
+                  if (screenWidth < 500 || screenHeight < 500) {
+                    return const SizedBox.shrink();
+                  }
 
                   return Material(
                     child: Padding(
@@ -296,7 +359,8 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                               ],
                             ),
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 32),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 36, vertical: 32),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -314,7 +378,8 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                         ),
                                       ),
                                       IconButton(
-                                        icon: const Icon(Icons.close, size: 28, color: Colors.black54),
+                                        icon: const Icon(Icons.close,
+                                            size: 28, color: Colors.black54),
                                         splashRadius: 24,
                                         onPressed: () {
                                           setState(() {
@@ -329,7 +394,8 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                   Form(
                                     key: _formKey,
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         // Название группы
                                         const Text(
@@ -343,13 +409,17 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                         const SizedBox(height: 18),
                                         DropdownButtonFormField<int>(
                                           value: selectedDisciplineIndex,
-                                          decoration: _inputDecoration('Выберите курс'),
-                                          items: List.generate(disciplines.length, (index) {
+                                          decoration:
+                                              _inputDecoration('Выберите курс'),
+                                          items: List.generate(
+                                              disciplines.length, (index) {
                                             return DropdownMenuItem<int>(
                                               value: index,
                                               child: Text(
                                                 disciplines[index].name,
-                                                style: const TextStyle(fontSize: 15, color: Color(0xFF6B7280)),
+                                                style: const TextStyle(
+                                                    fontSize: 15,
+                                                    color: Color(0xFF6B7280)),
                                               ),
                                             );
                                           }),
@@ -368,8 +438,12 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                         const SizedBox(height: 18),
                                         if (selectedDisciplineIndex != null)
                                           DropdownButtonFormField<int>(
-                                            decoration: _inputDecoration('Выберите группу'),
-                                            items: disciplines[selectedDisciplineIndex!].groups.map((group) {
+                                            decoration: _inputDecoration(
+                                                'Выберите группу'),
+                                            items: disciplines[
+                                                    selectedDisciplineIndex!]
+                                                .groups
+                                                .map((group) {
                                               return DropdownMenuItem<int>(
                                                 value: group.id,
                                                 child: Text(group.name),
@@ -379,29 +453,57 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                               setState(() {
                                                 selectedGroupId = value;
                                               });
-                                              print('Выбрана группа с ID: $value');
+                                              print(
+                                                  'Выбрана группа с ID: $value');
                                             },
                                             validator: (value) {
-                                              if (value == null) return 'Выберите группу';
+                                              if (value == null)
+                                                return 'Выберите группу';
                                               return null;
                                             },
                                           ),
                                         const SizedBox(height: 18),
                                         ElevatedButton(
                                           onPressed: () async {
-                                            showGroupSelect = false;
-                                            loadSessions();
+                                            if (!_formKey.currentState!.validate()) return; // Проверка формы
+
+                                            setState(() {
+                                              showGroupSelect = false;
+                                              isLoading = true;
+                                              journalDataFuture = loadJournalData(selectedGroupId!);
+                                            });
+
+                                            try {
+                                              final data = await journalDataFuture!;
+                                              setState(() {
+                                                students = data['students'] as List<MyUser>;
+                                                sessions = data['sessions'] as List<Session>;
+                                                isLoading = false;
+                                              });
+                                            } catch (e) {
+                                              setState(() {
+                                                isLoading = false;
+                                              });
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(content: Text('Ошибка при загрузке данных')),
+                                              );
+                                            }
                                           },
                                           style: ElevatedButton.styleFrom(
-                                            backgroundColor: const Color(0xFF4068EA),
+                                            backgroundColor:
+                                                const Color(0xFF4068EA),
                                             foregroundColor: Colors.white,
                                             shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(8),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                             ),
-                                            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
-                                            minimumSize: const Size.fromHeight(55),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 28, vertical: 12),
+                                            minimumSize:
+                                                const Size.fromHeight(55),
                                           ),
-                                          child: const Text('Сохранить', style: TextStyle(fontSize: 16)),
+                                          child: const Text('Сохранить',
+                                              style: TextStyle(fontSize: 16)),
                                         ),
                                       ],
                                     ),
@@ -435,7 +537,8 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
             right: 20,
             bottom: 20,
           ),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
             width: screenWidth * 0.25,
             height: screenHeight * 0.85,

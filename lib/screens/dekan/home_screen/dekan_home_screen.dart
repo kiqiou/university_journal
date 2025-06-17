@@ -55,7 +55,7 @@ class _DekanHomeScreenState extends State<DekanHomeScreen> {
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      tableKey.currentState?.updateDataSource(sessions);
+      tableKey.currentState?.updateDataSource(sessions, students);
     });
 
     setState(() {
@@ -103,7 +103,7 @@ class _DekanHomeScreenState extends State<DekanHomeScreen> {
 
     final filtered = type == 'Все' ? sessions : sessions.where((s) => s.sessionType == type).toList();
 
-    tableKey.currentState?.updateDataSource(filtered);
+    tableKey.currentState?.updateDataSource(filtered, students);
   }
 
   void _showThemeScreen() {
@@ -189,7 +189,7 @@ class _DekanHomeScreenState extends State<DekanHomeScreen> {
                                           setState(() {
                                             sessions = updatedSessions;
                                           });
-                                        }, isEditable: false,
+                                        }, isEditable: false, students: students,
                                       ),
                                     ),
                                   ],
