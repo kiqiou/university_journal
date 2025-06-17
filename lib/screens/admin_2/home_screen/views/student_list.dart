@@ -511,7 +511,7 @@ class _StudentsListState extends State<StudentsList> {
                                                 ),
                                                 onPressed: () async {
                                                   final success = await userRepository.updateUser(
-                                                    userId: widget.students[selectedIndex!].id,
+                                                    userId: flatStudentList[selectedIndex!].id,
                                                     groupId: selectedGroup?.id,
                                                     username: nameController.text,
                                                   );
