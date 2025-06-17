@@ -582,7 +582,7 @@ class _CoursesList extends State<CoursesList> {
                                                       width: 50,
                                                       height: 64,
                                                       decoration: BoxDecoration(
-                                                        color: isSelected ? Color(0xFF4068EA) : Colors.blueJurnal,
+                                                        color: isSelected ? Color(0xFF4068EA) : MyColors.blueJournal,
                                                         border: Border.all(
                                                           color: Color(0xFF4068EA),
                                                           width: 2,
@@ -598,8 +598,8 @@ class _CoursesList extends State<CoursesList> {
                                                       type['label']!,
                                                       style: TextStyle(
                                                         color: Colors.black87,
-                                                        fontWeight: FontWeight.w500,
-                                                        fontSize: 18,
+
+                                                        fontSize: 14,
                                                       ),
                                                     ),
                                                   ],
@@ -644,10 +644,7 @@ class _CoursesList extends State<CoursesList> {
                                                     children: [
                                                       Text(
                                                         '${type['label']}*',
-                                                        style: TextStyle(
-                                                          fontWeight: FontWeight.w500,
-                                                          color: Color(0xFF9CA3AF),
-                                                        ),
+                                                        style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
                                                       ),
                                                       SizedBox(height: 8),
                                                       TextFormField(
@@ -655,20 +652,22 @@ class _CoursesList extends State<CoursesList> {
                                                         keyboardType: TextInputType.number,
                                                         decoration: InputDecoration(
                                                           hintText: 'Введите часы',
-                                                          border: OutlineInputBorder(
-                                                            borderRadius: BorderRadius.circular(16),
-                                                          ),
-                                                          enabledBorder: OutlineInputBorder(
-                                                            borderRadius: BorderRadius.circular(16),
-                                                            borderSide: BorderSide(color: Color(0xFFE5E7EB), width: 1),
-                                                          ),
-                                                          focusedBorder: OutlineInputBorder(
-                                                            borderRadius: BorderRadius.circular(16),
-                                                            borderSide: BorderSide(color: Color(0xFF4068EA), width: 1.2),
-                                                          ),
-                                                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                                          hintStyle: TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
                                                           filled: true,
                                                           fillColor: Colors.white,
+                                                          enabledBorder: OutlineInputBorder(
+                                                            borderRadius: BorderRadius.circular(11),
+                                                            borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                                          ),
+                                                          focusedBorder: OutlineInputBorder(
+                                                            borderRadius: BorderRadius.circular(11),
+                                                            borderSide: BorderSide(color: MyColors.blueJournal, width: 1.5),
+                                                          ),
+                                                          border: OutlineInputBorder(
+                                                            borderRadius: BorderRadius.circular(11),
+                                                            borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                                          ),
+                                                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                                                         ),
                                                         validator: (value) {
                                                           if (selectedTypes.contains(typeKey) && (value == null || value.isEmpty)) {

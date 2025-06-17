@@ -268,7 +268,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                                 width: 50,
                                                 height: 64,
                                                 decoration: BoxDecoration(
-                                                  color: isSelected ? Color(0xFF4068EA) : Colors.blueJurnal,
+                                                  color: isSelected ? Color(0xFF4068EA) : MyColors.blueJournal,
                                                   border: Border.all(
                                                     color: Color(0xFF4068EA),
                                                     width: 2,
