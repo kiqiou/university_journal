@@ -112,7 +112,7 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
                           },
                           child: Text(
                             type,
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                            style: TextStyle(fontSize: 18, color: Colors.grey.shade700),
                           ),
                         ),
                       );
@@ -231,10 +231,6 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
 
     if (screenWidth < 1900) return const SizedBox.shrink();
     if (screenHeight < 500) return const SizedBox.shrink();
-    // Делаем ширину больше, как на первом скрине, и добавляем большой max
-    final dialogWidth = min(800.0, max(420.0, screenWidth * 0.45));
-    final dialogHeight = min(1200.0, screenHeight - 60);
-
 
     return SizedBox(
       height: screenHeight,
@@ -250,8 +246,8 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
                 Text(
                   'Добавить занятие в журнал',
                   style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.grey.shade700,
+                    fontSize: 16,
+                    color: Colors.grey.shade800,
                   ),
                 ),
                 Row(
@@ -296,10 +292,14 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
             SizedBox(height: 20),
             Text(
               'Выберите дату занятия',
-              style: TextStyle(fontSize: 16),
+              style: TextStyle(
+                fontSize: 15,
+                color: Colors.grey.shade800,
+              ),
             ),
             SizedBox(height: 12),
             TableCalendar(
+              locale: 'ru_RU',
               firstDay: DateTime(2020),
               lastDay: DateTime(2030),
               focusedDay: _focusedDay,
@@ -337,16 +337,16 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
               children: [
                 Container(
                   width: 100,
-                  height: 60,
+                  height: 50,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.shade300, width: 1.5),
+                    border: Border.all(color: Colors.grey.shade400, width: 1.5),
                     borderRadius: BorderRadius.circular(12),
                     color: Colors.white,
                   ),
                   child: Text(
                     _selectedDate.day.toString().padLeft(2, '0'),
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                    style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
                   ),
                 ),
                 SizedBox(width: 15),
@@ -357,10 +357,10 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
                     onTap: _showMonthDropdown,
                     child: Container(
                       width: 220,
-                      height: 60,
+                      height: 50,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey.shade300, width: 1.5),
+                        border: Border.all(color: Colors.grey.shade400, width: 1.5),
                         borderRadius: BorderRadius.circular(12),
                         color: Colors.white,
                       ),
@@ -369,7 +369,7 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
                         children: [
                           Text(
                             _monthName(_focusedDay.month),
-                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                            style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
                           ),
                           Icon(Icons.arrow_drop_down, color: Colors.grey),
                         ],
@@ -381,16 +381,16 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
                 Flexible(
                   child: Container(
                     width: 150,
-                    height: 60,
+                    height: 50,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade300, width: 1.5),
+                      border: Border.all(color: Colors.grey.shade400, width: 1.5),
                       borderRadius: BorderRadius.circular(12),
                       color: Colors.white,
                     ),
                     child: Text(
                       _selectedDate.year.toString(),
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                      style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
                     ),
                   ),
                 ),
@@ -399,7 +399,10 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
             SizedBox(height: 24),
             Text(
               'Выберите тип занятия',
-              style: TextStyle(fontSize: 22),
+              style: TextStyle(
+                fontSize: 15,
+                color: Colors.grey.shade800,
+              ),
             ),
             SizedBox(height: 20),
             CompositedTransformTarget(
@@ -414,7 +417,8 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
                   }
                 },
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+                  height: 50,
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey.shade400, width: 1.5),
                     borderRadius: BorderRadius.circular(8),
@@ -426,8 +430,8 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
                       Text(
                         _selectedEventType ?? 'Тип занятия',
                         style: TextStyle(
-                          fontSize: 18,
-                          color: _selectedEventType == null ? Colors.grey : Colors.black,
+                          fontSize: 15,
+                          color: _selectedEventType == null ? Colors.grey.shade500 : Colors.grey.shade700,
                         ),
                       ),
                       Icon(Icons.arrow_drop_down, color: Colors.grey),

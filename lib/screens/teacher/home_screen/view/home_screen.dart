@@ -246,20 +246,25 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
 
                                                   final repository =
                                                       JournalRepository();
-                                                  final success = await repository
-                                                      .deleteSession(
-                                                          sessionId: session.id);
+                                                  final success =
+                                                      await repository
+                                                          .deleteSession(
+                                                              sessionId:
+                                                                  session.id);
 
                                                   if (success) {
                                                     final updatedSessions =
                                                         List<Session>.from(
                                                             sessions)
                                                           ..removeWhere((s) =>
-                                                              s.id == session.id);
+                                                              s.id ==
+                                                              session.id);
 
                                                     setState(() {
-                                                      _selectedColumnIndex = null;
-                                                      sessions = updatedSessions;
+                                                      _selectedColumnIndex =
+                                                          null;
+                                                      sessions =
+                                                          updatedSessions;
                                                     });
 
                                                     // Обновляем таблицу
@@ -268,7 +273,8 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                                             updatedSessions,
                                                             students);
                                                   } else {
-                                                    ScaffoldMessenger.of(context)
+                                                    ScaffoldMessenger.of(
+                                                            context)
                                                         .showSnackBar(
                                                       const SnackBar(
                                                           content: Text(
@@ -287,7 +293,8 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                                   minimumSize: Size(170, 50),
                                                   shape: RoundedRectangleBorder(
                                                     borderRadius:
-                                                        BorderRadius.circular(10),
+                                                        BorderRadius.circular(
+                                                            10),
                                                   ),
                                                 ),
                                                 child: Text(
@@ -307,48 +314,20 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                             child: Align(
                                               alignment: Alignment.centerRight,
                                               child: ElevatedButton(
-                                                onPressed: () async {
-                                                  final dates = extractUniqueDateTypes(sessions);
-                                                  final toRemove = dates[_selectedColumnIndex!];
-
-                                                  final session = sessions.firstWhere((s) => '${s.date} ${s.sessionType} ${s.id}' == toRemove);
-
-                                                  final repository = JournalRepository();
-                                                  final success = await repository.deleteSession(
-                                                      sessionId: session.id,
-                                                  );
-
-                                                  if (success) {
-                                                    final updatedSessions =
-                                                    List<Session>.from(sessions)..removeWhere((s) => s.id == session.id);
-
-                                                    setState(() {
-                                                      _selectedColumnIndex = null;
-                                                      sessions = updatedSessions;
-                                                    });
-
-                                                    tableKey.currentState?.updateDataSource(updatedSessions, students);
-                                                  } else {
-                                                    ScaffoldMessenger.of(context)
-                                                        .showSnackBar(
-                                                      const SnackBar(
-                                                          content: Text(
-                                                              'Ошибка при удалении занятия')),
-                                                    );
-                                                  }
-                                                },
+                                                onPressed: () {},
                                                 style: ElevatedButton.styleFrom(
                                                   backgroundColor:
-                                                  MyColors.blueJournal,
+                                                      MyColors.blueJournal,
                                                   padding: EdgeInsets.symmetric(
                                                       horizontal: 25,
                                                       vertical: 23),
                                                   textStyle:
-                                                  TextStyle(fontSize: 18),
+                                                      TextStyle(fontSize: 18),
                                                   minimumSize: Size(170, 50),
                                                   shape: RoundedRectangleBorder(
                                                     borderRadius:
-                                                    BorderRadius.circular(10),
+                                                        BorderRadius.circular(
+                                                            10),
                                                   ),
                                                 ),
                                                 child: Text(
@@ -631,9 +610,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                         const SizedBox(height: 18),
                                         ElevatedButton(
                                           onPressed: () async {
-                                            if (!_formKey.currentState!
-                                                .validate())
-                                              return; // Проверка формы
+                                            if (!_formKey.currentState!.validate()) {return;}
 
                                             setState(() {
                                               showGroupSelect = false;
