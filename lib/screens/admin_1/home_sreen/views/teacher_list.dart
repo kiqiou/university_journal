@@ -219,9 +219,10 @@ class _TeachersList extends State<TeachersList> {
                                       Expanded(
                                         child: GestureDetector(
                                           onTap: () {
-                                            setState(() {
-                                              selectedIndex = index;
-                                            });
+                                              setState(() {
+                                                selectedIndex = index;
+                                                selectedDisciplines = widget.teachers[index].disciplines ?? [];
+                                              });
                                           },
                                           child: Container(
                                             height: 55,
@@ -708,81 +709,76 @@ class _TeachersList extends State<TeachersList> {
                                           ],
                                         ),
                                         SizedBox(height: constraints.maxHeight * 0.03),
-                                        Row(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Expanded(
-                                              child: Column(
-                                                children: [
-                                                  SizedBox(height: 20),
-                                                  GestureDetector(
-                                                    onTap: () async {
-                                                      final selected = await showDialog<List<Discipline>>(
-                                                        context: context,
-                                                        builder: (_) => MultiSelectDialog(
-                                                          items: widget.disciplines,
-                                                          initiallySelected: selectedDisciplines,
-                                                          itemLabel: (discipline) => discipline.name,
-                                                        ),
-                                                      );
+                                            Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                SizedBox(height: 20),
+                                                GestureDetector(
+                                                  onTap: () async {
+                                                    final selected = await showDialog<List<Discipline>>(
+                                                      context: context,
+                                                      builder: (_) => MultiSelectDialog(
+                                                        items: widget.disciplines,
+                                                        initiallySelected: selectedDisciplines,
+                                                        itemLabel: (discipline) => discipline.name,
+                                                      ),
+                                                    );
 
-                                                      if (selected != null) {
-                                                        setState(() {
-                                                          selectedDisciplines = selected;
-                                                        });
-                                                      }
-                                                    },
-                                                    child: InputDecorator(
-                                                      decoration: InputDecoration(
-                                                        border: OutlineInputBorder(
-                                                          borderRadius: BorderRadius.circular(12),
-                                                          borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
-                                                        ),
-                                                        enabledBorder: OutlineInputBorder(
-                                                          borderRadius: BorderRadius.circular(12),
-                                                          borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
-                                                        ),
-                                                        focusedBorder: OutlineInputBorder(
-                                                          borderRadius: BorderRadius.circular(12),
-                                                          borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5), // чуть ярче при фокусе
-                                                        ),
-                                                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                                    if (selected != null) {
+                                                      setState(() {
+                                                        selectedDisciplines = selected;
+                                                      });
+                                                    }
+                                                  },
+                                                  child: InputDecorator(
+                                                    decoration: InputDecoration(
+                                                      border: OutlineInputBorder(
+                                                        borderRadius: BorderRadius.circular(12),
+                                                        borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
                                                       ),
-                                                      child: Text(
-                                                        selectedDisciplines.isEmpty
-                                                            ? "Выберите из списка дисциплин"
-                                                            : selectedDisciplines.map((s) => s.name).join(', '),
-                                                        style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
+                                                      enabledBorder: OutlineInputBorder(
+                                                        borderRadius: BorderRadius.circular(12),
+                                                        borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
                                                       ),
+                                                      focusedBorder: OutlineInputBorder(
+                                                        borderRadius: BorderRadius.circular(12),
+                                                        borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5), // чуть ярче при фокусе
+                                                      ),
+                                                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                                    ),
+                                                    child: Text(
+                                                      selectedDisciplines.isEmpty
+                                                          ? "Выберите из списка дисциплин"
+                                                          : selectedDisciplines.map((s) => s.name).join(', '),
+                                                      style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
                                                     ),
                                                   ),
-                                                  const SizedBox(height: 18),
-                                                  if (selectedDisciplines.isNotEmpty)
-                                                    Wrap(
-                                                      spacing: 8,
-                                                      runSpacing: 8,
-                                                      children: selectedDisciplines.map((discipline) {
-                                                        return Chip(
-                                                          label: Text(discipline.name),
-                                                          side: BorderSide(color: Colors.grey.shade500),
-                                                          backgroundColor: Colors.white,
-                                                          deleteIcon: Icon(Icons.close, size: 18),
-                                                          deleteIconColor: Colors.grey.shade500,
-                                                          onDeleted: () {
-                                                            setState(() {
-                                                              selectedDisciplines.remove(discipline);
-                                                            });
-                                                          },
-                                                        );
-                                                      }).toList(),
-                                                    ),
-                                                ],
-                                              ),
+                                                ),
+                                                const SizedBox(height: 18),
+                                                if (selectedDisciplines.isNotEmpty)
+                                                  Wrap(
+                                                    spacing: 8,
+                                                    runSpacing: 8,
+                                                    alignment: WrapAlignment.start,
+                                                    children: selectedDisciplines.map((discipline) {
+                                                      return Chip(
+                                                        label: Text(discipline.name),
+                                                        side: BorderSide(color: Colors.grey.shade500),
+                                                        backgroundColor: Colors.white,
+                                                        deleteIcon: Icon(Icons.close, size: 18),
+                                                        deleteIconColor: Colors.grey.shade500,
+                                                        onDeleted: () {
+                                                          setState(() {
+                                                            selectedDisciplines.remove(discipline);
+                                                          });
+                                                        },
+                                                      );
+                                                    }).toList(),
+                                                  ),
+                                              ],
                                             ),
                                           ],
                                         ),
-                                      ],
-                                    ),
                                   ),
                                 );
                               },
