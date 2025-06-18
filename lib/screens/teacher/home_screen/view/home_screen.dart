@@ -186,7 +186,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                           onUpdate: (sessionId, date, type, topic) async {
                             final repository = JournalRepository();
                             final success = await repository.updateSession(
-                              sessionId: sessionId,
+                              id: sessionId,
                               date: date,
                               type: type,
                               topic: topic,
@@ -314,7 +314,9 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                             child: Align(
                                               alignment: Alignment.centerRight,
                                               child: ElevatedButton(
-                                                onPressed: () {},
+                                                onPressed: () =>
+                                                    _showAddEventDialog(
+                                                        context, true),
                                                 style: ElevatedButton.styleFrom(
                                                   backgroundColor:
                                                       MyColors.blueJournal,
@@ -349,7 +351,8 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                             alignment: Alignment.centerRight,
                                             child: ElevatedButton(
                                               onPressed: () =>
-                                                  _showAddEventDialog(context),
+                                                  _showAddEventDialog(
+                                                      context, false),
                                               style: ElevatedButton.styleFrom(
                                                 backgroundColor:
                                                     MyColors.blueJournal,
@@ -412,6 +415,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                             sessions: sessions,
                                             isEditable: true,
                                             isLoading: false,
+                                            selectedColumnIndex: _selectedColumnIndex,
                                             onColumnSelected: (int index) {
                                               setState(() {
                                                 _selectedColumnIndex = index;
@@ -610,7 +614,10 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                         const SizedBox(height: 18),
                                         ElevatedButton(
                                           onPressed: () async {
-                                            if (!_formKey.currentState!.validate()) {return;}
+                                            if (!_formKey.currentState!
+                                                .validate()) {
+                                              return;
+                                            }
 
                                             setState(() {
                                               showGroupSelect = false;
@@ -677,7 +684,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     );
   }
 
-  void _showAddEventDialog(BuildContext context) async {
+  void _showAddEventDialog(BuildContext context, bool isEditing) async {
     await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -705,23 +712,60 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                 _selectedEventType = eventType;
               });
             }, onSavePressed: () async {
-              if (_selectedDate != null && _selectedEventType != null) {
+              if (isEditing) {
                 final journalRepository = JournalRepository();
-                String formattedDate =
-                    "${_selectedDate?.year}-${_selectedDate?.month.toString().padLeft(2, '0')}-${_selectedDate?.day.toString().padLeft(2, '0')}";
-                await journalRepository.addSession(
-                  type: _selectedEventType!,
-                  date: formattedDate,
-                  courseId: disciplines[selectedDisciplineIndex!].id,
-                  groupId: selectedGroupId!,
+                final dates = extractUniqueDateTypes(sessions);
+                final toRemove = dates[_selectedColumnIndex!];
+                final session = sessions.firstWhere(
+                  (s) => '${s.date} ${s.sessionType} ${s.id}' == toRemove,
                 );
-                final newSessions = await journalRepository.journalData(
-                  courseId: disciplines[selectedDisciplineIndex!].id,
-                  groupId: selectedGroupId!,
+
+                bool success = await journalRepository.updateSession(
+                  id: session.id,
+                  type: _selectedEventType,
+                  date: _selectedDate != null
+                ? "${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}"
+                  : null,
                 );
-                print('Загружено занятий: ${newSessions.length}');
-                sessions = newSessions;
-                _filterBySessionType(selectedSessionsType);
+
+                if (success) {
+                  final updatedSessions = await journalRepository.journalData(
+                    courseId: disciplines[selectedDisciplineIndex!].id,
+                    groupId: selectedGroupId!,
+                  );
+
+                  setState(() {
+                    _selectedColumnIndex = null;
+                    sessions = updatedSessions;
+                  });
+
+                  tableKey.currentState
+                      ?.updateDataSource(updatedSessions, students);
+                  sessions = updatedSessions;
+                  _filterBySessionType(selectedSessionsType);
+                }
+              } else {
+                if (_selectedDate != null && _selectedEventType != null) {
+                  final journalRepository = JournalRepository();
+                  String formattedDate =
+                      "${_selectedDate?.year}-${_selectedDate?.month.toString().padLeft(2, '0')}-${_selectedDate?.day.toString().padLeft(2, '0')}";
+
+                  await journalRepository.addSession(
+                    type: _selectedEventType!,
+                    date: formattedDate,
+                    courseId: disciplines[selectedDisciplineIndex!].id,
+                    groupId: selectedGroupId!,
+                  );
+
+                  final newSessions = await journalRepository.journalData(
+                    courseId: disciplines[selectedDisciplineIndex!].id,
+                    groupId: selectedGroupId!,
+                  );
+
+                  print('Загружено занятий: ${newSessions.length}');
+                  sessions = newSessions;
+                  _filterBySessionType(selectedSessionsType);
+                }
               }
             }),
           ),

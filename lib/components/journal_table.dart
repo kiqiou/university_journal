@@ -11,19 +11,20 @@ import 'colors/colors.dart';
 class JournalTable extends StatefulWidget {
   final bool isLoading;
   final bool isEditable;
+  int? selectedColumnIndex;
   final List<Session> sessions;
   final List<MyUser> students;
   final void Function(int)? onColumnSelected;
   final void Function(List<Session>)? onSessionsChanged;
 
-  const JournalTable(
+  JournalTable(
       {super.key,
       required this.isLoading,
       required this.sessions,
       this.onSessionsChanged,
       required this.isEditable,
       required this.students,
-      this.onColumnSelected});
+      this.onColumnSelected, this.selectedColumnIndex});
 
   @override
   State<JournalTable> createState() => JournalTableState();
@@ -33,7 +34,6 @@ class JournalTableState extends State<JournalTable> {
   JournalDataSource? dataSource;
   List<GridColumn> columns = [];
   List<Session> _sessions = [];
-  int? _selectedColumnIndex;
 
   @override
   void initState() {
@@ -55,7 +55,7 @@ class JournalTableState extends State<JournalTable> {
 
       columns = buildColumns(
         sessions: sessions,
-        selectedColumnIndex: _selectedColumnIndex,
+        selectedColumnIndex: widget.selectedColumnIndex,
         onHeaderTap: _onHeaderTap,
       );
 
@@ -86,10 +86,10 @@ class JournalTableState extends State<JournalTable> {
   void _onHeaderTap(int index) {
     if (widget.isEditable) {
       setState(() {
-        _selectedColumnIndex = index;
+        widget.selectedColumnIndex = index;
         columns = buildColumns(
           sessions: _sessions,
-          selectedColumnIndex: _selectedColumnIndex,
+          selectedColumnIndex: widget.selectedColumnIndex,
           onHeaderTap: _onHeaderTap,
         );
       });

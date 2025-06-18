@@ -152,7 +152,7 @@ class _DekanHomeScreenState extends State<DekanHomeScreen> {
                           onUpdate: (sessionId, date, type, topic) async {
                             final repository = JournalRepository();
                             final success = await repository.updateSession(
-                              sessionId: sessionId,
+                              id: sessionId,
                               date: date,
                               type: type,
                               topic: topic,

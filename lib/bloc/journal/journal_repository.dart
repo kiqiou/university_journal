@@ -90,7 +90,7 @@ class JournalRepository {
   }
 
   Future<bool> updateSession({
-    required int sessionId,
+    required int id,
     String? date,
     String? type,
     String? topic,
@@ -101,7 +101,7 @@ class JournalRepository {
     if (topic != null) body['topic'] = topic;
 
     final response = await http.patch(
-      Uri.parse('http://127.0.0.1:8000/api/update_session/$sessionId/'),
+      Uri.parse('http://127.0.0.1:8000/api/update_session/$id/'),
       headers: {
         'Content-Type': 'application/json',
       },
