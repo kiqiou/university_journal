@@ -206,108 +206,149 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                       case TeacherContentScreen.journal:
                         return selectedGroupId != null
                             ? Scaffold(
-                                body: Column(
-                                  children: [
-                                    SizedBox(
-                                      height: 40,
-                                    ),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          selectedSessionsType == 'Все'
-                                              ? 'Журнал'
-                                              : selectedSessionsType,
-                                          style: TextStyle(
-                                              color: Colors.grey.shade800,
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        Spacer(),
-                                        if (_selectedColumnIndex != null) ...[
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                                top: 20.0, right: 20.0),
-                                            child: Align(
-                                              alignment: Alignment.centerRight,
-                                              child: ElevatedButton(
-                                                onPressed: () async {
-                                                  final dates =
-                                                      extractUniqueDateTypes(
-                                                          sessions);
-                                                  final toRemove = dates[
-                                                      _selectedColumnIndex!];
+                                body: GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () {
+                                    setState(() {
+                                      _selectedColumnIndex = null;
+                                    });
+                                  },
+                                  child: Column(
+                                    children: [
+                                      SizedBox(
+                                        height: 40,
+                                      ),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            selectedSessionsType == 'Все'
+                                                ? 'Журнал'
+                                                : selectedSessionsType,
+                                            style: TextStyle(
+                                                color: Colors.grey.shade800,
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          Spacer(),
+                                          if (_selectedColumnIndex != null) ...[
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 20.0, right: 20.0),
+                                              child: Align(
+                                                alignment: Alignment.centerRight,
+                                                child: ElevatedButton(
+                                                  onPressed: () async {
+                                                    final dates =
+                                                        extractUniqueDateTypes(
+                                                            sessions);
+                                                    final toRemove = dates[
+                                                        _selectedColumnIndex!];
 
-                                                  final session =
-                                                      sessions.firstWhere(
-                                                    (s) =>
-                                                        '${s.date} ${s.sessionType} ${s.id}' ==
-                                                        toRemove,
-                                                  );
-
-                                                  final repository =
-                                                      JournalRepository();
-                                                  final success =
-                                                      await repository
-                                                          .deleteSession(
-                                                              sessionId:
-                                                                  session.id);
-
-                                                  if (success) {
-                                                    final updatedSessions =
-                                                        List<Session>.from(
-                                                            sessions)
-                                                          ..removeWhere((s) =>
-                                                              s.id ==
-                                                              session.id);
-
-                                                    setState(() {
-                                                      _selectedColumnIndex =
-                                                          null;
-                                                      sessions =
-                                                          updatedSessions;
-                                                    });
-
-                                                    // Обновляем таблицу
-                                                    tableKey.currentState
-                                                        ?.updateDataSource(
-                                                            updatedSessions,
-                                                            students);
-                                                  } else {
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      const SnackBar(
-                                                          content: Text(
-                                                              'Ошибка при удалении занятия')),
+                                                    final session =
+                                                        sessions.firstWhere(
+                                                      (s) =>
+                                                          '${s.date} ${s.sessionType} ${s.id}' ==
+                                                          toRemove,
                                                     );
-                                                  }
-                                                },
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor:
-                                                      MyColors.blueJournal,
-                                                  padding: EdgeInsets.symmetric(
-                                                      horizontal: 25,
-                                                      vertical: 23),
-                                                  textStyle:
-                                                      TextStyle(fontSize: 18),
-                                                  minimumSize: Size(170, 50),
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
+
+                                                    final repository =
+                                                        JournalRepository();
+                                                    final success =
+                                                        await repository
+                                                            .deleteSession(
+                                                                sessionId:
+                                                                    session.id);
+
+                                                    if (success) {
+                                                      final updatedSessions =
+                                                          List<Session>.from(
+                                                              sessions)
+                                                            ..removeWhere((s) =>
+                                                                s.id ==
+                                                                session.id);
+
+                                                      setState(() {
+                                                        _selectedColumnIndex =
+                                                            null;
+                                                        sessions =
+                                                            updatedSessions;
+                                                      });
+                                                      tableKey.currentState
+                                                          ?.updateDataSource(
+                                                              updatedSessions,
+                                                              students);
+                                                    } else {
+                                                      ScaffoldMessenger.of(
+                                                              context)
+                                                          .showSnackBar(
+                                                        const SnackBar(
+                                                            content: Text(
+                                                                'Ошибка при удалении занятия')),
+                                                      );
+                                                    }
+                                                  },
+                                                  style: ElevatedButton.styleFrom(
+                                                    backgroundColor:
+                                                        MyColors.blueJournal,
+                                                    padding: EdgeInsets.symmetric(
+                                                        horizontal: 25,
+                                                        vertical: 23),
+                                                    textStyle:
+                                                        TextStyle(fontSize: 18),
+                                                    minimumSize: Size(170, 50),
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                    ),
                                                   ),
-                                                ),
-                                                child: Text(
-                                                  'Удалить занятие',
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontFamily: 'Montserrat',
-                                                    fontWeight: FontWeight.w700,
+                                                  child: Text(
+                                                    'Удалить занятие',
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontFamily: 'Montserrat',
+                                                      fontWeight: FontWeight.w700,
+                                                    ),
                                                   ),
                                                 ),
                                               ),
                                             ),
-                                          ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 20.0, right: 20.0),
+                                              child: Align(
+                                                alignment: Alignment.centerRight,
+                                                child: ElevatedButton(
+                                                  onPressed: () =>
+                                                      _showAddEventDialog(
+                                                          context, true),
+                                                  style: ElevatedButton.styleFrom(
+                                                    backgroundColor:
+                                                        MyColors.blueJournal,
+                                                    padding: EdgeInsets.symmetric(
+                                                        horizontal: 25,
+                                                        vertical: 23),
+                                                    textStyle:
+                                                        TextStyle(fontSize: 18),
+                                                    minimumSize: Size(170, 50),
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                    ),
+                                                  ),
+                                                  child: Text(
+                                                    'Редактировать занятие',
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontFamily: 'Montserrat',
+                                                      fontWeight: FontWeight.w700,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                           Padding(
                                             padding: const EdgeInsets.only(
                                                 top: 20.0, right: 20.0),
@@ -316,7 +357,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                               child: ElevatedButton(
                                                 onPressed: () =>
                                                     _showAddEventDialog(
-                                                        context, true),
+                                                        context, false),
                                                 style: ElevatedButton.styleFrom(
                                                   backgroundColor:
                                                       MyColors.blueJournal,
@@ -328,12 +369,11 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                                   minimumSize: Size(170, 50),
                                                   shape: RoundedRectangleBorder(
                                                     borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
+                                                        BorderRadius.circular(10),
                                                   ),
                                                 ),
                                                 child: Text(
-                                                  'Редактировать занятие',
+                                                  'Добавить занятие',
                                                   style: TextStyle(
                                                     color: Colors.white,
                                                     fontFamily: 'Montserrat',
@@ -344,96 +384,62 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                             ),
                                           ),
                                         ],
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                              top: 20.0, right: 20.0),
-                                          child: Align(
-                                            alignment: Alignment.centerRight,
-                                            child: ElevatedButton(
-                                              onPressed: () =>
-                                                  _showAddEventDialog(
-                                                      context, false),
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor:
-                                                    MyColors.blueJournal,
-                                                padding: EdgeInsets.symmetric(
-                                                    horizontal: 25,
-                                                    vertical: 23),
-                                                textStyle:
-                                                    TextStyle(fontSize: 18),
-                                                minimumSize: Size(170, 50),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                ),
-                                              ),
-                                              child: Text(
-                                                'Добавить занятие',
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontFamily: 'Montserrat',
-                                                  fontWeight: FontWeight.w700,
-                                                ),
-                                              ),
+                                      ),
+                                      SizedBox(
+                                        height: 40,
+                                      ),
+                                      FutureBuilder<Map<String, dynamic>>(
+                                        future: journalDataFuture,
+                                        builder: (context, snapshot) {
+                                          if (journalDataFuture == null) {
+                                            return Center(
+                                                child: Text('Выберите группу'));
+                                          }
+                                          if (snapshot.connectionState ==
+                                              ConnectionState.waiting) {
+                                            return Center(
+                                                child:
+                                                    CircularProgressIndicator());
+                                          }
+                                          if (snapshot.hasError) {
+                                            return Center(
+                                                child: Text('Ошибка загрузки'));
+                                          }
+                                          if (!snapshot.hasData) {
+                                            return Center(
+                                                child: Text('Нет данных'));
+                                          }
+
+                                          final students = snapshot
+                                              .data!['students'] as List<MyUser>;
+
+                                          return Expanded(
+                                            child: JournalTable(
+                                              key: tableKey,
+                                              students: students,
+                                              sessions: sessions,
+                                              isEditable: true,
+                                              isLoading: false,
+                                              selectedColumnIndex: _selectedColumnIndex,
+                                              onColumnSelected: (int index) {
+                                                setState(() {
+                                                  _selectedColumnIndex = index;
+                                                });
+                                              },
+                                              onSessionsChanged:
+                                                  (updatedSessions) {
+                                                print(
+                                                    'Загружено занятий: $updatedSessions');
+                                                sessions = updatedSessions;
+                                                _filterBySessionType(
+                                                    selectedSessionsType);
+                                              },
                                             ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      height: 40,
-                                    ),
-                                    FutureBuilder<Map<String, dynamic>>(
-                                      future: journalDataFuture,
-                                      builder: (context, snapshot) {
-                                        if (journalDataFuture == null) {
-                                          return Center(
-                                              child: Text('Выберите группу'));
-                                        }
-                                        if (snapshot.connectionState ==
-                                            ConnectionState.waiting) {
-                                          return Center(
-                                              child:
-                                                  CircularProgressIndicator());
-                                        }
-                                        if (snapshot.hasError) {
-                                          return Center(
-                                              child: Text('Ошибка загрузки'));
-                                        }
-                                        if (!snapshot.hasData) {
-                                          return Center(
-                                              child: Text('Нет данных'));
-                                        }
-
-                                        final students = snapshot
-                                            .data!['students'] as List<MyUser>;
-
-                                        return Expanded(
-                                          child: JournalTable(
-                                            key: tableKey,
-                                            students: students,
-                                            sessions: sessions,
-                                            isEditable: true,
-                                            isLoading: false,
-                                            selectedColumnIndex: _selectedColumnIndex,
-                                            onColumnSelected: (int index) {
-                                              setState(() {
-                                                _selectedColumnIndex = index;
-                                              });
-                                            },
-                                            onSessionsChanged:
-                                                (updatedSessions) {
-                                              print(
-                                                  'Загружено занятий: $updatedSessions');
-                                              sessions = updatedSessions;
-                                              _filterBySessionType(
-                                                  selectedSessionsType);
-                                            },
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ],
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               )
                             : const Center(

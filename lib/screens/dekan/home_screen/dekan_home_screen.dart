@@ -101,7 +101,9 @@ class _DekanHomeScreenState extends State<DekanHomeScreen> {
       currentScreen = DekanContentScreen.journal;
     });
 
-    final filtered = type == 'Все' ? sessions : sessions.where((s) => s.sessionType == type).toList();
+    final filtered = type == 'Все'
+        ? sessions
+        : sessions.where((s) => s.sessionType == type).toList();
 
     tableKey.currentState?.updateDataSource(filtered, students);
   }
@@ -160,7 +162,9 @@ class _DekanHomeScreenState extends State<DekanHomeScreen> {
 
                             if (!success) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Не удалось обновить данные')),
+                                const SnackBar(
+                                    content:
+                                        Text('Не удалось обновить данные')),
                               );
                             }
                             return success;
@@ -170,16 +174,26 @@ class _DekanHomeScreenState extends State<DekanHomeScreen> {
                       case DekanContentScreen.journal:
                         return selectedGroupId != null
                             ? Scaffold(
-                                appBar: AppBar(
-                                  automaticallyImplyLeading: false,
-                                  title: Text(
-                                    'Журнал',
-                                    style: TextStyle(color: Colors.grey.shade800, fontWeight: FontWeight.bold),
-                                  ),
-                                ),
                                 body: Column(
                                   children: [
-                                    SizedBox(height: 50,),
+                                    SizedBox(
+                                      height: 40,
+                                    ),
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        selectedSessionsType == 'Все'
+                                            ? 'Журнал'
+                                            : selectedSessionsType,
+                                        style: TextStyle(
+                                            color: Colors.grey.shade800,
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 40,
+                                    ),
                                     Expanded(
                                       child: JournalTable(
                                         key: tableKey,
@@ -189,7 +203,9 @@ class _DekanHomeScreenState extends State<DekanHomeScreen> {
                                           setState(() {
                                             sessions = updatedSessions;
                                           });
-                                        }, isEditable: false, students: students,
+                                        },
+                                        isEditable: false,
+                                        students: students,
                                       ),
                                     ),
                                   ],
@@ -216,7 +232,9 @@ class _DekanHomeScreenState extends State<DekanHomeScreen> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         shape: BoxShape.circle,
-                        boxShadow: [BoxShadow(blurRadius: 4, color: Colors.black26)],
+                        boxShadow: [
+                          BoxShadow(blurRadius: 4, color: Colors.black26)
+                        ],
                       ),
                       padding: EdgeInsets.all(20),
                       child: Icon(
@@ -235,12 +253,14 @@ class _DekanHomeScreenState extends State<DekanHomeScreen> {
               child: Builder(
                 builder: (context) {
                   final media = MediaQuery.of(context).size;
-                  final double dialogWidth = (media.width - 32 - 80).clamp(320, 600);
+                  final double dialogWidth =
+                      (media.width - 32 - 80).clamp(320, 600);
                   (media.height - 64).clamp(480, 1100);
                   final screenWidth = MediaQuery.of(context).size.width;
                   final screenHeight = MediaQuery.of(context).size.height;
 
-                  if (screenWidth < 500 || screenHeight < 500) return const SizedBox.shrink();
+                  if (screenWidth < 500 || screenHeight < 500)
+                    return const SizedBox.shrink();
 
                   return Material(
                     child: Padding(
@@ -262,25 +282,25 @@ class _DekanHomeScreenState extends State<DekanHomeScreen> {
                               ],
                             ),
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 32),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 36, vertical: 32),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // --- Заголовок и кнопка закрытия ---
                                   Row(
                                     children: [
-                                      const Expanded(
+                                      Expanded(
                                         child: Text(
                                           'Выберите дисциплину и группу',
                                           style: TextStyle(
                                             fontSize: 18,
-                                            fontWeight: FontWeight.w400,
-                                            color: Colors.black,
+                                            color: Colors.grey.shade700,
                                           ),
                                         ),
                                       ),
                                       IconButton(
-                                        icon: const Icon(Icons.close, size: 28, color: Colors.black54),
+                                        icon: const Icon(Icons.close,
+                                            size: 28, color: Colors.black54),
                                         splashRadius: 24,
                                         onPressed: () {
                                           setState(() {
@@ -295,27 +315,31 @@ class _DekanHomeScreenState extends State<DekanHomeScreen> {
                                   Form(
                                     key: _formKey,
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         // Название группы
-                                        const Text(
+                                        Text(
                                           'Выберите дисциплину*',
                                           style: TextStyle(
                                             fontSize: 15,
-                                            color: Color(0xFF6B7280),
-                                            fontWeight: FontWeight.w400,
+                                            color: Colors.grey.shade700,
                                           ),
                                         ),
                                         const SizedBox(height: 18),
                                         DropdownButtonFormField<int>(
                                           value: selectedDisciplineIndex,
-                                          decoration: _inputDecoration('Выберите курс'),
-                                          items: List.generate(disciplines.length, (index) {
+                                          decoration: _inputDecoration(
+                                              'Выберите дисциплину'),
+                                          items: List.generate(
+                                              disciplines.length, (index) {
                                             return DropdownMenuItem<int>(
                                               value: index,
                                               child: Text(
                                                 disciplines[index].name,
-                                                style: const TextStyle(fontSize: 15, color: Color(0xFF6B7280)),
+                                                style: const TextStyle(
+                                                    fontSize: 15,
+                                                    color: Color(0xFF6B7280)),
                                               ),
                                             );
                                           }),
@@ -334,21 +358,31 @@ class _DekanHomeScreenState extends State<DekanHomeScreen> {
                                         const SizedBox(height: 18),
                                         if (selectedDisciplineIndex != null)
                                           DropdownButtonFormField<int>(
-                                            decoration: _inputDecoration('Выберите группу'),
-                                            items: disciplines[selectedDisciplineIndex!].groups.map((group) {
+                                            decoration: _inputDecoration(
+                                                'Выберите группу'),
+                                            items: disciplines[
+                                                    selectedDisciplineIndex!]
+                                                .groups
+                                                .map((group) {
                                               return DropdownMenuItem<int>(
                                                 value: group.id,
-                                                child: Text(group.name),
+                                                child: Text(
+                                                  group.name,
+                                                  style: const TextStyle(
+                                                      fontSize: 15,
+                                                      color: Color(0xFF6B7280)),
+                                                ),
                                               );
                                             }).toList(),
                                             onChanged: (value) {
                                               setState(() {
                                                 selectedGroupId = value;
                                               });
-                                              print('Выбрана группа с ID: $value');
                                             },
                                             validator: (value) {
-                                              if (value == null) return 'Выберите группу';
+                                              if (value == null) {
+                                                return 'Выберите группу';
+                                              }
                                               return null;
                                             },
                                           ),
@@ -359,15 +393,20 @@ class _DekanHomeScreenState extends State<DekanHomeScreen> {
                                             loadSessions();
                                           },
                                           style: ElevatedButton.styleFrom(
-                                            backgroundColor: const Color(0xFF4068EA),
+                                            backgroundColor:
+                                                const Color(0xFF4068EA),
                                             foregroundColor: Colors.white,
                                             shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(8),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                             ),
-                                            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
-                                            minimumSize: const Size.fromHeight(55),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 28, vertical: 12),
+                                            minimumSize:
+                                                const Size.fromHeight(55),
                                           ),
-                                          child: const Text('Сохранить', style: TextStyle(fontSize: 16)),
+                                          child: const Text('Сохранить',
+                                              style: TextStyle(fontSize: 16)),
                                         ),
                                       ],
                                     ),

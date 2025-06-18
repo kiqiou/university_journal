@@ -42,10 +42,6 @@ class JournalTableState extends State<JournalTable> {
   }
 
   void updateDataSource(List<Session> sessions, List<MyUser> students) {
-    print('✅ Обновление таблицы:');
-    print('students: $students');
-    print('sessions: $sessions');
-
     final grouped = groupSessionsByStudent(sessions, students);
 
     setState(() {
@@ -83,17 +79,30 @@ class JournalTableState extends State<JournalTable> {
     });
   }
 
-  void _onHeaderTap(int index) {
-    if (widget.isEditable) {
+  @override
+  void didUpdateWidget(covariant JournalTable oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.selectedColumnIndex != widget.selectedColumnIndex) {
       setState(() {
-        widget.selectedColumnIndex = index;
         columns = buildColumns(
           sessions: _sessions,
           selectedColumnIndex: widget.selectedColumnIndex,
           onHeaderTap: _onHeaderTap,
         );
       });
+    }
+  }
+
+  void _onHeaderTap(int index) {
+    if (widget.isEditable) {
       widget.onColumnSelected?.call(index);
+      setState(() {
+        columns = buildColumns(
+          sessions: _sessions,
+          selectedColumnIndex: index,
+          onHeaderTap: _onHeaderTap,
+        );
+      });
     }
   }
 

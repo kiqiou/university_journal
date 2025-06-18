@@ -109,7 +109,9 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
       currentScreen = StudentContentScreen.journal;
     });
 
-    final filtered = type == 'Все' ? sessions : sessions.where((s) => s.sessionType == type).toList();
+    final filtered = type == 'Все'
+        ? sessions
+        : sessions.where((s) => s.sessionType == type).toList();
 
     tableKey.currentState?.updateDataSource(filtered, students);
   }
@@ -168,40 +170,55 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
 
                             if (!success) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Не удалось обновить данные')),
+                                const SnackBar(
+                                    content:
+                                        Text('Не удалось обновить данные')),
                               );
                             }
                             return success;
-                          }, isEditable: false,
+                          },
+                          isEditable: false,
                         );
                       case StudentContentScreen.journal:
                         return selectedDisciplineIndex != null
                             ? Scaffold(
-                          appBar: AppBar(
-                            automaticallyImplyLeading: false,
-                            title: Text(
-                              'Журнал',
-                              style: TextStyle(color: Colors.grey.shade800, fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          body: Column(
-                            children: [
-                              SizedBox(height: 50,),
-                              Expanded(
-                                child: JournalTable(
-                                  key: tableKey,
-                                  isLoading: isLoading,
-                                  sessions: sessions,
-                                  onSessionsChanged: (updatedSessions) {
-                                    setState(() {
-                                      sessions = updatedSessions;
-                                    });
-                                  }, isEditable: false, students: students,
+                                body: Column(
+                                  children: [
+                                    SizedBox(
+                                      height: 40,
+                                    ),
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        selectedSessionsType == 'Все'
+                                            ? 'Журнал'
+                                            : selectedSessionsType,
+                                        style: TextStyle(
+                                            color: Colors.grey.shade800,
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 40,
+                                    ),
+                                    Expanded(
+                                      child: JournalTable(
+                                        key: tableKey,
+                                        isLoading: isLoading,
+                                        sessions: sessions,
+                                        onSessionsChanged: (updatedSessions) {
+                                          setState(() {
+                                            sessions = updatedSessions;
+                                          });
+                                        },
+                                        isEditable: false,
+                                        students: students,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ],
-                          ),
-                        )
+                              )
                             : Center(child: Text('Выберите дисциплину'));
                     }
                   },
@@ -211,29 +228,31 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
           ),
           isMenuExpanded
               ? Positioned(
-            top: 40,
-            left: 220,
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  isMenuExpanded = !isMenuExpanded;
-                });
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  boxShadow: [BoxShadow(blurRadius: 4, color: Colors.black26)],
-                ),
-                padding: EdgeInsets.all(20),
-                child: Icon(
-                  Icons.arrow_back_ios,
-                  color: Colors.grey.shade500,
-                  size: 20,
-                ),
-              ),
-            ),
-          )
+                  top: 40,
+                  left: 220,
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        isMenuExpanded = !isMenuExpanded;
+                      });
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(blurRadius: 4, color: Colors.black26)
+                        ],
+                      ),
+                      padding: EdgeInsets.all(20),
+                      child: Icon(
+                        Icons.arrow_back_ios,
+                        color: Colors.grey.shade500,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                )
               : SizedBox(),
           if (showGroupSelect)
             Positioned(
@@ -241,21 +260,15 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
               right: 32,
               child: Builder(
                 builder: (context) {
-                  final media = MediaQuery
-                      .of(context)
-                      .size;
-                  final double dialogWidth = (media.width - 32 - 80).clamp(320, 600);
+                  final media = MediaQuery.of(context).size;
+                  final double dialogWidth =
+                      (media.width - 32 - 80).clamp(320, 600);
                   (media.height - 64).clamp(480, 1100);
-                  final screenWidth = MediaQuery
-                      .of(context)
-                      .size
-                      .width;
-                  final screenHeight = MediaQuery
-                      .of(context)
-                      .size
-                      .height;
+                  final screenWidth = MediaQuery.of(context).size.width;
+                  final screenHeight = MediaQuery.of(context).size.height;
 
-                  if (screenWidth < 500 || screenHeight < 500) return const SizedBox.shrink();
+                  if (screenWidth < 500 || screenHeight < 500)
+                    return const SizedBox.shrink();
 
                   return Material(
                     child: Padding(
@@ -277,25 +290,26 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                               ],
                             ),
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 32),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 36, vertical: 32),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   // --- Заголовок и кнопка закрытия ---
                                   Row(
                                     children: [
-                                      const Expanded(
+                                      Expanded(
                                         child: Text(
                                           'Выберите дисциплину и группу',
                                           style: TextStyle(
                                             fontSize: 18,
-                                            fontWeight: FontWeight.w400,
-                                            color: Colors.black,
+                                            color: Colors.grey.shade700,
                                           ),
                                         ),
                                       ),
                                       IconButton(
-                                        icon: const Icon(Icons.close, size: 28, color: Colors.black54),
+                                        icon: const Icon(Icons.close,
+                                            size: 28, color: Colors.black54),
                                         splashRadius: 24,
                                         onPressed: () {
                                           setState(() {
@@ -311,27 +325,32 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                                   Form(
                                     key: _formKey,
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         // Название группы
-                                        const Text(
+                                        Text(
                                           'Выберите дисциплину*',
                                           style: TextStyle(
                                             fontSize: 15,
-                                            color: Color(0xFF6B7280),
-                                            fontWeight: FontWeight.w400,
+                                            color: Colors.grey.shade700,
                                           ),
                                         ),
                                         const SizedBox(height: 18),
                                         DropdownButtonFormField<int>(
                                           value: selectedDisciplineIndex,
-                                          decoration: _inputDecoration('Выберите курс'),
-                                          items: List.generate(disciplines.length, (index) {
+                                          decoration: _inputDecoration(
+                                              'Выберите дисциплину'),
+                                          items: List.generate(
+                                              disciplines.length, (index) {
                                             return DropdownMenuItem<int>(
                                               value: index,
                                               child: Text(
                                                 disciplines[index].name,
-                                                style: const TextStyle(fontSize: 15, color: Color(0xFF6B7280)),
+                                                style: const TextStyle(
+                                                  fontSize: 15,
+                                                  color: Color(0xFF6B7280),
+                                                ),
                                               ),
                                             );
                                           }),
@@ -354,15 +373,20 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                                             loadSessions();
                                           },
                                           style: ElevatedButton.styleFrom(
-                                            backgroundColor: const Color(0xFF4068EA),
+                                            backgroundColor:
+                                                const Color(0xFF4068EA),
                                             foregroundColor: Colors.white,
                                             shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(8),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                             ),
-                                            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
-                                            minimumSize: const Size.fromHeight(55),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 28, vertical: 12),
+                                            minimumSize:
+                                                const Size.fromHeight(55),
                                           ),
-                                          child: const Text('Сохранить', style: TextStyle(fontSize: 16)),
+                                          child: const Text('Сохранить',
+                                              style: TextStyle(fontSize: 16)),
                                         ),
                                       ],
                                     ),

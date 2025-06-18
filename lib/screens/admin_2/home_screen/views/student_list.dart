@@ -35,8 +35,6 @@ class _StudentsListState extends State<StudentsList> {
     widget.loadStudents();
   }
 
-  /// По значению student.groupId ищется соответствующий объект Group в widget.groups.
-  /// Если найден, возвращается его courseId (при условии, что он от 1 до 4), иначе null.
   int? getStudentCourse(MyUser student) {
     try {
       final group = widget.groups.firstWhere((g) => g.id == student.groupId);
@@ -49,7 +47,6 @@ class _StudentsListState extends State<StudentsList> {
 
   @override
   Widget build(BuildContext context) {
-    // Масштабирование кнопок (из вашего кода)
     final screenWidth = MediaQuery.of(context).size.width;
     const baseScreenWidth = 1920.0;
     const baseButtonHeight = 40.0;
@@ -58,17 +55,14 @@ class _StudentsListState extends State<StudentsList> {
     final buttonHeights = baseButtonHeight * scale;
     final buttonWidths = baseWidths.map((w) => w * scale).toList();
 
-    // Группировка студентов по курсам (1..4) и секция "Без группы"
     final List<MyUser> flatStudentList = [];
     final List<Widget> studentListWidgets = [];
 
-    // Для курсов от 1 до 4
     for (int course = 1; course <= 4; course++) {
       List<MyUser> courseStudents = widget.students
           .where((student) => getStudentCourse(student) == course)
           .toList();
       if (courseStudents.isNotEmpty) {
-        // Заголовок секции курса
         studentListWidgets.add(
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
@@ -82,7 +76,6 @@ class _StudentsListState extends State<StudentsList> {
             ),
           ),
         );
-        // Группируем студентов в данном курсе по groupId
         Map<int, List<MyUser>> groupsMap = {};
         for (var student in courseStudents) {
           if (student.groupId != null) {
@@ -90,7 +83,6 @@ class _StudentsListState extends State<StudentsList> {
           }
         }
         groupsMap.forEach((groupId, studentsInGroup) {
-          // Получаем объект группы для отображения полного номера группы
           Group? currentGroup;
           try {
             currentGroup = widget.groups.firstWhere((g) => g.id == groupId);
@@ -99,7 +91,6 @@ class _StudentsListState extends State<StudentsList> {
           }
           String groupDisplay =
           currentGroup != null ? currentGroup.name : groupId.toString();
-          // Заголовок группы – полный номер группы (например, "2421")
           studentListWidgets.add(
             Padding(
               padding: const EdgeInsets.only(left: 16.0, top: 6.0, bottom: 4.0),
@@ -113,8 +104,6 @@ class _StudentsListState extends State<StudentsList> {
               ),
             ),
           );
-          // Вывод студентов данной группы – каждый студент отображается в рамочке;
-          // если студент выбран, рамочка становится синей.
           for (var student in studentsInGroup) {
             flatStudentList.add(student);
             final currentIndex = flatStudentList.length - 1;
@@ -159,7 +148,6 @@ class _StudentsListState extends State<StudentsList> {
       }
     }
 
-    // Секция для студентов без группы
     List<MyUser> studentsWithoutGroup =
     widget.students.where((student) => student.groupId == null).toList();
     if (studentsWithoutGroup.isNotEmpty) {
@@ -223,7 +211,6 @@ class _StudentsListState extends State<StudentsList> {
           Expanded(
             child: Stack(
               children: [
-                // Основной контент – отображение списка студентов
                 Container(
                   color: Colors.white,
                   child: Padding(
@@ -239,7 +226,6 @@ class _StudentsListState extends State<StudentsList> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Заголовок страницы и кнопки управления (при выборе студента)
                           Row(
                             children: [
                               Text(
@@ -326,7 +312,6 @@ class _StudentsListState extends State<StudentsList> {
                     ),
                   ),
                 ),
-                // Диалог удаления студента
                 if (showDeleteDialog && selectedIndex != null)
                   Positioned(
                     top: 32,
