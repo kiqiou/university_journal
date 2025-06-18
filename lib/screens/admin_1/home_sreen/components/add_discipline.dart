@@ -32,14 +32,33 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
   final TextEditingController lectureHoursController = TextEditingController();
   final TextEditingController labHoursController = TextEditingController();
   final Map<String, TextEditingController> hoursControllers = {};
+  final List<Discipline> disciplines = [];
+  List<MyUser> selectedTeachers = [];
+  List<Group> selectedGroups = [];
+  List<MyUser> selectedTeachers2 = [];
+  List<String> selectedTypes = [];
+  List<String> selectedLessonTypes = [];
+  String? selectedLessonType;
+  MyUser? selectedTeacher;
+  Group? selectedGroup;
+
+  final List<Map<String, String>> lessonTypeOptions = [
+    {'key': 'lecture', 'label': 'Лекции'},
+    {'key': 'seminar', 'label': 'Семинар'},
+    {'key': 'practice', 'label': 'Практика'},
+    {'key': 'lab', 'label': 'Лабораторные'},
+    {'key': 'current', 'label': 'Текущая аттестация'},
+    {'key': 'final', 'label': 'Промежуточная аттестация'},
+  ];
 
   @override
   void initState() {
     super.initState();
-    for (var type in lessonTypes) {
-      hoursControllers[type] = TextEditingController();
+    for (var type in lessonTypeOptions) {
+      hoursControllers[type['key']!] = TextEditingController();
     }
   }
+
   @override
   void dispose() {
     for (var controller in hoursControllers.values) {
@@ -47,35 +66,6 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
     }
     super.dispose();
   }
-
-  final List<Discipline> disciplines = [];
-  List<MyUser> selectedTeachers = [];
-  List<Group> selectedGroups = [];
-  List<MyUser> selectedTeachers2 = [];
-  List<String> selectedTypes = [];
-  List<String> selectedLessonTypes = [];
-
-  bool nameError = false;
-  bool teacherError = false;
-  bool groupError = false;
-  bool lecturesError = false;
-
-  String? selectedLessonType;
-  MyUser? selectedTeacher;
-  Group? selectedGroup;
-
-  final List<String> lessonTypes = [
-    'Лекции',
-    'Семинар',
-    'Практика',
-    'Лабораторные',
-    'Текущая аттестация',
-    'Промежуточная аттестация',
-  ];
-
-  bool get showLectureHours => selectedLessonType == 'Лекции';
-
-  bool get showLabHours => selectedLessonType == 'Лабораторные';
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +102,8 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                 ],
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 32),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 36, vertical: 32),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -122,7 +113,8 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                         Expanded(
                           child: Text(
                             'Создание дисциплины',
-                            style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+                            style: TextStyle(
+                                fontSize: 15, color: Colors.grey.shade700),
                           ),
                         ),
                         SizedBox(
@@ -132,21 +124,43 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                               ElevatedButton(
                                 onPressed: () async {
                                   if (_formKey.currentState!.validate()) {
-                                    List<int> teacherIds = selectedTeachers.map((e) => e.id).toList();
-                                    List<int> groupIds = selectedGroups.map((e) => e.id).toList();
+                                    final planItems = selectedTypes
+                                        .where((key) => hoursControllers[key]?.text.isNotEmpty == true)
+                                        .map((key) {
+                                      final allocatedHours = int.tryParse(hoursControllers[key]!.text) ?? 0;
+                                      final hoursPerSession = 2;
 
-                                    bool result = await DisciplineRepository().addCourse(
+                                      return {
+                                        'type': key,
+                                        'hours_allocated': allocatedHours,
+                                        'hours_per_session': hoursPerSession,
+                                      };
+                                    }).toList();
+
+                                    List<int> teacherIds = selectedTeachers
+                                        .map((e) => e.id)
+                                        .toList();
+                                    List<int> groupIds = selectedGroups
+                                        .map((e) => e.id)
+                                        .toList();
+
+                                    bool result =
+                                        await DisciplineRepository().addCourse(
                                       name: nameController.text,
                                       teacherIds: teacherIds,
                                       groupIds: groupIds,
+                                      planItems: planItems,
                                     );
 
                                     if (result) {
                                       widget.onCourseAdded();
                                       Navigator.of(context).pop();
                                     } else {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text('❌ Не удалось добавить курс')),
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                            content: Text(
+                                                '❌ Не удалось добавить курс')),
                                       );
                                     }
                                   }
@@ -158,9 +172,12 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 0),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 28, vertical: 0),
                                   minimumSize: const Size(140, 48),
-                                  textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                                  textStyle: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500),
                                 ),
                                 child: const Text('Сохранить'),
                               ),
@@ -173,7 +190,8 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: IconButton(
-                                  icon: const Icon(Icons.close, size: 28, color: Colors.white),
+                                  icon: const Icon(Icons.close,
+                                      size: 28, color: Colors.white),
                                   splashRadius: 24,
                                   onPressed: () => Navigator.of(context).pop(),
                                 ),
@@ -194,187 +212,261 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                               // Название дисциплины
                               Text(
                                 'Название дисциплины*',
-                                style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+                                style: TextStyle(
+                                    fontSize: 15, color: Colors.grey.shade700),
                               ),
                               const SizedBox(height: 18),
                               TextFormField(
                                 controller: nameController,
                                 decoration: InputDecoration(
                                   hintText: 'Введите название дисциплины',
-                                  hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
+                                  hintStyle: const TextStyle(
+                                      color: Color(0xFF9CA3AF), fontSize: 15),
                                   filled: true,
                                   fillColor: Colors.white,
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 14),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(11),
-                                    borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                    borderSide: BorderSide(
+                                        color: Colors.grey.shade400,
+                                        width: 1.5),
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(11),
-                                    borderSide: BorderSide(color: MyColors.blueJournal, width: 1.5),
+                                    borderSide: BorderSide(
+                                        color: MyColors.blueJournal,
+                                        width: 1.5),
                                   ),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(11),
-                                    borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                    borderSide: BorderSide(
+                                        color: Colors.grey.shade400,
+                                        width: 1.5),
                                   ),
                                 ),
-                                validator: (value) => value == null || value.isEmpty ? 'Обязательное поле' : null,
+                                validator: (value) =>
+                                    value == null || value.isEmpty
+                                        ? 'Обязательное поле'
+                                        : null,
                               ),
                               const SizedBox(height: 24),
 
                               // Виды занятий
-                              Text(
-                                "Выберите вид занятий*",
-                                style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
-                              ),
-                              const SizedBox(height: 10),
-                              Wrap(
-                                spacing: 18,
-                                runSpacing: 14,
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  ...[
-                                    {'key': 'lecture', 'label': 'Лекции'},
-                                    {'key': 'seminar', 'label': 'Семинар'},
-                                    {'key': 'practice', 'label': 'Практика'},
-                                    {'key': 'lab', 'label': 'Лабораторные'},
-                                    {'key': 'current', 'label': 'Текущая аттестация'},
-                                    {'key': 'final', 'label': 'Промежуточная аттестация'},
-                                  ].map((type) {
-                                    final isSelected = selectedTypes.contains(type['key']);
-                                    return IntrinsicWidth(
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            if (isSelected) {
-                                              selectedTypes.remove(type['key']);
-                                            } else {
-                                              selectedTypes.add(type['key']!);
-                                            }
-                                          });
-                                        },
-                                        child: Container(
-                                          height: 48,
-                                          margin: const EdgeInsets.symmetric(vertical: 2),
-                                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                                          decoration: BoxDecoration(
-                                            color: Colors.transparent,
-                                            borderRadius: BorderRadius.circular(14),
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              AnimatedContainer(
-                                                duration: Duration(milliseconds: 150),
-                                                width: 50,
-                                                height: 64,
-                                                decoration: BoxDecoration(
-                                                  color: isSelected ? Color(0xFF4068EA) : MyColors.blueJournal,
-                                                  border: Border.all(
-                                                    color: Color(0xFF4068EA),
-                                                    width: 2,
-                                                  ),
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                                child: isSelected
-                                                    ? Icon(Icons.check, color: Colors.white, size: 22)
-                                                    : null,
-                                              ),
-                                              const SizedBox(width: 12),
-                                              Text(
-                                                type['label']!,
-                                                style: TextStyle(
-                                                  color: Colors.black87,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  })
-                                ],
-                              ),
-                              const SizedBox(height: 28),
-                              if (selectedTypes.isNotEmpty)
-                                ...List.generate(
-                                  (selectedTypes.length / 2).ceil(),
-                                      (rowIndex) {
-                                    final start = rowIndex * 2;
-                                    final end = (start + 2 < selectedTypes.length) ? start + 2 : selectedTypes.length;
-                                    final rowTypes = selectedTypes.sublist(start, end);
-                                    return Row(
-                                      children: rowTypes.map((typeKey) {
-                                        final type = [
-                                          {'key': 'lecture', 'label': 'Лекции'},
-                                          {'key': 'seminar', 'label': 'Семинар'},
-                                          {'key': 'practice', 'label': 'Практика'},
-                                          {'key': 'lab', 'label': 'Лабораторные'},
-                                          {'key': 'current', 'label': 'Текущая аттестация'},
-                                          {'key': 'final', 'label': 'Промежуточная аттестация'},
-                                        ].firstWhere((t) => t['key'] == typeKey);
-
-                                        // hoursControllers должен быть Map<String, TextEditingController>
-                                        return Expanded(
+                                  Text(
+                                    "Выберите вид занятий*",
+                                    style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.grey.shade700),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Wrap(
+                                    spacing: 18,
+                                    runSpacing: 14,
+                                    children: lessonTypeOptions.map((type) {
+                                      final isSelected =
+                                          selectedTypes.contains(type['key']);
+                                      return IntrinsicWidth(
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              if (isSelected) {
+                                                selectedTypes
+                                                    .remove(type['key']);
+                                              } else {
+                                                selectedTypes.add(type['key']!);
+                                              }
+                                            });
+                                          },
                                           child: Container(
-                                            margin: EdgeInsets.only(right: rowTypes.last == typeKey ? 0 : 12, bottom: 12),
-                                            padding: EdgeInsets.all(16),
+                                            height: 48,
+                                            margin: const EdgeInsets.symmetric(
+                                                vertical: 2),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 16),
                                             decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius: BorderRadius.circular(22),
+                                              color: Colors.transparent,
+                                              borderRadius:
+                                                  BorderRadius.circular(14),
                                             ),
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
                                               children: [
-                                                Text(
-                                                  '${type['label']}*',
-                                                  style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
-                                                ),
-                                                SizedBox(height: 8),
-                                                TextFormField(
-                                                  controller: hoursControllers[typeKey],
-                                                  keyboardType: TextInputType.number,
-                                                  decoration: InputDecoration(
-                                                    hintText: 'Введите часы',
-                                                    hintStyle: TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
-                                                    filled: true,
-                                                    fillColor: Colors.white,
-                                                    enabledBorder: OutlineInputBorder(
-                                                      borderRadius: BorderRadius.circular(11),
-                                                      borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                                AnimatedContainer(
+                                                  duration: Duration(
+                                                      milliseconds: 150),
+                                                  width: 50,
+                                                  height: 64,
+                                                  decoration: BoxDecoration(
+                                                    color: isSelected
+                                                        ? Color(0xFF4068EA)
+                                                        : MyColors.blueJournal,
+                                                    border: Border.all(
+                                                      color: Color(0xFF4068EA),
+                                                      width: 2,
                                                     ),
-                                                    focusedBorder: OutlineInputBorder(
-                                                      borderRadius: BorderRadius.circular(11),
-                                                      borderSide: BorderSide(color: MyColors.blueJournal, width: 1.5),
-                                                    ),
-                                                    border: OutlineInputBorder(
-                                                      borderRadius: BorderRadius.circular(11),
-                                                      borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
-                                                    ),
-                                                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8),
                                                   ),
-                                                  validator: (value) {
-                                                    if (selectedTypes.contains(typeKey) && (value == null || value.isEmpty)) {
-                                                      return 'Обязательное поле';
-                                                    }
-                                                    return null;
-                                                  },
+                                                  child: isSelected
+                                                      ? Icon(Icons.check,
+                                                          color: Colors.white,
+                                                          size: 22)
+                                                      : null,
+                                                ),
+                                                const SizedBox(width: 12),
+                                                Text(
+                                                  type['label']!,
+                                                  style: TextStyle(
+                                                    color: Colors.black87,
+                                                    fontSize: 14,
+                                                  ),
                                                 ),
                                               ],
                                             ),
                                           ),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                  const SizedBox(height: 28),
+                                  if (selectedTypes.isNotEmpty)
+                                    ...List.generate(
+                                      (selectedTypes.length / 2).ceil(),
+                                      (rowIndex) {
+                                        final start = rowIndex * 2;
+                                        final end =
+                                            (start + 2 < selectedTypes.length)
+                                                ? start + 2
+                                                : selectedTypes.length;
+                                        final rowTypes =
+                                            selectedTypes.sublist(start, end);
+                                        return Row(
+                                          children: rowTypes.map((typeKey) {
+                                            final type =
+                                                lessonTypeOptions.firstWhere(
+                                                    (t) => t['key'] == typeKey);
+
+                                            return Expanded(
+                                              child: Container(
+                                                margin: EdgeInsets.only(
+                                                    right:
+                                                        rowTypes.last == typeKey
+                                                            ? 0
+                                                            : 12,
+                                                    bottom: 12),
+                                                padding: EdgeInsets.all(16),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  borderRadius:
+                                                      BorderRadius.circular(22),
+                                                ),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      '${type['label']}*',
+                                                      style: TextStyle(
+                                                          fontSize: 15,
+                                                          color: Colors
+                                                              .grey.shade700),
+                                                    ),
+                                                    SizedBox(height: 8),
+                                                    TextFormField(
+                                                      controller:
+                                                          hoursControllers[
+                                                              typeKey],
+                                                      keyboardType:
+                                                          TextInputType.number,
+                                                      decoration:
+                                                          InputDecoration(
+                                                        hintText:
+                                                            'Введите часы',
+                                                        hintStyle: TextStyle(
+                                                            color: Color(
+                                                                0xFF9CA3AF),
+                                                            fontSize: 15),
+                                                        filled: true,
+                                                        fillColor: Colors.white,
+                                                        enabledBorder:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(11),
+                                                          borderSide:
+                                                              BorderSide(
+                                                                  color: Colors
+                                                                      .grey
+                                                                      .shade400,
+                                                                  width: 1.5),
+                                                        ),
+                                                        focusedBorder:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(11),
+                                                          borderSide: BorderSide(
+                                                              color: MyColors
+                                                                  .blueJournal,
+                                                              width: 1.5),
+                                                        ),
+                                                        border:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(11),
+                                                          borderSide:
+                                                              BorderSide(
+                                                                  color: Colors
+                                                                      .grey
+                                                                      .shade400,
+                                                                  width: 1.5),
+                                                        ),
+                                                        contentPadding:
+                                                            EdgeInsets
+                                                                .symmetric(
+                                                                    horizontal:
+                                                                        16,
+                                                                    vertical:
+                                                                        14),
+                                                      ),
+                                                      validator: (value) {
+                                                        if (selectedTypes
+                                                                .contains(
+                                                                    typeKey) &&
+                                                            (value == null ||
+                                                                value
+                                                                    .isEmpty)) {
+                                                          return 'Обязательное поле';
+                                                        }
+                                                        return null;
+                                                      },
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          }).toList(),
                                         );
-                                      }).toList(),
-                                    );
-                                  },
-                                ),
+                                      },
+                                    ),
+                                ],
+                              ),
+
                               // Привязка преподавателя
                               Text("Привязать преподавателя",
-                                  style: TextStyle(color: Color(0xFF6B7280), fontSize: 15)),
+                                  style: TextStyle(
+                                      color: Color(0xFF6B7280), fontSize: 15)),
                               const SizedBox(height: 18),
                               GestureDetector(
                                 onTap: () async {
-                                  final selected = await showDialog<List<MyUser>>(
+                                  final selected =
+                                      await showDialog<List<MyUser>>(
                                     context: context,
                                     builder: (_) => MultiSelectDialog(
                                       items: widget.teachers,
@@ -393,23 +485,33 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                   decoration: InputDecoration(
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
-                                      borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                      borderSide: BorderSide(
+                                          color: Colors.grey.shade400,
+                                          width: 1.5),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
-                                      borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                      borderSide: BorderSide(
+                                          color: Colors.grey.shade400,
+                                          width: 1.5),
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
-                                      borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                      borderSide: BorderSide(
+                                          color: Colors.grey.shade400,
+                                          width: 1.5),
                                     ),
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 14, vertical: 12),
                                   ),
                                   child: Text(
                                     selectedTeachers.isEmpty
                                         ? "Выберите из списка преподавателей"
-                                        : selectedTeachers.map((s) => s.username).join(', '),
-                                    style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
+                                        : selectedTeachers
+                                            .map((s) => s.username)
+                                            .join(', '),
+                                    style: TextStyle(
+                                        color: Color(0xFF9CA3AF), fontSize: 15),
                                   ),
                                 ),
                               ),
@@ -421,7 +523,8 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                   children: selectedTeachers.map((teacher) {
                                     return Chip(
                                       label: Text(teacher.username),
-                                      side: BorderSide(color: Colors.grey.shade500),
+                                      side: BorderSide(
+                                          color: Colors.grey.shade500),
                                       backgroundColor: Colors.white,
                                       deleteIcon: Icon(Icons.close, size: 18),
                                       deleteIconColor: Colors.grey.shade500,
@@ -438,12 +541,14 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                               // Привязка группы
                               Text(
                                 "Привязать группу",
-                                style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+                                style: TextStyle(
+                                    fontSize: 15, color: Colors.grey.shade700),
                               ),
                               const SizedBox(height: 18),
                               GestureDetector(
                                 onTap: () async {
-                                  final selected = await showDialog<List<Group>>(
+                                  final selected =
+                                      await showDialog<List<Group>>(
                                     context: context,
                                     builder: (_) => MultiSelectDialog(
                                       items: widget.groups,
@@ -462,24 +567,33 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                   decoration: InputDecoration(
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
-                                      borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                      borderSide: BorderSide(
+                                          color: Colors.grey.shade400,
+                                          width: 1.5),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
-                                      borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                      borderSide: BorderSide(
+                                          color: Colors.grey.shade400,
+                                          width: 1.5),
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
-                                      borderSide:
-                                          BorderSide(color: Colors.grey.shade400, width: 1.5), // чуть ярче при фокусе
+                                      borderSide: BorderSide(
+                                          color: Colors.grey.shade400,
+                                          width: 1.5), // чуть ярче при фокусе
                                     ),
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 14, vertical: 12),
                                   ),
                                   child: Text(
                                     selectedGroups.isEmpty
                                         ? "Выберите из списка групп"
-                                        : selectedGroups.map((s) => s.name).join(', '),
-                                    style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
+                                        : selectedGroups
+                                            .map((s) => s.name)
+                                            .join(', '),
+                                    style: TextStyle(
+                                        color: Color(0xFF9CA3AF), fontSize: 15),
                                   ),
                                 ),
                               ),
@@ -491,7 +605,8 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                   children: selectedGroups.map((group) {
                                     return Chip(
                                       label: Text(group.name),
-                                      side: BorderSide(color: Colors.grey.shade500),
+                                      side: BorderSide(
+                                          color: Colors.grey.shade500),
                                       backgroundColor: Colors.white,
                                       deleteIcon: Icon(Icons.close, size: 18),
                                       deleteIconColor: Colors.grey.shade500,

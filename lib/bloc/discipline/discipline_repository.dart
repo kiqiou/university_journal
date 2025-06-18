@@ -14,7 +14,6 @@ class DisciplineRepository{
         },
         body: jsonEncode({}),
       );
-      log('Raw response: ${response.body}');
 
       final data = jsonDecode(utf8.decode(response.bodyBytes));
       if (data != null && data is List) {
@@ -34,6 +33,7 @@ class DisciplineRepository{
     required String name,
     required List<int> teacherIds,
     required List<int> groupIds,
+    required List<Map<String, dynamic>> planItems,
   }) async {
     try {
       final response = await http.post(
@@ -46,9 +46,11 @@ class DisciplineRepository{
           'name': name,
           'teachers': teacherIds,
           'groups': groupIds,
+          'plan_items': planItems,
         }),
       );
 
+      print(planItems);
       final data = jsonDecode(utf8.decode(response.bodyBytes));
       if (response.statusCode == 201 || response.statusCode == 200) {
         log('✅ Курс успешно сохранён: $data');
@@ -64,41 +66,47 @@ class DisciplineRepository{
   }
 
   Future<bool> updateCourse({
-    int? courseId,
+    required int courseId,
     String? name,
     List<int>? teacherIds,
     List<int>? groupIds,
     required bool appendTeachers,
+    List<Map<String, dynamic>>? planItems, // nullable
   }) async {
     try {
+      final Map<String, dynamic> body = {
+        'course_id': courseId,
+        'append_teachers': appendTeachers,
+      };
+
+      if (name != null) body['name'] = name;
+      if (teacherIds != null) body['teachers'] = teacherIds;
+      if (groupIds != null) body['groups'] = groupIds;
+      if (planItems != null) body['plan_items'] = planItems;
+
       final response = await http.put(
         Uri.parse('http://127.0.0.1:8000/api/update_course/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
         },
-        body: jsonEncode({
-          'course_id': courseId,
-          'name': name,
-          'teachers': teacherIds,
-          'groups': groupIds,
-          'append_teachers': appendTeachers,
-        }),
+        body: jsonEncode(body),
       );
 
       final data = jsonDecode(utf8.decode(response.bodyBytes));
       if (response.statusCode == 201 || response.statusCode == 200) {
-        log('✅ Курс успешно сохранён: $data');
+        log('✅ Курс успешно обновлён: $data');
         return true;
       } else {
-        log('❌ Ошибка сохранения курса: ${response.statusCode}, $data');
+        log('❌ Ошибка обновления курса: ${response.statusCode}, $data');
         return false;
       }
     } catch (e) {
-      log('❌ Ошибка соединения при сохранении курса: $e');
+      log('❌ Ошибка соединения при обновлении курса: $e');
       return false;
     }
   }
+
 
   Future<bool> deleteCourse({
     required int courseId,
