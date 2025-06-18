@@ -118,6 +118,12 @@ class _TeachersList extends State<TeachersList> {
                                     onPressed: () {
                                       setState(() {
                                         showEditDialog = true;
+
+                                        final selectedTeacher = widget.teachers[selectedIndex!];
+
+                                        usernameController.text = selectedTeacher.username ?? '';
+                                        positionController.text = selectedTeacher.position ?? '';
+                                        bioController.text = selectedTeacher.bio ?? '';
                                       });
                                     },
                                     style: ElevatedButton.styleFrom(
