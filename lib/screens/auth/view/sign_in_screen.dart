@@ -40,7 +40,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   children: [
                     Center(
                       child: Text(
-                        'Добро пожаловать\n в электронный журнал!',
+                        'Добро пожаловать\n в электронный журнал МИТСО!',
                         style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,

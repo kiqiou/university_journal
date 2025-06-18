@@ -8,6 +8,7 @@ import 'package:university_journal/bloc/user/user_repository.dart';
 import 'package:university_journal/components/side_navigation_menu.dart';
 
 import '../../../../bloc/auth/authentication_bloc.dart';
+import '../../../../bloc/discipline/discipline_plan.dart';
 import '../../../../bloc/journal/journal.dart';
 import '../../../../bloc/user/user.dart';
 import '../../../../components/colors/colors.dart';
@@ -45,6 +46,15 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
   List<Discipline> disciplines = [];
 
   Future<Map<String, dynamic>>? journalDataFuture;
+
+  final List<Map<String, String>> lessonTypeOptions = [
+    {'key': 'lecture', 'label': 'Лекция'},
+    {'key': 'seminar', 'label': 'Семинар'},
+    {'key': 'practice', 'label': 'Практика'},
+    {'key': 'lab', 'label': 'Лабораторная'},
+    {'key': 'current', 'label': 'Текущая аттестация'},
+    {'key': 'final', 'label': 'Промежуточная аттестация'},
+  ];
 
   @override
   void initState() {
@@ -130,6 +140,39 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
         : sessions.where((s) => s.sessionType == type).toList();
 
     tableKey.currentState?.updateDataSource(filtered, students);
+  }
+
+  String _buildSessionStatsText() {
+    if (selectedSessionsType == 'Все') return '';
+
+    final currentDiscipline = disciplines[selectedDisciplineIndex!];
+
+    final selectedTypeMap = lessonTypeOptions.firstWhere(
+          (type) => type['label'] == selectedSessionsType,
+      orElse: () => {},
+    );
+
+    final selectedKey = selectedTypeMap['key']; // 'lecture', 'seminar' и т.д.
+
+    if (selectedKey == null) return '';
+
+    PlanItem? planItem;
+    try {
+      planItem = currentDiscipline.planItems.firstWhere(
+            (item) => item.type.toLowerCase() == selectedKey.toLowerCase(),
+      );
+    } catch (_) {
+      planItem = null;
+    }
+
+    final plannedHours = planItem?.hoursAllocated ?? 0;
+
+    final actualSessions = sessions.where(
+          (s) => s.sessionType.toLowerCase() == selectedSessionsType.toLowerCase(),
+    );
+    final conductedHours = actualSessions.length;
+
+    return '$plannedHours ч. запланировано / $conductedHours ч. проведено';
   }
 
   void _showAccountScreen() {
@@ -229,6 +272,23 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                                 fontSize: 20,
                                                 fontWeight: FontWeight.bold),
                                           ),
+                                          if (selectedSessionsType != 'Все') ...[
+                                            Padding(
+                                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                                              child: Row(
+                                                children: [
+                                                  Text(
+                                                    _buildSessionStatsText(),
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      color: Colors.grey.shade700,
+                                                      fontWeight: FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
                                           Spacer(),
                                           if (_selectedColumnIndex != null) ...[
                                             Padding(
