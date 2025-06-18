@@ -139,6 +139,10 @@ class _GroupsListState extends State<GroupsList> {
                                     onPressed: () {
                                       setState(() {
                                         showEditDialog = true;
+                                        nameController.text = widget.groups[selectedIndex!].name ?? '';
+                                        selectedCourseIndex = widget.groups[selectedIndex!].courseId - 1;
+                                        selectedFacultyIndex = widget.groups[selectedIndex!].facultyId - 1;
+                                        selectedStudents = widget.groups[selectedIndex!].students;
                                       });
                                     },
                                     style: ElevatedButton.styleFrom(
@@ -210,9 +214,10 @@ class _GroupsListState extends State<GroupsList> {
                                         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                                         child: Text(
                                           '$course курс',
-                                          style: const TextStyle(
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            color: Colors.grey.shade800,
                                             fontSize: 18,
-                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                       ),
@@ -446,47 +451,6 @@ class _GroupsListState extends State<GroupsList> {
                                                     ),
                                                   )),
                                               const SizedBox(height: 28),
-                                              // Выбор курса
-                                              Text(
-                                                'Выберите курс',
-                                                style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
-                                              ),
-                                              const SizedBox(height: 18),
-                                              DropdownButtonFormField<int>(
-                                                value: selectedCourseIndex,
-                                                decoration: InputDecoration(
-                                                  labelText: 'Курс',
-                                                  filled: true,
-                                                  fillColor: Colors.white,
-                                                  border: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(12),
-                                                    borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
-                                                  ),
-                                                  enabledBorder: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(12),
-                                                    borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
-                                                  ),
-                                                  focusedBorder: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(12),
-                                                    borderSide: BorderSide(color: MyColors.blueJournal, width: 1.5),
-                                                  ),
-                                                ),
-                                                items: List.generate(_courses.length, (index) {
-                                                  return DropdownMenuItem<int>(
-                                                    value: index,
-                                                    child: Text(
-                                                      _courses[index],
-                                                      style: const TextStyle(fontSize: 15, color: Color(0xFF6B7280)),
-                                                    ),
-                                                  );
-                                                }).toList(),
-                                                onChanged: (value) {
-                                                  setState(() {
-                                                    selectedCourseIndex = value;
-                                                  });
-                                                },
-                                              ),
-                                              const SizedBox(height: 28),
                                               Text(
                                                 'Выберите факультет',
                                                 style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
@@ -496,6 +460,7 @@ class _GroupsListState extends State<GroupsList> {
                                                 value: selectedFacultyIndex,
                                                 decoration: InputDecoration(
                                                   labelText: 'Факультет',
+                                                  labelStyle: TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
                                                   filled: true,
                                                   fillColor: Colors.white,
                                                   border: OutlineInputBorder(
@@ -516,13 +481,55 @@ class _GroupsListState extends State<GroupsList> {
                                                     value: index,
                                                     child: Text(
                                                       _faculties[index],
-                                                      style: const TextStyle(fontSize: 15, color: Color(0xFF6B7280)),
+                                                      style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
                                                     ),
                                                   );
                                                 }).toList(),
                                                 onChanged: (value) {
                                                   setState(() {
                                                     selectedFacultyIndex = value;
+                                                  });
+                                                },
+                                              ),
+                                              const SizedBox(height: 28),
+                                              // Выбор курса
+                                              Text(
+                                                'Выберите курс',
+                                                style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+                                              ),
+                                              const SizedBox(height: 18),
+                                              DropdownButtonFormField<int>(
+                                                value: selectedCourseIndex,
+                                                decoration: InputDecoration(
+                                                  labelText: 'Курс',
+                                                  labelStyle: TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
+                                                  filled: true,
+                                                  fillColor: Colors.white,
+                                                  border: OutlineInputBorder(
+                                                    borderRadius: BorderRadius.circular(12),
+                                                    borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                                  ),
+                                                  enabledBorder: OutlineInputBorder(
+                                                    borderRadius: BorderRadius.circular(12),
+                                                    borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                                  ),
+                                                  focusedBorder: OutlineInputBorder(
+                                                    borderRadius: BorderRadius.circular(12),
+                                                    borderSide: BorderSide(color: MyColors.blueJournal, width: 1.5),
+                                                  ),
+                                                ),
+                                                items: List.generate(_courses.length, (index) {
+                                                  return DropdownMenuItem<int>(
+                                                    value: index,
+                                                    child: Text(
+                                                      _courses[index],
+                                                      style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
+                                                    ),
+                                                  );
+                                                }).toList(),
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    selectedCourseIndex = value;
                                                   });
                                                 },
                                               ),

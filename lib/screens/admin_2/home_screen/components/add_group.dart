@@ -167,6 +167,53 @@ class _AddGroupDialogState extends State<AddGroupDialog> {
                                       ),
                                     )),
                                 const SizedBox(height: 28),
+                                Text(
+                                  'Выберите факультет',
+                                  style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+                                ),
+                                const SizedBox(height: 18),
+                                DropdownButtonFormField<int>(
+                                  value: selectedFacultyIndex,
+                                  decoration: InputDecoration(
+                                    labelText: 'Факультет',
+                                    labelStyle: TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide(color: MyColors.blueJournal, width: 1.5),
+                                    ),
+                                  ),
+                                  items: List.generate(_faculties.length, (index) {
+                                    return DropdownMenuItem<int>(
+                                      value: index,
+                                      child: Text(
+                                        _faculties[index],
+                                        style: const TextStyle(fontSize: 15, color: Color(0xFF6B7280)),
+                                      ),
+                                    );
+                                  }).toList(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      selectedFacultyIndex = value;
+                                    });
+                                  },
+                                  validator: (value) {
+                                    if (value == null) {
+                                      return 'Выберите курс';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                const SizedBox(height: 28),
                                 // Выбор курса
                                 Text(
                                   'Выберите курс',
@@ -205,53 +252,6 @@ class _AddGroupDialogState extends State<AddGroupDialog> {
                                   onChanged: (value) {
                                     setState(() {
                                       selectedCourseIndex = value;
-                                    });
-                                  },
-                                  validator: (value) {
-                                    if (value == null) {
-                                      return 'Выберите курс';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                const SizedBox(height: 28),
-                                Text(
-                                  'Выберите факультет',
-                                  style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
-                                ),
-                                const SizedBox(height: 18),
-                                DropdownButtonFormField<int>(
-                                  value: selectedFacultyIndex,
-                                  decoration: InputDecoration(
-                                    labelText: 'Факультет',
-                                    labelStyle: TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                      borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                      borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                      borderSide: BorderSide(color: MyColors.blueJournal, width: 1.5),
-                                    ),
-                                  ),
-                                  items: List.generate(_faculties.length, (index) {
-                                    return DropdownMenuItem<int>(
-                                      value: index,
-                                      child: Text(
-                                        _faculties[index],
-                                        style: const TextStyle(fontSize: 15, color: Color(0xFF6B7280)),
-                                      ),
-                                    );
-                                  }).toList(),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      selectedFacultyIndex = value;
                                     });
                                   },
                                   validator: (value) {

@@ -28,6 +28,14 @@ class MyUser extends Equatable {
     this.disciplines = const [],
   });
 
+  factory MyUser.fromGroupJson(Map<String, dynamic> json) {
+    return MyUser(
+      id: json['id'],
+      username: json['username'],
+      role: 'Студент',
+    );
+  }
+
   factory MyUser.fromJson(Map<String, dynamic> json) {
     final data = json.containsKey('user') ? json['user'] : json;
     String? bio;

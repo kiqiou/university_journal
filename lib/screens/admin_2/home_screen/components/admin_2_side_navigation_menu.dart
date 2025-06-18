@@ -135,7 +135,7 @@ class _Admin2SideNavigationMenuState extends State<Admin2SideNavigationMenu> {
                         ),
                       ),
                     ),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 20),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10.0),
                     child: widget.isExpanded
@@ -151,7 +151,7 @@ class _Admin2SideNavigationMenuState extends State<Admin2SideNavigationMenu> {
                             color: Colors.grey,
                           ),
                   ),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 20),
                   Expanded(
                     child: ListView.builder(
                       itemCount: _icons.length,

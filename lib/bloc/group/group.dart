@@ -1,4 +1,4 @@
-import 'dart:convert';
+import '../user/user.dart';
 
 class Group {
   final int id;
@@ -7,6 +7,7 @@ class Group {
   final String facultyName;
   final int courseId;
   final String courseName;
+  final List<MyUser> students;
 
   Group({
     required this.id,
@@ -15,6 +16,7 @@ class Group {
     required this.courseId,
     required this.facultyName,
     required this.courseName,
+    required this.students,
   });
 
   factory Group.fromJson(Map<String, dynamic> json) {
@@ -25,6 +27,9 @@ class Group {
       courseId: json['course']['id'],
       facultyName: json['faculty']['name'],
       courseName: json['course']['name'],
+      students: (json['students'] as List)
+          .map((e) => MyUser.fromGroupJson(e))
+          .toList(),
     );
   }
 

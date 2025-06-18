@@ -349,11 +349,7 @@ class _StudentsListState extends State<StudentsList> {
                                   children: [
                                     Text(
                                       "Удаление студента",
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.grey.shade700,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                      style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
                                     ),
                                     const Spacer(),
                                     InkWell(
@@ -476,11 +472,7 @@ class _StudentsListState extends State<StudentsList> {
                                           children: [
                                             Text(
                                               "Редактирование студента",
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                color: Colors.grey.shade700,
-                                                fontWeight: FontWeight.w500,
-                                              ),
+                                              style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
                                             ),
                                             const Spacer(),
                                             SizedBox(
@@ -548,11 +540,7 @@ class _StudentsListState extends State<StudentsList> {
                                           children: [
                                             Text(
                                               'ФИО студента',
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                color: Colors.grey.shade700,
-                                                fontWeight: FontWeight.w500,
-                                              ),
+                                              style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
                                             ),
                                             const SizedBox(height: 18),
                                             TextFormField(
@@ -591,11 +579,7 @@ class _StudentsListState extends State<StudentsList> {
                                             const SizedBox(height: 48),
                                             Text(
                                               'Привязка группы',
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                color: Colors.grey.shade700,
-                                                fontWeight: FontWeight.w500,
-                                              ),
+                                              style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
                                             ),
                                             const SizedBox(height: 18),
                                             DropdownButtonFormField<Group>(
