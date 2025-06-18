@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -8,6 +6,7 @@ import '../../../../components/colors/colors.dart';
 class AddEventDialogContent extends StatefulWidget {
   final void Function(DateTime) onDateSelected;
   final void Function(String) onEventTypeSelected;
+  final bool isEditing;
   final VoidCallback onSavePressed;
 
   const AddEventDialogContent({
@@ -15,6 +14,7 @@ class AddEventDialogContent extends StatefulWidget {
     required this.onDateSelected,
     required this.onEventTypeSelected,
     required this.onSavePressed,
+    required this.isEditing,
   });
 
   @override
@@ -58,7 +58,8 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
 
   void _showDropdown() {
     if (_dropdownOverlay != null) return;
-    final RenderBox box = _dropdownKey.currentContext!.findRenderObject() as RenderBox;
+    final RenderBox box =
+        _dropdownKey.currentContext!.findRenderObject() as RenderBox;
     final Offset position = box.localToGlobal(Offset.zero);
     final Size size = box.size;
 
@@ -91,11 +92,15 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
                       final type = _eventTypes[index];
                       final isSelected = _selectedEventType == type;
                       return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 2),
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: isSelected ? MyColors.blueJournal : Colors.white,
-                            foregroundColor: isSelected ? Colors.white : Colors.black,
+                            backgroundColor: isSelected
+                                ? MyColors.blueJournal
+                                : Colors.white,
+                            foregroundColor:
+                                isSelected ? Colors.white : Colors.black,
                             side: BorderSide(color: Colors.grey, width: 1.5),
                             padding: EdgeInsets.symmetric(vertical: 18),
                             shape: RoundedRectangleBorder(
@@ -112,7 +117,8 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
                           },
                           child: Text(
                             type,
-                            style: TextStyle(fontSize: 18, color: Colors.grey.shade700),
+                            style: TextStyle(
+                                fontSize: 18, color: Colors.grey.shade700),
                           ),
                         ),
                       );
@@ -135,7 +141,8 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
 
   void _showMonthDropdown() {
     if (_monthDropdownOverlay != null) return;
-    final RenderBox box = _monthDropdownKey.currentContext!.findRenderObject() as RenderBox;
+    final RenderBox box =
+        _monthDropdownKey.currentContext!.findRenderObject() as RenderBox;
     final Offset position = box.localToGlobal(Offset.zero);
     final Size size = box.size;
 
@@ -167,11 +174,15 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
                     itemBuilder: (context, index) {
                       final isSelected = _focusedDay.month == index + 1;
                       return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 2),
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: isSelected ? MyColors.blueJournal : Colors.white,
-                            foregroundColor: isSelected ? Colors.white : Colors.black,
+                            backgroundColor: isSelected
+                                ? MyColors.blueJournal
+                                : Colors.white,
+                            foregroundColor:
+                                isSelected ? Colors.white : Colors.black,
                             side: BorderSide(color: Colors.grey, width: 1.5),
                             padding: EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
@@ -184,7 +195,8 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
                               // Сохраняем выбранный день, если он есть в новом месяце, иначе берем последний день месяца
                               int day = _selectedDate.day;
                               int year = _focusedDay.year;
-                              int daysInMonth = DateTime(year, index + 2, 0).day;
+                              int daysInMonth =
+                                  DateTime(year, index + 2, 0).day;
                               if (day > daysInMonth) day = daysInMonth;
                               _selectedDate = DateTime(year, index + 1, day);
                               _focusedDay = DateTime(year, index + 1, day);
@@ -194,7 +206,8 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
                           },
                           child: Text(
                             _months[index],
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.w500),
                           ),
                         ),
                       );
@@ -244,7 +257,8 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Добавить занятие в журнал',
+                  widget.isEditing ? 'Редактировать занятие' :
+                  'Добавить занятие',
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.grey.shade800,
@@ -261,13 +275,15 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: MyColors.blueJournal,
-                          padding: EdgeInsets.symmetric(horizontal: 30, vertical: 22),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 30, vertical: 22),
                           minimumSize: Size(0, 0),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: Text('Сохранить', style: TextStyle(color: Colors.white)),
+                        child: Text('Сохранить',
+                            style: TextStyle(color: Colors.white)),
                       ),
                     ),
                     SizedBox(width: 8),
@@ -278,7 +294,8 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: IconButton(
-                          icon: Icon(Icons.close, color: Colors.white, size: 32),
+                          icon:
+                              Icon(Icons.close, color: Colors.white, size: 32),
                           onPressed: () {
                             Navigator.of(context).pop();
                           },
@@ -360,7 +377,8 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
                       height: 50,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey.shade400, width: 1.5),
+                        border:
+                            Border.all(color: Colors.grey.shade400, width: 1.5),
                         borderRadius: BorderRadius.circular(12),
                         color: Colors.white,
                       ),
@@ -369,7 +387,8 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
                         children: [
                           Text(
                             _monthName(_focusedDay.month),
-                            style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+                            style: TextStyle(
+                                fontSize: 15, color: Colors.grey.shade700),
                           ),
                           Icon(Icons.arrow_drop_down, color: Colors.grey),
                         ],
@@ -384,13 +403,15 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
                     height: 50,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade400, width: 1.5),
+                      border:
+                          Border.all(color: Colors.grey.shade400, width: 1.5),
                       borderRadius: BorderRadius.circular(12),
                       color: Colors.white,
                     ),
                     child: Text(
                       _selectedDate.year.toString(),
-                      style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+                      style:
+                          TextStyle(fontSize: 15, color: Colors.grey.shade700),
                     ),
                   ),
                 ),
@@ -431,7 +452,9 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
                         _selectedEventType ?? 'Тип занятия',
                         style: TextStyle(
                           fontSize: 15,
-                          color: _selectedEventType == null ? Colors.grey.shade500 : Colors.grey.shade700,
+                          color: _selectedEventType == null
+                              ? Colors.grey.shade500
+                              : Colors.grey.shade700,
                         ),
                       ),
                       Icon(Icons.arrow_drop_down, color: Colors.grey),
@@ -445,5 +468,4 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
       ),
     );
   }
-
 }

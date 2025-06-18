@@ -773,7 +773,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                   _filterBySessionType(selectedSessionsType);
                 }
               }
-            }),
+            }, isEditing: isEditing,),
           ),
         );
       },
