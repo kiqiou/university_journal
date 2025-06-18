@@ -1,6 +1,8 @@
+import 'package:equatable/equatable.dart';
+
 import '../user/user.dart';
 
-class Group {
+class Group extends Equatable{
   final int id;
   final String name;
   final int facultyId;
@@ -34,5 +36,5 @@ class Group {
   }
 
   @override
-  String toString() => '$id: $name';
+  List<Object?> get props => [id];
 }

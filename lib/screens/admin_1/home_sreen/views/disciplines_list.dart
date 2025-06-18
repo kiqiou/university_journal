@@ -149,9 +149,9 @@ class _CoursesList extends State<CoursesList> {
                                     onPressed: () {
                                       setState(() {
                                         showEditDialog = true;
-                                        nameController.text = widget.disciplines[selectedIndex!].name ?? '';
-                                        selectedGroups = widget.disciplines[selectedIndex!].groups ?? [];
-                                        selectedTeachers = widget.disciplines[selectedIndex!].teachers ?? [];
+                                        nameController.text = widget.disciplines[selectedIndex!].name;
+                                        selectedGroups = widget.disciplines[selectedIndex!].groups;
+                                        selectedTeachers = widget.disciplines[selectedIndex!].teachers;
                                       });
                                     },
                                     style: ElevatedButton.styleFrom(
