@@ -30,9 +30,7 @@ class CoursesList extends StatefulWidget {
 
 class _CoursesList extends State<CoursesList> {
   final disciplineRepository = DisciplineRepository();
-  final usernameController = TextEditingController();
-  final positionController = TextEditingController();
-  final bioController = TextEditingController();
+  final nameController = TextEditingController();
   final TextEditingController lectureHoursController = TextEditingController();
   final TextEditingController labHoursController = TextEditingController();
   final Map<String, TextEditingController> hoursControllers = {};
@@ -45,7 +43,6 @@ class _CoursesList extends State<CoursesList> {
   final List<Discipline> disciplines = [];
   List<MyUser> selectedTeachers = [];
   List<Group> selectedGroups = [];
-  List<MyUser> selectedTeachers2 = [];
   List<String> selectedTypes = [];
   List<String> selectedLessonTypes = [];
 
@@ -152,6 +149,9 @@ class _CoursesList extends State<CoursesList> {
                                     onPressed: () {
                                       setState(() {
                                         showEditDialog = true;
+                                        nameController.text = widget.disciplines[selectedIndex!].name ?? '';
+                                        selectedGroups = widget.disciplines[selectedIndex!].groups ?? [];
+                                        selectedTeachers = widget.disciplines[selectedIndex!].teachers ?? [];
                                       });
                                     },
                                     style: ElevatedButton.styleFrom(
@@ -436,9 +436,9 @@ class _CoursesList extends State<CoursesList> {
                                             // }
                                             final currentCourse = widget.disciplines[selectedIndex!];
 
-                                            final name = usernameController.text.trim().isEmpty
+                                            final name = nameController.text.trim().isEmpty
                                                 ? currentCourse.name
-                                                : usernameController.text.trim();
+                                                : nameController.text.trim();
 
                                             List<int> teacherIds = selectedTeachers.map((e) => e.id).toList();
                                             List<int> groupIds = selectedGroups.map((e) => e.id).toList();
@@ -512,7 +512,7 @@ class _CoursesList extends State<CoursesList> {
                                     ),
                                     const SizedBox(height: 18),
                                     TextFormField(
-                                      controller: usernameController,
+                                      controller: nameController,
                                       decoration: InputDecoration(
                                         hintText: 'Введите название дисциплины',
                                         hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
