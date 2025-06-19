@@ -34,7 +34,6 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
   bool showGroupSelect = false;
   int? selectedDisciplineIndex;
   int? selectedGroupId;
-  int? _selectedColumnIndex;
   String selectedSessionsType = 'Все';
   List<Session> sessions = [];
   List<MyUser> students = [];
@@ -178,10 +177,21 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
 
     final plannedHours = planItem?.hoursAllocated ?? 0;
 
-    final actualSessions = sessions.where(
-      (s) => s.sessionType.toLowerCase() == selectedSessionsType.toLowerCase(),
-    );
-    final conductedHours = actualSessions.length;
+    final actualSessions = sessions
+        .where((s) => s.sessionType.toLowerCase() == selectedSessionsType.toLowerCase())
+        .fold<Map<int, Session>>({}, (map, session) {
+      map[session.id] = session;
+      return map;
+    })
+        .values
+        .toList();
+
+    print('Total sessions matching type "$selectedSessionsType": ${actualSessions.length}');
+    for (var s in actualSessions) {
+      print(' - ${s.sessionType} (${s.date})');
+    }
+
+    final conductedHours = actualSessions.length * 2;
 
     return '$plannedHours ч. запланировано / $conductedHours ч. проведено';
   }
@@ -321,12 +331,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                                             sessions: sessions,
                                             isEditable: true,
                                             isLoading: false,
-                                            selectedColumnIndex: _selectedColumnIndex,
-                                            onColumnSelected: (int index) {
-                                              setState(() {
-                                                _selectedColumnIndex = index;
-                                              });
-                                            },
+                                            onColumnSelected: (int index) {},
                                             onSessionsChanged:
                                                 (updatedSessions) {
                                               print(

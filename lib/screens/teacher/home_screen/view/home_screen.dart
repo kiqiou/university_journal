@@ -167,10 +167,21 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
 
     final plannedHours = planItem?.hoursAllocated ?? 0;
 
-    final actualSessions = sessions.where(
-          (s) => s.sessionType.toLowerCase() == selectedSessionsType.toLowerCase(),
-    );
-    final conductedHours = actualSessions.length;
+    final actualSessions = sessions
+        .where((s) => s.sessionType.toLowerCase() == selectedSessionsType.toLowerCase())
+        .fold<Map<int, Session>>({}, (map, session) {
+      map[session.id] = session;
+      return map;
+    })
+        .values
+        .toList();
+
+    print('Total sessions matching type "$selectedSessionsType": ${actualSessions.length}');
+    for (var s in actualSessions) {
+      print(' - ${s.sessionType} (${s.date})');
+    }
+
+    final conductedHours = actualSessions.length * 2;
 
     return '$plannedHours ч. запланировано / $conductedHours ч. проведено';
   }
