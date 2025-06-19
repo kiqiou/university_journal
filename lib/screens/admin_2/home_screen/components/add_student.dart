@@ -205,8 +205,8 @@ class _AddStudentDialogState extends State<AddStudentDialog> {
                                     selectedGroup = value!;
                                   });
                                 },
-                                validator: (value) =>
-                                value == null ? 'Выберите одну группу' : null,
+                                // validator: (value) =>
+                                // value == null ? 'Выберите одну группу' : null,
                               )
                             ],
                           ),

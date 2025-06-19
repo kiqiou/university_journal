@@ -104,6 +104,7 @@ class _StudentsListState extends State<StudentsList> {
               ),
             ),
           );
+          int counter = 1;
           for (var student in studentsInGroup) {
             flatStudentList.add(student);
             final currentIndex = flatStudentList.length - 1;
@@ -117,32 +118,47 @@ class _StudentsListState extends State<StudentsList> {
                       selectedIndex = currentIndex;
                     });
                   },
-                  child: Container(
-                    height: 55,
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: (selectedIndex == currentIndex)
-                            ? const Color(0xFF4068EA)
-                            : Colors.grey.shade300,
-                        width: 1,
+                  child: Row(
+                    children: [
+                      Text(
+                        '$counter',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.black87,
+                        ),
                       ),
-                      borderRadius: BorderRadius.circular(16),
-                      color: Colors.white,
-                    ),
-                    alignment: Alignment.centerLeft,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      student.username,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                      SizedBox(width: 20,),
+                      Expanded(
+                        child: Container(
+                          height: 55,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: (selectedIndex == currentIndex)
+                                  ? const Color(0xFF4068EA)
+                                  : Colors.grey.shade300,
+                              width: 1,
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                            color: Colors.white,
+                          ),
+                          alignment: Alignment.centerLeft,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(
+                            student.username,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ),
             );
+            counter++;
           }
         });
       }
