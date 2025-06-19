@@ -40,10 +40,7 @@ class MyApp extends StatelessWidget {
           labelSmall: TextStyle(fontWeight: FontWeight.w900, color: Colors.black),
         ),
         colorScheme: ColorScheme.light(
-          surface: Colors.grey.shade100,
-          onSurface: Colors.black,
-          primary: Colors.indigo,
-          onPrimary: Colors.white,
+          surface: Colors.white,
         ),
       ),
       home: Builder(

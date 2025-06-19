@@ -298,17 +298,15 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                                 alignment: Alignment.centerRight,
                                                 child: ElevatedButton(
                                                   onPressed: () async {
-                                                    final dates =
-                                                        extractUniqueDateTypes(
-                                                            sessions);
-                                                    final toRemove = dates[
-                                                        _selectedColumnIndex!];
+                                                    final filteredSessions = selectedSessionsType == 'Все'
+                                                        ? sessions
+                                                        : sessions.where((s) => s.sessionType == selectedSessionsType).toList();
 
-                                                    final session =
-                                                        sessions.firstWhere(
-                                                      (s) =>
-                                                          '${s.date} ${s.sessionType} ${s.id}' ==
-                                                          toRemove,
+                                                    final dates = extractUniqueDateTypes(filteredSessions);
+                                                    final toRemove = dates[_selectedColumnIndex!];
+
+                                                    final session = filteredSessions.firstWhere(
+                                                          (s) => '${s.date} ${s.sessionType} ${s.id}' == toRemove,
                                                     );
 
                                                     final repository =
@@ -328,15 +326,10 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                                                 session.id);
 
                                                       setState(() {
-                                                        _selectedColumnIndex =
-                                                            null;
-                                                        sessions =
-                                                            updatedSessions;
+                                                        _selectedColumnIndex = null;
+                                                        sessions = updatedSessions;
                                                       });
-                                                      tableKey.currentState
-                                                          ?.updateDataSource(
-                                                              updatedSessions,
-                                                              students);
+                                                      _filterBySessionType(selectedSessionsType);
                                                     } else {
                                                       ScaffoldMessenger.of(
                                                               context)
