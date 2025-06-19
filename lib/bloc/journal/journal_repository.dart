@@ -68,16 +68,27 @@ class JournalRepository {
     }
   }
 
-  Future<bool> updateAttendance({required int sessionId, required int studentId, required String status, required String grade}) async {
+  Future<bool> updateAttendance({
+    required int sessionId,
+    required int studentId,
+    required String status,
+    required String grade,
+  }) async {
+    final Map<String, dynamic> body = {
+      'session_id': sessionId,
+      'student_id': studentId,
+      'status': status,
+    };
+
+    final parsedGrade = int.tryParse(grade);
+    if (parsedGrade != null) {
+      body['grade'] = parsedGrade;
+    }
+
     final response = await http.put(
       Uri.parse('http://127.0.0.1:8000/api/update_attendance/'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'session_id': sessionId,
-        'student_id': studentId,
-        'grade': int.parse(grade),
-        'status': status,
-      }),
+      body: jsonEncode(body),
     );
 
     if (response.statusCode == 200) {
