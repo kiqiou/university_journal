@@ -282,7 +282,6 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                                     style: TextStyle(
                                                       fontSize: 16,
                                                       color: Colors.grey.shade700,
-                                                      fontWeight: FontWeight.w500,
                                                     ),
                                                   ),
                                                 ],
