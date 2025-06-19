@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../bloc/auth/authentication_bloc.dart';
 import '../../../bloc/discipline/discipline.dart';
+import '../../../../bloc/discipline/discipline_plan.dart';
 import '../../../bloc/discipline/discipline_repository.dart';
 import '../../../bloc/journal/journal.dart';
 import '../../../bloc/journal/journal_repository.dart';
@@ -33,11 +34,23 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
   bool showGroupSelect = false;
   int? selectedDisciplineIndex;
   int? selectedGroupId;
+  int? _selectedColumnIndex;
   String selectedSessionsType = 'Все';
   List<Session> sessions = [];
   List<MyUser> students = [];
   List<MyUser> teachers = [];
   List<Discipline> disciplines = [];
+
+  Future<Map<String, dynamic>>? journalDataFuture;
+
+  final List<Map<String, String>> lessonTypeOptions = [
+    {'key': 'lecture', 'label': 'Лекция'},
+    {'key': 'seminar', 'label': 'Семинар'},
+    {'key': 'practice', 'label': 'Практика'},
+    {'key': 'lab', 'label': 'Лабораторная'},
+    {'key': 'current', 'label': 'Текущая аттестация'},
+    {'key': 'final', 'label': 'Промежуточная аттестация'},
+  ];
 
   @override
   void initState() {
@@ -51,10 +64,9 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
     selectedGroupId = authState.user!.groupId;
 
     if (authState.status == AuthenticationStatus.authenticated) {
-      final student = authState.user;
       final list = await journalRepository.journalData(
         courseId: disciplines[selectedDisciplineIndex!].id,
-        groupId: student!.groupId!,
+        groupId: selectedGroupId!,
       );
       setState(() {
         sessions = list;
@@ -87,6 +99,31 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
     }
   }
 
+  Future<Map<String, dynamic>> loadJournalData() async {
+    final userRepository = UserRepository();
+    final journalRepository = JournalRepository();
+
+    final authState = context.read<AuthenticationBloc>().state;
+    selectedGroupId = authState.user!.groupId;
+
+    print('$selectedGroupId');
+
+    final studentsFuture =
+        userRepository.getStudentsByGroupList(selectedGroupId!);
+    final sessionsFuture = journalRepository.journalData(
+      courseId: disciplines[selectedDisciplineIndex!].id,
+      groupId: selectedGroupId!,
+    );
+
+    final students = await studentsFuture;
+    final sessions = await sessionsFuture;
+
+    return {
+      'students': students ?? [],
+      'sessions': sessions ?? [],
+    };
+  }
+
   Future<void> loadDisciplines() async {
     try {
       final disciplinesRepository = DisciplineRepository();
@@ -114,6 +151,39 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
         : sessions.where((s) => s.sessionType == type).toList();
 
     tableKey.currentState?.updateDataSource(filtered, students);
+  }
+
+  String _buildSessionStatsText() {
+    if (selectedSessionsType == 'Все') return '';
+
+    final currentDiscipline = disciplines[selectedDisciplineIndex!];
+
+    final selectedTypeMap = lessonTypeOptions.firstWhere(
+      (type) => type['label'] == selectedSessionsType,
+      orElse: () => {},
+    );
+
+    final selectedKey = selectedTypeMap['key']; // 'lecture', 'seminar' и т.д.
+
+    if (selectedKey == null) return '';
+
+    PlanItem? planItem;
+    try {
+      planItem = currentDiscipline.planItems.firstWhere(
+        (item) => item.type.toLowerCase() == selectedKey.toLowerCase(),
+      );
+    } catch (_) {
+      planItem = null;
+    }
+
+    final plannedHours = planItem?.hoursAllocated ?? 0;
+
+    final actualSessions = sessions.where(
+      (s) => s.sessionType.toLowerCase() == selectedSessionsType.toLowerCase(),
+    );
+    final conductedHours = actualSessions.length;
+
+    return '$plannedHours ч. запланировано / $conductedHours ч. проведено';
   }
 
   void _showThemeScreen() {
@@ -199,22 +269,75 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                                             fontWeight: FontWeight.bold),
                                       ),
                                     ),
+                                    if (selectedSessionsType != 'Все') ...[
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 20, vertical: 8),
+                                        child: Row(
+                                          children: [
+                                            Text(
+                                              _buildSessionStatsText(),
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.grey.shade700,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                     SizedBox(
                                       height: 40,
                                     ),
-                                    Expanded(
-                                      child: JournalTable(
-                                        key: tableKey,
-                                        isLoading: isLoading,
-                                        sessions: sessions,
-                                        onSessionsChanged: (updatedSessions) {
-                                          setState(() {
-                                            sessions = updatedSessions;
-                                          });
-                                        },
-                                        isEditable: false,
-                                        students: students,
-                                      ),
+                                    FutureBuilder<Map<String, dynamic>>(
+                                      future: journalDataFuture,
+                                      builder: (context, snapshot) {
+                                        if (journalDataFuture == null) {
+                                          return Center(
+                                              child: Text('Выберите группу'));
+                                        }
+                                        if (snapshot.connectionState ==
+                                            ConnectionState.waiting) {
+                                          return Center(
+                                              child:
+                                              CircularProgressIndicator());
+                                        }
+                                        if (snapshot.hasError) {
+                                          return Center(
+                                              child: Text('Ошибка загрузки'));
+                                        }
+                                        if (!snapshot.hasData) {
+                                          return Center(
+                                              child: Text('Нет данных'));
+                                        }
+
+                                        final students = snapshot
+                                            .data!['students'] as List<MyUser>;
+
+                                        return Expanded(
+                                          child: JournalTable(
+                                            key: tableKey,
+                                            students: students,
+                                            sessions: sessions,
+                                            isEditable: true,
+                                            isLoading: false,
+                                            selectedColumnIndex: _selectedColumnIndex,
+                                            onColumnSelected: (int index) {
+                                              setState(() {
+                                                _selectedColumnIndex = index;
+                                              });
+                                            },
+                                            onSessionsChanged:
+                                                (updatedSessions) {
+                                              print(
+                                                  'Загружено занятий: $updatedSessions');
+                                              sessions = updatedSessions;
+                                              _filterBySessionType(
+                                                  selectedSessionsType);
+                                            },
+                                          ),
+                                        );
+                                      },
                                     ),
                                   ],
                                 ),
@@ -369,8 +492,39 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                                         const SizedBox(height: 18),
                                         ElevatedButton(
                                           onPressed: () async {
-                                            showGroupSelect = false;
-                                            loadSessions();
+                                            if (!_formKey.currentState!
+                                                .validate()) {
+                                              return;
+                                            }
+
+                                            setState(() {
+                                              showGroupSelect = false;
+                                              isLoading = true;
+                                              journalDataFuture =
+                                                  loadJournalData();
+                                            });
+
+                                            try {
+                                              final data =
+                                              await journalDataFuture!;
+                                              setState(() {
+                                                students = data['students']
+                                                as List<MyUser>;
+                                                sessions = data['sessions']
+                                                as List<Session>;
+                                                isLoading = false;
+                                              });
+                                            } catch (e) {
+                                              setState(() {
+                                                isLoading = false;
+                                              });
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                    content: Text(
+                                                        'Ошибка при загрузке данных')),
+                                              );
+                                            }
                                           },
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor:
