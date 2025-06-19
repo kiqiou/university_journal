@@ -329,7 +329,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                                             key: tableKey,
                                             students: students,
                                             sessions: sessions,
-                                            isEditable: true,
+                                            isEditable: false,
                                             isLoading: false,
                                             onColumnSelected: (int index) {},
                                             onSessionsChanged:
