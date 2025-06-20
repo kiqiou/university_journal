@@ -7,6 +7,8 @@ class AddEventDialogContent extends StatefulWidget {
   final void Function(DateTime) onDateSelected;
   final void Function(String) onEventTypeSelected;
   final bool isEditing;
+  final DateTime? initialDate;
+  final String? initialEventType;
   final VoidCallback onSavePressed;
 
   const AddEventDialogContent({
@@ -14,7 +16,7 @@ class AddEventDialogContent extends StatefulWidget {
     required this.onDateSelected,
     required this.onEventTypeSelected,
     required this.onSavePressed,
-    required this.isEditing,
+    required this.isEditing, this.initialDate, this.initialEventType,
   });
 
   @override
@@ -55,6 +57,14 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
 
   final GlobalKey _dropdownKey = GlobalKey();
   final GlobalKey _monthDropdownKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDate = widget.initialDate ?? DateTime.now();
+    _focusedDay = widget.initialDate ?? DateTime.now();
+    _selectedEventType = widget.initialEventType;
+  }
 
   void _showDropdown() {
     if (_dropdownOverlay != null) return;

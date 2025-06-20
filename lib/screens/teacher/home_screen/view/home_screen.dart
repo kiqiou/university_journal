@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:university_journal/bloc/discipline/discipline.dart';
 import 'package:university_journal/bloc/journal/journal_repository.dart';
 import 'package:university_journal/bloc/user/user_repository.dart';
@@ -148,7 +149,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     final currentDiscipline = disciplines[selectedDisciplineIndex!];
 
     final selectedTypeMap = lessonTypeOptions.firstWhere(
-          (type) => type['label'] == selectedSessionsType,
+      (type) => type['label'] == selectedSessionsType,
       orElse: () => {},
     );
 
@@ -159,7 +160,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     PlanItem? planItem;
     try {
       planItem = currentDiscipline.planItems.firstWhere(
-            (item) => item.type.toLowerCase() == selectedKey.toLowerCase(),
+        (item) => item.type.toLowerCase() == selectedKey.toLowerCase(),
       );
     } catch (_) {
       planItem = null;
@@ -168,15 +169,17 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     final plannedHours = planItem?.hoursAllocated ?? 0;
 
     final actualSessions = sessions
-        .where((s) => s.sessionType.toLowerCase() == selectedSessionsType.toLowerCase())
+        .where((s) =>
+            s.sessionType.toLowerCase() == selectedSessionsType.toLowerCase())
         .fold<Map<int, Session>>({}, (map, session) {
-      map[session.id] = session;
-      return map;
-    })
+          map[session.id] = session;
+          return map;
+        })
         .values
         .toList();
 
-    print('Total sessions matching type "$selectedSessionsType": ${actualSessions.length}');
+    print(
+        'Total sessions matching type "$selectedSessionsType": ${actualSessions.length}');
     for (var s in actualSessions) {
       print(' - ${s.sessionType} (${s.date})');
     }
@@ -283,16 +286,21 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                                 fontSize: 20,
                                                 fontWeight: FontWeight.bold),
                                           ),
-                                          if (selectedSessionsType != 'Все') ...[
+                                          if (selectedSessionsType !=
+                                              'Все') ...[
                                             Padding(
-                                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 20,
+                                                      vertical: 8),
                                               child: Row(
                                                 children: [
                                                   Text(
                                                     _buildSessionStatsText(),
                                                     style: TextStyle(
                                                       fontSize: 16,
-                                                      color: Colors.grey.shade700,
+                                                      color:
+                                                          Colors.grey.shade700,
                                                     ),
                                                   ),
                                                 ],
@@ -305,18 +313,32 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                               padding: const EdgeInsets.only(
                                                   top: 20.0, right: 20.0),
                                               child: Align(
-                                                alignment: Alignment.centerRight,
+                                                alignment:
+                                                    Alignment.centerRight,
                                                 child: ElevatedButton(
                                                   onPressed: () async {
-                                                    final filteredSessions = selectedSessionsType == 'Все'
-                                                        ? sessions
-                                                        : sessions.where((s) => s.sessionType == selectedSessionsType).toList();
+                                                    final filteredSessions =
+                                                        selectedSessionsType ==
+                                                                'Все'
+                                                            ? sessions
+                                                            : sessions
+                                                                .where((s) =>
+                                                                    s.sessionType ==
+                                                                    selectedSessionsType)
+                                                                .toList();
 
-                                                    final dates = extractUniqueDateTypes(filteredSessions);
-                                                    final toRemove = dates[_selectedColumnIndex!];
+                                                    final dates =
+                                                        extractUniqueDateTypes(
+                                                            filteredSessions);
+                                                    final toRemove = dates[
+                                                        _selectedColumnIndex!];
 
-                                                    final session = filteredSessions.firstWhere(
-                                                          (s) => '${s.date} ${s.sessionType} ${s.id}' == toRemove,
+                                                    final session =
+                                                        filteredSessions
+                                                            .firstWhere(
+                                                      (s) =>
+                                                          '${s.date} ${s.sessionType} ${s.id}' ==
+                                                          toRemove,
                                                     );
 
                                                     final repository =
@@ -336,10 +358,13 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                                                 session.id);
 
                                                       setState(() {
-                                                        _selectedColumnIndex = null;
-                                                        sessions = updatedSessions;
+                                                        _selectedColumnIndex =
+                                                            null;
+                                                        sessions =
+                                                            updatedSessions;
                                                       });
-                                                      _filterBySessionType(selectedSessionsType);
+                                                      _filterBySessionType(
+                                                          selectedSessionsType);
                                                     } else {
                                                       ScaffoldMessenger.of(
                                                               context)
@@ -350,16 +375,19 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                                       );
                                                     }
                                                   },
-                                                  style: ElevatedButton.styleFrom(
+                                                  style:
+                                                      ElevatedButton.styleFrom(
                                                     backgroundColor:
                                                         MyColors.blueJournal,
-                                                    padding: EdgeInsets.symmetric(
-                                                        horizontal: 25,
-                                                        vertical: 23),
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 25,
+                                                            vertical: 23),
                                                     textStyle:
                                                         TextStyle(fontSize: 18),
                                                     minimumSize: Size(170, 50),
-                                                    shape: RoundedRectangleBorder(
+                                                    shape:
+                                                        RoundedRectangleBorder(
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                               10),
@@ -370,7 +398,8 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                                     style: TextStyle(
                                                       color: Colors.white,
                                                       fontFamily: 'Montserrat',
-                                                      fontWeight: FontWeight.w700,
+                                                      fontWeight:
+                                                          FontWeight.w700,
                                                     ),
                                                   ),
                                                 ),
@@ -380,21 +409,50 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                               padding: const EdgeInsets.only(
                                                   top: 20.0, right: 20.0),
                                               child: Align(
-                                                alignment: Alignment.centerRight,
+                                                alignment:
+                                                    Alignment.centerRight,
                                                 child: ElevatedButton(
-                                                  onPressed: () =>
-                                                      _showAddEventDialog(
-                                                          context, true),
-                                                  style: ElevatedButton.styleFrom(
+                                                  onPressed: () {
+                                                    final filteredSessions =
+                                                    selectedSessionsType ==
+                                                        'Все'
+                                                        ? sessions
+                                                        : sessions
+                                                        .where((s) =>
+                                                    s.sessionType ==
+                                                        selectedSessionsType)
+                                                        .toList();
+
+                                                    final dates =
+                                                    extractUniqueDateTypes(
+                                                        filteredSessions);
+                                                    final toRemove = dates[
+                                                    _selectedColumnIndex!];
+
+                                                    final session =
+                                                    filteredSessions
+                                                        .firstWhere(
+                                                          (s) =>
+                                                      '${s.date} ${s.sessionType} ${s.id}' ==
+                                                          toRemove,
+                                                    );
+                                                    _showAddEventDialog(context, true,
+                                                      dateToEdit: DateFormat('dd.MM.yyyy').parse(session.date),
+                                                      typeToEdit: session.sessionType,);
+                                                  },
+                                                  style:
+                                                      ElevatedButton.styleFrom(
                                                     backgroundColor:
                                                         MyColors.blueJournal,
-                                                    padding: EdgeInsets.symmetric(
-                                                        horizontal: 25,
-                                                        vertical: 23),
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 25,
+                                                            vertical: 23),
                                                     textStyle:
                                                         TextStyle(fontSize: 18),
                                                     minimumSize: Size(170, 50),
-                                                    shape: RoundedRectangleBorder(
+                                                    shape:
+                                                        RoundedRectangleBorder(
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                               10),
@@ -405,7 +463,8 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                                     style: TextStyle(
                                                       color: Colors.white,
                                                       fontFamily: 'Montserrat',
-                                                      fontWeight: FontWeight.w700,
+                                                      fontWeight:
+                                                          FontWeight.w700,
                                                     ),
                                                   ),
                                                 ),
@@ -432,7 +491,8 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                                   minimumSize: Size(170, 50),
                                                   shape: RoundedRectangleBorder(
                                                     borderRadius:
-                                                        BorderRadius.circular(10),
+                                                        BorderRadius.circular(
+                                                            10),
                                                   ),
                                                 ),
                                                 child: Text(
@@ -473,8 +533,9 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                                 child: Text('Нет данных'));
                                           }
 
-                                          final students = snapshot
-                                              .data!['students'] as List<MyUser>;
+                                          final students =
+                                              snapshot.data!['students']
+                                                  as List<MyUser>;
 
                                           return Expanded(
                                             child: JournalTable(
@@ -483,7 +544,8 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                               sessions: sessions,
                                               isEditable: true,
                                               isLoading: false,
-                                              selectedColumnIndex: _selectedColumnIndex,
+                                              selectedColumnIndex:
+                                                  _selectedColumnIndex,
                                               onColumnSelected: (int index) {
                                                 setState(() {
                                                   _selectedColumnIndex = index;
@@ -753,7 +815,8 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     );
   }
 
-  void _showAddEventDialog(BuildContext context, bool isEditing) async {
+  void _showAddEventDialog(BuildContext context, bool isEditing,
+      {DateTime? dateToEdit, String? typeToEdit}) async {
     await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -772,71 +835,78 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
             width: screenWidth * 0.25,
             height: screenHeight * 0.85,
             padding: EdgeInsets.all(20),
-            child: AddEventDialogContent(onDateSelected: (date) {
-              setState(() {
-                _selectedDate = date;
-              });
-            }, onEventTypeSelected: (eventType) {
-              setState(() {
-                _selectedEventType = eventType;
-              });
-            }, onSavePressed: () async {
-              if (isEditing) {
-                final journalRepository = JournalRepository();
-                final dates = extractUniqueDateTypes(sessions);
-                final toRemove = dates[_selectedColumnIndex!];
-                final session = sessions.firstWhere(
-                  (s) => '${s.date} ${s.sessionType} ${s.id}' == toRemove,
-                );
-
-                bool success = await journalRepository.updateSession(
-                  id: session.id,
-                  type: _selectedEventType,
-                  date: _selectedDate != null
-                ? "${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}"
-                  : null,
-                );
-
-                if (success) {
-                  final updatedSessions = await journalRepository.journalData(
-                    courseId: disciplines[selectedDisciplineIndex!].id,
-                    groupId: selectedGroupId!,
-                  );
-
-                  setState(() {
-                    _selectedColumnIndex = null;
-                    sessions = updatedSessions;
-                  });
-
-                  tableKey.currentState
-                      ?.updateDataSource(updatedSessions, students);
-                  sessions = updatedSessions;
-                  _filterBySessionType(selectedSessionsType);
-                }
-              } else {
-                if (_selectedDate != null && _selectedEventType != null) {
+            child: AddEventDialogContent(
+              onDateSelected: (date) {
+                setState(() {
+                  _selectedDate = date;
+                });
+              },
+              onEventTypeSelected: (eventType) {
+                setState(() {
+                  _selectedEventType = eventType;
+                });
+              },
+              onSavePressed: () async {
+                if (isEditing) {
                   final journalRepository = JournalRepository();
-                  String formattedDate =
-                      "${_selectedDate?.year}-${_selectedDate?.month.toString().padLeft(2, '0')}-${_selectedDate?.day.toString().padLeft(2, '0')}";
-
-                  await journalRepository.addSession(
-                    type: _selectedEventType!,
-                    date: formattedDate,
-                    courseId: disciplines[selectedDisciplineIndex!].id,
-                    groupId: selectedGroupId!,
+                  final dates = extractUniqueDateTypes(sessions);
+                  final toRemove = dates[_selectedColumnIndex!];
+                  final session = sessions.firstWhere(
+                    (s) => '${s.date} ${s.sessionType} ${s.id}' == toRemove,
                   );
 
-                  final newSessions = await journalRepository.journalData(
-                    courseId: disciplines[selectedDisciplineIndex!].id,
-                    groupId: selectedGroupId!,
+                  bool success = await journalRepository.updateSession(
+                    id: session.id,
+                    type: _selectedEventType,
+                    date: _selectedDate != null
+                        ? "${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}"
+                        : null,
                   );
 
-                  print('Загружено занятий: ${newSessions.length}');
-                  sessions = newSessions;
-                  _filterBySessionType(selectedSessionsType);
+                  if (success) {
+                    final updatedSessions = await journalRepository.journalData(
+                      courseId: disciplines[selectedDisciplineIndex!].id,
+                      groupId: selectedGroupId!,
+                    );
+
+                    setState(() {
+                      _selectedColumnIndex = null;
+                      sessions = updatedSessions;
+                    });
+
+                    tableKey.currentState
+                        ?.updateDataSource(updatedSessions, students);
+                    sessions = updatedSessions;
+                    _filterBySessionType(selectedSessionsType);
+                  }
+                } else {
+                  if (_selectedDate != null && _selectedEventType != null) {
+                    final journalRepository = JournalRepository();
+                    String formattedDate =
+                        "${_selectedDate?.year}-${_selectedDate?.month.toString().padLeft(2, '0')}-${_selectedDate?.day.toString().padLeft(2, '0')}";
+
+                    await journalRepository.addSession(
+                      type: _selectedEventType!,
+                      date: formattedDate,
+                      courseId: disciplines[selectedDisciplineIndex!].id,
+                      groupId: selectedGroupId!,
+                    );
+
+                    final newSessions = await journalRepository.journalData(
+                      courseId: disciplines[selectedDisciplineIndex!].id,
+                      groupId: selectedGroupId!,
+                    );
+
+                    print('Загружено занятий: ${newSessions.length}');
+                    sessions = newSessions;
+                    _filterBySessionType(selectedSessionsType);
+                  }
                 }
-              }
-            }, isEditing: isEditing,),
+              },
+              isEditing: isEditing,
+              initialDate: dateToEdit,
+              initialEventType: typeToEdit,
+            ),
           ),
         );
       },
