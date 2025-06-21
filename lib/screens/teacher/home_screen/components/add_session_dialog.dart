@@ -252,8 +252,8 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
-    if (screenWidth < 1900) return const SizedBox.shrink();
-    if (screenHeight < 500) return const SizedBox.shrink();
+    final dialogWidth = screenWidth < 600 ? screenWidth * 0.9 : 600.0;
+    final dialogHeight = screenHeight < 500 ? screenHeight * 0.8 : 500.0;
 
     return SizedBox(
       height: screenHeight,

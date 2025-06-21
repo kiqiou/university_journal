@@ -1,9 +1,7 @@
 import 'dart:developer';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
 import '../bloc/journal/journal.dart';
 
 class ThemeTable extends StatefulWidget {
@@ -32,7 +30,6 @@ class _ThemeTableState extends State<ThemeTable> {
     return unique;
   }
 
-
   List<Session> sortSessionsByDate(List<Session> sessions) {
     final dateFormat = DateFormat('dd.MM.yyyy');
 
@@ -42,7 +39,7 @@ class _ThemeTableState extends State<ThemeTable> {
         final dateB = dateFormat.parse(b.date);
         return dateA.compareTo(dateB);
       } catch (e) {
-        return a.date.compareTo(b.date); // Фолбэк на строковое сравнение
+        return a.date.compareTo(b.date);
       }
     });
 
@@ -63,27 +60,39 @@ class _ThemeTableState extends State<ThemeTable> {
             1: FlexColumnWidth(4),
             2: FlexColumnWidth(2),
           },
-          border: TableBorder.all(color: Colors.grey),
+          border: TableBorder.all(
+            color: Colors.grey.withOpacity(0.25),
+            width: 1.0,
+          ),
           children: [
             TableRow(
               decoration: BoxDecoration(color: Colors.grey.shade200),
               children: const [
                 Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: Text(
-                    'Дата',
+                  child: Center(
+                    child: Text(
+                      'Дата',
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ),
                 Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: Text(
-                    'Тема',
+                  child: Center(
+                    child: Text(
+                      'Тема',
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ),
                 Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: Text(
-                    'Вид занятия',
+                  child: Center(
+                    child: Text(
+                      'Вид занятия',
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ),
               ],
@@ -94,7 +103,12 @@ class _ThemeTableState extends State<ThemeTable> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text(session.date),
+                    child: Center(
+                      child: Text(
+                        session.date,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(4.0),
@@ -115,11 +129,16 @@ class _ThemeTableState extends State<ThemeTable> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text(session.sessionType),
+                    child: Center(
+                      child: Text(
+                        session.sessionType,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
                   ),
                 ],
               );
-            }),
+            }).toList(),
           ],
         ),
       ),
