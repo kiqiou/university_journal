@@ -290,6 +290,127 @@ class _GroupsListState extends State<GroupsList> {
                     ),
                   ),
                 ),
+                if (showDeleteDialog && selectedIndex != null)
+                  Positioned(
+                    top: 32,
+                    right: 32,
+                    child: Builder(
+                      builder: (context) {
+                        final dialogMaxWidth = 420.0;
+                        final dialogMinWidth = 280.0;
+                        final availableWidth =
+                            MediaQuery.of(context).size.width - 32 - 80;
+                        final dialogWidth = availableWidth < dialogMaxWidth
+                            ? availableWidth.clamp(dialogMinWidth, dialogMaxWidth)
+                            : dialogMaxWidth;
+                        return Material(
+                          color: Colors.transparent,
+                          child: Container(
+                            width: dialogWidth,
+                            padding: const EdgeInsets.all(32),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black12,
+                                  blurRadius: 24,
+                                  offset: Offset(0, 8),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      "Удаление студента",
+                                      style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+                                    ),
+                                    const Spacer(),
+                                    InkWell(
+                                      onTap: () {
+                                        setState(() {
+                                          showDeleteDialog = false;
+                                        });
+                                      },
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: Container(
+                                        width: 36,
+                                        height: 36,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF4068EA),
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        child: const Icon(
+                                          Icons.close,
+                                          color: Colors.white,
+                                          size: 22,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 24),
+                                Text(
+                                  widget.groups[selectedIndex!].name,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    color: Colors.black87,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                const Text(
+                                  "Вы действительно хотите удалить группу?",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                const SizedBox(height: 32),
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: 44,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF4068EA),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    onPressed: () async {
+                                      if (selectedIndex != null) {
+                                        final groupId = widget.groups[selectedIndex!].id;
+                                        bool success = await groupRepository.deleteGroup(groupId: groupId);
+                                        if (success) {
+                                          await widget.loadGroups();
+                                          setState(() {
+                                            showDeleteDialog = false;
+                                            selectedIndex = null;
+                                          });
+                                        }
+                                      }
+                                    },
+                                    child: const Text(
+                                      "Удалить",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                 // Диалог редактирования информации о группе
                 if (showEditDialog && selectedIndex != null)
                   Positioned(

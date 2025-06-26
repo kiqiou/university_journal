@@ -420,7 +420,7 @@ List<GridColumn> buildColumns({
           color: Colors.grey.shade300,
           border: Border.all(color: Colors.grey.shade400),
         ),
-        alignment: Alignment.center,
+        alignment: Alignment.centerLeft,
         padding: const EdgeInsets.all(8),
         child: Text(
           '№',

@@ -244,6 +244,7 @@ class _DekanHomeScreenState extends State<DekanHomeScreen> {
                             return success;
                           },
                           isEditable: false,
+                          onTopicChanged: loadSessions,
                         );
                       case DekanContentScreen.journal:
                         return selectedGroupId != null

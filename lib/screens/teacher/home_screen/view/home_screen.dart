@@ -259,6 +259,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                             return success;
                           },
                           isEditable: true,
+                          onTopicChanged: loadSessions,
                         );
                       case TeacherContentScreen.journal:
                         return selectedGroupId != null

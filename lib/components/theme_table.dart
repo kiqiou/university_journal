@@ -2,20 +2,29 @@ import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'dart:async';
 import '../bloc/journal/journal.dart';
 
 class ThemeTable extends StatefulWidget {
   final List<Session> sessions;
+  final VoidCallback onTopicChanged;
   final bool isEditable;
-  final Future<bool> Function(int sessionId, String? date, String? type, String? topic)? onUpdate;
+  final Future<bool> Function(
+      int sessionId, String? date, String? type, String? topic)? onUpdate;
 
-  const ThemeTable({super.key, required this.sessions, this.onUpdate, required this.isEditable});
+  const ThemeTable(
+      {super.key,
+      required this.sessions,
+      this.onUpdate,
+      required this.isEditable,
+      required this.onTopicChanged});
 
   @override
   State<ThemeTable> createState() => _ThemeTableState();
 }
 
 class _ThemeTableState extends State<ThemeTable> {
+  Timer? _debounce;
 
   List<Session> getUniqueSessions(List<Session> sessions) {
     final seenIds = <int>{};
@@ -51,7 +60,8 @@ class _ThemeTableState extends State<ThemeTable> {
     final sessions = getUniqueSessions(widget.sessions);
     final sortedSessions = sortSessionsByDate(sessions);
     return Scaffold(
-      appBar: AppBar(title: const Text('Темы'), automaticallyImplyLeading: false),
+      appBar:
+          AppBar(title: const Text('Темы'), automaticallyImplyLeading: false),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: Table(
@@ -98,7 +108,8 @@ class _ThemeTableState extends State<ThemeTable> {
               ],
             ),
             ...sortedSessions.map((session) {
-              final topicController = TextEditingController(text: session.topic ?? '');
+              final topicController =
+                  TextEditingController(text: session.topic ?? '');
               return TableRow(
                 children: [
                   Padding(
@@ -113,19 +124,32 @@ class _ThemeTableState extends State<ThemeTable> {
                   Padding(
                     padding: const EdgeInsets.all(4.0),
                     child: TextField(
-                      enabled: widget.isEditable,
-                      controller: topicController,
-                      decoration: InputDecoration.collapsed(
-                          hintText: 'Введите тему', hintStyle: TextStyle(color: Colors.grey.shade300)),
-                      onChanged: (newTopic) async {
-                        if (widget.onUpdate != null) {
-                          final success = await widget.onUpdate!(session.id, null, null, newTopic,);
-                          if (success) {
-                            log('обновление вызвано');
-                          }
-                        }
-                      },
-                    ),
+                        enabled: widget.isEditable,
+                        controller: topicController,
+                        decoration: InputDecoration.collapsed(
+                            hintText: 'Введите тему',
+                            hintStyle: TextStyle(color: Colors.grey.shade300)),
+                        onChanged: (newTopic) {
+                          // Отменяем предыдущий таймер
+                          if (_debounce?.isActive ?? false) _debounce!.cancel();
+
+                          // Первый таймер отслеживает остановку ввода (например, 1000 мс)
+                          _debounce =
+                              Timer(const Duration(milliseconds: 1000), () {
+                            // Второй таймер – дополнительная задержка перед действием (например, 2000 мс)
+                            Future.delayed(const Duration(milliseconds: 2000),
+                                () async {
+                              if (widget.onUpdate != null) {
+                                final success = await widget.onUpdate!(
+                                    session.id, null, null, newTopic);
+                                if (success) {
+                                  widget.onTopicChanged();
+                                  log('обновление вызвано');
+                                }
+                              }
+                            });
+                          });
+                        }),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),

@@ -258,6 +258,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                             return success;
                           },
                           isEditable: false,
+                          onTopicChanged: loadSessions,
                         );
                       case StudentContentScreen.journal:
                         return selectedDisciplineIndex != null
