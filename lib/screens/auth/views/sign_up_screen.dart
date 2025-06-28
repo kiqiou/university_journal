@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/bloc/auth/authentication_bloc.dart';
-import 'package:university_journal/screens/auth/view/sign_in_screen.dart';
+import 'package:university_journal/screens/auth/views/sign_in_screen.dart';
 
 
 class WelcomeScreen extends StatefulWidget {

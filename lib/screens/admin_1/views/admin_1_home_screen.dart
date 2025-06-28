@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:university_journal/bloc/discipline/discipline_repository.dart';
 import 'package:university_journal/bloc/journal/journal_repository.dart';
-import 'package:university_journal/screens/admin_1/home_sreen/components/admin_1_side_navigation_menu.dart';
-import 'package:university_journal/screens/admin_1/home_sreen/views/teacher_list.dart';
+import 'package:university_journal/screens/admin_1/components/admin_1_side_navigation_menu.dart';
+import 'package:university_journal/screens/admin_1/views/teacher_list.dart';
 import '../../../../bloc/discipline/discipline.dart';
 import '../../../../bloc/group/group.dart';
 import '../../../../bloc/group/group_repository.dart';
@@ -12,14 +12,14 @@ import 'disciplines_list.dart';
 
 enum Admin1ContentScreen { teachers, courses }
 
-class Admin1HomeScreen extends StatefulWidget {
-  const Admin1HomeScreen({super.key});
+class Admin1MainScreen extends StatefulWidget {
+  const Admin1MainScreen({super.key});
 
   @override
-  State<Admin1HomeScreen> createState() => _Admin1HomeScreenState();
+  State<Admin1MainScreen> createState() => _Admin1MainScreenState();
 }
 
-class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
+class _Admin1MainScreenState extends State<Admin1MainScreen> {
   final groupRepository = GroupRepository();
   final journalRepository = JournalRepository();
   final userRepository = UserRepository();
@@ -81,7 +81,7 @@ class _Admin1HomeScreenState extends State<Admin1HomeScreen> {
 
   Future<void> loadDisciplines() async {
     try {
-      final list = await disciplineRepository.getCoursesList();
+      final list = await disciplineRepository.getDisciplinesList();
       setState(() {
         disciplines = list!..sort((a, b) => a.name.compareTo(b.name));
         isLoading = false;

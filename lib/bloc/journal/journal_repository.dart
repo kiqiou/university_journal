@@ -6,12 +6,12 @@ import 'package:university_journal/bloc/journal/journal.dart';
 
 class JournalRepository {
   Future<List<Session>> journalData({
-    required int courseId,
+    required int disciplineId,
     required int groupId,
   }) async {
     final uri = Uri.parse('http://127.0.0.1:8000/api/get_attendance/')
         .replace(queryParameters: {
-      'course_id': courseId.toString(),
+      'course_id': disciplineId.toString(),
       'group_id': groupId.toString(),
     });
 
@@ -131,7 +131,7 @@ class JournalRepository {
   Future<Session?> addSession({
     required String type,
     required String date,
-    required int courseId,
+    required int disciplineId,
     required int groupId,
   }) async {
     try {
@@ -144,7 +144,7 @@ class JournalRepository {
         body: jsonEncode({
           "type": type,
           "date": date,
-          "course_id": courseId,
+          "course_id": disciplineId,
           "group_id": groupId,
         }),
       );

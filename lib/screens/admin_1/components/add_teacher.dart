@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:university_journal/bloc/user/user_repository.dart';
 
 import '../../../../components/colors/colors.dart';
+import '../../../components/input_decoration.dart';
 
 class AddTeacherDialog extends StatefulWidget {
   final VoidCallback onTeacherAdded;
@@ -200,7 +201,7 @@ class _AddTeacherDialogState extends State<AddTeacherDialog> {
                               ),
                               const SizedBox(height: 18),
                               TextFormField(
-                                decoration: _inputDecoration('Введите ФИО преподавателя'),
+                                decoration: textInputDecoration('Введите ФИО преподавателя'),
                                 validator: (value) =>
                                     value == null || value.isEmpty ? 'Введите ФИО преподавателя' : null,
                                 onSaved: (value) => fio = value,
@@ -212,7 +213,7 @@ class _AddTeacherDialogState extends State<AddTeacherDialog> {
                               ),
                               const SizedBox(height: 18),
                               TextFormField(
-                                decoration: _inputDecoration('Введите пасаду'),
+                                decoration: textInputDecoration('Введите пасаду'),
                                 validator: (value) =>
                                 value == null || value.isEmpty ? 'Введите пасаду преподавателя' : null,
                                 onSaved: (value) => position = value,
@@ -224,7 +225,7 @@ class _AddTeacherDialogState extends State<AddTeacherDialog> {
                               ),
                               const SizedBox(height: 18),
                               TextFormField(
-                                decoration: _inputDecoration('Введите краткую биографию'),
+                                decoration: textInputDecoration('Введите краткую биографию'),
                                 maxLines: 2,
                                 validator: (value) =>
                                 value == null || value.isEmpty ? 'Введите биографию преподавателя' : null,
@@ -241,28 +242,6 @@ class _AddTeacherDialogState extends State<AddTeacherDialog> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  InputDecoration _inputDecoration(String hint) {
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
-      filled: true,
-      fillColor: Colors.white,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(11),
-        borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(11),
-        borderSide: BorderSide(color: MyColors.blueJournal, width: 1.5),
-      ),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(11),
-        borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
       ),
     );
   }

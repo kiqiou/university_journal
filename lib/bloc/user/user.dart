@@ -10,7 +10,7 @@ class MyUser extends Equatable {
   final int? groupId;
   final String? groupName;
   final String? facultyName;
-  final String? courseName;
+  final String? disciplineName;
   final String? photoUrl;
   final List<Discipline> disciplines;
 
@@ -23,7 +23,7 @@ class MyUser extends Equatable {
     this.groupId,
     this.groupName,
     this.facultyName,
-    this.courseName,
+    this.disciplineName,
     this.photoUrl,
     this.disciplines = const [],
   });
@@ -78,7 +78,7 @@ class MyUser extends Equatable {
       groupId: groupId,
       groupName: groupName,
       facultyName: facultyName,
-      courseName: courseName,
+      disciplineName: courseName,
       photoUrl: photoUrl,
     );
   }

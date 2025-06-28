@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/bloc/auth/authentication_bloc.dart';
 
+import '../../../components/input_decoration.dart';
+
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
 
@@ -66,7 +68,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           const SizedBox(height: 10),
                           TextFormField(
                             controller: _usernameController,
-                            decoration: _inputDecoration('Введите логин'),
+                            decoration: textInputDecoration('Введите логин'),
                             validator: (value) => value == null || value.isEmpty
                                 ? 'Введите логин'
                                 : null,
@@ -91,7 +93,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           TextFormField(
                             controller: _passwordController,
                             obscureText: true,
-                            decoration: _inputDecoration('Введите пароль'),
+                            decoration: textInputDecoration('Введите пароль'),
                             validator: (value) =>
                                 value == null || value.length < 6
                                     ? 'Пароль должен быть минимум 6 символов'
@@ -149,28 +151,6 @@ class _SignInScreenState extends State<SignInScreen> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  InputDecoration _inputDecoration(String hint) {
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
-      filled: true,
-      fillColor: Colors.white,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(11),
-        borderSide: BorderSide(color: Colors.grey.shade400, width: 2),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(11),
-        borderSide: const BorderSide(color: Color(0xFF4068EA), width: 2),
-      ),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(11),
-        borderSide: BorderSide(color: Colors.grey.shade400, width: 2),
       ),
     );
   }

@@ -145,7 +145,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                         .toList();
 
                                     bool result =
-                                        await DisciplineRepository().addCourse(
+                                        await DisciplineRepository().addDiscipline(
                                       name: nameController.text,
                                       teacherIds: teacherIds,
                                       groupIds: groupIds,

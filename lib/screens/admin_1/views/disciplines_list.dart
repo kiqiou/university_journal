@@ -356,7 +356,7 @@ class _CoursesList extends State<CoursesList> {
                                     onPressed: () async {
                                       if (selectedIndex != null) {
                                         final courseId = widget.disciplines[selectedIndex!].id;
-                                        bool success = await disciplineRepository.deleteCourse(courseId: courseId);
+                                        bool success = await disciplineRepository.deleteDiscipline(courseId: courseId);
 
                                         if (success) {
                                           await widget.loadCourses();
@@ -448,7 +448,7 @@ class _CoursesList extends State<CoursesList> {
                                             List<int> groupIds = selectedGroups.map((e) => e.id).toList();
 
                                             final disciplineRepository = DisciplineRepository();
-                                            final result = await disciplineRepository.updateCourse(
+                                            final result = await disciplineRepository.updateDiscipline(
                                               courseId: currentCourse.id,
                                               name: name,
                                               teacherIds: teacherIds,

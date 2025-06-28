@@ -11,20 +11,21 @@ import '../../../bloc/journal/journal.dart';
 import '../../../bloc/journal/journal_repository.dart';
 import '../../../bloc/user/user.dart';
 import '../../../bloc/user/user_repository.dart';
+import '../../../components/input_decoration.dart';
 import '../../../components/journal_table.dart';
 import '../../../components/side_navigation_menu.dart';
 import '../../../components/theme_table.dart';
 
 enum StudentContentScreen { journal, theme }
 
-class StudentHomeScreen extends StatefulWidget {
-  const StudentHomeScreen({super.key});
+class StudentMainScreen extends StatefulWidget {
+  const StudentMainScreen({super.key});
 
   @override
-  State<StudentHomeScreen> createState() => _StudentHomeScreenState();
+  State<StudentMainScreen> createState() => _StudentMainScreenState();
 }
 
-class _StudentHomeScreenState extends State<StudentHomeScreen> {
+class _StudentMainScreenState extends State<StudentMainScreen> {
   final GlobalKey<JournalTableState> tableKey = GlobalKey<JournalTableState>();
   final _formKey = GlobalKey<FormState>();
   StudentContentScreen currentScreen = StudentContentScreen.journal;
@@ -64,7 +65,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
 
     if (authState.status == AuthenticationStatus.authenticated) {
       final list = await journalRepository.journalData(
-        courseId: disciplines[selectedDisciplineIndex!].id,
+        disciplineId: disciplines[selectedDisciplineIndex!].id,
         groupId: selectedGroupId!,
       );
       setState(() {
@@ -110,7 +111,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
     final studentsFuture =
         userRepository.getStudentsByGroupList(selectedGroupId!);
     final sessionsFuture = journalRepository.journalData(
-      courseId: disciplines[selectedDisciplineIndex!].id,
+      disciplineId: disciplines[selectedDisciplineIndex!].id,
       groupId: selectedGroupId!,
     );
 
@@ -126,7 +127,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
   Future<void> loadDisciplines() async {
     try {
       final disciplinesRepository = DisciplineRepository();
-      final list = await disciplinesRepository.getCoursesList();
+      final list = await disciplinesRepository.getDisciplinesList();
       setState(() {
         disciplines = list!;
         isLoading = false;
@@ -396,8 +397,9 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                   final screenWidth = MediaQuery.of(context).size.width;
                   final screenHeight = MediaQuery.of(context).size.height;
 
-                  if (screenWidth < 500 || screenHeight < 500)
+                  if (screenWidth < 500 || screenHeight < 500) {
                     return const SizedBox.shrink();
+                  }
 
                   return Material(
                     child: Padding(
@@ -468,7 +470,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                                         const SizedBox(height: 18),
                                         DropdownButtonFormField<int>(
                                           value: selectedDisciplineIndex,
-                                          decoration: _inputDecoration(
+                                          decoration: inputDecoration(
                                               'Выберите дисциплину'),
                                           items: List.generate(
                                               disciplines.length, (index) {
@@ -563,28 +565,6 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
               ),
             ),
         ],
-      ),
-    );
-  }
-
-  InputDecoration _inputDecoration(String hint) {
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
-      filled: true,
-      fillColor: const Color(0xFFF3F4F6),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(11),
-        borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(11),
-        borderSide: const BorderSide(color: Color(0xFF4068EA), width: 1.2),
-      ),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(11),
-        borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
       ),
     );
   }

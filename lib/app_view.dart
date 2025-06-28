@@ -3,12 +3,12 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/bloc/auth/authentication_bloc.dart';
-import 'package:university_journal/screens/admin_1/home_sreen/views/admin_1_home_screen.dart';
-import 'package:university_journal/screens/admin_2/home_screen/views/admin_2_home_screen.dart';
-import 'package:university_journal/screens/auth/view/sign_up_screen.dart';
-import 'package:university_journal/screens/dekan/home_screen/dekan_home_screen.dart';
-import 'package:university_journal/screens/student/home_screen/student_home_screen.dart';
-import 'package:university_journal/screens/teacher/home_screen/view/home_screen.dart';
+import 'package:university_journal/screens/admin_1/views/admin_1_home_screen.dart';
+import 'package:university_journal/screens/admin_2/views/admin_2_home_screen.dart';
+import 'package:university_journal/screens/auth/views/sign_up_screen.dart';
+import 'package:university_journal/screens/dekan/view/main_screen.dart';
+import 'package:university_journal/screens/student/view/main_screen.dart';
+import 'package:university_journal/screens/teacher/views/main_screen.dart';
 
 class AppView extends StatelessWidget {
   const AppView({super.key});
@@ -26,19 +26,19 @@ class AppView extends StatelessWidget {
           log('🔐 Пользователь с ролью: $role');
           switch (role) {
             case 'Администратор 1':
-              nextScreen = const Admin1HomeScreen();
+              nextScreen = const Admin1MainScreen();
               break;
             case 'Администратор 2':
-              nextScreen = const Admin2HomeScreen();
+              nextScreen = const Admin2MainScreen();
               break;
             case 'Декан':
-              nextScreen = const DekanHomeScreen();
+              nextScreen = const DeanMainScreen();
               break;
             case 'Преподаватель':
-              nextScreen = const TeacherHomeScreen();
+              nextScreen = const TeacherMainScreen();
               break;
             case 'Студент':
-              nextScreen = const StudentHomeScreen();
+              nextScreen = const StudentMainScreen();
               break;
             default:
               nextScreen = const WelcomeScreen();

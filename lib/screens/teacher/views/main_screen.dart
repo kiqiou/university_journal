@@ -7,6 +7,7 @@ import 'package:university_journal/bloc/discipline/discipline.dart';
 import 'package:university_journal/bloc/journal/journal_repository.dart';
 import 'package:university_journal/bloc/user/user_repository.dart';
 import 'package:university_journal/components/side_navigation_menu.dart';
+import 'package:university_journal/screens/teacher/components/session_button.dart';
 
 import '../../../../bloc/auth/authentication_bloc.dart';
 import '../../../../bloc/discipline/discipline_plan.dart';
@@ -14,20 +15,21 @@ import '../../../../bloc/journal/journal.dart';
 import '../../../../bloc/user/user.dart';
 import '../../../../components/colors/colors.dart';
 import '../../../../components/journal_table.dart';
-import '../../account_screen/account_screen.dart';
+import '../../../components/input_decoration.dart';
+import 'account_screen.dart';
 import '../components/add_session_dialog.dart';
 import '../../../../components/theme_table.dart';
 
 enum TeacherContentScreen { journal, account, theme }
 
-class TeacherHomeScreen extends StatefulWidget {
-  const TeacherHomeScreen({super.key});
+class TeacherMainScreen extends StatefulWidget {
+  const TeacherMainScreen({super.key});
 
   @override
-  State<TeacherHomeScreen> createState() => _TeacherHomeScreenState();
+  State<TeacherMainScreen> createState() => _TeacherMainScreenState();
 }
 
-class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
+class _TeacherMainScreenState extends State<TeacherMainScreen> {
   final GlobalKey<JournalTableState> tableKey = GlobalKey<JournalTableState>();
   final _formKey = GlobalKey<FormState>();
   final userRepository = UserRepository;
@@ -66,7 +68,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     log("Загрузка данных сессий...");
     final journalRepository = JournalRepository();
     final list = await journalRepository.journalData(
-      courseId: disciplines[selectedDisciplineIndex!].id,
+      disciplineId: disciplines[selectedDisciplineIndex!].id,
       groupId: selectedGroupId!,
     );
     setState(() {
@@ -105,7 +107,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
 
     final studentsFuture = userRepository.getStudentsByGroupList(groupId);
     final sessionsFuture = journalRepository.journalData(
-      courseId: disciplines[selectedDisciplineIndex!].id,
+      disciplineId: disciplines[selectedDisciplineIndex!].id,
       groupId: groupId,
     );
 
@@ -310,202 +312,103 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                           ],
                                           Spacer(),
                                           if (_selectedColumnIndex != null) ...[
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  top: 20.0, right: 20.0),
-                                              child: Align(
-                                                alignment:
-                                                    Alignment.centerRight,
-                                                child: ElevatedButton(
-                                                  onPressed: () async {
-                                                    final filteredSessions =
-                                                        selectedSessionsType ==
-                                                                'Все'
-                                                            ? sessions
-                                                            : sessions
-                                                                .where((s) =>
-                                                                    s.sessionType ==
-                                                                    selectedSessionsType)
-                                                                .toList();
-
-                                                    final dates =
-                                                        extractUniqueDateTypes(
-                                                            filteredSessions);
-                                                    final toRemove = dates[
-                                                        _selectedColumnIndex!];
-
-                                                    final session =
-                                                        filteredSessions
-                                                            .firstWhere(
-                                                      (s) =>
-                                                          '${s.date} ${s.sessionType} ${s.id}' ==
-                                                          toRemove,
-                                                    );
-
-                                                    final repository =
-                                                        JournalRepository();
-                                                    final success =
-                                                        await repository
-                                                            .deleteSession(
-                                                                sessionId:
-                                                                    session.id);
-
-                                                    if (success) {
-                                                      final updatedSessions =
-                                                          List<Session>.from(
-                                                              sessions)
-                                                            ..removeWhere((s) =>
-                                                                s.id ==
-                                                                session.id);
-
-                                                      setState(() {
-                                                        _selectedColumnIndex =
-                                                            null;
-                                                        sessions =
-                                                            updatedSessions;
-                                                      });
-                                                      _filterBySessionType(
-                                                          selectedSessionsType);
-                                                    } else {
-                                                      ScaffoldMessenger.of(
-                                                              context)
-                                                          .showSnackBar(
-                                                        const SnackBar(
-                                                            content: Text(
-                                                                'Ошибка при удалении занятия')),
-                                                      );
-                                                    }
-                                                  },
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                    backgroundColor:
-                                                        MyColors.blueJournal,
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal: 25,
-                                                            vertical: 23),
-                                                    textStyle:
-                                                        TextStyle(fontSize: 18),
-                                                    minimumSize: Size(170, 50),
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10),
-                                                    ),
-                                                  ),
-                                                  child: Text(
-                                                    'Удалить занятие',
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontFamily: 'Montserrat',
-                                                      fontWeight:
-                                                          FontWeight.w700,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  top: 20.0, right: 20.0),
-                                              child: Align(
-                                                alignment:
-                                                    Alignment.centerRight,
-                                                child: ElevatedButton(
-                                                  onPressed: () {
-                                                    final filteredSessions =
+                                            SessionButton(
+                                              onChange: () async {
+                                                final filteredSessions =
                                                     selectedSessionsType ==
-                                                        'Все'
+                                                            'Все'
                                                         ? sessions
                                                         : sessions
-                                                        .where((s) =>
-                                                    s.sessionType ==
-                                                        selectedSessionsType)
-                                                        .toList();
+                                                            .where((s) =>
+                                                                s.sessionType ==
+                                                                selectedSessionsType)
+                                                            .toList();
 
-                                                    final dates =
+                                                final dates =
                                                     extractUniqueDateTypes(
                                                         filteredSessions);
-                                                    final toRemove = dates[
+                                                final toRemove = dates[
                                                     _selectedColumnIndex!];
 
-                                                    final session =
-                                                    filteredSessions
-                                                        .firstWhere(
-                                                          (s) =>
+                                                final session =
+                                                    filteredSessions.firstWhere(
+                                                  (s) =>
                                                       '${s.date} ${s.sessionType} ${s.id}' ==
-                                                          toRemove,
-                                                    );
-                                                    _showAddEventDialog(context, true,
-                                                      dateToEdit: DateFormat('dd.MM.yyyy').parse(session.date),
-                                                      typeToEdit: session.sessionType,);
-                                                  },
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                    backgroundColor:
-                                                        MyColors.blueJournal,
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal: 25,
-                                                            vertical: 23),
-                                                    textStyle:
-                                                        TextStyle(fontSize: 18),
-                                                    minimumSize: Size(170, 50),
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10),
-                                                    ),
-                                                  ),
-                                                  child: Text(
-                                                    'Редактировать занятие',
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontFamily: 'Montserrat',
-                                                      fontWeight:
-                                                          FontWeight.w700,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
+                                                      toRemove,
+                                                );
+
+                                                final repository =
+                                                    JournalRepository();
+                                                final success = await repository
+                                                    .deleteSession(
+                                                        sessionId: session.id);
+
+                                                if (success) {
+                                                  final updatedSessions =
+                                                      List<Session>.from(
+                                                          sessions)
+                                                        ..removeWhere((s) =>
+                                                            s.id == session.id);
+
+                                                  setState(() {
+                                                    _selectedColumnIndex = null;
+                                                    sessions = updatedSessions;
+                                                  });
+                                                  _filterBySessionType(
+                                                      selectedSessionsType);
+                                                } else {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    const SnackBar(
+                                                        content: Text(
+                                                            'Ошибка при удалении занятия')),
+                                                  );
+                                                }
+                                              },
+                                              buttonName: 'Удалить занятие',
+                                            ),
+                                            SessionButton(
+                                              onChange: () {
+                                                final filteredSessions =
+                                                    selectedSessionsType ==
+                                                            'Все'
+                                                        ? sessions
+                                                        : sessions
+                                                            .where((s) =>
+                                                                s.sessionType ==
+                                                                selectedSessionsType)
+                                                            .toList();
+
+                                                final dates =
+                                                    extractUniqueDateTypes(
+                                                        filteredSessions);
+                                                final toRemove = dates[
+                                                    _selectedColumnIndex!];
+
+                                                final session =
+                                                    filteredSessions.firstWhere(
+                                                  (s) =>
+                                                      '${s.date} ${s.sessionType} ${s.id}' ==
+                                                      toRemove,
+                                                );
+                                                _showAddEventDialog(
+                                                  context,
+                                                  true,
+                                                  dateToEdit:
+                                                      DateFormat('dd.MM.yyyy')
+                                                          .parse(session.date),
+                                                  typeToEdit:
+                                                      session.sessionType,
+                                                );
+                                              },
+                                              buttonName:
+                                                  'Редактировать занятие',
                                             ),
                                           ],
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                                top: 20.0, right: 20.0),
-                                            child: Align(
-                                              alignment: Alignment.centerRight,
-                                              child: ElevatedButton(
-                                                onPressed: () =>
-                                                    _showAddEventDialog(
-                                                        context, false),
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor:
-                                                      MyColors.blueJournal,
-                                                  padding: EdgeInsets.symmetric(
-                                                      horizontal: 25,
-                                                      vertical: 23),
-                                                  textStyle:
-                                                      TextStyle(fontSize: 18),
-                                                  minimumSize: Size(170, 50),
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                  ),
-                                                ),
-                                                child: Text(
-                                                  'Добавить занятие',
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontFamily: 'Montserrat',
-                                                    fontWeight: FontWeight.w700,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
+                                          SessionButton(
+                                            onChange: () => _showAddEventDialog(
+                                                context, false),
+                                            buttonName: 'Добавить занятие',
                                           ),
                                         ],
                                       ),
@@ -613,7 +516,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                 builder: (context) {
                   final media = MediaQuery.of(context).size;
                   final double dialogWidth =
-                      (media.width - 32 - 80).clamp(320, 600);
+                  (media.width - 32 - 80).clamp(320, 600);
                   (media.height - 64).clamp(480, 1100);
                   final screenWidth = MediaQuery.of(context).size.width;
                   final screenHeight = MediaQuery.of(context).size.height;
@@ -677,7 +580,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                     key: _formKey,
                                     child: Column(
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      CrossAxisAlignment.start,
                                       children: [
                                         // Название группы
                                         Text(
@@ -690,7 +593,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                         const SizedBox(height: 18),
                                         DropdownButtonFormField<int>(
                                           value: selectedDisciplineIndex,
-                                          decoration: _inputDecoration(
+                                          decoration: inputDecoration(
                                               'Выберите дисциплину'),
                                           items: List.generate(
                                               disciplines.length, (index) {
@@ -719,10 +622,10 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                         const SizedBox(height: 18),
                                         if (selectedDisciplineIndex != null)
                                           DropdownButtonFormField<int>(
-                                            decoration: _inputDecoration(
+                                            decoration: inputDecoration(
                                                 'Выберите группу'),
                                             items: disciplines[
-                                                    selectedDisciplineIndex!]
+                                            selectedDisciplineIndex!]
                                                 .groups
                                                 .map((group) {
                                               return DropdownMenuItem<int>(
@@ -761,12 +664,12 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
 
                                             try {
                                               final data =
-                                                  await journalDataFuture!;
+                                              await journalDataFuture!;
                                               setState(() {
                                                 students = data['students']
-                                                    as List<MyUser>;
+                                                as List<MyUser>;
                                                 sessions = data['sessions']
-                                                    as List<Session>;
+                                                as List<Session>;
                                                 isLoading = false;
                                               });
                                             } catch (e) {
@@ -783,16 +686,16 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                           },
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor:
-                                                const Color(0xFF4068EA),
+                                            const Color(0xFF4068EA),
                                             foregroundColor: Colors.white,
                                             shape: RoundedRectangleBorder(
                                               borderRadius:
-                                                  BorderRadius.circular(8),
+                                              BorderRadius.circular(8),
                                             ),
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 28, vertical: 12),
                                             minimumSize:
-                                                const Size.fromHeight(55),
+                                            const Size.fromHeight(55),
                                           ),
                                           child: const Text('Сохранить',
                                               style: TextStyle(fontSize: 16)),
@@ -866,7 +769,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
 
                   if (success) {
                     final updatedSessions = await journalRepository.journalData(
-                      courseId: disciplines[selectedDisciplineIndex!].id,
+                      disciplineId: disciplines[selectedDisciplineIndex!].id,
                       groupId: selectedGroupId!,
                     );
 
@@ -889,12 +792,12 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                     await journalRepository.addSession(
                       type: _selectedEventType!,
                       date: formattedDate,
-                      courseId: disciplines[selectedDisciplineIndex!].id,
+                      disciplineId: disciplines[selectedDisciplineIndex!].id,
                       groupId: selectedGroupId!,
                     );
 
                     final newSessions = await journalRepository.journalData(
-                      courseId: disciplines[selectedDisciplineIndex!].id,
+                      disciplineId: disciplines[selectedDisciplineIndex!].id,
                       groupId: selectedGroupId!,
                     );
 
@@ -911,28 +814,6 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
           ),
         );
       },
-    );
-  }
-
-  InputDecoration _inputDecoration(String hint) {
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
-      filled: true,
-      fillColor: const Color(0xFFF3F4F6),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(11),
-        borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(11),
-        borderSide: const BorderSide(color: Color(0xFF4068EA), width: 1.2),
-      ),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(11),
-        borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
-      ),
     );
   }
 }

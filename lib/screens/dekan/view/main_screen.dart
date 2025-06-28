@@ -9,23 +9,24 @@ import '../../../bloc/journal/journal.dart';
 import '../../../bloc/journal/journal_repository.dart';
 import '../../../bloc/user/user.dart';
 import '../../../bloc/user/user_repository.dart';
+import '../../../components/input_decoration.dart';
 import '../../../components/journal_table.dart';
 import '../../../components/side_navigation_menu.dart';
 import '../../../components/theme_table.dart';
 
-enum DekanContentScreen { journal, theme }
+enum DeanContentScreen { journal, theme }
 
-class DekanHomeScreen extends StatefulWidget {
-  const DekanHomeScreen({super.key});
+class DeanMainScreen extends StatefulWidget {
+  const DeanMainScreen({super.key});
 
   @override
-  State<DekanHomeScreen> createState() => _DekanHomeScreenState();
+  State<DeanMainScreen> createState() => _DeanMainScreenState();
 }
 
-class _DekanHomeScreenState extends State<DekanHomeScreen> {
+class _DeanMainScreenState extends State<DeanMainScreen> {
   final GlobalKey<JournalTableState> tableKey = GlobalKey<JournalTableState>();
   final _formKey = GlobalKey<FormState>();
-  DekanContentScreen currentScreen = DekanContentScreen.journal;
+  DeanContentScreen currentScreen = DeanContentScreen.journal;
   Future<Map<String, dynamic>>? journalDataFuture;
 
   bool isLoading = true;
@@ -57,7 +58,7 @@ class _DekanHomeScreenState extends State<DekanHomeScreen> {
     log("Загрузка данных сессий...");
     final journalRepository = JournalRepository();
     final list = await journalRepository.journalData(
-      courseId: disciplines[selectedDisciplineIndex!].id,
+      disciplineId: disciplines[selectedDisciplineIndex!].id,
       groupId: selectedGroupId!,
     );
     setState(() {
@@ -96,7 +97,7 @@ class _DekanHomeScreenState extends State<DekanHomeScreen> {
 
     final studentsFuture = userRepository.getStudentsByGroupList(groupId);
     final sessionsFuture = journalRepository.journalData(
-      courseId: disciplines[selectedDisciplineIndex!].id,
+      disciplineId: disciplines[selectedDisciplineIndex!].id,
       groupId: groupId,
     );
 
@@ -112,7 +113,7 @@ class _DekanHomeScreenState extends State<DekanHomeScreen> {
   Future<void> loadDisciplines() async {
     try {
       final disciplinesRepository = DisciplineRepository();
-      final list = await disciplinesRepository.getCoursesList();
+      final list = await disciplinesRepository.getDisciplinesList();
       setState(() {
         disciplines = list!;
         isLoading = false;
@@ -128,7 +129,7 @@ class _DekanHomeScreenState extends State<DekanHomeScreen> {
   void _filterBySessionType(String type) {
     setState(() {
       selectedSessionsType = type;
-      currentScreen = DekanContentScreen.journal;
+      currentScreen = DeanContentScreen.journal;
     });
 
     final filtered = type == 'Все'
@@ -184,7 +185,7 @@ class _DekanHomeScreenState extends State<DekanHomeScreen> {
 
   void _showThemeScreen() {
     setState(() {
-      currentScreen = DekanContentScreen.theme;
+      currentScreen = DeanContentScreen.theme;
     });
   }
 
@@ -222,7 +223,7 @@ class _DekanHomeScreenState extends State<DekanHomeScreen> {
                 child: Builder(
                   builder: (context) {
                     switch (currentScreen) {
-                      case DekanContentScreen.theme:
+                      case DeanContentScreen.theme:
                         return ThemeTable(
                           sessions: sessions,
                           onUpdate: (sessionId, date, type, topic) async {
@@ -246,7 +247,7 @@ class _DekanHomeScreenState extends State<DekanHomeScreen> {
                           isEditable: false,
                           onTopicChanged: loadSessions,
                         );
-                      case DekanContentScreen.journal:
+                      case DeanContentScreen.journal:
                         return selectedGroupId != null
                             ? Scaffold(
                                 body: Column(
@@ -450,7 +451,7 @@ class _DekanHomeScreenState extends State<DekanHomeScreen> {
                                         const SizedBox(height: 18),
                                         DropdownButtonFormField<int>(
                                           value: selectedDisciplineIndex,
-                                          decoration: _inputDecoration(
+                                          decoration: inputDecoration(
                                               'Выберите дисциплину'),
                                           items: List.generate(
                                               disciplines.length, (index) {
@@ -479,7 +480,7 @@ class _DekanHomeScreenState extends State<DekanHomeScreen> {
                                         const SizedBox(height: 18),
                                         if (selectedDisciplineIndex != null)
                                           DropdownButtonFormField<int>(
-                                            decoration: _inputDecoration(
+                                            decoration: inputDecoration(
                                                 'Выберите группу'),
                                             items: disciplines[
                                                     selectedDisciplineIndex!]
@@ -576,28 +577,6 @@ class _DekanHomeScreenState extends State<DekanHomeScreen> {
               ),
             ),
         ],
-      ),
-    );
-  }
-
-  InputDecoration _inputDecoration(String hint) {
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
-      filled: true,
-      fillColor: const Color(0xFFF3F4F6),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(11),
-        borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(11),
-        borderSide: const BorderSide(color: Color(0xFF4068EA), width: 1.2),
-      ),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(11),
-        borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
       ),
     );
   }

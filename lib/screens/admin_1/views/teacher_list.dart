@@ -10,6 +10,7 @@ import '../../../../bloc/user/user.dart';
 import '../../../../bloc/user/user_repository.dart';
 import '../../../../components/colors/colors.dart';
 import '../../../../components/multiselect.dart';
+import '../../../components/input_decoration.dart';
 
 class TeachersList extends StatefulWidget {
   final Future<void> Function() loadTeachers;
@@ -542,7 +543,7 @@ class _TeachersList extends State<TeachersList> {
                                                   const SizedBox(height: 18),
                                                   TextFormField(
                                                     controller: usernameController,
-                                                    decoration: _inputDecoration('Введите ФИО преподавателя'),
+                                                    decoration: textInputDecoration('Введите ФИО преподавателя'),
                                                   ),
                                                   const SizedBox(height: 48),
                                                   Text(
@@ -551,7 +552,7 @@ class _TeachersList extends State<TeachersList> {
                                                   ),
                                                   const SizedBox(height: 18),
                                                   TextFormField(
-                                                    decoration: _inputDecoration('Введите пасаду'),
+                                                    decoration: textInputDecoration('Введите пасаду'),
                                                     controller: positionController,
                                                   ),
                                                   const SizedBox(height: 48),
@@ -561,7 +562,7 @@ class _TeachersList extends State<TeachersList> {
                                                   ),
                                                   const SizedBox(height: 18),
                                                   TextFormField(
-                                                    decoration: _inputDecoration('Введите краткую биографию'),
+                                                    decoration: textInputDecoration('Введите краткую биографию'),
                                                     maxLines: 2,
                                                     controller: bioController,
                                                   ),
@@ -657,7 +658,7 @@ class _TeachersList extends State<TeachersList> {
 
                                                   bool allSuccess = true;
                                                   for (final disciplineId in disciplinesIds!) {
-                                                    final result = await disciplineRepository.updateCourse(
+                                                    final result = await disciplineRepository.updateDiscipline(
                                                       courseId: disciplineId,
                                                       teacherIds: [currentTeacher!.id],
                                                       appendTeachers: true,
@@ -792,27 +793,6 @@ class _TeachersList extends State<TeachersList> {
             ),
           ),
         ],
-      ),
-    );
-  }
-  InputDecoration _inputDecoration(String hint) {
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
-      filled: true,
-      fillColor: Colors.white,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(11),
-        borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(11),
-        borderSide: BorderSide(color: MyColors.blueJournal, width: 1.5),
-      ),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(11),
-        borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
       ),
     );
   }

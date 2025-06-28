@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'discipline.dart';
 
 class DisciplineRepository{
-  Future<List<Discipline>?> getCoursesList() async {
+  Future<List<Discipline>?> getDisciplinesList() async {
     try {
       final response = await http.post(
         Uri.parse('http://127.0.0.1:8000/api/get_courses_list/'),
@@ -29,7 +29,7 @@ class DisciplineRepository{
     }
   }
 
-  Future<bool> addCourse({
+  Future<bool> addDiscipline({
     required String name,
     required List<int> teacherIds,
     required List<int> groupIds,
@@ -50,7 +50,6 @@ class DisciplineRepository{
         }),
       );
 
-      print(planItems);
       final data = jsonDecode(utf8.decode(response.bodyBytes));
       if (response.statusCode == 201 || response.statusCode == 200) {
         log('✅ Курс успешно сохранён: $data');
@@ -65,7 +64,7 @@ class DisciplineRepository{
     }
   }
 
-  Future<bool> updateCourse({
+  Future<bool> updateDiscipline({
     required int courseId,
     String? name,
     List<int>? teacherIds,
@@ -108,7 +107,7 @@ class DisciplineRepository{
   }
 
 
-  Future<bool> deleteCourse({
+  Future<bool> deleteDiscipline({
     required int courseId,
   }) async {
     try {
