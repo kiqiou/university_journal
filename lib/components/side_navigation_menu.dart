@@ -77,238 +77,264 @@ class _SideNavigationMenuState extends State<SideNavigationMenu> {
           behavior: HitTestBehavior.opaque,
           child: Stack(
             children: [
-              AnimatedContainer(
-                color: Colors.grey.shade300,
+              TweenAnimationBuilder<double>(
+                tween: Tween<double>(
+                  begin: widget.isExpanded ? _collapsedWidth : _expandedWidth,
+                  end: widget.isExpanded ? _expandedWidth : _collapsedWidth,
+                ),
                 duration: const Duration(milliseconds: 300),
-                width: widget.isExpanded ? _expandedWidth : _collapsedWidth,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(4.0),
-                      child: widget.isExpanded
-                          ? const Expanded(
-                              child: Column(
-                                children: [
-                                  Padding(
-                                    padding: EdgeInsets.only(left: 17.0),
-                                    child: Text(
-                                      'МИТСО',
-                                      style: TextStyle(
-                                        fontSize: 40,
+                builder: (context, width, child) {
+                  return Container(
+                    width: width,
+                    color: Colors.grey.shade300,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: widget.isExpanded
+                              ? Column(
+                                  children: [
+                                    Padding(
+                                      padding: EdgeInsets.only(left: 17.0),
+                                      child: Text(
+                                        'МИТСО',
+                                        style: TextStyle(
+                                          fontSize: 40,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  Text(
-                                    'Международный\nуниверситет',
-                                    style: TextStyle(
-                                      fontSize: 14,
+                                    Text(
+                                      'Международный\nуниверситет',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : const SizedBox(),
+                        ),
+                        Expanded(
+                          child: Column(
+                            children: [
+                              if (!widget.isExpanded)
+                                InkWell(
+                                  onTap: () {
+                                    widget.onToggle();
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 4.0, vertical: 4.0),
+                                    child: MyIconContainer(
+                                      icon: Icons.menu,
+                                      width: (widget.isExpanded ? 250 : 50),
                                     ),
                                   ),
-                                ],
+                                ),
+                              SizedBox(
+                                height: 20,
                               ),
-                            )
-                          : const SizedBox(),
-                    ),
-                    Expanded(
-                      child: Column(
-                        children: [
-                          if (!widget.isExpanded)
-                            InkWell(
-                              onTap: () {
-                                widget.onToggle();
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
-                                child: MyIconContainer(
-                                  icon: Icons.menu,
-                                  width: (widget.isExpanded ? 250 : 50),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10.0),
+                                child: widget.isExpanded
+                                    ? Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text(
+                                          'Профиль',
+                                          style: TextStyle(
+                                            color: Colors.grey,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                      )
+                                    : Divider(
+                                        height: 1,
+                                        color: Colors.grey,
+                                      ),
+                              ),
+                              SizedBox(
+                                height: 20,
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  widget.onProfileTap();
+                                  setState(() {
+                                    selectedIndex = -2;
+                                  });
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 15.0),
+                                  child: BlocBuilder<AuthenticationBloc,
+                                      AuthenticationState>(
+                                    builder: (context, state) {
+                                      if (state.status ==
+                                              AuthenticationStatus
+                                                  .authenticated &&
+                                          state.user != null) {
+                                        return MyIconContainer(
+                                          icon: Icons.account_circle_outlined,
+                                          width: (widget.isExpanded ? 250 : 50),
+                                          withText: widget.isExpanded,
+                                          text: state.user!.username,
+                                          isSelected: selectedIndex == -2,
+                                        );
+                                      } else if (state.status ==
+                                          AuthenticationStatus
+                                              .unauthenticated) {
+                                        return MyIconContainer(
+                                          icon: Icons.account_circle_outlined,
+                                          width: (widget.isExpanded ? 250 : 50),
+                                          withText: widget.isExpanded,
+                                          text: 'Гость',
+                                        );
+                                      } else {
+                                        return MyIconContainer(
+                                          icon: Icons.account_circle_outlined,
+                                          width: (widget.isExpanded ? 250 : 50),
+                                          withText: widget.isExpanded,
+                                          text: 'Загрузка...',
+                                        );
+                                      }
+                                    },
+                                  ),
                                 ),
                               ),
-                            ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                            child: widget.isExpanded
-                                ? Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      'Профиль',
-                                      style: TextStyle(
+                              SizedBox(
+                                height: 20,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10.0),
+                                child: widget.isExpanded
+                                    ? Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: state.user?.role == 'Студент'
+                                            ? Text(
+                                                'Выбор дисциплины',
+                                                style: TextStyle(
+                                                    color: Colors.grey,
+                                                    fontSize: 13),
+                                              )
+                                            : Text(
+                                                'Выбор группы',
+                                                style: TextStyle(
+                                                    color: Colors.grey,
+                                                    fontSize: 13),
+                                              ),
+                                      )
+                                    : Divider(
+                                        height: 1,
                                         color: Colors.grey,
-                                        fontSize: 13,
                                       ),
-                                    ),
-                                  )
-                                : Divider(
-                                    height: 1,
-                                    color: Colors.grey,
-                                  ),
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          InkWell(
-                            onTap: () {
-                              widget.onProfileTap();
-                              setState(() {
-                                selectedIndex = -2;
-                              });
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                              child: BlocBuilder<AuthenticationBloc, AuthenticationState>(
-                                builder: (context, state) {
-                                  if (state.status == AuthenticationStatus.authenticated && state.user != null) {
-                                    return MyIconContainer(
-                                      icon: Icons.account_circle_outlined,
-                                      width: (widget.isExpanded ? 250 : 50),
-                                      withText: widget.isExpanded,
-                                      text: state.user!.username,
-                                      isSelected: selectedIndex == -2,
-                                    );
-                                  } else if (state.status == AuthenticationStatus.unauthenticated) {
-                                    return MyIconContainer(
-                                      icon: Icons.account_circle_outlined,
-                                      width: (widget.isExpanded ? 250 : 50),
-                                      withText: widget.isExpanded,
-                                      text: 'Гость',
-                                    );
-                                  } else {
-                                    return MyIconContainer(
-                                      icon: Icons.account_circle_outlined,
-                                      width: (widget.isExpanded ? 250 : 50),
-                                      withText: widget.isExpanded,
-                                      text: 'Загрузка...',
-                                    );
-                                  }
+                              ),
+                              SizedBox(
+                                height: 20,
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  widget.onGroupSelect();
                                 },
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                            child: widget.isExpanded
-                                ? Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: state.user?.role == 'Студент'
-                                        ? Text(
-                                            'Выбор дисциплины',
-                                            style: TextStyle(color: Colors.grey, fontSize: 13),
-                                          )
-                                        : Text(
-                                            'Выбор группы',
-                                            style: TextStyle(color: Colors.grey, fontSize: 13),
-                                          ),
-                                  )
-                                : Divider(
-                                    height: 1,
-                                    color: Colors.grey,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 15.0, vertical: 4.0),
+                                  child: MyIconContainer(
+                                    icon: Icons.groups_outlined,
+                                    width: (widget.isExpanded ? 250 : 50),
+                                    text: state.user?.role == 'Студент'
+                                        ? 'Выбор дисциплины'
+                                        : 'Выбор группы',
+                                    withText: widget.isExpanded,
+                                    isSelected: selectedIndex == -1,
                                   ),
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          InkWell(
-                            onTap: () {
-                              widget.onGroupSelect();
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 4.0),
-                              child: MyIconContainer(
-                                icon: Icons.groups_outlined,
-                                width: (widget.isExpanded ? 250 : 50),
-                                text: state.user?.role == 'Студент' ? 'Выбор дисциплины' : 'Выбор группы',
-                                withText: widget.isExpanded,
-                                isSelected: selectedIndex == -1,
+                                ),
                               ),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                            child: widget.isExpanded
-                                ? Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      'Панель навигации',
-                                      style: TextStyle(color: Colors.grey, fontSize: 13),
-                                    ),
-                                  )
-                                : Divider(
-                                    height: 1,
-                                    color: Colors.grey,
-                                  ),
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          Expanded(
-                            child: ListView.builder(
-                              itemCount: _icons.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                return Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 4.0),
-                                    child: InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          selectedIndex = index;
-                                        });
-                                        if (index == _icons.length - 1) {
-                                          widget.onThemeTap();
-                                        } else {
-                                          final type = _filterText[index];
-                                          widget.onSelectType(type);
-                                        }
-                                      },
-                                      child: MyIconContainer(
-                                        icon: _icons[index],
-                                        width: (widget.isExpanded ? 250 : 50),
-                                        text: _texts[index],
-                                        withText: widget.isExpanded,
-                                        isSelected: selectedIndex == index,
+                              SizedBox(
+                                height: 20,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10.0),
+                                child: widget.isExpanded
+                                    ? Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text(
+                                          'Панель навигации',
+                                          style: TextStyle(
+                                              color: Colors.grey, fontSize: 13),
+                                        ),
+                                      )
+                                    : Divider(
+                                        height: 1,
+                                        color: Colors.grey,
                                       ),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 50.0),
-                        child: InkWell(
-                          onHover: (hovering) {
-                            setState(() {
-                              isHovered = hovering;
-                            });
-                          },
-                          onTap: () {
-                            context.read<AuthenticationBloc>().add(AuthenticationLogoutRequested());
-                            log('➡️ Состояние: ${context.read<AuthenticationBloc>().state}');
-                          },
-                          child: MyIconContainer(
-                            borderRadius: 100,
-                            icon: Icons.arrow_back,
-                            width: (widget.isExpanded ? 250 : 50),
+                              ),
+                              SizedBox(
+                                height: 20,
+                              ),
+                              Expanded(
+                                child: ListView.builder(
+                                  itemCount: _icons.length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    return Center(
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 15.0, vertical: 4.0),
+                                        child: InkWell(
+                                          onTap: () {
+                                            setState(() {
+                                              selectedIndex = index;
+                                            });
+                                            if (index == _icons.length - 1) {
+                                              widget.onThemeTap();
+                                            } else {
+                                              final type = _filterText[index];
+                                              widget.onSelectType(type);
+                                            }
+                                          },
+                                          child: MyIconContainer(
+                                            icon: _icons[index],
+                                            width:
+                                                (widget.isExpanded ? 250 : 50),
+                                            text: _texts[index],
+                                            withText: widget.isExpanded,
+                                            isSelected: selectedIndex == index,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ),
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 15.0, vertical: 50.0),
+                            child: InkWell(
+                              onTap: () {
+                                context
+                                    .read<AuthenticationBloc>()
+                                    .add(AuthenticationLogoutRequested());
+                                log('➡️ Состояние: ${context.read<AuthenticationBloc>().state}');
+                              },
+                              child: MyIconContainer(
+                                borderRadius: 100,
+                                icon: Icons.arrow_back,
+                                width: (widget.isExpanded ? 250 : 50),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  );
+                },
               ),
             ],
           ),
