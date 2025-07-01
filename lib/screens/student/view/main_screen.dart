@@ -31,6 +31,7 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
   StudentContentScreen currentScreen = StudentContentScreen.journal;
 
   bool isLoading = true;
+  bool? isHeadman;
   bool isMenuExpanded = false;
   bool showGroupSelect = false;
   int? selectedDisciplineIndex;
@@ -55,6 +56,8 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
   @override
   void initState() {
     super.initState();
+    final authState = context.read<AuthenticationBloc>().state;
+    isHeadman = authState.user!.isHeadman;
   }
 
   Future<void> loadSessions() async {
@@ -333,6 +336,7 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
                                             sessions: sessions,
                                             isEditable: false,
                                             isLoading: false,
+                                            isHeadman: isHeadman,
                                             onColumnSelected: (int index) {},
                                             onSessionsChanged:
                                                 (updatedSessions) {

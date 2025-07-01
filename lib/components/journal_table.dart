@@ -11,6 +11,7 @@ import 'colors/colors.dart';
 class JournalTable extends StatefulWidget {
   final bool isLoading;
   final bool isEditable;
+  final bool? isHeadman;
   int? selectedColumnIndex;
   final List<Session> sessions;
   final List<MyUser> students;
@@ -24,7 +25,9 @@ class JournalTable extends StatefulWidget {
       this.onSessionsChanged,
       required this.isEditable,
       required this.students,
-      this.onColumnSelected, this.selectedColumnIndex});
+      this.onColumnSelected,
+      this.selectedColumnIndex,
+      this.isHeadman});
 
   @override
   State<JournalTable> createState() => JournalTableState();
@@ -60,6 +63,7 @@ class JournalTableState extends State<JournalTable> {
         grouped,
         sessions,
         widget.isEditable,
+        widget.isHeadman,
         onUpdate: (sessionId, studentId, status, grade) async {
           final repository = JournalRepository();
           final success = await repository.updateAttendance(
@@ -137,6 +141,7 @@ class JournalDataSource extends DataGridSource {
   final List<String> _dates;
   final List<Session> sessions;
   final bool isEditable;
+  final bool? isHeadman;
 
   TextEditingController _getController(String key, String initialText) {
     if (!_controllers.containsKey(key)) {
@@ -153,7 +158,7 @@ class JournalDataSource extends DataGridSource {
     this.columns,
     this._sessionData,
     this.sessions,
-    this.isEditable, {
+    this.isEditable, this.isHeadman, {
     this.onUpdate,
   })  : _dates = extractUniqueDateTypes(sessions).toList(),
         _rows =
@@ -197,10 +202,14 @@ class JournalDataSource extends DataGridSource {
 
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
-    if (row.getCells().length <= 2) {
-      // Только № и ФИО
-      return DataGridRowAdapter(
-        cells: row.getCells().map((cell) {
+    return DataGridRowAdapter(
+      cells: row.getCells().asMap().entries.map((entry) {
+        final columnIndex = entry.key;
+        final cell = entry.value;
+        print('isEditable: $isEditable, isHeadman: $isHeadman');
+
+        if (columnIndex == 0) {
+          // № по центру
           return Container(
             alignment: Alignment.center,
             padding: const EdgeInsets.all(8),
@@ -217,25 +226,19 @@ class JournalDataSource extends DataGridSource {
               ),
             ),
           );
-        }).toList(),
-      );
-    }
-    return DataGridRowAdapter(
-      cells: row.getCells().asMap().entries.map((entry) {
-        final columnIndex = entry.key;
-        final cell = entry.value;
+        }
 
-        if (columnIndex == 0 || columnIndex == 1) {
+        if (columnIndex == 1) {
           // № и ФИО
           return Container(
-            alignment: Alignment.center,
+            alignment: Alignment.centerLeft,
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               border: Border.all(color: Colors.grey.shade400),
             ),
             child: Text(
               cell.value.toString(),
-              textAlign: TextAlign.center,
+              textAlign: TextAlign.left,
               style: TextStyle(
                 color: Colors.grey.shade800,
                 fontFamily: 'Montserrat',
@@ -276,7 +279,7 @@ class JournalDataSource extends DataGridSource {
                   child: TextField(
                     controller: statusController,
                     textAlign: TextAlign.center,
-                    readOnly: !isEditable,
+                    readOnly: !(isEditable || (isHeadman ?? false)),
                     //enabled: isEditable,
                     style: TextStyle(
                       color: Colors.grey.shade700,

@@ -15,13 +15,13 @@ class UserRepository {
     int? groupId,
     String? position,
     String? bio,
+    bool? isHeadman,
     Uint8List? photoBytes,
     String? photoName,
   }) async {
     try {
       final uri = Uri.parse('http://127.0.0.1:8000/auth/api/register/');
       final request = http.MultipartRequest('POST', uri);
-      print('roleId: $roleId, groupId: $groupId');
       request.fields['username'] = username;
       request.fields['password'] = password;
       request.fields['role_id'] = roleId.toString();
@@ -41,6 +41,7 @@ class UserRepository {
         }
       } else if (roleId == 5 && groupId != null) {
         request.fields['group_id'] = groupId.toString();
+        request.fields['isHeadman'] = isHeadman.toString();
       }
 
       final streamedResponse = await request.send();

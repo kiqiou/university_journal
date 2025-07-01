@@ -7,6 +7,7 @@ class MyUser extends Equatable {
   final String role;
   final String? bio;
   final String? position;
+  final bool? isHeadman;
   final int? groupId;
   final String? groupName;
   final String? facultyName;
@@ -20,6 +21,7 @@ class MyUser extends Equatable {
     required this.role,
     this.bio,
     this.position,
+    this.isHeadman,
     this.groupId,
     this.groupName,
     this.facultyName,
@@ -40,6 +42,7 @@ class MyUser extends Equatable {
     final data = json.containsKey('user') ? json['user'] : json;
     String? bio;
     String? position;
+    bool? isHeadman;
     int? groupId;
     String? groupName;
     String? photoUrl;
@@ -61,6 +64,10 @@ class MyUser extends Equatable {
       courseName = data['group']['course']['name'];
     }
 
+    if(data['isHeadman'] != null){
+      isHeadman = data['isHeadman'];
+    }
+
     List<Discipline> courses = [];
     if (data.containsKey('courses') && data['courses'] is List) {
       courses = List<Map<String, dynamic>>.from(data['courses'])
@@ -75,6 +82,7 @@ class MyUser extends Equatable {
       disciplines: courses,
       bio: bio,
       position: position,
+      isHeadman: isHeadman,
       groupId: groupId,
       groupName: groupName,
       facultyName: facultyName,

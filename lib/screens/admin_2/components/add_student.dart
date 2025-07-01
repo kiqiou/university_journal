@@ -25,6 +25,7 @@ class _AddStudentDialogState extends State<AddStudentDialog> {
   Group? selectedGroup;
   String? fio;
   String? group;
+  bool isHeadman = false;
 
   @override
   Widget build(BuildContext context) {
@@ -89,6 +90,7 @@ class _AddStudentDialogState extends State<AddStudentDialog> {
                                       password: '123456',
                                       roleId: 5,
                                       groupId: selectedGroup?.id,
+                                      isHeadman: isHeadman,
                                     );
                                     widget.onSave(fio ?? '', group);
                                     widget.onStudentAdded();
@@ -205,9 +207,15 @@ class _AddStudentDialogState extends State<AddStudentDialog> {
                                     selectedGroup = value!;
                                   });
                                 },
-                                // validator: (value) =>
-                                // value == null ? 'Выберите одну группу' : null,
-                              )
+                              ),
+                              Checkbox(
+                                value: isHeadman,
+                                onChanged: (bool? newValue) {
+                                  setState(() {
+                                    isHeadman = newValue ?? false;
+                                  });
+                                },
+                              ),
                             ],
                           ),
                         ),
