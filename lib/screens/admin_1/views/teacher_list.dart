@@ -642,47 +642,29 @@ class _TeachersList extends State<TeachersList> {
                                                   elevation: 0,
                                                   padding: const EdgeInsets.symmetric(horizontal: 24),
                                                 ),
-                                                onPressed: () async {
-                                                  debugPrint("selectedIndex: $selectedIndex");
-                                                  debugPrint(
-                                                      "widget.teachers ids: ${widget.teachers.map((t) => t.id).toList()}");
+                                                  onPressed: () async {
+                                                    final currentTeacher = widget.teachers[selectedIndex!];
+                                                    final disciplineIds = selectedDisciplines.map((d) => d.id).toList();
 
-                                                  final disciplineRepository = DisciplineRepository();
-                                                  final currentTeacher = (selectedIndex! < widget.teachers.length)
-                                                      ? widget.teachers[selectedIndex!]
-                                                      : null;
-
-                                                  final disciplinesIds = selectedDisciplines.isEmpty
-                                                      ? currentTeacher?.disciplines.map((d) => d.id).toList()
-                                                      : selectedDisciplines.map((e) => e.id).toList();
-
-                                                  bool allSuccess = true;
-                                                  for (final disciplineId in disciplinesIds!) {
-                                                    final result = await disciplineRepository.updateDiscipline(
-                                                      courseId: disciplineId,
-                                                      teacherIds: [currentTeacher!.id],
-                                                      appendTeachers: true,
+                                                    final success = await userRepository.updateTeacherDisciplines(
+                                                      teacherId: currentTeacher.id,
+                                                      disciplineIds: disciplineIds,
                                                     );
-                                                    if (!result) {
-                                                      allSuccess = false;
+
+                                                    if (success) {
+                                                      await widget.loadDisciplines();
+
+                                                      setState(() {
+                                                        showLinkDisciplineDialog = false;
+                                                        selectedIndex = null;
+                                                      });
+                                                    } else {
+                                                      ScaffoldMessenger.of(context).showSnackBar(
+                                                        const SnackBar(content: Text('❌ Не удалось обновить дисциплины')),
+                                                      );
                                                     }
-                                                  }
-
-                                                  if (allSuccess) {
-                                                    await widget.loadDisciplines();
-
-                                                    setState(() {
-                                                      showLinkDisciplineDialog = false;
-                                                      selectedIndex = null;
-                                                    });
-                                                  } else {
-                                                    ScaffoldMessenger.of(context).showSnackBar(
-                                                      const SnackBar(
-                                                          content: Text('❌ Некоторые дисциплины не удалось привязать')),
-                                                    );
-                                                  }
-                                                },
-                                                child: const Text('Сохранить', style: TextStyle(color: Colors.white)),
+                                                  },
+                                                  child: const Text('Сохранить', style: TextStyle(color: Colors.white)),
                                               ),
                                             ),
                                             const SizedBox(width: 12),

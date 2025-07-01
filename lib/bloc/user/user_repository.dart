@@ -231,6 +231,31 @@ class UserRepository {
     }
   }
 
+  Future<bool> updateTeacherDisciplines({
+    required int teacherId,
+    required List<int> disciplineIds,
+  }) async {
+    try {
+      final uri = Uri.parse('http://127.0.0.1:8000/api/update_teacher_disciplines/');
+      final response = await http.put(
+        uri,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'teacher_id': teacherId,
+          'discipline_ids': disciplineIds,
+        }),
+      );
+
+      log('📤 Отправлено обновление: $teacherId — $disciplineIds');
+      log('📥 Ответ: ${response.statusCode} ${response.body}');
+      return response.statusCode == 200;
+    } catch (e) {
+      log('❌ Ошибка при обновлении дисциплин преподавателя: $e');
+      return false;
+    }
+  }
+
+
   Future<bool> deleteUser({
     required int userId,
   }) async {
