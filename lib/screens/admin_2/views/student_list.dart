@@ -26,6 +26,7 @@ class _StudentsListState extends State<StudentsList> {
   Group? selectedGroup;
   bool showDeleteDialog = false;
   bool showEditDialog = false;
+  bool? isHeadman;
   final TextEditingController nameController = TextEditingController();
   final TextEditingController bioController = TextEditingController();
 
@@ -293,6 +294,7 @@ class _StudentsListState extends State<StudentsList> {
                                         } else {
                                           selectedGroup = null;
                                         }
+                                        isHeadman = flatStudentList[selectedIndex!].isHeadman;
                                         nameController.text = flatStudentList[selectedIndex!].username;
                                         showEditDialog = true;
                                       });
@@ -507,6 +509,7 @@ class _StudentsListState extends State<StudentsList> {
                                                     userId: flatStudentList[selectedIndex!].id,
                                                     groupId: selectedGroup?.id,
                                                     username: nameController.text,
+                                                    isHeadman: isHeadman,
                                                   );
                                                   if (success) {
                                                     await widget.loadStudents();
@@ -639,6 +642,37 @@ class _StudentsListState extends State<StudentsList> {
                                                   selectedGroup = value;
                                                 });
                                               },
+                                            ),
+                                            const SizedBox(height: 48),
+                                            Text(
+                                              'Отметить как старосту',
+                                              style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+                                            ),
+                                            const SizedBox(height: 18),
+                                            Row(
+                                              children: [
+                                                Transform.scale(
+                                                  scale: 1.5,
+                                                  child: Checkbox(
+                                                    value: isHeadman,
+                                                    onChanged: (bool? newValue) {
+                                                      setState(() {
+                                                        isHeadman = newValue;
+                                                      });
+                                                    },
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius.circular(6),
+                                                    ),
+                                                    activeColor: MyColors.blueJournal,
+                                                    side: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Text(
+                                                  isHeadman ?? false ? 'Да' : 'Нет',
+                                                  style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
+                                                ),
+                                              ],
                                             ),
                                           ],
                                         ),

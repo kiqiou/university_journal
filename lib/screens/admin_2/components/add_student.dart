@@ -208,13 +208,36 @@ class _AddStudentDialogState extends State<AddStudentDialog> {
                                   });
                                 },
                               ),
-                              Checkbox(
-                                value: isHeadman,
-                                onChanged: (bool? newValue) {
-                                  setState(() {
-                                    isHeadman = newValue ?? false;
-                                  });
-                                },
+                              const SizedBox(height: 48),
+                              Text(
+                                'Отметить как старосту',
+                                style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+                              ),
+                              const SizedBox(height: 18),
+                              Row(
+                                children: [
+                                  Transform.scale(
+                                    scale: 1.5,
+                                    child: Checkbox(
+                                      value: isHeadman,
+                                      onChanged: (bool? newValue) {
+                                        setState(() {
+                                          isHeadman = newValue ?? false;
+                                        });
+                                      },
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      activeColor: MyColors.blueJournal,
+                                      side: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    isHeadman ? 'Да' : 'Нет',
+                                    style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
+                                  ),
+                                ],
                               ),
                             ],
                           ),

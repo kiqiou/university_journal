@@ -35,13 +35,15 @@ class UserRepository {
               'photo',
               photoBytes,
               filename: photoName,
-              contentType: MediaType.parse(lookupMimeType(photoName) ?? 'application/octet-stream'),
+              contentType: MediaType.parse(
+                  lookupMimeType(photoName) ?? 'application/octet-stream'),
             ),
           );
         }
       } else if (roleId == 5 && groupId != null) {
         request.fields['group_id'] = groupId.toString();
-        request.fields['isHeadman'] = isHeadman.toString();
+        log('➡️ Перед обновлением isHeadman = $isHeadman');
+        request.fields['isHeadman'] = isHeadman ?? false ? '1' : '0';
       }
 
       final streamedResponse = await request.send();
@@ -98,7 +100,8 @@ class UserRepository {
   }
 
   Future<void> logout() async {
-    final response = await http.post(Uri.parse('http://127.0.0.1:8000/auth/logout/'));
+    final response =
+        await http.post(Uri.parse('http://127.0.0.1:8000/auth/logout/'));
     if (response.statusCode != 200) {
       throw Exception('Ошибка при выходе из аккаунта');
     }
@@ -186,6 +189,7 @@ class UserRepository {
     String? username,
     String? position,
     String? bio,
+    bool? isHeadman,
     int? groupId,
     Uint8List? photoBytes,
     String? photoName,
@@ -199,6 +203,10 @@ class UserRepository {
       request.fields['bio'] = bio ?? '';
       if (groupId != null) {
         request.fields['group_id'] = groupId.toString();
+      }
+      if (isHeadman != null) {
+        log('➡️ Перед обновлением isHeadman = $isHeadman');
+        request.fields['isHeadman'] = isHeadman ? '1' : '0';
       }
 
       if (photoBytes != null && photoName != null) {
