@@ -721,6 +721,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
 
   void _showAddEventDialog(BuildContext context, bool isEditing,
       {DateTime? dateToEdit, String? typeToEdit}) async {
+    _selectedDate ??= DateTime.now();
     await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
