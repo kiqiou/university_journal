@@ -34,6 +34,7 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
   bool? isHeadman;
   bool isMenuExpanded = false;
   bool showGroupSelect = false;
+  String? token;
   int? selectedDisciplineIndex;
   int? selectedGroupId;
   String selectedSessionsType = 'Все';
@@ -58,6 +59,12 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
     super.initState();
     final authState = context.read<AuthenticationBloc>().state;
     isHeadman = authState.user!.isHeadman;
+    final userRepository = UserRepository();
+    userRepository.getAccessToken().then((value) {
+      setState(() {
+        token = value;
+      });
+    });
   }
 
   Future<void> loadSessions() async {
@@ -336,6 +343,7 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
                                             sessions: sessions,
                                             isEditable: false,
                                             isLoading: false,
+                                            token: token,
                                             isHeadman: isHeadman,
                                             onColumnSelected: (int index) {},
                                             onSessionsChanged:
