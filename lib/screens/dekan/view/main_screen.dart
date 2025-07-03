@@ -5,7 +5,7 @@ import 'package:university_journal/bloc/discipline/discipline_repository.dart';
 
 import '../../../bloc/discipline/discipline.dart';
 import '../../../bloc/discipline/discipline_plan.dart';
-import '../../../bloc/journal/journal.dart';
+import '../../../bloc/journal/session.dart';
 import '../../../bloc/journal/journal_repository.dart';
 import '../../../bloc/user/user.dart';
 import '../../../bloc/user/user_repository.dart';

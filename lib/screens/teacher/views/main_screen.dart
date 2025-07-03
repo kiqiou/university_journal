@@ -11,7 +11,7 @@ import 'package:university_journal/screens/teacher/components/session_button.dar
 
 import '../../../../bloc/auth/authentication_bloc.dart';
 import '../../../../bloc/discipline/discipline_plan.dart';
-import '../../../../bloc/journal/journal.dart';
+import '../../../../bloc/journal/session.dart';
 import '../../../../bloc/user/user.dart';
 import '../../../../components/journal_table.dart';
 import '../../../components/input_decoration.dart';

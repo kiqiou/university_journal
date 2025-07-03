@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:http/http.dart' as http;
-import 'package:university_journal/bloc/journal/journal.dart';
+import 'package:university_journal/bloc/journal/session.dart';
+
+import '../user/user.dart';
 
 class JournalRepository {
   Future<List<Session>> journalData({
@@ -51,6 +53,8 @@ class JournalRepository {
               'student': att['student'],
               'status': att['status'],
               'grade': att['grade'],
+              'updated_at': att['updated_at'],
+              'modified_by': att['modified_by'],
             };
 
             sessions.add(Session.fromJson(item));
@@ -69,7 +73,7 @@ class JournalRepository {
     }
   }
 
-  Future<bool> updateAttendance({
+  Future<Map<String, dynamic>?> updateAttendance({
     required int sessionId,
     required int studentId,
     required String status,
@@ -97,11 +101,11 @@ class JournalRepository {
     );
 
     if (response.statusCode == 200) {
-      log('✅ Обновление оценивания выполнено успешно');
-      return true;
+      log('✅ Обновление выполнено');
+      return jsonDecode(utf8.decode(response.bodyBytes));
     } else {
       print('Ошибка обновления: ${response.statusCode}, ${response.body}');
-      return false;
+      return null;
     }
   }
 

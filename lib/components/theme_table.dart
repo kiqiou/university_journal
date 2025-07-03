@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
-import '../bloc/journal/journal.dart';
+import '../bloc/journal/session.dart';
 
 class ThemeTable extends StatefulWidget {
   final List<Session> sessions;

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:collection/collection.dart';
 
-import '../../../bloc/journal/journal.dart';
+import '../../../bloc/journal/session.dart';
 import '../bloc/journal/journal_repository.dart';
 import '../bloc/user/user.dart';
 import 'colors/colors.dart';
@@ -65,22 +66,24 @@ class JournalTableState extends State<JournalTable> {
         sessions,
         widget.isEditable,
         widget.isHeadman,
-        onUpdate: (sessionId, studentId, status, grade) async {
-          final repository = JournalRepository();
-          final success = await repository.updateAttendance(
-            sessionId: sessionId,
-            studentId: studentId,
-            status: status,
-            grade: grade,
-            token: widget.token,
-          );
+          onUpdate: (sessionId, studentId, status, grade) async {
+          final journalRepository = JournalRepository();
+        final result = await journalRepository.updateAttendance(
+          sessionId: sessionId,
+          studentId: studentId,
+          status: status,
+          grade: grade,
+          token: widget.token,
+        );
 
-          if (!success) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Не удалось обновить данные')),
-            );
-          }
-        },
+        if (result == null || result['success'] != true) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Не удалось обновить данные')),
+          );
+          return null;
+        }
+        return result;
+      },
       );
     });
   }
@@ -134,7 +137,7 @@ class JournalTableState extends State<JournalTable> {
 
 /// Источник данных для таблицы
 class JournalDataSource extends DataGridSource {
-  final Future<void> Function(
+  final Future<Map<String, dynamic>?> Function(
       int sessionId, int studentId, String status, String grade)? onUpdate;
   final Map<String, TextEditingController> _controllers = {};
   final Map<String, Map<String, Session>> _sessionData;
@@ -270,7 +273,14 @@ class JournalDataSource extends DataGridSource {
         final statusController = _getController(statusKey, status);
         final gradeController = _getController(gradeKey, grade);
 
-        return Container(
+        final modifiedBy = session.modifiedByUsername ?? 'неизвестно';
+        final updatedAtStr = session.updatedAt != null
+            ? DateFormat('dd.MM.yyyy HH:mm').format(session.updatedAt!)
+            : 'неизвестно';
+
+        return Tooltip(
+            message: 'Изменил: $modifiedBy\nВремя: $updatedAtStr',
+        child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
           decoration: BoxDecoration(
             border: Border.all(color: Colors.grey.shade400),
@@ -298,21 +308,33 @@ class JournalDataSource extends DataGridSource {
                       LengthLimitingTextInputFormatter(1),
                     ],
                     onChanged: (newStatus) async {
-                      if (onUpdate != null) {
-                        print('Обновление данных оценивания');
-                        await onUpdate!(session.id, session.student.id,
-                            newStatus, gradeController.text);
+                      final result = await onUpdate!(
+                        session.id,
+                        session.student.id,
+                        newStatus,
+                        gradeController.text,
+                      );
+
+                      if (result != null && result['success'] == true) {
+                        _sessionData[studentName]?[date]?.status = newStatus;
+                        _sessionData[studentName]?[date]?.grade = gradeController.text;
+
+                        _sessionData[studentName]?[date]?.modifiedByUsername = result['modified_by'];
+                        final parsedDate = DateTime.tryParse(result['updated_at'] ?? '');
+                        if (parsedDate != null) {
+                          _sessionData[studentName]?[date]?.updatedAt = parsedDate.toLocal();
+                        }
+
+                        _rows[rowIndex].getCells()[columnIndex] =
+                            DataGridCell<Map<String, String>>(
+                              columnName: date,
+                              value: {
+                                'status': newStatus,
+                                'grade': gradeController.text,
+                              },
+                            );
+                        notifyListeners();
                       }
-                      _sessionData[studentName]?[date]?.status = newStatus;
-                      _rows[rowIndex].getCells()[columnIndex] =
-                          DataGridCell<Map<String, String>>(
-                            columnName: date,
-                            value: {
-                              'status': newStatus,
-                              'grade': gradeController.text,
-                            },
-                          );
-                      notifyListeners();
                     },
                   ),
                 ),
@@ -365,6 +387,7 @@ class JournalDataSource extends DataGridSource {
               ],
             ),
           ),
+        ),
         );
       }).toList(),
     );
