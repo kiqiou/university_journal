@@ -13,21 +13,22 @@ class JournalTable extends StatefulWidget {
   final bool isEditable;
   final bool? isHeadman;
   int? selectedColumnIndex;
+  String? token;
   final List<Session> sessions;
   final List<MyUser> students;
   final void Function(int)? onColumnSelected;
   final void Function(List<Session>)? onSessionsChanged;
 
-  JournalTable(
-      {super.key,
-      required this.isLoading,
-      required this.sessions,
-      this.onSessionsChanged,
-      required this.isEditable,
-      required this.students,
-      this.onColumnSelected,
-      this.selectedColumnIndex,
-      this.isHeadman});
+  JournalTable({super.key,
+    required this.isLoading,
+    required this.sessions,
+    this.onSessionsChanged,
+    required this.isEditable,
+    required this.students,
+    this.onColumnSelected,
+    this.selectedColumnIndex,
+    this.isHeadman,
+    this.token,});
 
   @override
   State<JournalTable> createState() => JournalTableState();
@@ -71,6 +72,7 @@ class JournalTableState extends State<JournalTable> {
             studentId: studentId,
             status: status,
             grade: grade,
+            token: widget.token,
           );
 
           if (!success) {
@@ -118,12 +120,12 @@ class JournalTableState extends State<JournalTable> {
           child: widget.isLoading || dataSource == null
               ? const Center(child: CircularProgressIndicator())
               : SfDataGrid(
-                  gridLinesVisibility: GridLinesVisibility.none,
-                  headerGridLinesVisibility: GridLinesVisibility.none,
-                  source: dataSource!,
-                  columns: columns,
-                  headerRowHeight: 100,
-                ),
+            gridLinesVisibility: GridLinesVisibility.none,
+            headerGridLinesVisibility: GridLinesVisibility.none,
+            source: dataSource!,
+            columns: columns,
+            headerRowHeight: 100,
+          ),
         ),
       ],
     );
@@ -154,15 +156,15 @@ class JournalDataSource extends DataGridSource {
     return _controllers[key]!;
   }
 
-  JournalDataSource(
-    this.columns,
-    this._sessionData,
-    this.sessions,
-    this.isEditable, this.isHeadman, {
-    this.onUpdate,
-  })  : _dates = extractUniqueDateTypes(sessions).toList(),
+  JournalDataSource(this.columns,
+      this._sessionData,
+      this.sessions,
+      this.isEditable, this.isHeadman, {
+        this.onUpdate,
+      })
+      : _dates = extractUniqueDateTypes(sessions).toList(),
         _rows =
-            _buildRows(_sessionData, extractUniqueDateTypes(sessions).toList());
+        _buildRows(_sessionData, extractUniqueDateTypes(sessions).toList());
 
   void removeColumn(String dateType) {
     for (var row in _rows) {
@@ -172,10 +174,8 @@ class JournalDataSource extends DataGridSource {
     notifyListeners();
   }
 
-  static List<DataGridRow> _buildRows(
-    Map<String, Map<String, Session>> data,
-    List<String> dates,
-  ) {
+  static List<DataGridRow> _buildRows(Map<String, Map<String, Session>> data,
+      List<String> dates,) {
     return data.entries.mapIndexed((index, entry) {
       final studentName = entry.key;
       final sessionsByDate = entry.value;
@@ -203,10 +203,13 @@ class JournalDataSource extends DataGridSource {
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
     return DataGridRowAdapter(
-      cells: row.getCells().asMap().entries.map((entry) {
+      cells: row
+          .getCells()
+          .asMap()
+          .entries
+          .map((entry) {
         final columnIndex = entry.key;
         final cell = entry.value;
-        print('isEditable: $isEditable, isHeadman: $isHeadman');
 
         if (columnIndex == 0) {
           // № по центру
@@ -287,7 +290,7 @@ class JournalDataSource extends DataGridSource {
                     decoration: InputDecoration(
                       border: InputBorder.none,
                       contentPadding:
-                          EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                      EdgeInsets.symmetric(vertical: 8, horizontal: 4),
                       disabledBorder: InputBorder.none,
                     ),
                     inputFormatters: [
@@ -303,12 +306,12 @@ class JournalDataSource extends DataGridSource {
                       _sessionData[studentName]?[date]?.status = newStatus;
                       _rows[rowIndex].getCells()[columnIndex] =
                           DataGridCell<Map<String, String>>(
-                        columnName: date,
-                        value: {
-                          'status': newStatus,
-                          'grade': gradeController.text,
-                        },
-                      );
+                            columnName: date,
+                            value: {
+                              'status': newStatus,
+                              'grade': gradeController.text,
+                            },
+                          );
                       notifyListeners();
                     },
                   ),
@@ -330,7 +333,7 @@ class JournalDataSource extends DataGridSource {
                     decoration: InputDecoration(
                       border: InputBorder.none,
                       contentPadding:
-                          EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                      EdgeInsets.symmetric(vertical: 8, horizontal: 4),
                       disabledBorder: InputBorder.none,
                     ),
                     inputFormatters: [
@@ -349,12 +352,12 @@ class JournalDataSource extends DataGridSource {
                       _sessionData[studentName]?[date]?.grade = newGrade;
                       _rows[rowIndex].getCells()[columnIndex] =
                           DataGridCell<Map<String, String>>(
-                        columnName: date,
-                        value: {
-                          'status': statusController.text,
-                          'grade': newGrade,
-                        },
-                      );
+                            columnName: date,
+                            value: {
+                              'status': statusController.text,
+                              'grade': newGrade,
+                            },
+                          );
                       notifyListeners();
                     },
                   ),
@@ -374,15 +377,14 @@ List<String> extractUniqueDateTypes(List<Session> sessions) {
   for (var session in sessions) {
     dateTypes.add('${session.date} ${session.sessionType} ${session.id}');
   }
-  final sorted = dateTypes.toList()..sort((a, b) => a.compareTo(b));
+  final sorted = dateTypes.toList()
+    ..sort((a, b) => a.compareTo(b));
 
   return sorted;
 }
 
-Map<String, Map<String, Session>> groupSessionsByStudent(
-  List<Session> sessions,
-  List<MyUser> students,
-) {
+Map<String, Map<String, Session>> groupSessionsByStudent(List<Session> sessions,
+    List<MyUser> students,) {
   final Map<String, Map<String, Session>> result = {};
 
   for (var student in students) {
@@ -460,7 +462,9 @@ List<GridColumn> buildColumns({
     return columns; // Только № и ФИО
   }
 
-  for (var entry in dateTypeColumns.asMap().entries) {
+  for (var entry in dateTypeColumns
+      .asMap()
+      .entries) {
     final index = entry.key;
     final dateType = entry.value;
 
@@ -490,7 +494,9 @@ List<GridColumn> buildColumns({
                 RotatedBox(
                   quarterTurns: 3,
                   child: Text(
-                    dateType.split(' ').first,
+                    dateType
+                        .split(' ')
+                        .first,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontFamily: 'Sora',

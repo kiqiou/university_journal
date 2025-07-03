@@ -63,7 +63,8 @@ class JournalRepository {
         return [];
       }
     } else {
-      print('❌ Ошибка загрузки сессий: ${response.statusCode}, ${response.body}');
+      print(
+          '❌ Ошибка загрузки сессий: ${response.statusCode}, ${response.body}');
       return [];
     }
   }
@@ -73,6 +74,7 @@ class JournalRepository {
     required int studentId,
     required String status,
     required String grade,
+    required token,
   }) async {
     final Map<String, dynamic> body = {
       'session_id': sessionId,
@@ -87,7 +89,10 @@ class JournalRepository {
 
     final response = await http.put(
       Uri.parse('http://127.0.0.1:8000/api/update_attendance/'),
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
       body: jsonEncode(body),
     );
 
@@ -154,7 +159,6 @@ class JournalRepository {
         print('📌 Ответ сервера: $data');
 
         return Session.fromJson({'session': data, 'student': {}});
-
       } else {
         print('❌ Ошибка сервера: ${response.statusCode} - ${response.body}');
         return null;
@@ -185,11 +189,9 @@ class JournalRepository {
         log('❌ Ошибка: неожиданный формат ответа сервера');
         return false;
       }
-    }
-    catch(e){
+    } catch (e) {
       log('❌ Ошибка соединения: $e');
       return false;
     }
   }
 }
-

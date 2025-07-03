@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:typed_data';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:university_journal/bloc/user/user.dart';
 
@@ -71,40 +72,117 @@ class UserRepository {
     }
   }
 
-  Future<MyUser?> login(String username, String password) async {
+  Future<bool> login(String username, String password) async {
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/auth/api/login/'),
+        Uri.parse('http://127.0.0.1:8000/auth/api/token/'),
         headers: {'Content-Type': 'application/json; charset=utf-8'},
         body: jsonEncode({
           'username': username,
           'password': password,
         }),
       );
+
       if (response.statusCode == 200) {
-        print('✅ Успешный вход!');
         final data = jsonDecode(utf8.decode(response.bodyBytes));
-        print('📌 Ответ сервера: $data');
-        if (data is Map<String, dynamic> && data['user'] != null) {
-          return MyUser.fromJson(data);
+        final accessToken = data['access'];
+        final refreshToken = data['refresh'];
+        if (accessToken != null && refreshToken != null) {
+          await saveTokens(accessToken, refreshToken);
+          print('Токены сохранены');
+          return true;
         }
       } else {
-        print('❌ Ошибка: Нет информации о пользователе или ролях');
-        return null;
+        print('Ошибка входа: ${response.body}');
+        return false;
       }
     } catch (e) {
-      print('❌ Ошибка соединения: $e');
-      return null;
+      print('Ошибка соединения: $e');
+      return false;
+    }
+    return false;
+  }
+
+  Future<MyUser?> fetchUser() async {
+    final accessToken = await getAccessToken();
+    if (accessToken == null) return null;
+
+    final response = await http.get(
+      Uri.parse('http://127.0.0.1:8000/auth/api/user/'),
+      headers: {
+        'Authorization': 'Bearer $accessToken',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(utf8.decode(response.bodyBytes));
+      return MyUser.fromJson(data);
+    } else if (response.statusCode == 401) {
+      final refreshed = await refreshAccessToken();
+      if (refreshed) return await fetchUser();
     }
     return null;
   }
 
   Future<void> logout() async {
-    final response =
-        await http.post(Uri.parse('http://127.0.0.1:8000/auth/logout/'));
-    if (response.statusCode != 200) {
-      throw Exception('Ошибка при выходе из аккаунта');
+    final response = await http.post(
+      Uri.parse('http://127.0.0.1:8000/auth/logout/'),
+      headers: {
+        'Authorization': 'Bearer ${await getAccessToken()}',
+      },
+    );
+    if (response.statusCode == 200) {
+      await clearTokens();
+      print('Выход выполнен');
+    } else {
+      throw Exception('Ошибка при выходе');
     }
+  }
+
+  Future<void> saveTokens(String accessToken, String refreshToken) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('access_token', accessToken);
+    await prefs.setString('refresh_token', refreshToken);
+  }
+
+  Future<String?> getAccessToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('access_token');
+  }
+
+  Future<String?> getRefreshToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('refresh_token');
+  }
+
+  Future<void> clearTokens() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('access_token');
+    await prefs.remove('refresh_token');
+  }
+
+  Future<bool> refreshAccessToken() async {
+    final refreshToken = await getRefreshToken();
+    if (refreshToken == null) return false;
+
+    final response = await http.post(
+      Uri.parse('http://127.0.0.1:8000/auth/api/token/refresh/'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'refresh': refreshToken}),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final newAccessToken = data['access'];
+      if (newAccessToken != null) {
+        await saveTokens(newAccessToken, refreshToken);
+        return true;
+      }
+    }
+
+    await clearTokens();
+    return false;
   }
 
   Future<List<MyUser>?> getTeacherList() async {

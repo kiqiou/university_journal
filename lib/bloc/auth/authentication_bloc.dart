@@ -21,9 +21,23 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
     });
 
     on<AuthenticationLoginRequested>((event, emit) async {
-      final user = await userRepository.login(event.username, event.password);
+      final loginSuccess = await userRepository.login(event.username, event.password);
+
+      if (!loginSuccess) {
+        emit(const AuthenticationState.unauthenticated());
+        return;
+      }
+
+      MyUser? user = await userRepository.fetchUser();
+
+      if (user == null) {
+        final refreshed = await userRepository.refreshAccessToken();
+        if (refreshed) {
+          user = await userRepository.fetchUser();
+        }
+      }
+
       if (user != null) {
-        print('👤 Пользователь успешно спарсен: $user');
         emit(AuthenticationState.authenticated(user));
       } else {
         emit(const AuthenticationState.unauthenticated());
@@ -49,9 +63,9 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
     on<AuthenticationLogoutRequested>((event, emit) async {
       print('🔄 Выход из аккаунта...');
       await userRepository.logout();
+      await userRepository.clearTokens();
       emit(const AuthenticationState.unauthenticated());
     });
-
   }
 }
 

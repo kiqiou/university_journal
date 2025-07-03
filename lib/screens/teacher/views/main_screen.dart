@@ -13,7 +13,6 @@ import '../../../../bloc/auth/authentication_bloc.dart';
 import '../../../../bloc/discipline/discipline_plan.dart';
 import '../../../../bloc/journal/journal.dart';
 import '../../../../bloc/user/user.dart';
-import '../../../../components/colors/colors.dart';
 import '../../../../components/journal_table.dart';
 import '../../../components/input_decoration.dart';
 import 'account_screen.dart';
@@ -37,6 +36,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
 
   DateTime? _selectedDate;
   String? _selectedEventType;
+  String? token;
   bool isLoading = true;
   bool isMenuExpanded = false;
   bool showGroupSelect = false;
@@ -62,6 +62,12 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
   @override
   void initState() {
     super.initState();
+    final userRepository = UserRepository();
+    userRepository.getAccessToken().then((value) {
+      setState(() {
+        token = value;
+      });
+    });
   }
 
   Future<void> loadSessions() async {
@@ -448,6 +454,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                               sessions: sessions,
                                               isEditable: true,
                                               isLoading: false,
+                                              token: token,
                                               selectedColumnIndex:
                                                   _selectedColumnIndex,
                                               onColumnSelected: (int index) {
