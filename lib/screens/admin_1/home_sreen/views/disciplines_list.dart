@@ -582,7 +582,7 @@ class _CoursesList extends State<CoursesList> {
                                                       width: 50,
                                                       height: 64,
                                                       decoration: BoxDecoration(
-                                                        color: isSelected ? Color(0xFF4068EA) : MyColors.blueJournal,
+                                                        color: isSelected ? Color(0xFFE5E7EB) : Color(0xFFDEDEDE),
                                                         border: Border.all(
                                                           color: Color(0xFF4068EA),
                                                           width: 2,
@@ -590,7 +590,7 @@ class _CoursesList extends State<CoursesList> {
                                                         borderRadius: BorderRadius.circular(8),
                                                       ),
                                                       child: isSelected
-                                                          ? Icon(Icons.check, color: Colors.white, size: 22)
+                                                          ? Icon(Icons.check, color: Colors.blueJurnal, size: 22)
                                                           : null,
                                                     ),
                                                     const SizedBox(width: 12),
@@ -629,7 +629,6 @@ class _CoursesList extends State<CoursesList> {
                                                 {'key': 'final', 'label': 'Промежуточная аттестация'},
                                               ].firstWhere((t) => t['key'] == typeKey);
 
-                                              // hoursControllers должен быть Map<String, TextEditingController>
                                               return Expanded(
                                                 child: Container(
                                                   margin: EdgeInsets.only(right: rowTypes.last == typeKey ? 0 : 12, bottom: 12),
