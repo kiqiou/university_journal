@@ -19,12 +19,19 @@ class AddSession extends JournalEvent {
 
 class UpdateSession extends JournalEvent {
   final Session session;
+  final int groupId;
 
-  UpdateSession(this.session);
+  UpdateSession(this.session, this.groupId);
 }
 
 class DeleteSession extends JournalEvent {
   final int sessionId;
+  final int disciplineId;
+  final int groupId;
 
-  DeleteSession(this.sessionId);
+  DeleteSession({
+    required this.sessionId,
+    required this.disciplineId,
+    required this.groupId,
+  });
 }

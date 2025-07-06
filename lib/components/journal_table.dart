@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -13,14 +14,14 @@ class JournalTable extends StatefulWidget {
   final bool isLoading;
   final bool isEditable;
   final bool? isHeadman;
-  int? selectedColumnIndex;
-  String? token;
+  final int? selectedColumnIndex;
+  final String? token;
   final List<Session> sessions;
   final List<MyUser> students;
   final void Function(int)? onColumnSelected;
   final void Function(List<Session>)? onSessionsChanged;
 
-  JournalTable({
+  const JournalTable({
     super.key,
     required this.isLoading,
     required this.sessions,
@@ -49,18 +50,26 @@ class JournalTableState extends State<JournalTable> {
   }
 
   void updateDataSource(List<Session> sessions, List<MyUser> students) {
+    if (_sessions == sessions) return; // если данные не изменились — выходим
+
     final grouped = groupSessionsByStudent(sessions, students);
+
+    final newColumns = buildColumns(
+      sessions: sessions,
+      selectedColumnIndex: widget.selectedColumnIndex,
+      onHeaderTap: _onHeaderTap,
+    );
+
+    final columnsChanged = !listEquals(columns, newColumns);
 
     setState(() {
       _sessions = sessions;
 
       extractUniqueDateTypes(sessions);
 
-      columns = buildColumns(
-        sessions: sessions,
-        selectedColumnIndex: widget.selectedColumnIndex,
-        onHeaderTap: _onHeaderTap,
-      );
+      if (columnsChanged) {
+        columns = newColumns;
+      }
 
       dataSource = JournalDataSource(
         columns,
@@ -93,7 +102,10 @@ class JournalTableState extends State<JournalTable> {
   @override
   void didUpdateWidget(covariant JournalTable oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.selectedColumnIndex != widget.selectedColumnIndex) {
+
+    if (oldWidget.sessions != widget.sessions) {
+      updateDataSource(widget.sessions, widget.students);
+    } else if (oldWidget.selectedColumnIndex != widget.selectedColumnIndex) {
       setState(() {
         columns = buildColumns(
           sessions: _sessions,

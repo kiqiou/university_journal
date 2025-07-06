@@ -44,85 +44,65 @@ class JournalBloc extends Bloc<JournalEvent, JournalState> {
     }
   }
 
-  Future<void> _onAddSession(
-      AddSession event,
-      Emitter<JournalState> emit,
-      ) async {
-    if (state is JournalLoaded) {
-      try {
-        final newSession = await journalRepository.addSession(
-          type: event.session.sessionType,
-          date: event.session.date,
-          disciplineId: event.session.disciplineId,
-          groupId: event.groupId,
-        );
-
-        if (newSession == null) {
-          throw Exception('Сессия не была создана');
-        }
-
-        final updatedSessions = List<Session>.from((state as JournalLoaded).sessions)
-          ..add(newSession);
-
-        emit(JournalLoaded(
-          sessions: updatedSessions,
-          students: (state as JournalLoaded).students,
-        ));
-      } catch (e) {
-        emit(JournalError('Ошибка при добавлении: $e'));
-      }
+  Future<void> _reloadSessions(int disciplineId, int groupId, Emitter<JournalState> emit) async {
+    emit(JournalLoading());
+    try {
+      final students = await userRepository.getStudentsByGroupList(groupId);
+      final sessions = await journalRepository.journalData(
+        groupId: groupId,
+        disciplineId: disciplineId,
+      );
+      emit(JournalLoaded(
+        sessions: sessions ?? [],
+        students: students ?? [],
+      ));
+    } catch (e) {
+      emit(JournalError('Ошибка загрузки: $e'));
     }
   }
 
-  Future<void> _onUpdateSession(
-      UpdateSession event,
-      Emitter<JournalState> emit,
-      ) async {
-    if (state is JournalLoaded) {
-      try {
-        final success = await journalRepository.updateSession(
-          id: event.session.id,
-          date: event.session.date,
-          type: event.session.sessionType,
-          topic: event.session.topic,
-        );
-        if (!success) throw Exception('Ошибка обновления');
+  Future<void> _onAddSession(AddSession event, Emitter<JournalState> emit) async {
+    try {
+      final newSession = await journalRepository.addSession(
+        type: event.session.sessionType,
+        date: event.session.date,
+        disciplineId: event.session.disciplineId,
+        groupId: event.groupId,
+      );
 
-        final updatedSessions = (state as JournalLoaded).sessions
-            .map((s) => s.id == event.session.id ? event.session : s)
-            .toList();
+      if (newSession == null) throw Exception('Сессия не была создана');
 
-        emit(JournalLoaded(
-          sessions: updatedSessions,
-          students: (state as JournalLoaded).students,
-        ));
-      } catch (e) {
-        emit(JournalError('Ошибка при обновлении: $e'));
-      }
+      await _reloadSessions(event.session.disciplineId, event.groupId, emit);
+    } catch (e) {
+      emit(JournalError('Ошибка при добавлении: $e'));
     }
   }
 
-  Future<void> _onDeleteSession(
-      DeleteSession event,
-      Emitter<JournalState> emit,
-      ) async {
-    if (state is JournalLoaded) {
-      try {
-        final success = await journalRepository.deleteSession(sessionId: event.sessionId);
-        if (!success) throw Exception('Ошибка удаления');
+  Future<void> _onUpdateSession(UpdateSession event, Emitter<JournalState> emit) async {
+    try {
+      final success = await journalRepository.updateSession(
+        id: event.session.id,
+        date: event.session.date,
+        type: event.session.sessionType,
+        topic: event.session.topic,
+      );
+      if (!success) throw Exception('Ошибка обновления');
 
-        final updatedSessions = (state as JournalLoaded)
-            .sessions
-            .where((s) => s.id != event.sessionId)
-            .toList();
-
-        emit(JournalLoaded(
-          sessions: updatedSessions,
-          students: (state as JournalLoaded).students,
-        ));
-      } catch (e) {
-        emit(JournalError('Ошибка при удалении: $e'));
-      }
+      await _reloadSessions(event.session.disciplineId, event.groupId, emit);
+    } catch (e) {
+      emit(JournalError('Ошибка при обновлении: $e'));
     }
   }
+
+  Future<void> _onDeleteSession(DeleteSession event, Emitter<JournalState> emit) async {
+    try {
+      final success = await journalRepository.deleteSession(sessionId: event.sessionId);
+      if (!success) throw Exception('Ошибка удаления');
+
+      await _reloadSessions(event.disciplineId, event.groupId, emit);
+    } catch (e) {
+      emit(JournalError('Ошибка при удалении: $e'));
+    }
+  }
+
 }
