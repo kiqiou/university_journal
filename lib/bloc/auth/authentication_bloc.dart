@@ -1,8 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import '../user/user.dart';
-import '../user/user_repository.dart';
-
+import '../services/user/models/user.dart';
+import '../services/user/user_repository.dart';
 
 part 'authentication_event.dart';
 

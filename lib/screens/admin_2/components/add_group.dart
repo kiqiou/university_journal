@@ -1,10 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:university_journal/bloc/group/group_repository.dart';
-
-import '../../../../bloc/user/user.dart';
 import '../../../../components/colors/colors.dart';
-import '../../../../components/multiselect.dart';
+import '../../../components/widgets/multiselect.dart';
+import '../../../bloc/services/group/group_repository.dart';
+import '../../../bloc/services/user/models/user.dart';
 
 class AddGroupDialog extends StatefulWidget {
   final VoidCallback onGroupAdded;

@@ -2,10 +2,10 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/bloc/auth/authentication_bloc.dart';
-import 'package:university_journal/components/icon_container.dart';
+import 'package:university_journal/components/widgets/icon_container.dart';
 
-import '../../../../bloc/group/group.dart';
-import '../../../../bloc/user/user.dart';
+import '../../../bloc/services/group/models/group.dart';
+import '../../../bloc/services/user/models/user.dart';
 import 'add_discipline.dart';
 import 'add_teacher.dart';
 

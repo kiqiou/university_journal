@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:university_journal/bloc/discipline/discipline_repository.dart';
-import 'package:university_journal/bloc/journal/journal_repository.dart';
 import 'package:university_journal/screens/admin_1/components/admin_1_side_navigation_menu.dart';
 import 'package:university_journal/screens/admin_1/views/teacher_list.dart';
-import '../../../../bloc/discipline/discipline.dart';
-import '../../../../bloc/group/group.dart';
-import '../../../../bloc/group/group_repository.dart';
-import '../../../../bloc/user/user.dart';
-import '../../../../bloc/user/user_repository.dart';
+import '../../../bloc/services/discipline/models/discipline.dart';
+import '../../../bloc/services/discipline/discipline_repository.dart';
+import '../../../bloc/services/group/models/group.dart';
+import '../../../bloc/services/group/group_repository.dart';
+import '../../../bloc/services/journal/journal_repository.dart';
+import '../../../bloc/services/user/models/user.dart';
+import '../../../bloc/services/user/user_repository.dart';
 import 'disciplines_list.dart';
 
 enum Admin1ContentScreen { teachers, courses }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../../../bloc/group/group.dart';
-import '../../../../bloc/user/user.dart';
-import '../../../../bloc/user/user_repository.dart';
 import '../../../../components/colors/colors.dart';
+import '../../../bloc/services/group/models/group.dart';
+import '../../../bloc/services/user/models/user.dart';
+import '../../../bloc/services/user/user_repository.dart';
 
 class StudentsList extends StatefulWidget {
   final Future<void> Function() loadStudents;

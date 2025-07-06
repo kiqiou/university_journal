@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'dart:typed_data';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'package:university_journal/bloc/user/user.dart';
+import 'package:university_journal/bloc/services/user/models/user.dart';
 
 import 'package:mime/mime.dart';
 import 'package:http_parser/http_parser.dart';

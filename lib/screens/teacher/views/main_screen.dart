@@ -3,17 +3,17 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:university_journal/bloc/discipline/discipline.dart';
-import 'package:university_journal/bloc/journal/journal_repository.dart';
-import 'package:university_journal/bloc/user/user_repository.dart';
 import 'package:university_journal/components/side_navigation_menu.dart';
 import 'package:university_journal/screens/teacher/components/session_button.dart';
 
 import '../../../../bloc/auth/authentication_bloc.dart';
-import '../../../../bloc/discipline/discipline_plan.dart';
-import '../../../../bloc/journal/session.dart';
-import '../../../../bloc/user/user.dart';
 import '../../../../components/journal_table.dart';
+import '../../../bloc/services/discipline/models/discipline.dart';
+import '../../../bloc/services/discipline/models/discipline_plan.dart';
+import '../../../bloc/services/journal/journal_repository.dart';
+import '../../../bloc/services/journal/models/session.dart';
+import '../../../bloc/services/user/models/user.dart';
+import '../../../bloc/services/user/user_repository.dart';
 import '../../../components/widgets/discipline_and_group_select.dart';
 import 'account_screen.dart';
 import '../components/add_session_dialog.dart';
@@ -147,7 +147,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
       orElse: () => {},
     );
 
-    final selectedKey = selectedTypeMap['key']; // 'lecture', 'seminar' и т.д.
+    final selectedKey = selectedTypeMap['key'];
 
     if (selectedKey == null) return '';
 

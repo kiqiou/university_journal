@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/simple_bloc_observer.dart';
 import 'app.dart';
 import 'bloc/auth/authentication_bloc.dart';
-import 'bloc/user/user_repository.dart';
+import 'bloc/services/user/user_repository.dart';
 
 void main() async {
   final authRepository = UserRepository();

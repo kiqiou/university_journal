@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:university_journal/bloc/group/group_repository.dart';
-import '../../../../bloc/group/group.dart';
-import '../../../../bloc/user/user.dart';
 import 'package:university_journal/screens/admin_2/components/admin_2_side_navigation_menu.dart';
 import 'package:university_journal/screens/admin_2/views/student_list.dart';
 import 'package:university_journal/screens/admin_2/views/group_list.dart';
 
-import '../../../../bloc/user/user_repository.dart';
+import '../../../bloc/services/group/models/group.dart';
+import '../../../bloc/services/group/group_repository.dart';
+import '../../../bloc/services/user/models/user.dart';
+import '../../../bloc/services/user/user_repository.dart';
 
 enum Admin2ContentScreen { students, groups }
 

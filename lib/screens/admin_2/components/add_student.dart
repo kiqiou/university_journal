@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 
-import '../../../../bloc/group/group.dart';
-import '../../../../bloc/user/user_repository.dart';
 import '../../../../components/colors/colors.dart';
+import '../../../bloc/services/group/models/group.dart';
+import '../../../bloc/services/user/user_repository.dart';
 
 class AddStudentDialog extends StatefulWidget {
   final VoidCallback onStudentAdded;

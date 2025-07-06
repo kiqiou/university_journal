@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
 
-import '../bloc/journal/session.dart';
+import '../bloc/services/journal/models/session.dart';
 
 class ThemeTable extends StatefulWidget {
   final List<Session> sessions;

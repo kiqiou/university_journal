@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../discipline/discipline.dart';
+import '../../discipline/models/discipline.dart';
 
 class MyUser extends Equatable {
   final int id;

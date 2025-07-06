@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'colors/colors.dart';
+import '../colors/colors.dart';
 
 InputDecoration inputDecoration(String hint) {
   return InputDecoration(

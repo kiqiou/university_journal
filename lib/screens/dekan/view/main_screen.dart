@@ -1,15 +1,12 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'package:university_journal/bloc/discipline/discipline_repository.dart';
 
-import '../../../bloc/discipline/discipline.dart';
-import '../../../bloc/discipline/discipline_plan.dart';
-import '../../../bloc/journal/session.dart';
-import '../../../bloc/journal/journal_repository.dart';
-import '../../../bloc/user/user.dart';
-import '../../../bloc/user/user_repository.dart';
-import '../../../components/input_decoration.dart';
+import '../../../bloc/services/discipline/models/discipline.dart';
+import '../../../bloc/services/discipline/models/discipline_plan.dart';
+import '../../../bloc/services/discipline/discipline_repository.dart';
+import '../../../bloc/services/journal/journal_repository.dart';
+import '../../../bloc/services/journal/models/session.dart';
+import '../../../bloc/services/user/models/user.dart';
+import '../../../bloc/services/user/user_repository.dart';
 import '../../../components/journal_table.dart';
 import '../../../components/side_navigation_menu.dart';
 import '../../../components/theme_table.dart';
@@ -53,43 +50,6 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
   @override
   void initState() {
     super.initState();
-  }
-
-  Future<void> loadSessions() async {
-    log("Загрузка данных сессий...");
-    final journalRepository = JournalRepository();
-    final list = await journalRepository.journalData(
-      disciplineId: disciplines[selectedDisciplineIndex!].id,
-      groupId: selectedGroupId!,
-    );
-    setState(() {
-      sessions = list;
-      isLoading = false;
-    });
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      tableKey.currentState?.updateDataSource(sessions, students);
-    });
-
-    setState(() {
-      isLoading = false;
-    });
-  }
-
-  Future<void> loadStudents(groupId) async {
-    try {
-      final userRepository = UserRepository();
-      final list = await userRepository.getStudentsByGroupList(groupId);
-      setState(() {
-        students = list!;
-        isLoading = false;
-      });
-    } catch (e) {
-      print("Ошибка при загрузке преподавателей: $e");
-      setState(() {
-        isLoading = false;
-      });
-    }
   }
 
   Future<Map<String, dynamic>> loadJournalData(int groupId) async {
@@ -150,7 +110,7 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
       orElse: () => {},
     );
 
-    final selectedKey = selectedTypeMap['key']; // 'lecture', 'seminar' и т.д.
+    final selectedKey = selectedTypeMap['key'];
 
     if (selectedKey == null) return '';
 

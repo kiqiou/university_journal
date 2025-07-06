@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import 'group.dart';
+import 'models/group.dart';
 import 'package:http/http.dart' as http;
 
 class GroupRepository {

@@ -4,13 +4,11 @@ import 'package:flutter/services.dart';
 import 'dart:typed_data';
 import 'dart:html' as html;
 
-import '../../../../bloc/discipline/discipline.dart';
-import '../../../../bloc/discipline/discipline_repository.dart';
-import '../../../../bloc/user/user.dart';
-import '../../../../bloc/user/user_repository.dart';
-import '../../../../components/colors/colors.dart';
-import '../../../../components/multiselect.dart';
-import '../../../components/input_decoration.dart';
+import '../../../components/widgets/multiselect.dart';
+import '../../../bloc/services/discipline/models/discipline.dart';
+import '../../../bloc/services/user/models/user.dart';
+import '../../../bloc/services/user/user_repository.dart';
+import '../../../components/widgets/input_decoration.dart';
 
 class TeachersList extends StatefulWidget {
   final Future<void> Function() loadTeachers;

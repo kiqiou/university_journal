@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:university_journal/bloc/group/group.dart';
-import '../user/user.dart';
+import '../../group/models/group.dart';
+import '../../user/models/user.dart';
 import 'discipline_plan.dart';
 
 class Discipline extends Equatable {

@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
-import 'discipline.dart';
+import 'models/discipline.dart';
 
 class DisciplineRepository{
   Future<List<Discipline>?> getDisciplinesList() async {

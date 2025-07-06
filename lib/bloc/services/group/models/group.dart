@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-import '../user/user.dart';
+import '../../user/models/user.dart';
 
 class Group extends Equatable{
   final int id;

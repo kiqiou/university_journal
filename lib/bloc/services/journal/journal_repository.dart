@@ -2,9 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:http/http.dart' as http;
-import 'package:university_journal/bloc/journal/session.dart';
-
-import '../user/user.dart';
+import 'package:university_journal/bloc/services/journal/models/session.dart';
 
 class JournalRepository {
   Future<List<Session>> journalData({

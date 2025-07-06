@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:multi_select_flutter/dialog/multi_select_dialog_field.dart';
-import 'package:multi_select_flutter/util/multi_select_item.dart';
 import 'dart:math';
 
-import '../../../../bloc/discipline/discipline.dart';
-import '../../../../bloc/discipline/discipline_repository.dart';
-import '../../../../bloc/group/group.dart';
-import '../../../../bloc/user/user.dart';
 import '../../../../components/colors/colors.dart';
-import '../../../../components/multiselect.dart';
+import '../../../components/widgets/multiselect.dart';
+import '../../../bloc/services/discipline/models/discipline.dart';
+import '../../../bloc/services/discipline/discipline_repository.dart';
+import '../../../bloc/services/group/models/group.dart';
+import '../../../bloc/services/user/models/user.dart';
 
 class AddCourseDialog extends StatefulWidget {
   final VoidCallback onCourseAdded;

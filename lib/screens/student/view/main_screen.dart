@@ -1,17 +1,14 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../bloc/auth/authentication_bloc.dart';
-import '../../../bloc/discipline/discipline.dart';
-import '../../../../bloc/discipline/discipline_plan.dart';
-import '../../../bloc/discipline/discipline_repository.dart';
-import '../../../bloc/journal/session.dart';
-import '../../../bloc/journal/journal_repository.dart';
-import '../../../bloc/user/user.dart';
-import '../../../bloc/user/user_repository.dart';
-import '../../../components/input_decoration.dart';
+import '../../../bloc/services/discipline/models/discipline.dart';
+import '../../../bloc/services/discipline/models/discipline_plan.dart';
+import '../../../bloc/services/discipline/discipline_repository.dart';
+import '../../../bloc/services/journal/journal_repository.dart';
+import '../../../bloc/services/journal/models/session.dart';
+import '../../../bloc/services/user/models/user.dart';
+import '../../../bloc/services/user/user_repository.dart';
 import '../../../components/journal_table.dart';
 import '../../../components/side_navigation_menu.dart';
 import '../../../components/theme_table.dart';

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-
-import '../../bloc/discipline/discipline.dart';
-import '../input_decoration.dart';
+import '../../bloc/services/discipline/models/discipline.dart';
+import 'input_decoration.dart';
 
 class GroupSelectDialog extends StatelessWidget {
   final bool show;

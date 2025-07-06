@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/bloc/auth/authentication_bloc.dart';
-import 'package:university_journal/components/icon_container.dart';
+import 'package:university_journal/components/widgets/icon_container.dart';
 
 import 'journal_table.dart';
 

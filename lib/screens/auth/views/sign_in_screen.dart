@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/bloc/auth/authentication_bloc.dart';
 
-import '../../../components/input_decoration.dart';
+import '../../../components/widgets/input_decoration.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});

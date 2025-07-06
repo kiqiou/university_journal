@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import 'package:intl/intl.dart';
 
-import '../user/user.dart';
+import '../../user/models/user.dart';
 
 class Session {
   final int id;

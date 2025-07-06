@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import '../../../../bloc/group/group.dart';
-import '../../../../bloc/group/group_repository.dart';
-import '../../../../bloc/user/user.dart';
 import '../../../../components/colors/colors.dart';
-import '../../../../components/multiselect.dart';
+import '../../../components/widgets/multiselect.dart';
+import '../../../bloc/services/group/models/group.dart';
+import '../../../bloc/services/group/group_repository.dart';
+import '../../../bloc/services/user/models/user.dart';
 
 class GroupsList extends StatefulWidget {
   final Future<void> Function() loadGroups;

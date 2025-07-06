@@ -2,10 +2,9 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'dart:html' as html;
 import 'package:flutter/material.dart';
-import 'package:university_journal/bloc/user/user_repository.dart';
 
-import '../../../../components/colors/colors.dart';
-import '../../../components/input_decoration.dart';
+import '../../../bloc/services/user/user_repository.dart';
+import '../../../components/widgets/input_decoration.dart';
 
 class AddTeacherDialog extends StatefulWidget {
   final VoidCallback onTeacherAdded;
