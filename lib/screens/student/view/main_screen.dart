@@ -15,6 +15,7 @@ import '../../../components/input_decoration.dart';
 import '../../../components/journal_table.dart';
 import '../../../components/side_navigation_menu.dart';
 import '../../../components/theme_table.dart';
+import '../../../components/widgets/discipline_and_group_select.dart';
 
 enum StudentContentScreen { journal, theme }
 
@@ -30,10 +31,10 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
   final _formKey = GlobalKey<FormState>();
   StudentContentScreen currentScreen = StudentContentScreen.journal;
 
-  bool isLoading = true;
   bool? isHeadman;
+  bool isLoading = true;
   bool isMenuExpanded = false;
-  bool showGroupSelect = false;
+  bool showDisciplineSelect = false;
   String? token;
   int? selectedDisciplineIndex;
   int? selectedGroupId;
@@ -59,6 +60,8 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
     super.initState();
     final authState = context.read<AuthenticationBloc>().state;
     isHeadman = authState.user!.isHeadman;
+    selectedGroupId = authState.user!.groupId;
+
     final userRepository = UserRepository();
     userRepository.getAccessToken().then((value) {
       setState(() {
@@ -67,70 +70,21 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
     });
   }
 
-  Future<void> loadSessions() async {
-    log("Загрузка данных сессий...");
-    final journalRepository = JournalRepository();
-    final authState = context.read<AuthenticationBloc>().state;
-    selectedGroupId = authState.user!.groupId;
-
-    if (authState.status == AuthenticationStatus.authenticated) {
-      final list = await journalRepository.journalData(
-        disciplineId: disciplines[selectedDisciplineIndex!].id,
-        groupId: selectedGroupId!,
-      );
-      setState(() {
-        sessions = list;
-        isLoading = false;
-      });
-
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        tableKey.currentState?.updateDataSource(sessions, students);
-      });
-
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-
-  Future<void> loadStudents(groupId) async {
-    try {
-      final userRepository = UserRepository();
-      final list = await userRepository.getStudentsByGroupList(groupId);
-      setState(() {
-        students = list!;
-        isLoading = false;
-      });
-    } catch (e) {
-      print("Ошибка при загрузке преподавателей: $e");
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
 
   Future<Map<String, dynamic>> loadJournalData() async {
     final userRepository = UserRepository();
     final journalRepository = JournalRepository();
-
-    final authState = context.read<AuthenticationBloc>().state;
-    selectedGroupId = authState.user!.groupId;
-
     print('$selectedGroupId');
 
-    final studentsFuture =
-        userRepository.getStudentsByGroupList(selectedGroupId!);
-    final sessionsFuture = journalRepository.journalData(
+    final students = await userRepository.getStudentsByGroupList(selectedGroupId!);
+    final sessions = await journalRepository.journalData(
       disciplineId: disciplines[selectedDisciplineIndex!].id,
       groupId: selectedGroupId!,
     );
 
-    final students = await studentsFuture;
-    final sessions = await sessionsFuture;
-
     return {
       'students': students ?? [],
-      'sessions': sessions ?? [],
+      'sessions': sessions,
     };
   }
 
@@ -230,10 +184,10 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
                   });
                 },
                 isExpanded: isMenuExpanded,
-                showGroupSelect: showGroupSelect,
+                showGroupSelect: showDisciplineSelect,
                 onGroupSelect: () async {
                   setState(() {
-                    showGroupSelect = true;
+                    showDisciplineSelect = true;
                     isLoading = true;
                   });
                   loadDisciplines();
@@ -269,7 +223,6 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
                             return success;
                           },
                           isEditable: false,
-                          onTopicChanged: loadSessions,
                         );
                       case StudentContentScreen.journal:
                         return selectedDisciplineIndex != null
@@ -314,10 +267,6 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
                                     FutureBuilder<Map<String, dynamic>>(
                                       future: journalDataFuture,
                                       builder: (context, snapshot) {
-                                        if (journalDataFuture == null) {
-                                          return Center(
-                                              child: Text('Выберите группу'));
-                                        }
                                         if (snapshot.connectionState ==
                                             ConnectionState.waiting) {
                                           return Center(
@@ -396,185 +345,40 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
                   ),
                 )
               : SizedBox(),
-          if (showGroupSelect)
-            Positioned(
-              top: 32,
-              right: 32,
-              child: Builder(
-                builder: (context) {
-                  final media = MediaQuery.of(context).size;
-                  final double dialogWidth =
-                      (media.width - 32 - 80).clamp(320, 600);
-                  (media.height - 64).clamp(480, 1100);
-                  final screenWidth = MediaQuery.of(context).size.width;
-                  final screenHeight = MediaQuery.of(context).size.height;
+          if (showDisciplineSelect)
+            GroupSelectDialog(
+              show: showDisciplineSelect,
+              disciplines: disciplines,
+              selectedDisciplineIndex: selectedDisciplineIndex,
+              selectedGroupId: selectedGroupId,
+              showGroupSelect: false,
+              formKey: _formKey,
+              onDisciplineChanged: (value) {
+                setState(() {
+                  selectedDisciplineIndex = value;
+                });
+              },
+              onClose: () {
+                setState(() {
+                  showDisciplineSelect = false;
+                });
+              },
+              onSubmit: (groupId) async {
+                setState(() {
+                  showDisciplineSelect = false;
+                  isLoading = true;
+                  journalDataFuture = loadJournalData();
+                });
 
-                  if (screenWidth < 500 || screenHeight < 500) {
-                    return const SizedBox.shrink();
-                  }
+                final data = await journalDataFuture!;
+                setState(() {
+                  students = data['students'] as List<MyUser>;
+                  sessions = data['sessions'] as List<Session>;
+                  isLoading = false;
+                });
 
-                  return Material(
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 60),
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: SizedBox(
-                          width: dialogWidth,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(18),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.12),
-                                  blurRadius: 24,
-                                  offset: const Offset(0, 8),
-                                ),
-                              ],
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 36, vertical: 32),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // --- Заголовок и кнопка закрытия ---
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          'Выберите дисциплину и группу',
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            color: Colors.grey.shade700,
-                                          ),
-                                        ),
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(Icons.close,
-                                            size: 28, color: Colors.black54),
-                                        splashRadius: 24,
-                                        onPressed: () {
-                                          setState(() {
-                                            showGroupSelect = false;
-                                            loadSessions();
-                                          });
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 28),
-                                  // --- Форма ---
-                                  Form(
-                                    key: _formKey,
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        // Название группы
-                                        Text(
-                                          'Выберите дисциплину*',
-                                          style: TextStyle(
-                                            fontSize: 15,
-                                            color: Colors.grey.shade700,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 18),
-                                        DropdownButtonFormField<int>(
-                                          value: selectedDisciplineIndex,
-                                          decoration: inputDecoration(
-                                              'Выберите дисциплину'),
-                                          items: List.generate(
-                                              disciplines.length, (index) {
-                                            return DropdownMenuItem<int>(
-                                              value: index,
-                                              child: Text(
-                                                disciplines[index].name,
-                                                style: const TextStyle(
-                                                  fontSize: 15,
-                                                  color: Color(0xFF6B7280),
-                                                ),
-                                              ),
-                                            );
-                                          }),
-                                          onChanged: (value) {
-                                            setState(() {
-                                              selectedDisciplineIndex = value;
-                                            });
-                                          },
-                                          validator: (value) {
-                                            if (value == null) {
-                                              return 'Выберите дисциплину';
-                                            }
-                                            return null;
-                                          },
-                                        ),
-                                        const SizedBox(height: 18),
-                                        ElevatedButton(
-                                          onPressed: () async {
-                                            if (!_formKey.currentState!
-                                                .validate()) {
-                                              return;
-                                            }
-
-                                            setState(() {
-                                              showGroupSelect = false;
-                                              isLoading = true;
-                                              journalDataFuture =
-                                                  loadJournalData();
-                                            });
-
-                                            try {
-                                              final data =
-                                              await journalDataFuture!;
-                                              setState(() {
-                                                students = data['students']
-                                                as List<MyUser>;
-                                                sessions = data['sessions']
-                                                as List<Session>;
-                                                isLoading = false;
-                                              });
-                                            } catch (e) {
-                                              setState(() {
-                                                isLoading = false;
-                                              });
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                SnackBar(
-                                                    content: Text(
-                                                        'Ошибка при загрузке данных')),
-                                              );
-                                            }
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor:
-                                                const Color(0xFF4068EA),
-                                            foregroundColor: Colors.white,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                            ),
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 28, vertical: 12),
-                                            minimumSize:
-                                                const Size.fromHeight(55),
-                                          ),
-                                          child: const Text('Сохранить',
-                                              style: TextStyle(fontSize: 16)),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
+                return data;
+              },
             ),
         ],
       ),

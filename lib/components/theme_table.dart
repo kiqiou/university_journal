@@ -3,21 +3,21 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
+
 import '../bloc/journal/session.dart';
 
 class ThemeTable extends StatefulWidget {
   final List<Session> sessions;
-  final VoidCallback onTopicChanged;
+  final VoidCallback? onTopicChanged;
   final bool isEditable;
-  final Future<bool> Function(
-      int sessionId, String? date, String? type, String? topic)? onUpdate;
+  final Future<bool> Function(int sessionId, String? date, String? type, String? topic)? onUpdate;
 
   const ThemeTable(
       {super.key,
       required this.sessions,
       this.onUpdate,
       required this.isEditable,
-      required this.onTopicChanged});
+      this.onTopicChanged});
 
   @override
   State<ThemeTable> createState() => _ThemeTableState();
@@ -130,25 +130,21 @@ class _ThemeTableState extends State<ThemeTable> {
                             hintText: 'Введите тему',
                             hintStyle: TextStyle(color: Colors.grey.shade300)),
                         onChanged: (newTopic) {
-                          // Отменяем предыдущий таймер
                           if (_debounce?.isActive ?? false) _debounce!.cancel();
-
-                          // Первый таймер отслеживает остановку ввода (например, 1000 мс)
-                          _debounce =
-                              Timer(const Duration(milliseconds: 1000), () {
-                            // Второй таймер – дополнительная задержка перед действием (например, 2000 мс)
+                          _debounce = Timer(const Duration(milliseconds: 1000), () {
                             Future.delayed(const Duration(milliseconds: 2000),
                                 () async {
                               if (widget.onUpdate != null) {
                                 final success = await widget.onUpdate!(
                                     session.id, null, null, newTopic);
                                 if (success) {
-                                  widget.onTopicChanged();
+                                  widget.onTopicChanged!();
                                   log('обновление вызвано');
                                 }
                               }
                             });
-                          });
+                          }
+                          );
                         }),
                   ),
                   Padding(

@@ -4,8 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:collection/collection.dart';
 
-import '../../../bloc/journal/session.dart';
 import '../bloc/journal/journal_repository.dart';
+import '../bloc/journal/session.dart';
 import '../bloc/user/user.dart';
 import 'colors/colors.dart';
 
@@ -20,7 +20,8 @@ class JournalTable extends StatefulWidget {
   final void Function(int)? onColumnSelected;
   final void Function(List<Session>)? onSessionsChanged;
 
-  JournalTable({super.key,
+  JournalTable({
+    super.key,
     required this.isLoading,
     required this.sessions,
     this.onSessionsChanged,
@@ -29,7 +30,8 @@ class JournalTable extends StatefulWidget {
     this.onColumnSelected,
     this.selectedColumnIndex,
     this.isHeadman,
-    this.token,});
+    this.token,
+  });
 
   @override
   State<JournalTable> createState() => JournalTableState();
@@ -66,24 +68,24 @@ class JournalTableState extends State<JournalTable> {
         sessions,
         widget.isEditable,
         widget.isHeadman,
-          onUpdate: (sessionId, studentId, status, grade) async {
+        onUpdate: (sessionId, studentId, status, grade) async {
           final journalRepository = JournalRepository();
-        final result = await journalRepository.updateAttendance(
-          sessionId: sessionId,
-          studentId: studentId,
-          status: status,
-          grade: grade,
-          token: widget.token,
-        );
-
-        if (result == null || result['success'] != true) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Не удалось обновить данные')),
+          final result = await journalRepository.updateAttendance(
+            sessionId: sessionId,
+            studentId: studentId,
+            status: status,
+            grade: grade,
+            token: widget.token,
           );
-          return null;
-        }
-        return result;
-      },
+
+          if (result == null || result['success'] != true) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Не удалось обновить данные')),
+            );
+            return null;
+          }
+          return result;
+        },
       );
     });
   }
@@ -123,12 +125,12 @@ class JournalTableState extends State<JournalTable> {
           child: widget.isLoading || dataSource == null
               ? const Center(child: CircularProgressIndicator())
               : SfDataGrid(
-            gridLinesVisibility: GridLinesVisibility.none,
-            headerGridLinesVisibility: GridLinesVisibility.none,
-            source: dataSource!,
-            columns: columns,
-            headerRowHeight: 100,
-          ),
+                  gridLinesVisibility: GridLinesVisibility.none,
+                  headerGridLinesVisibility: GridLinesVisibility.none,
+                  source: dataSource!,
+                  columns: columns,
+                  headerRowHeight: 100,
+                ),
         ),
       ],
     );
@@ -159,15 +161,16 @@ class JournalDataSource extends DataGridSource {
     return _controllers[key]!;
   }
 
-  JournalDataSource(this.columns,
-      this._sessionData,
-      this.sessions,
-      this.isEditable, this.isHeadman, {
-        this.onUpdate,
-      })
-      : _dates = extractUniqueDateTypes(sessions).toList(),
+  JournalDataSource(
+    this.columns,
+    this._sessionData,
+    this.sessions,
+    this.isEditable,
+    this.isHeadman, {
+    this.onUpdate,
+  })  : _dates = extractUniqueDateTypes(sessions).toList(),
         _rows =
-        _buildRows(_sessionData, extractUniqueDateTypes(sessions).toList());
+            _buildRows(_sessionData, extractUniqueDateTypes(sessions).toList());
 
   void removeColumn(String dateType) {
     for (var row in _rows) {
@@ -177,8 +180,10 @@ class JournalDataSource extends DataGridSource {
     notifyListeners();
   }
 
-  static List<DataGridRow> _buildRows(Map<String, Map<String, Session>> data,
-      List<String> dates,) {
+  static List<DataGridRow> _buildRows(
+    Map<String, Map<String, Session>> data,
+    List<String> dates,
+  ) {
     return data.entries.mapIndexed((index, entry) {
       final studentName = entry.key;
       final sessionsByDate = entry.value;
@@ -206,11 +211,7 @@ class JournalDataSource extends DataGridSource {
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
     return DataGridRowAdapter(
-      cells: row
-          .getCells()
-          .asMap()
-          .entries
-          .map((entry) {
+      cells: row.getCells().asMap().entries.map((entry) {
         final columnIndex = entry.key;
         final cell = entry.value;
 
@@ -279,115 +280,132 @@ class JournalDataSource extends DataGridSource {
             : 'неизвестно';
 
         return Tooltip(
-            message: 'Изменил: $modifiedBy\nВремя: $updatedAtStr',
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.shade400),
-          ),
-          child: IntrinsicHeight(
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: statusController,
-                    textAlign: TextAlign.center,
-                    readOnly: !(isEditable || (isHeadman ?? false)),
-                    //enabled: isEditable,
-                    style: TextStyle(
-                      color: Colors.grey.shade700,
-                    ),
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      contentPadding:
-                      EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-                      disabledBorder: InputBorder.none,
-                    ),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'[нН]')),
-                      LengthLimitingTextInputFormatter(1),
-                    ],
-                    onChanged: (newStatus) async {
-                      final result = await onUpdate!(
-                        session.id,
-                        session.student.id,
-                        newStatus,
-                        gradeController.text,
-                      );
+          message: 'Изменил: $modifiedBy\nВремя: $updatedAtStr',
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey.shade400),
+            ),
+            child: IntrinsicHeight(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: statusController,
+                      textAlign: TextAlign.center,
+                      readOnly: !(isEditable || (isHeadman ?? false)),
+                      //enabled: isEditable,
+                      style: TextStyle(
+                        color: Colors.grey.shade700,
+                      ),
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        contentPadding:
+                            EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                        disabledBorder: InputBorder.none,
+                      ),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'[нН]')),
+                        LengthLimitingTextInputFormatter(1),
+                      ],
+                      onChanged: (newStatus) async {
+                        final result = await onUpdate!(
+                          session.id,
+                          session.student.id,
+                          newStatus,
+                          gradeController.text,
+                        );
 
-                      if (result != null && result['success'] == true) {
-                        _sessionData[studentName]?[date]?.status = newStatus;
-                        _sessionData[studentName]?[date]?.grade = gradeController.text;
+                        if (result != null && result['success'] == true) {
+                          _sessionData[studentName]?[date]?.status = newStatus;
+                          _sessionData[studentName]?[date]?.grade =
+                              gradeController.text;
 
-                        _sessionData[studentName]?[date]?.modifiedByUsername = result['modified_by'];
-                        final parsedDate = DateTime.tryParse(result['updated_at'] ?? '');
-                        if (parsedDate != null) {
-                          _sessionData[studentName]?[date]?.updatedAt = parsedDate.toLocal();
+                          _sessionData[studentName]?[date]?.modifiedByUsername =
+                              result['modified_by'];
+                          final parsedDate =
+                              DateTime.tryParse(result['updated_at'] ?? '');
+                          if (parsedDate != null) {
+                            _sessionData[studentName]?[date]?.updatedAt =
+                                parsedDate.toLocal();
+                          }
+
+                          _rows[rowIndex].getCells()[columnIndex] =
+                              DataGridCell<Map<String, String>>(
+                            columnName: date,
+                            value: {
+                              'status': newStatus,
+                              'grade': gradeController.text,
+                            },
+                          );
+                          notifyListeners();
                         }
-
-                        _rows[rowIndex].getCells()[columnIndex] =
-                            DataGridCell<Map<String, String>>(
-                              columnName: date,
-                              value: {
-                                'status': newStatus,
-                                'grade': gradeController.text,
-                              },
-                            );
-                        notifyListeners();
-                      }
-                    },
+                      },
+                    ),
                   ),
-                ),
-                Container(
-                  width: 1,
-                  color: Colors.grey.shade400,
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                ),
-                Expanded(
-                  child: TextField(
-                    controller: gradeController,
-                    textAlign: TextAlign.center,
-                    readOnly: !isEditable,
-                    //enabled: isEditable,
-                    style: TextStyle(
-                      color: Colors.grey.shade700,
-                    ),
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      contentPadding:
-                      EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-                      disabledBorder: InputBorder.none,
-                    ),
-                    inputFormatters: [
-                      LengthLimitingTextInputFormatter(2),
-                      FilteringTextInputFormatter.digitsOnly,
-                    ],
-                    onChanged: (newGrade) async {
-                      if (onUpdate != null) {
-                        await onUpdate!(
+                  Container(
+                    width: 1,
+                    color: Colors.grey.shade400,
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                  ),
+                  Expanded(
+                    child: TextField(
+                      controller: gradeController,
+                      textAlign: TextAlign.center,
+                      readOnly: !isEditable,
+                      //enabled: isEditable,
+                      style: TextStyle(
+                        color: Colors.grey.shade700,
+                      ),
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        contentPadding:
+                            EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                        disabledBorder: InputBorder.none,
+                      ),
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(2),
+                        FilteringTextInputFormatter.digitsOnly,
+                      ],
+                      onChanged: (newGrade) async {
+                        final result = await onUpdate!(
                           session.id,
                           session.student.id,
                           statusController.text,
                           newGrade,
                         );
-                      }
-                      _sessionData[studentName]?[date]?.grade = newGrade;
-                      _rows[rowIndex].getCells()[columnIndex] =
-                          DataGridCell<Map<String, String>>(
+
+                        if (result != null && result['success'] == true) {
+                          _sessionData[studentName]?[date]?.status =
+                              statusController.text;
+                          _sessionData[studentName]?[date]?.grade = newGrade;
+
+                          _sessionData[studentName]?[date]?.modifiedByUsername =
+                              result['modified_by'];
+                          final parsedDate =
+                              DateTime.tryParse(result['updated_at'] ?? '');
+                          if (parsedDate != null) {
+                            _sessionData[studentName]?[date]?.updatedAt =
+                                parsedDate.toLocal();
+                          }
+                          _sessionData[studentName]?[date]?.grade = newGrade;
+                          _rows[rowIndex].getCells()[columnIndex] =
+                              DataGridCell<Map<String, String>>(
                             columnName: date,
                             value: {
                               'status': statusController.text,
                               'grade': newGrade,
                             },
                           );
-                      notifyListeners();
-                    },
+                          notifyListeners();
+                        }
+                      },
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
         );
       }).toList(),
     );
@@ -400,14 +418,15 @@ List<String> extractUniqueDateTypes(List<Session> sessions) {
   for (var session in sessions) {
     dateTypes.add('${session.date} ${session.sessionType} ${session.id}');
   }
-  final sorted = dateTypes.toList()
-    ..sort((a, b) => a.compareTo(b));
+  final sorted = dateTypes.toList()..sort((a, b) => a.compareTo(b));
 
   return sorted;
 }
 
-Map<String, Map<String, Session>> groupSessionsByStudent(List<Session> sessions,
-    List<MyUser> students,) {
+Map<String, Map<String, Session>> groupSessionsByStudent(
+  List<Session> sessions,
+  List<MyUser> students,
+) {
   final Map<String, Map<String, Session>> result = {};
 
   for (var student in students) {
@@ -485,9 +504,7 @@ List<GridColumn> buildColumns({
     return columns; // Только № и ФИО
   }
 
-  for (var entry in dateTypeColumns
-      .asMap()
-      .entries) {
+  for (var entry in dateTypeColumns.asMap().entries) {
     final index = entry.key;
     final dateType = entry.value;
 
@@ -517,9 +534,7 @@ List<GridColumn> buildColumns({
                 RotatedBox(
                   quarterTurns: 3,
                   child: Text(
-                    dateType
-                        .split(' ')
-                        .first,
+                    dateType.split(' ').first,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontFamily: 'Sora',

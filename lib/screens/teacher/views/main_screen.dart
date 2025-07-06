@@ -14,7 +14,7 @@ import '../../../../bloc/discipline/discipline_plan.dart';
 import '../../../../bloc/journal/session.dart';
 import '../../../../bloc/user/user.dart';
 import '../../../../components/journal_table.dart';
-import '../../../components/input_decoration.dart';
+import '../../../components/widgets/discipline_and_group_select.dart';
 import 'account_screen.dart';
 import '../components/add_session_dialog.dart';
 import '../../../../components/theme_table.dart';
@@ -39,7 +39,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
   String? token;
   bool isLoading = true;
   bool isMenuExpanded = false;
-  bool showGroupSelect = false;
+  bool showDisciplineAndGroupSelect = false;
   int? selectedDisciplineIndex;
   int? selectedGroupId;
   int? _selectedColumnIndex;
@@ -91,22 +91,6 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
     });
   }
 
-  Future<void> loadStudents(groupId) async {
-    try {
-      final userRepository = UserRepository();
-      final list = await userRepository.getStudentsByGroupList(groupId);
-      setState(() {
-        students = list!;
-        isLoading = false;
-      });
-    } catch (e) {
-      print("Ошибка при загрузке преподавателей: $e");
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-
   Future<Map<String, dynamic>> loadJournalData(int groupId) async {
     final userRepository = UserRepository();
     final journalRepository = JournalRepository();
@@ -127,7 +111,9 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
   }
 
   void loadTeacherDisciplines() {
-    final authState = context.read<AuthenticationBloc>().state;
+    final authState = context
+        .read<AuthenticationBloc>()
+        .state;
 
     if (authState.status == AuthenticationStatus.authenticated) {
       final teacher = authState.user;
@@ -157,7 +143,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
     final currentDiscipline = disciplines[selectedDisciplineIndex!];
 
     final selectedTypeMap = lessonTypeOptions.firstWhere(
-      (type) => type['label'] == selectedSessionsType,
+          (type) => type['label'] == selectedSessionsType,
       orElse: () => {},
     );
 
@@ -168,7 +154,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
     PlanItem? planItem;
     try {
       planItem = currentDiscipline.planItems.firstWhere(
-        (item) => item.type.toLowerCase() == selectedKey.toLowerCase(),
+            (item) => item.type.toLowerCase() == selectedKey.toLowerCase(),
       );
     } catch (_) {
       planItem = null;
@@ -178,16 +164,17 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
 
     final actualSessions = sessions
         .where((s) =>
-            s.sessionType.toLowerCase() == selectedSessionsType.toLowerCase())
+    s.sessionType.toLowerCase() == selectedSessionsType.toLowerCase())
         .fold<Map<int, Session>>({}, (map, session) {
-          map[session.id] = session;
-          return map;
-        })
+      map[session.id] = session;
+      return map;
+    })
         .values
         .toList();
 
     print(
-        'Total sessions matching type "$selectedSessionsType": ${actualSessions.length}');
+        'Total sessions matching type "$selectedSessionsType": ${actualSessions
+            .length}');
     for (var s in actualSessions) {
       print(' - ${s.sessionType} (${s.date})');
     }
@@ -226,10 +213,10 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                   });
                 },
                 isExpanded: isMenuExpanded,
-                showGroupSelect: showGroupSelect,
+                showGroupSelect: showDisciplineAndGroupSelect,
                 onGroupSelect: () async {
                   setState(() {
-                    showGroupSelect = true;
+                    showDisciplineAndGroupSelect = true;
                     isLoading = true;
                   });
                   loadTeacherDisciplines();
@@ -261,7 +248,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                     content:
-                                        Text('Не удалось обновить данные')),
+                                    Text('Не удалось обновить данные')),
                               );
                             }
                             return success;
@@ -272,215 +259,218 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                       case TeacherContentScreen.journal:
                         return selectedGroupId != null
                             ? Scaffold(
-                                body: GestureDetector(
-                                  behavior: HitTestBehavior.opaque,
-                                  onTap: () {
-                                    setState(() {
-                                      _selectedColumnIndex = null;
-                                    });
-                                  },
-                                  child: Column(
-                                    children: [
-                                      SizedBox(
-                                        height: 40,
-                                      ),
-                                      Row(
-                                        children: [
-                                          Text(
-                                            selectedSessionsType == 'Все'
-                                                ? 'Журнал'
-                                                : selectedSessionsType,
-                                            style: TextStyle(
-                                                color: Colors.grey.shade800,
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          if (selectedSessionsType !=
-                                              'Все') ...[
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 20,
-                                                      vertical: 8),
-                                              child: Row(
-                                                children: [
-                                                  Text(
-                                                    _buildSessionStatsText(),
-                                                    style: TextStyle(
-                                                      fontSize: 16,
-                                                      color:
-                                                          Colors.grey.shade700,
-                                                    ),
-                                                  ),
-                                                ],
+                          body: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () {
+                              setState(() {
+                                _selectedColumnIndex = null;
+                              });
+                            },
+                            child: Column(
+                              children: [
+                                SizedBox(
+                                  height: 40,
+                                ),
+                                Row(
+                                  children: [
+                                    Text(
+                                      selectedSessionsType == 'Все'
+                                          ? 'Журнал'
+                                          : selectedSessionsType,
+                                      style: TextStyle(
+                                          color: Colors.grey.shade800,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    if (selectedSessionsType !=
+                                        'Все') ...[
+                                      Padding(
+                                        padding:
+                                        const EdgeInsets.symmetric(
+                                            horizontal: 20,
+                                            vertical: 8),
+                                        child: Row(
+                                          children: [
+                                            Text(
+                                              _buildSessionStatsText(),
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color:
+                                                Colors.grey.shade700,
                                               ),
                                             ),
                                           ],
-                                          Spacer(),
-                                          if (_selectedColumnIndex != null) ...[
-                                            SessionButton(
-                                              onChange: () async {
-                                                final filteredSessions =
-                                                    selectedSessionsType ==
-                                                            'Все'
-                                                        ? sessions
-                                                        : sessions
-                                                            .where((s) =>
-                                                                s.sessionType ==
-                                                                selectedSessionsType)
-                                                            .toList();
-
-                                                final dates =
-                                                    extractUniqueDateTypes(
-                                                        filteredSessions);
-                                                final toRemove = dates[
-                                                    _selectedColumnIndex!];
-
-                                                final session =
-                                                    filteredSessions.firstWhere(
-                                                  (s) =>
-                                                      '${s.date} ${s.sessionType} ${s.id}' ==
-                                                      toRemove,
-                                                );
-
-                                                final repository =
-                                                    JournalRepository();
-                                                final success = await repository
-                                                    .deleteSession(
-                                                        sessionId: session.id);
-
-                                                if (success) {
-                                                  final updatedSessions =
-                                                      List<Session>.from(
-                                                          sessions)
-                                                        ..removeWhere((s) =>
-                                                            s.id == session.id);
-
-                                                  setState(() {
-                                                    _selectedColumnIndex = null;
-                                                    sessions = updatedSessions;
-                                                  });
-                                                  _filterBySessionType(
-                                                      selectedSessionsType);
-                                                } else {
-                                                  ScaffoldMessenger.of(context)
-                                                      .showSnackBar(
-                                                    const SnackBar(
-                                                        content: Text(
-                                                            'Ошибка при удалении занятия')),
-                                                  );
-                                                }
-                                              },
-                                              buttonName: 'Удалить занятие',
-                                            ),
-                                            SessionButton(
-                                              onChange: () {
-                                                final filteredSessions =
-                                                    selectedSessionsType ==
-                                                            'Все'
-                                                        ? sessions
-                                                        : sessions
-                                                            .where((s) =>
-                                                                s.sessionType ==
-                                                                selectedSessionsType)
-                                                            .toList();
-
-                                                final dates =
-                                                    extractUniqueDateTypes(
-                                                        filteredSessions);
-                                                final toRemove = dates[
-                                                    _selectedColumnIndex!];
-
-                                                final session =
-                                                    filteredSessions.firstWhere(
-                                                  (s) =>
-                                                      '${s.date} ${s.sessionType} ${s.id}' ==
-                                                      toRemove,
-                                                );
-                                                _showAddEventDialog(
-                                                  context,
-                                                  true,
-                                                  dateToEdit:
-                                                      DateFormat('dd.MM.yyyy')
-                                                          .parse(session.date),
-                                                  typeToEdit:
-                                                      session.sessionType,
-                                                );
-                                              },
-                                              buttonName:
-                                                  'Редактировать занятие',
-                                            ),
-                                          ],
-                                          SessionButton(
-                                            onChange: () => _showAddEventDialog(
-                                                context, false),
-                                            buttonName: 'Добавить занятие',
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 40,
-                                      ),
-                                      FutureBuilder<Map<String, dynamic>>(
-                                        future: journalDataFuture,
-                                        builder: (context, snapshot) {
-                                          if (journalDataFuture == null) {
-                                            return Center(
-                                                child: Text('Выберите группу'));
-                                          }
-                                          if (snapshot.connectionState ==
-                                              ConnectionState.waiting) {
-                                            return Center(
-                                                child:
-                                                    CircularProgressIndicator());
-                                          }
-                                          if (snapshot.hasError) {
-                                            return Center(
-                                                child: Text('Ошибка загрузки'));
-                                          }
-                                          if (!snapshot.hasData) {
-                                            return Center(
-                                                child: Text('Нет данных'));
-                                          }
-
-                                          final students =
-                                              snapshot.data!['students']
-                                                  as List<MyUser>;
-
-                                          return Expanded(
-                                            child: JournalTable(
-                                              key: tableKey,
-                                              students: students,
-                                              sessions: sessions,
-                                              isEditable: true,
-                                              isLoading: false,
-                                              token: token,
-                                              selectedColumnIndex:
-                                                  _selectedColumnIndex,
-                                              onColumnSelected: (int index) {
-                                                setState(() {
-                                                  _selectedColumnIndex = index;
-                                                });
-                                              },
-                                              onSessionsChanged:
-                                                  (updatedSessions) {
-                                                print(
-                                                    'Загружено занятий: $updatedSessions');
-                                                sessions = updatedSessions;
-                                                _filterBySessionType(
-                                                    selectedSessionsType);
-                                              },
-                                            ),
-                                          );
-                                        },
+                                        ),
                                       ),
                                     ],
-                                  ),
+                                    Spacer(),
+                                    if (_selectedColumnIndex != null) ...[
+                                      SessionButton(
+                                        onChange: () async {
+                                          final filteredSessions =
+                                          selectedSessionsType ==
+                                              'Все'
+                                              ? sessions
+                                              : sessions
+                                              .where((s) =>
+                                          s.sessionType ==
+                                              selectedSessionsType)
+                                              .toList();
+
+                                          final dates =
+                                          extractUniqueDateTypes(
+                                              filteredSessions);
+                                          final toRemove = dates[
+                                          _selectedColumnIndex!];
+
+                                          final session =
+                                          filteredSessions.firstWhere(
+                                                (s) =>
+                                            '${s.date} ${s.sessionType} ${s
+                                                .id}' ==
+                                                toRemove,
+                                          );
+
+                                          final repository =
+                                          JournalRepository();
+                                          final success = await repository
+                                              .deleteSession(
+                                              sessionId: session.id);
+
+                                          if (success) {
+                                            final updatedSessions =
+                                            List<Session>.from(
+                                                sessions)
+                                              ..removeWhere((s) =>
+                                              s.id == session.id);
+
+                                            setState(() {
+                                              _selectedColumnIndex = null;
+                                              sessions = updatedSessions;
+                                            });
+                                            _filterBySessionType(
+                                                selectedSessionsType);
+                                          } else {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              const SnackBar(
+                                                  content: Text(
+                                                      'Ошибка при удалении занятия')),
+                                            );
+                                          }
+                                        },
+                                        buttonName: 'Удалить занятие',
+                                      ),
+                                      SessionButton(
+                                        onChange: () {
+                                          final filteredSessions =
+                                          selectedSessionsType ==
+                                              'Все'
+                                              ? sessions
+                                              : sessions
+                                              .where((s) =>
+                                          s.sessionType ==
+                                              selectedSessionsType)
+                                              .toList();
+
+                                          final dates =
+                                          extractUniqueDateTypes(
+                                              filteredSessions);
+                                          final toRemove = dates[
+                                          _selectedColumnIndex!];
+
+                                          final session =
+                                          filteredSessions.firstWhere(
+                                                (s) =>
+                                            '${s.date} ${s.sessionType} ${s
+                                                .id}' ==
+                                                toRemove,
+                                          );
+                                          _showAddEventDialog(
+                                            context,
+                                            true,
+                                            dateToEdit:
+                                            DateFormat('dd.MM.yyyy')
+                                                .parse(session.date),
+                                            typeToEdit:
+                                            session.sessionType,
+                                          );
+                                        },
+                                        buttonName:
+                                        'Редактировать занятие',
+                                      ),
+                                    ],
+                                    SessionButton(
+                                      onChange: () =>
+                                          _showAddEventDialog(
+                                              context, false),
+                                      buttonName: 'Добавить занятие',
+                                    ),
+                                  ],
                                 ),
-                              )
+                                SizedBox(
+                                  height: 40,
+                                ),
+                                FutureBuilder<Map<String, dynamic>>(
+                                  future: journalDataFuture,
+                                  builder: (context, snapshot) {
+                                    if (journalDataFuture == null) {
+                                      return Center(
+                                          child: Text('Выберите группу'));
+                                    }
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return Center(
+                                          child:
+                                          CircularProgressIndicator());
+                                    }
+                                    if (snapshot.hasError) {
+                                      return Center(
+                                          child: Text('Ошибка загрузки'));
+                                    }
+                                    if (!snapshot.hasData) {
+                                      return Center(
+                                          child: Text('Нет данных'));
+                                    }
+
+                                    final students =
+                                    snapshot.data!['students']
+                                    as List<MyUser>;
+
+                                    return Expanded(
+                                      child: JournalTable(
+                                        key: tableKey,
+                                        students: students,
+                                        sessions: sessions,
+                                        isEditable: true,
+                                        isLoading: false,
+                                        token: token,
+                                        selectedColumnIndex:
+                                        _selectedColumnIndex,
+                                        onColumnSelected: (int index) {
+                                          setState(() {
+                                            _selectedColumnIndex = index;
+                                          });
+                                        },
+                                        onSessionsChanged:
+                                            (updatedSessions) {
+                                          print(
+                                              'Загружено занятий: $updatedSessions');
+                                          sessions = updatedSessions;
+                                          _filterBySessionType(
+                                              selectedSessionsType);
+                                        },
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
                             : const Center(
-                                child: Text('Выберите группу'),
-                              );
+                          child: Text('Выберите группу'),
+                        );
                     }
                   },
                 ),
@@ -489,238 +479,73 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
           ),
           isMenuExpanded
               ? Positioned(
-                  top: 40,
-                  left: 220,
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        isMenuExpanded = !isMenuExpanded;
-                      });
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(blurRadius: 4, color: Colors.black26)
-                        ],
-                      ),
-                      padding: EdgeInsets.all(20),
-                      child: Icon(
-                        Icons.arrow_back_ios,
-                        color: Colors.grey.shade500,
-                        size: 20,
-                      ),
-                    ),
-                  ),
-                )
-              : SizedBox(),
-          if (showGroupSelect)
-            Positioned(
-              top: 32,
-              right: 32,
-              child: Builder(
-                builder: (context) {
-                  final media = MediaQuery.of(context).size;
-                  final double dialogWidth =
-                  (media.width - 32 - 80).clamp(320, 600);
-                  (media.height - 64).clamp(480, 1100);
-                  final screenWidth = MediaQuery.of(context).size.width;
-                  final screenHeight = MediaQuery.of(context).size.height;
-
-                  if (screenWidth < 500 || screenHeight < 500) {
-                    return const SizedBox.shrink();
-                  }
-
-                  return Material(
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 60),
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: SizedBox(
-                          width: dialogWidth,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(18),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.12),
-                                  blurRadius: 24,
-                                  offset: const Offset(0, 8),
-                                ),
-                              ],
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 36, vertical: 32),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // --- Заголовок и кнопка закрытия ---
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          'Выберите дисциплину и группу',
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            color: Colors.grey.shade700,
-                                          ),
-                                        ),
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(Icons.close,
-                                            size: 28, color: Colors.black54),
-                                        splashRadius: 24,
-                                        onPressed: () {
-                                          setState(() {
-                                            showGroupSelect = false;
-                                          });
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 28),
-                                  // --- Форма ---
-                                  Form(
-                                    key: _formKey,
-                                    child: Column(
-                                      crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                      children: [
-                                        // Название группы
-                                        Text(
-                                          'Выберите дисциплину*',
-                                          style: TextStyle(
-                                            fontSize: 15,
-                                            color: Colors.grey.shade700,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 18),
-                                        DropdownButtonFormField<int>(
-                                          value: selectedDisciplineIndex,
-                                          decoration: inputDecoration(
-                                              'Выберите дисциплину'),
-                                          items: List.generate(
-                                              disciplines.length, (index) {
-                                            return DropdownMenuItem<int>(
-                                              value: index,
-                                              child: Text(
-                                                disciplines[index].name,
-                                                style: const TextStyle(
-                                                    fontSize: 15,
-                                                    color: Color(0xFF6B7280)),
-                                              ),
-                                            );
-                                          }),
-                                          onChanged: (value) {
-                                            setState(() {
-                                              selectedDisciplineIndex = value;
-                                            });
-                                          },
-                                          validator: (value) {
-                                            if (value == null) {
-                                              return 'Выберите дисциплину';
-                                            }
-                                            return null;
-                                          },
-                                        ),
-                                        const SizedBox(height: 18),
-                                        if (selectedDisciplineIndex != null)
-                                          DropdownButtonFormField<int>(
-                                            decoration: inputDecoration(
-                                                'Выберите группу'),
-                                            items: disciplines[
-                                            selectedDisciplineIndex!]
-                                                .groups
-                                                .map((group) {
-                                              return DropdownMenuItem<int>(
-                                                value: group.id,
-                                                child: Text(group.name),
-                                              );
-                                            }).toList(),
-                                            onChanged: (value) {
-                                              setState(() {
-                                                selectedGroupId = value;
-                                              });
-                                              print(
-                                                  'Выбрана группа с ID: $value');
-                                            },
-                                            validator: (value) {
-                                              if (value == null)
-                                                return 'Выберите группу';
-                                              return null;
-                                            },
-                                          ),
-                                        const SizedBox(height: 18),
-                                        ElevatedButton(
-                                          onPressed: () async {
-                                            if (!_formKey.currentState!
-                                                .validate()) {
-                                              return;
-                                            }
-
-                                            setState(() {
-                                              showGroupSelect = false;
-                                              isLoading = true;
-                                              journalDataFuture =
-                                                  loadJournalData(
-                                                      selectedGroupId!);
-                                            });
-
-                                            try {
-                                              final data =
-                                              await journalDataFuture!;
-                                              setState(() {
-                                                students = data['students']
-                                                as List<MyUser>;
-                                                sessions = data['sessions']
-                                                as List<Session>;
-                                                isLoading = false;
-                                              });
-                                            } catch (e) {
-                                              setState(() {
-                                                isLoading = false;
-                                              });
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                SnackBar(
-                                                    content: Text(
-                                                        'Ошибка при загрузке данных')),
-                                              );
-                                            }
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor:
-                                            const Color(0xFF4068EA),
-                                            foregroundColor: Colors.white,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                              BorderRadius.circular(8),
-                                            ),
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 28, vertical: 12),
-                                            minimumSize:
-                                            const Size.fromHeight(55),
-                                          ),
-                                          child: const Text('Сохранить',
-                                              style: TextStyle(fontSize: 16)),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
+            top: 40,
+            left: 220,
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  isMenuExpanded = !isMenuExpanded;
+                });
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(blurRadius: 4, color: Colors.black26)
+                  ],
+                ),
+                padding: EdgeInsets.all(20),
+                child: Icon(
+                  Icons.arrow_back_ios,
+                  color: Colors.grey.shade500,
+                  size: 20,
+                ),
               ),
             ),
+          )
+              : SizedBox(),
+          if (showDisciplineAndGroupSelect)
+            GroupSelectDialog(
+              showGroupSelect: true,
+              show: showDisciplineAndGroupSelect,
+              disciplines: disciplines,
+              selectedDisciplineIndex: selectedDisciplineIndex,
+              selectedGroupId: selectedGroupId,
+              formKey: _formKey,
+              onDisciplineChanged: (value) {
+                setState(() {
+                  selectedDisciplineIndex = value;
+                });
+              },
+              onGroupChanged: (value) {
+                setState(() {
+                  selectedGroupId = value;
+                });
+                print('Выбрана группа с ID: $value');
+              },
+              onClose: () {
+                setState(() {
+                  showDisciplineAndGroupSelect = false;
+                });
+              },
+            onSubmit: (groupId) async {
+              setState(() {
+                showDisciplineAndGroupSelect = false;
+                isLoading = true;
+                journalDataFuture = loadJournalData(groupId);
+              });
+
+              final data = await journalDataFuture!;
+              setState(() {
+                students = data['students'] as List<MyUser>;
+                sessions = data['sessions'] as List<Session>;
+                isLoading = false;
+              });
+
+              return data;
+            },
+          ),
         ],
       ),
     );

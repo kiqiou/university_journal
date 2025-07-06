@@ -13,6 +13,7 @@ import '../../../components/input_decoration.dart';
 import '../../../components/journal_table.dart';
 import '../../../components/side_navigation_menu.dart';
 import '../../../components/theme_table.dart';
+import '../../../components/widgets/discipline_and_group_select.dart';
 
 enum DeanContentScreen { journal, theme }
 
@@ -245,7 +246,6 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
                             return success;
                           },
                           isEditable: false,
-                          onTopicChanged: loadSessions,
                         );
                       case DeanContentScreen.journal:
                         return selectedGroupId != null
@@ -369,212 +369,44 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
                 )
               : SizedBox(),
           if (showGroupSelect)
-            Positioned(
-              top: 32,
-              right: 32,
-              child: Builder(
-                builder: (context) {
-                  final media = MediaQuery.of(context).size;
-                  final double dialogWidth =
-                      (media.width - 32 - 80).clamp(320, 600);
-                  (media.height - 64).clamp(480, 1100);
-                  final screenWidth = MediaQuery.of(context).size.width;
-                  final screenHeight = MediaQuery.of(context).size.height;
+            GroupSelectDialog(
+              show: showGroupSelect,
+              disciplines: disciplines,
+              selectedDisciplineIndex: selectedDisciplineIndex,
+              selectedGroupId: selectedGroupId,
+              formKey: _formKey,
+              onDisciplineChanged: (value) {
+                setState(() {
+                  selectedDisciplineIndex = value;
+                });
+              },
+              onGroupChanged: (value) {
+                setState(() {
+                  selectedGroupId = value;
+                });
+                print('Выбрана группа с ID: $value');
+              },
+              onClose: () {
+                setState(() {
+                  showGroupSelect = false;
+                });
+              },
+              onSubmit: (groupId) async {
+                setState(() {
+                  showGroupSelect = false;
+                  isLoading = true;
+                  journalDataFuture = loadJournalData(groupId);
+                });
 
-                  if (screenWidth < 500 || screenHeight < 500)
-                    return const SizedBox.shrink();
+                final data = await journalDataFuture!;
+                setState(() {
+                  students = data['students'] as List<MyUser>;
+                  sessions = data['sessions'] as List<Session>;
+                  isLoading = false;
+                });
 
-                  return Material(
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 60),
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: SizedBox(
-                          width: dialogWidth,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(18),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.12),
-                                  blurRadius: 24,
-                                  offset: const Offset(0, 8),
-                                ),
-                              ],
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 36, vertical: 32),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          'Выберите дисциплину и группу',
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            color: Colors.grey.shade700,
-                                          ),
-                                        ),
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(Icons.close,
-                                            size: 28, color: Colors.black54),
-                                        splashRadius: 24,
-                                        onPressed: () {
-                                          setState(() {
-                                            showGroupSelect = false;
-                                          });
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 28),
-                                  // --- Форма ---
-                                  Form(
-                                    key: _formKey,
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        // Название группы
-                                        Text(
-                                          'Выберите дисциплину*',
-                                          style: TextStyle(
-                                            fontSize: 15,
-                                            color: Colors.grey.shade700,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 18),
-                                        DropdownButtonFormField<int>(
-                                          value: selectedDisciplineIndex,
-                                          decoration: inputDecoration(
-                                              'Выберите дисциплину'),
-                                          items: List.generate(
-                                              disciplines.length, (index) {
-                                            return DropdownMenuItem<int>(
-                                              value: index,
-                                              child: Text(
-                                                disciplines[index].name,
-                                                style: const TextStyle(
-                                                    fontSize: 15,
-                                                    color: Color(0xFF6B7280)),
-                                              ),
-                                            );
-                                          }),
-                                          onChanged: (value) {
-                                            setState(() {
-                                              selectedDisciplineIndex = value;
-                                            });
-                                          },
-                                          validator: (value) {
-                                            if (value == null) {
-                                              return 'Выберите дисциплину';
-                                            }
-                                            return null;
-                                          },
-                                        ),
-                                        const SizedBox(height: 18),
-                                        if (selectedDisciplineIndex != null)
-                                          DropdownButtonFormField<int>(
-                                            decoration: inputDecoration(
-                                                'Выберите группу'),
-                                            items: disciplines[
-                                                    selectedDisciplineIndex!]
-                                                .groups
-                                                .map((group) {
-                                              return DropdownMenuItem<int>(
-                                                value: group.id,
-                                                child: Text(
-                                                  group.name,
-                                                  style: const TextStyle(
-                                                      fontSize: 15,
-                                                      color: Color(0xFF6B7280)),
-                                                ),
-                                              );
-                                            }).toList(),
-                                            onChanged: (value) {
-                                              setState(() {
-                                                selectedGroupId = value;
-                                              });
-                                            },
-                                            validator: (value) {
-                                              if (value == null) {
-                                                return 'Выберите группу';
-                                              }
-                                              return null;
-                                            },
-                                          ),
-                                        const SizedBox(height: 18),
-                                        ElevatedButton(
-                                          onPressed: () async {
-                                            if (!_formKey.currentState!
-                                                .validate()) {
-                                              return;
-                                            }
-
-                                            setState(() {
-                                              showGroupSelect = false;
-                                              isLoading = true;
-                                              journalDataFuture =
-                                                  loadJournalData(
-                                                      selectedGroupId!);
-                                            });
-
-                                            try {
-                                              final data =
-                                              await journalDataFuture!;
-                                              setState(() {
-                                                students = data['students']
-                                                as List<MyUser>;
-                                                sessions = data['sessions']
-                                                as List<Session>;
-                                                isLoading = false;
-                                              });
-                                            } catch (e) {
-                                              setState(() {
-                                                isLoading = false;
-                                              });
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                SnackBar(
-                                                    content: Text(
-                                                        'Ошибка при загрузке данных')),
-                                              );
-                                            }
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor:
-                                                const Color(0xFF4068EA),
-                                            foregroundColor: Colors.white,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                            ),
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 28, vertical: 12),
-                                            minimumSize:
-                                                const Size.fromHeight(55),
-                                          ),
-                                          child: const Text('Сохранить',
-                                              style: TextStyle(fontSize: 16)),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
+                return data;
+              }, showGroupSelect: true,
             ),
         ],
       ),
