@@ -15,12 +15,6 @@ class Session {
 
   String? status;
   String? grade;
-
-  // Приватные поля для хранения исходных значений
-  String? _originalStatus;
-  String? _originalGrade;
-
-  // Новые поля — кто и когда изменил
   String? modifiedByUsername;
   DateTime? updatedAt;
 
@@ -36,13 +30,10 @@ class Session {
     this.topic,
     this.modifiedByUsername,
     this.updatedAt,
-  }) {
-    _originalStatus = status;
-    _originalGrade = grade;
-  }
+  });
 
   factory Session.fromJson(Map<String, dynamic> json) {
-    String rawDate = json['session']['date'] ?? '';
+    String rawDate = json['journal']['date'] ?? '';
     String formattedDate = '';
     try {
       final parsedDate = DateTime.parse(rawDate);
@@ -54,17 +45,17 @@ class Session {
     log('${json['modified_by']?['username']}, ${json['updated_at']}');
 
     return Session(
-      id: json['session']['id'] ?? 0,
-      disciplineId: json['session']['course']['id'] ?? 0,
-      disciplineName: json['session']['course']['name'],
+      id: json['journal']['id'] ?? 0,
+      disciplineId: json['journal']['course']['id'] ?? 0,
+      disciplineName: json['journal']['course']['name'],
       date: formattedDate,
-      sessionType: json['session']['type'] ?? '',
+      sessionType: json['journal']['type'] ?? '',
       student: MyUser(
         username: json['student']['username'] ?? '',
         role: json['student']['role']['role'] ?? '',
         id: json['student']['id'] ?? 0,
       ),
-      topic: json['session']['topic'],
+      topic: json['journal']['topic'],
       status: json['status'],
       grade: json['grade']?.toString(),
       modifiedByUsername: json['modified_by']?['username'],

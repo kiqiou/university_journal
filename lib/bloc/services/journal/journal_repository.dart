@@ -33,7 +33,7 @@ class JournalRepository {
 
         for (var sessionJson in data) {
           final sessionWrapper = {
-            'session': {
+            'journal': {
               'id': sessionJson['id'],
               'date': sessionJson['date'],
               'type': sessionJson['type'],
@@ -160,7 +160,7 @@ class JournalRepository {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
         print('📌 Ответ сервера: $data');
 
-        return Session.fromJson({'session': data, 'student': {}});
+        return Session.fromJson({'journal': data, 'student': {}});
       } else {
         print('❌ Ошибка сервера: ${response.statusCode} - ${response.body}');
         return null;
