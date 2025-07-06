@@ -10,6 +10,107 @@ import '../../../../bloc/user/user.dart';
 import '../../../../components/colors/colors.dart';
 import '../../../../components/multiselect.dart';
 
+class MultiSelectDialog<T> extends StatefulWidget {
+  final List<T> items;
+  final List<T> initiallySelected;
+  final String Function(T) itemLabel;
+
+  const MultiSelectDialog({
+    Key? key,
+    required this.items,
+    required this.initiallySelected,
+    required this.itemLabel,
+  }) : super(key: key);
+
+  @override
+  State<MultiSelectDialog<T>> createState() => _MultiSelectDialogState<T>();
+}
+
+class _MultiSelectDialogState<T> extends State<MultiSelectDialog<T>> {
+  late List<T> filteredItems;
+  late List<T> selectedItems;
+  final TextEditingController searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    filteredItems = widget.items;
+    selectedItems = List.from(widget.initiallySelected);
+
+    searchController.addListener(() {
+      final query = searchController.text.toLowerCase();
+      setState(() {
+        filteredItems = widget.items.where((item) {
+          return widget.itemLabel(item).toLowerCase().contains(query);
+        }).toList();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('Выберите'),
+      content: SizedBox(
+        width: double.maxFinite,
+        height: 400,
+        child: Column(
+          children: [
+            TextField(
+              controller: searchController,
+              decoration: InputDecoration(
+                labelText: 'Поиск',
+                prefixIcon: Icon(Icons.search),
+              ),
+            ),
+            SizedBox(height: 12),
+            Expanded(
+              child: filteredItems.isEmpty
+                  ? Center(child: Text('Не найдено'))
+                  : ListView.builder(
+                itemCount: filteredItems.length,
+                itemBuilder: (_, index) {
+                  final item = filteredItems[index];
+                  final isSelected = selectedItems.contains(item);
+                  return CheckboxListTile(
+                    value: isSelected,
+                    title: Text(widget.itemLabel(item)),
+                    onChanged: (checked) {
+                      setState(() {
+                        if (checked == true) {
+                          selectedItems.add(item);
+                        } else {
+                          selectedItems.remove(item);
+                        }
+                      });
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(null),
+          child: Text('Отмена'),
+        ),
+        ElevatedButton(
+          onPressed: () => Navigator.of(context).pop(selectedItems),
+          child: Text('Выбрать'),
+        ),
+      ],
+    );
+  }
+}
+
 class AddCourseDialog extends StatefulWidget {
   final VoidCallback onCourseAdded;
   final List<Group> groups;
@@ -369,6 +470,8 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                   },
                                 ),
                               // Привязка преподавателя
+
+
                               Text("Привязать преподавателя",
                                   style: TextStyle(color: Color(0xFF6B7280), fontSize: 15)),
                               const SizedBox(height: 18),
@@ -376,7 +479,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                 onTap: () async {
                                   final selected = await showDialog<List<MyUser>>(
                                     context: context,
-                                    builder: (_) => MultiSelectDialog(
+                                    builder: (_) => MultiSelectDialog<MyUser>(
                                       items: widget.teachers,
                                       initiallySelected: selectedTeachers,
                                       itemLabel: (user) => user.username,
@@ -519,3 +622,4 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
     );
   }
 }
+
