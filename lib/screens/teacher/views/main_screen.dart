@@ -521,10 +521,6 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                         selectedGroupId = groupId;
                       });
 
-                      print(
-                          'айди выбранной дисциплины ${disciplines[selectedDisciplineIndex!].id}');
-                      print('Выбрана группа с ID: $selectedGroupId');
-
                       context.read<JournalBloc>().add(
                             LoadSessions(
                               disciplineId:
@@ -603,6 +599,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                   final session = filteredSessions.firstWhere(
                     (s) => '${s.date} ${s.sessionType} ${s.id}' == toUpdate,
                   );
+                  String formattedDate = "${_selectedDate?.year}-${_selectedDate?.month.toString().padLeft(2, '0')}-${_selectedDate?.day.toString().padLeft(2, '0')}";
 
                   parentContext
                       .read<JournalBloc>()
@@ -612,51 +609,31 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                       groupId: selectedGroupId!,
                       sessionId: session.id,
                       date: _selectedDate != null
-                          ? "${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}"
+                          ? formattedDate
                           : null,
                       sessionType: _selectedEventType,
                     ),
                   );
 
-                  // bool success = await journalRepository.updateSession(
-                  //   id: session.id,
-                  //   type: _selectedEventType,
-                  //   date: _selectedDate != null
-                  //       ? "${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}"
-                  //       : null,
-                  // );
-
                   setState(() {
                     _selectedColumnIndex = null;
                   });
 
-                  // if (success) {
-                  //   context = parentContext;
-                  //   context.read<JournalBloc>().add(LoadSessions(
-                  //         disciplineId:
-                  //             disciplines[selectedDisciplineIndex!].id,
-                  //         groupId: selectedGroupId!,
-                  //       ));
-                  // }
                 } else {
                   if (_selectedDate != null && _selectedEventType != null) {
-                    final journalRepository = JournalRepository();
                     String formattedDate =
                         "${_selectedDate?.year}-${_selectedDate?.month.toString().padLeft(2, '0')}-${_selectedDate?.day.toString().padLeft(2, '0')}";
 
-                    await journalRepository.addSession(
-                      type: _selectedEventType!,
-                      date: formattedDate,
-                      disciplineId: disciplines[selectedDisciplineIndex!].id,
-                      groupId: selectedGroupId!,
+                    parentContext
+                        .read<JournalBloc>()
+                        .add(
+                      AddSession(
+                        disciplineId: disciplines[selectedDisciplineIndex!].id,
+                        groupId: selectedGroupId!,
+                        date: formattedDate,
+                        sessionType: _selectedEventType!,
+                      ),
                     );
-
-                    context = parentContext;
-                    context.read<JournalBloc>().add(LoadSessions(
-                          disciplineId:
-                              disciplines[selectedDisciplineIndex!].id,
-                          groupId: selectedGroupId!,
-                        ));
                   }
                 }
               },

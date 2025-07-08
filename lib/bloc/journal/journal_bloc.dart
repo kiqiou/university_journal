@@ -63,14 +63,12 @@ class JournalBloc extends Bloc<JournalEvent, JournalState> {
 
   Future<void> _onAddSession(AddSession event, Emitter<JournalState> emit) async {
     try {
-      final newSession = await journalRepository.addSession(
+      await journalRepository.addSession(
         type: event.sessionType,
         date: event.date,
         disciplineId: event.disciplineId,
         groupId: event.groupId,
       );
-
-      if (newSession == null) throw Exception('Сессия не была создана');
 
       await _reloadSessions(event.disciplineId, event.groupId, emit);
     } catch (e) {
