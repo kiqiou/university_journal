@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -50,15 +48,11 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
   List<MyUser> students = [];
   List<Discipline> disciplines = [];
 
-  Future<Map<String, dynamic>>? journalDataFuture;
-
   final List<Map<String, String>> lessonTypeOptions = [
     {'key': 'lecture', 'label': 'Лекция'},
     {'key': 'seminar', 'label': 'Семинар'},
     {'key': 'practice', 'label': 'Практика'},
     {'key': 'lab', 'label': 'Лабораторная'},
-    {'key': 'current', 'label': 'Текущая аттестация'},
-    {'key': 'final', 'label': 'Промежуточная аттестация'},
   ];
 
   @override
@@ -72,25 +66,6 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
     });
   }
 
-  Future<Map<String, dynamic>> loadJournalData(int groupId) async {
-    final userRepository = UserRepository();
-    final journalRepository = JournalRepository();
-
-    final studentsFuture = userRepository.getStudentsByGroupList(groupId);
-    final sessionsFuture = journalRepository.journalData(
-      disciplineId: disciplines[selectedDisciplineIndex!].id,
-      groupId: groupId,
-    );
-
-    final students = await studentsFuture;
-    final sessions = await sessionsFuture;
-
-    return {
-      'students': students ?? [],
-      'sessions': sessions ?? [],
-    };
-  }
-
   void loadTeacherDisciplines() {
     final authState = context.read<AuthenticationBloc>().state;
 
@@ -101,18 +76,6 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
         isLoading = false;
       });
     }
-  }
-
-  void _updateSessions(List<Session> newSessions) {
-    setState(() {
-      sessions = newSessions;
-    });
-
-    final filtered = selectedSessionsType == 'Все'
-        ? sessions
-        : sessions.where((s) => s.sessionType == selectedSessionsType).toList();
-
-    tableKey.currentState?.updateDataSource(filtered, students);
   }
 
   void _filterBySessionType(String type) {
@@ -181,378 +144,407 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => JournalBloc(
-          journalRepository: JournalRepository(),
-          userRepository: UserRepository())
-        ..add(
-          LoadSessions(
-            disciplineId: disciplines[selectedDisciplineIndex!].id,
-            groupId: selectedGroupId!,
-          ),
-        ),
-      child: Scaffold(
-        body: Stack(
-          children: [
-            Row(
+        journalRepository: JournalRepository(),
+        userRepository: UserRepository(),
+      ),
+      child: Builder(
+        builder: (context) {
+          return Scaffold(
+            body: Stack(
               children: [
-                SideNavigationMenu(
-                  onSelectType: _filterBySessionType,
-                  onProfileTap: _showAccountScreen,
-                  onThemeTap: _showThemeScreen,
-                  onToggle: () {
-                    setState(() {
-                      isMenuExpanded = !isMenuExpanded;
-                    });
-                  },
-                  isExpanded: isMenuExpanded,
-                  showGroupSelect: showDisciplineAndGroupSelect,
-                  onGroupSelect: () async {
-                    setState(() {
-                      showDisciplineAndGroupSelect = true;
-                      isLoading = true;
-                    });
-                    loadTeacherDisciplines();
-                    setState(() {
-                      isLoading = false;
-                    });
-                  },
-                ),
-                SizedBox(width: 30),
-                Expanded(
-                  child: Builder(
-                    builder: (context) {
-                      switch (currentScreen) {
-                        case TeacherContentScreen.account:
-                          return const AccountScreen();
-                        case TeacherContentScreen.theme:
-                          return BlocBuilder<JournalBloc, JournalState>(
-                            builder: (context, state) {
-                              if (state is JournalLoading) {
-                                return const Center(
-                                    child: CircularProgressIndicator());
-                              } else if (state is JournalLoaded) {
-                                final sessions = state.sessions;
-
-                                return ThemeTable(
-                                  sessions: sessions,
-                                  onUpdate:
-                                      (sessionId, date, type, topic) async {
-                                    final repository = JournalRepository();
-                                    final success =
-                                        await repository.updateSession(
-                                      id: sessionId,
-                                      date: date,
-                                      type: type,
-                                      topic: topic,
-                                    );
-
-                                    if (!success) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                            content: Text(
-                                                'Не удалось обновить данные')),
-                                      );
-                                    }
-                                    return success;
-                                  },
-                                  isEditable: true,
-                                  onTopicChanged: () {
-                                    context.read<JournalBloc>().add(
-                                          LoadSessions(
-                                            disciplineId: disciplines[
-                                                    selectedDisciplineIndex!]
-                                                .id,
-                                            groupId: selectedGroupId!,
-                                          ),
-                                        );
-                                  },
-                                );
-                              } else if (state is JournalError) {
-                                return Center(
-                                    child: Text('Ошибка: ${state.message}'));
-                              } else {
-                                return const SizedBox();
-                              }
-                            },
-                          );
-                        case TeacherContentScreen.journal:
-                          return selectedGroupId != null
-                              ? BlocBuilder<JournalBloc, JournalState>(
-                                  builder: (context, state) {
-                                    if (state is JournalLoading) {
-                                      return const Center(
-                                          child: CircularProgressIndicator());
-                                    } else if (state is JournalError) {
-                                      return Center(
-                                          child:
-                                              Text('Ошибка: ${state.message}'));
-                                    } else if (state is JournalLoaded) {
-
-                                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                                        setState(() {
-                                          sessions = state.sessions;
-                                          students = state.students;
-
-                                          filteredSessions = selectedSessionsType == 'Все'
-                                              ? sessions
-                                              : sessions.where((s) => s.sessionType == selectedSessionsType).toList();
-                                        });
-                                      });
-
-                                      return GestureDetector(
-                                        behavior: HitTestBehavior.opaque,
-                                        onTap: () {
-                                          setState(() {
-                                            _selectedColumnIndex = null;
-                                          });
-                                        },
-                                        child: Column(
-                                          children: [
-                                            const SizedBox(height: 40),
-                                            Row(
-                                              children: [
-                                                Text(
-                                                  selectedSessionsType == 'Все'
-                                                      ? 'Журнал'
-                                                      : selectedSessionsType,
-                                                  style: TextStyle(
-                                                    color: Colors.grey.shade800,
-                                                    fontSize: 20,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                                if (selectedSessionsType !=
-                                                    'Все')
-                                                  Padding(
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                      horizontal: 20,
-                                                      vertical: 8,
-                                                    ),
-                                                    child: Row(
-                                                      children: [
-                                                        Text(
-                                                          _buildSessionStatsText(),
-                                                          style: TextStyle(
-                                                            fontSize: 16,
-                                                            color: Colors
-                                                                .grey.shade700,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                const Spacer(),
-                                                if (_selectedColumnIndex !=
-                                                    null) ...[
-                                                  SessionButton(
-                                                    onChange: () {
-                                                      final filteredSessions =
-                                                          selectedSessionsType ==
-                                                                  'Все'
-                                                              ? sessions
-                                                              : sessions
-                                                                  .where((s) =>
-                                                                      s.sessionType ==
-                                                                      selectedSessionsType)
-                                                                  .toList();
-
-                                                      final dates =
-                                                          extractUniqueDateTypes(
-                                                              filteredSessions);
-                                                      final toRemove = dates[
-                                                          _selectedColumnIndex!];
-
-                                                      final session =
-                                                          filteredSessions
-                                                              .firstWhere((s) =>
-                                                                  '${s.date} ${s.sessionType} ${s.id}' ==
-                                                                  toRemove);
-
-                                                      context
-                                                          .read<JournalBloc>()
-                                                          .add(DeleteSession(
-                                                              sessionId: session.id,
-                                                              disciplineId: disciplines[selectedDisciplineIndex!].id,
-                                                              groupId: selectedGroupId!));
-                                                      context.read<JournalBloc>().add(LoadSessions(
-                                                        disciplineId: disciplines[selectedDisciplineIndex!].id,
-                                                        groupId: selectedGroupId!,
-                                                            ),
-                                                          );
-
-                                                      setState(() {
-                                                        _selectedColumnIndex =
-                                                            null;
-                                                      });
-                                                    },
-                                                    buttonName:
-                                                        'Удалить занятие',
-                                                  ),
-                                                  SessionButton(
-                                                    onChange: () {
-                                                      final filteredSessions =
-                                                          selectedSessionsType ==
-                                                                  'Все'
-                                                              ? sessions
-                                                              : sessions
-                                                                  .where((s) =>
-                                                                      s.sessionType ==
-                                                                      selectedSessionsType)
-                                                                  .toList();
-
-                                                      final dates =
-                                                          extractUniqueDateTypes(
-                                                              filteredSessions);
-                                                      final toEdit = dates[
-                                                          _selectedColumnIndex!];
-
-                                                      final session =
-                                                          filteredSessions
-                                                              .firstWhere((s) =>
-                                                                  '${s.date} ${s.sessionType} ${s.id}' ==
-                                                                  toEdit);
-
-                                                      _showAddEventDialog(
-                                                        context,
-                                                        true,
-                                                        dateToEdit: DateFormat(
-                                                                'dd.MM.yyyy')
-                                                            .parse(
-                                                                session.date),
-                                                        typeToEdit:
-                                                            session.sessionType,
-                                                      );
-                                                    },
-                                                    buttonName:
-                                                        'Редактировать занятие',
-                                                  ),
-                                                ],
-                                                SessionButton(
-                                                  onChange: () =>
-                                                      _showAddEventDialog(
-                                                          context, false),
-                                                  buttonName:
-                                                      'Добавить занятие',
-                                                ),
-                                              ],
-                                            ),
-                                            const SizedBox(height: 40),
-                                            Expanded(
-                                              child: JournalTable(
-                                                key: tableKey,
-                                                students: students,
-                                                sessions: filteredSessions,
-                                                isEditable: true,
-                                                isLoading: false,
-                                                token: token,
-                                                selectedColumnIndex:
-                                                    _selectedColumnIndex,
-                                                onColumnSelected: (int index) {
-                                                  setState(() {
-                                                    _selectedColumnIndex =
-                                                        index;
-                                                  });
-                                                },
-                                                onSessionsChanged:
-                                                    (updatedSessions) {
-                                                  // Лучше не обновлять напрямую, а отправить событие
-                                                  print(
-                                                      'Сессии изменились: $updatedSessions');
-                                                },
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    }
-
-                                    return const SizedBox();
-                                  },
-                                )
-                              : const Center(child: Text('Выберите группу'));
-                      }
-                    },
-                  ),
-                ),
-              ],
-            ),
-            isMenuExpanded
-                ? Positioned(
-                    top: 40,
-                    left: 220,
-                    child: GestureDetector(
-                      onTap: () {
+                Row(
+                  children: [
+                    SideNavigationMenu(
+                      onSelectType: _filterBySessionType,
+                      onProfileTap: _showAccountScreen,
+                      onThemeTap: _showThemeScreen,
+                      onToggle: () {
                         setState(() {
                           isMenuExpanded = !isMenuExpanded;
                         });
                       },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(blurRadius: 4, color: Colors.black26)
-                          ],
-                        ),
-                        padding: EdgeInsets.all(20),
-                        child: Icon(
-                          Icons.arrow_back_ios,
-                          color: Colors.grey.shade500,
-                          size: 20,
-                        ),
+                      isExpanded: isMenuExpanded,
+                      showGroupSelect: showDisciplineAndGroupSelect,
+                      onGroupSelect: () async {
+                        setState(() {
+                          showDisciplineAndGroupSelect = true;
+                          isLoading = true;
+                        });
+                        loadTeacherDisciplines();
+                        setState(() {
+                          isLoading = false;
+                        });
+                      },
+                    ),
+                    SizedBox(width: 30),
+                    Expanded(
+                      child: Builder(
+                        builder: (context) {
+                          switch (currentScreen) {
+                            case TeacherContentScreen.account:
+                              return const AccountScreen();
+                            case TeacherContentScreen.theme:
+                              return BlocBuilder<JournalBloc, JournalState>(
+                                builder: (context, state) {
+                                  if (state is JournalLoading) {
+                                    return const Center(
+                                        child: CircularProgressIndicator());
+                                  } else if (state is JournalLoaded) {
+                                    final sessions = state.sessions;
+
+                                    return ThemeTable(
+                                      sessions: sessions,
+                                      onUpdate:
+                                          (sessionId, date, type, topic) async {
+                                        final repository = JournalRepository();
+                                        final success =
+                                            await repository.updateSession(
+                                          id: sessionId,
+                                          date: date,
+                                          type: type,
+                                          topic: topic,
+                                        );
+
+                                        if (!success) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                                content: Text(
+                                                    'Не удалось обновить данные')),
+                                          );
+                                        }
+                                        return success;
+                                      },
+                                      isEditable: true,
+                                      onTopicChanged: () {
+                                        context.read<JournalBloc>().add(
+                                              LoadSessions(
+                                                disciplineId: disciplines[
+                                                        selectedDisciplineIndex!]
+                                                    .id,
+                                                groupId: selectedGroupId!,
+                                              ),
+                                            );
+                                      },
+                                    );
+                                  } else if (state is JournalError) {
+                                    return Center(
+                                        child:
+                                            Text('Ошибка: ${state.message}'));
+                                  } else {
+                                    return const SizedBox();
+                                  }
+                                },
+                              );
+                            case TeacherContentScreen.journal:
+                              return BlocBuilder<JournalBloc, JournalState>(
+                                builder: (context, state) {
+                                  if (selectedGroupId == null) {
+                                    return const Center(
+                                        child: Text('Выберите группу'));
+                                  }
+
+                                  if (state is JournalLoading) {
+                                    return const Center(
+                                        child: CircularProgressIndicator());
+                                  }
+
+                                  if (state is JournalError) {
+                                    return Center(
+                                        child:
+                                            Text('Ошибка: ${state.message}'));
+                                  }
+
+                                  if (state is JournalLoaded) {
+                                    WidgetsBinding.instance
+                                        .addPostFrameCallback((_) {
+                                      setState(() {
+                                        sessions = state.sessions;
+                                        students = state.students;
+
+                                        filteredSessions =
+                                            selectedSessionsType == 'Все'
+                                                ? sessions
+                                                : sessions
+                                                    .where((s) =>
+                                                        s.sessionType ==
+                                                        selectedSessionsType)
+                                                    .toList();
+                                      });
+                                    });
+
+                                    return GestureDetector(
+                                      behavior: HitTestBehavior.opaque,
+                                      onTap: () {
+                                        setState(() {
+                                          _selectedColumnIndex = null;
+                                        });
+                                      },
+                                      child: Column(
+                                        children: [
+                                          const SizedBox(height: 40),
+                                          Row(
+                                            children: [
+                                              Text(
+                                                selectedSessionsType == 'Все'
+                                                    ? 'Журнал'
+                                                    : selectedSessionsType,
+                                                style: TextStyle(
+                                                  color: Colors.grey.shade800,
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              if (selectedSessionsType != 'Все')
+                                                Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                    horizontal: 20,
+                                                    vertical: 8,
+                                                  ),
+                                                  child: Row(
+                                                    children: [
+                                                      Text(
+                                                        _buildSessionStatsText(),
+                                                        style: TextStyle(
+                                                          fontSize: 16,
+                                                          color: Colors
+                                                              .grey.shade700,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              const Spacer(),
+                                              if (_selectedColumnIndex !=
+                                                  null) ...[
+                                                SessionButton(
+                                                  onChange: () {
+                                                    final filteredSessions =
+                                                        selectedSessionsType ==
+                                                                'Все'
+                                                            ? sessions
+                                                            : sessions
+                                                                .where((s) =>
+                                                                    s.sessionType ==
+                                                                    selectedSessionsType)
+                                                                .toList();
+
+                                                    final dates =
+                                                        extractUniqueDateTypes(
+                                                            filteredSessions);
+                                                    final toRemove = dates[
+                                                        _selectedColumnIndex!];
+
+                                                    final session = filteredSessions
+                                                        .firstWhere((s) =>
+                                                            '${s.date} ${s.sessionType} ${s.id}' ==
+                                                            toRemove);
+
+                                                    context
+                                                        .read<JournalBloc>()
+                                                        .add(DeleteSession(
+                                                            sessionId:
+                                                                session.id,
+                                                            disciplineId:
+                                                                disciplines[
+                                                                        selectedDisciplineIndex!]
+                                                                    .id,
+                                                            groupId:
+                                                                selectedGroupId!));
+
+                                                    context
+                                                        .read<JournalBloc>()
+                                                        .add(
+                                                          LoadSessions(
+                                                            disciplineId:
+                                                                disciplines[
+                                                                        selectedDisciplineIndex!]
+                                                                    .id,
+                                                            groupId:
+                                                                selectedGroupId!,
+                                                          ),
+                                                        );
+
+                                                    setState(() {
+                                                      _selectedColumnIndex =
+                                                          null;
+                                                    });
+                                                  },
+                                                  buttonName: 'Удалить занятие',
+                                                ),
+                                                SessionButton(
+                                                  onChange: () {
+                                                    final filteredSessions =
+                                                        selectedSessionsType ==
+                                                                'Все'
+                                                            ? sessions
+                                                            : sessions
+                                                                .where((s) =>
+                                                                    s.sessionType ==
+                                                                    selectedSessionsType)
+                                                                .toList();
+
+                                                    final dates =
+                                                        extractUniqueDateTypes(
+                                                            filteredSessions);
+                                                    final toEdit = dates[
+                                                        _selectedColumnIndex!];
+
+                                                    final session = filteredSessions
+                                                        .firstWhere((s) =>
+                                                            '${s.date} ${s.sessionType} ${s.id}' ==
+                                                            toEdit);
+
+                                                    _showAddEventDialog(
+                                                      context,
+                                                      true,
+                                                      dateToEdit: DateFormat(
+                                                              'dd.MM.yyyy')
+                                                          .parse(session.date),
+                                                      typeToEdit:
+                                                          session.sessionType,
+                                                    );
+                                                  },
+                                                  buttonName:
+                                                      'Редактировать занятие',
+                                                ),
+                                              ],
+                                              SessionButton(
+                                                onChange: () =>
+                                                    _showAddEventDialog(
+                                                        context, false),
+                                                buttonName: 'Добавить занятие',
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 40),
+                                          Expanded(
+                                            child: JournalTable(
+                                              key: tableKey,
+                                              students: students,
+                                              sessions: filteredSessions,
+                                              isEditable: true,
+                                              isLoading: false,
+                                              token: token,
+                                              selectedColumnIndex:
+                                                  _selectedColumnIndex,
+                                              onColumnSelected: (int index) {
+                                                setState(() {
+                                                  _selectedColumnIndex = index;
+                                                });
+                                              },
+                                              onSessionsChanged:
+                                                  (updatedSessions) {
+                                                context
+                                                    .read<JournalBloc>()
+                                                    .add(LoadSessions(
+                                                      disciplineId: disciplines[
+                                                              selectedDisciplineIndex!]
+                                                          .id,
+                                                      groupId: selectedGroupId!,
+                                                    ));
+                                                print(
+                                                    'Сессии изменились: $updatedSessions');
+                                              },
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }
+
+                                  return const SizedBox.shrink();
+                                },
+                              );
+                          }
+                        },
                       ),
                     ),
-                  )
-                : SizedBox(),
-            if (showDisciplineAndGroupSelect)
-              GroupSelectDialog(
-                showGroupSelect: true,
-                show: showDisciplineAndGroupSelect,
-                disciplines: disciplines,
-                selectedDisciplineIndex: selectedDisciplineIndex,
-                selectedGroupId: selectedGroupId,
-                formKey: _formKey,
-                onDisciplineChanged: (value) {
-                  setState(() {
-                    selectedDisciplineIndex = value;
-                  });
-                },
-                onGroupChanged: (value) {
-                  setState(() {
-                    selectedGroupId = value;
-                  });
-                  print('Выбрана группа с ID: $value');
-                },
-                onClose: () {
-                  setState(() {
-                    showDisciplineAndGroupSelect = false;
-                  });
-                },
-                onSubmit: (groupId) async {
-                  setState(() {
-                    showDisciplineAndGroupSelect = false;
-                    isLoading = true;
-                    journalDataFuture = loadJournalData(groupId);
-                  });
+                  ],
+                ),
+                isMenuExpanded
+                    ? Positioned(
+                        top: 40,
+                        left: 220,
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              isMenuExpanded = !isMenuExpanded;
+                            });
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(blurRadius: 4, color: Colors.black26)
+                              ],
+                            ),
+                            padding: EdgeInsets.all(20),
+                            child: Icon(
+                              Icons.arrow_back_ios,
+                              color: Colors.grey.shade500,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      )
+                    : SizedBox(),
+                if (showDisciplineAndGroupSelect)
+                  GroupSelectDialog(
+                    showGroupSelect: true,
+                    show: showDisciplineAndGroupSelect,
+                    disciplines: disciplines,
+                    selectedDisciplineIndex: selectedDisciplineIndex,
+                    selectedGroupId: selectedGroupId,
+                    formKey: _formKey,
+                    onDisciplineChanged: (value) {
+                      setState(() {
+                        selectedDisciplineIndex = value;
+                      });
+                    },
+                    onGroupChanged: (value) {
+                      setState(() {
+                        selectedGroupId = value;
+                      });
+                    },
+                    onClose: () {
+                      setState(() {
+                        showDisciplineAndGroupSelect = false;
+                      });
+                    },
+                    onSubmit: (groupId) async {
+                      setState(() {
+                        showDisciplineAndGroupSelect = false;
+                        isLoading = true;
+                        selectedGroupId = groupId;
+                      });
 
-                  final data = await journalDataFuture!;
-                  setState(() {
-                    students = data['students'] as List<MyUser>;
-                    sessions = data['sessions'] as List<Session>;
-                    isLoading = false;
-                  });
+                      print(
+                          'айди выбранной дисциплины ${disciplines[selectedDisciplineIndex!].id}');
+                      print('Выбрана группа с ID: $selectedGroupId');
 
-                  return data;
-                },
-              ),
-          ],
-        ),
+                      context.read<JournalBloc>().add(
+                            LoadSessions(
+                              disciplineId:
+                                  disciplines[selectedDisciplineIndex!].id,
+                              groupId: groupId,
+                            ),
+                          );
+                    },
+                  ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
 
-  void _showAddEventDialog(BuildContext parentContext, bool isEditing, {
+  void _showAddEventDialog(
+    BuildContext parentContext,
+    bool isEditing, {
     DateTime? dateToEdit,
     String? typeToEdit,
   }) async {
@@ -592,7 +584,9 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                   final journalRepository = JournalRepository();
                   final filteredSessions = selectedSessionsType == 'Все'
                       ? sessions
-                      : sessions.where((s) => s.sessionType == selectedSessionsType).toList();
+                      : sessions
+                          .where((s) => s.sessionType == selectedSessionsType)
+                          .toList();
                   final dates = extractUniqueDateTypes(filteredSessions);
                   final toRemove = dates[_selectedColumnIndex!];
                   final session = filteredSessions.firstWhere(
@@ -613,9 +607,9 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
 
                   if (success) {
                     context = parentContext;
-                    context.read<JournalBloc>().add(
-                        LoadSessions(
-                          disciplineId: disciplines[selectedDisciplineIndex!].id,
+                    context.read<JournalBloc>().add(LoadSessions(
+                          disciplineId:
+                              disciplines[selectedDisciplineIndex!].id,
                           groupId: selectedGroupId!,
                         ));
                   }
@@ -633,9 +627,9 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                     );
 
                     context = parentContext;
-                    context.read<JournalBloc>().add(
-                        LoadSessions(
-                          disciplineId: disciplines[selectedDisciplineIndex!].id,
+                    context.read<JournalBloc>().add(LoadSessions(
+                          disciplineId:
+                              disciplines[selectedDisciplineIndex!].id,
                           groupId: selectedGroupId!,
                         ));
                   }

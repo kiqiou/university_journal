@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../bloc/journal/journal_bloc.dart';
 import '../../../bloc/services/discipline/models/discipline.dart';
 import '../../../bloc/services/discipline/models/discipline_plan.dart';
 import '../../../bloc/services/discipline/discipline_repository.dart';
@@ -355,17 +357,10 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
                 setState(() {
                   showGroupSelect = false;
                   isLoading = true;
-                  journalDataFuture = loadJournalData(groupId);
+                  context.read<JournalBloc>().add(LoadSessions(
+                    disciplineId: disciplines[selectedDisciplineIndex!].id,
+                    groupId: selectedGroupId!,));
                 });
-
-                final data = await journalDataFuture!;
-                setState(() {
-                  students = data['students'] as List<MyUser>;
-                  sessions = data['sessions'] as List<Session>;
-                  isLoading = false;
-                });
-
-                return data;
               }, showGroupSelect: true,
             ),
         ],

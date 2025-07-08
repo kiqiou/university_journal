@@ -12,7 +12,7 @@ class GroupSelectDialog extends StatelessWidget {
   final void Function(int?) onDisciplineChanged;
   final void Function(int?)? onGroupChanged;
   final void Function() onClose;
-  final Future<Map<String, dynamic>> Function(int groupId) onSubmit;
+  final Future<void> Function(int groupId) onSubmit;
 
   const GroupSelectDialog({
     super.key,
@@ -159,11 +159,11 @@ class GroupSelectDialog extends StatelessWidget {
 
                                 try {
                                   await onSubmit(selectedGroupId!);
-                                } catch (_) {
+                                } catch (e) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
+                                    SnackBar(
                                         content:
-                                            Text('Ошибка при загрузке данных')),
+                                            Text('Ошибка при загрузке данных: $e')),
                                   );
                                 }
                               },
