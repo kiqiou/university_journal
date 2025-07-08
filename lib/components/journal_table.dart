@@ -428,7 +428,7 @@ List<String> extractUniqueDateTypes(List<Session> sessions) {
   final Set<String> dateTypes = {};
 
   for (var session in sessions) {
-    dateTypes.add('${session.date} ${session.sessionType} ${session.id}');
+    dateTypes.add('${session.date} ${session.type} ${session.id}');
   }
   final sorted = dateTypes.toList()..sort((a, b) => a.compareTo(b));
 
@@ -447,7 +447,7 @@ Map<String, Map<String, Session>> groupSessionsByStudent(
 
   for (var session in sessions) {
     final studentName = session.student.username;
-    final dateTypeKey = '${session.date} ${session.sessionType} ${session.id}';
+    final dateTypeKey = '${session.date} ${session.type} ${session.id}';
     result.putIfAbsent(studentName, () => {});
     result[studentName]![dateTypeKey] = session;
   }

@@ -9,7 +9,7 @@ class Session {
   final int disciplineId;
   final String? disciplineName;
   final String date;
-  final String sessionType;
+  final String type;
   final MyUser student;
   String? topic;
 
@@ -21,7 +21,7 @@ class Session {
   Session({
     required this.disciplineId,
     required this.date,
-    required this.sessionType,
+    required this.type,
     required this.grade,
     required this.student,
     required this.status,
@@ -49,7 +49,7 @@ class Session {
       disciplineId: json['journal']['course']['id'] ?? 0,
       disciplineName: json['journal']['course']['name'],
       date: formattedDate,
-      sessionType: json['journal']['type'] ?? '',
+      type: json['journal']['type'] ?? '',
       student: MyUser(
         username: json['student']['username'] ?? '',
         role: json['student']['role']['role'] ?? '',
@@ -62,6 +62,34 @@ class Session {
       updatedAt: json['updated_at'] != null
           ? DateTime.tryParse(json['updated_at'])
           : null,
+    );
+  }
+
+  Session copyWith({
+    int? id,
+    int? disciplineId,
+    String? disciplineName,
+    String? date,
+    String? type,
+    MyUser? student,
+    String? topic,
+    String? status,
+    String? grade,
+    String? modifiedByUsername,
+    DateTime? updatedAt,
+  }) {
+    return Session(
+      id: id ?? this.id,
+      disciplineId: disciplineId ?? this.disciplineId,
+      disciplineName: disciplineName ?? this.disciplineName,
+      date: date ?? this.date,
+      type: type ?? this.type,
+      student: student ?? this.student,
+      topic: topic ?? this.topic,
+      status: status ?? this.status,
+      grade: grade ?? this.grade,
+      modifiedByUsername: modifiedByUsername ?? this.modifiedByUsername,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 }

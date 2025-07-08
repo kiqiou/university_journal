@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
 
 import '../services/journal/journal_repository.dart';
@@ -63,14 +64,25 @@ class JournalBloc extends Bloc<JournalEvent, JournalState> {
 
   Future<void> _onAddSession(AddSession event, Emitter<JournalState> emit) async {
     try {
-      await journalRepository.addSession(
-        type: event.sessionType,
+      final newSession = await journalRepository.addSession(
+        type: event.type,
         date: event.date,
         disciplineId: event.disciplineId,
         groupId: event.groupId,
       );
 
-      await _reloadSessions(event.disciplineId, event.groupId, emit);
+      if (state is JournalLoaded && newSession != null) {
+        final current = state as JournalLoaded;
+
+        final updatedSessions = List<Session>.from(current.sessions)..add(newSession);
+
+        emit(JournalLoaded(
+          sessions: updatedSessions,
+          students: current.students,
+        ));
+      } else {
+        await _reloadSessions(event.disciplineId, event.groupId, emit);
+      }
     } catch (e) {
       emit(JournalError('Ошибка при добавлении: $e'));
     }
@@ -81,12 +93,41 @@ class JournalBloc extends Bloc<JournalEvent, JournalState> {
       final success = await journalRepository.updateSession(
         id: event.sessionId,
         date: event.date,
-        type: event.sessionType,
+        type: event.type,
         topic: event.topic,
       );
+
       if (!success) throw Exception('Ошибка обновления');
 
-      await _reloadSessions(event.disciplineId, event.groupId, emit);
+      if (state is JournalLoaded) {
+        final current = state as JournalLoaded;
+        String? rawDate = event.date;
+        String? formattedDate;
+        try {
+          final parsedDate = DateTime.parse(rawDate!);
+          formattedDate = DateFormat('dd.MM.yyyy').format(parsedDate);
+        } catch (e) {
+          formattedDate = rawDate;
+        }
+
+        final updatedSessions = current.sessions.map((s) {
+          if (s.id == event.sessionId) {
+            return s.copyWith(
+              date: formattedDate,
+              type: event.type,
+              topic: event.topic,
+            );
+          }
+          return s;
+        }).toList();
+
+        emit(JournalLoaded(
+          sessions: updatedSessions,
+          students: current.students,
+        ));
+      } else {
+        await _reloadSessions(event.disciplineId, event.groupId, emit);
+      }
     } catch (e) {
       emit(JournalError('Ошибка при обновлении: $e'));
     }
@@ -97,10 +138,22 @@ class JournalBloc extends Bloc<JournalEvent, JournalState> {
       final success = await journalRepository.deleteSession(sessionId: event.sessionId);
       if (!success) throw Exception('Ошибка удаления');
 
-      await _reloadSessions(event.disciplineId, event.groupId, emit);
+      if (state is JournalLoaded) {
+        final current = state as JournalLoaded;
+
+        final updatedSessions = current.sessions
+            .where((s) => s.id != event.sessionId)
+            .toList();
+
+        emit(JournalLoaded(
+          sessions: updatedSessions,
+          students: current.students,
+        ));
+      } else {
+        await _reloadSessions(event.disciplineId, event.groupId, emit);
+      }
     } catch (e) {
       emit(JournalError('Ошибка при удалении: $e'));
     }
   }
-
 }

@@ -85,7 +85,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
 
       filteredSessions = type == 'Все'
           ? sessions
-          : sessions.where((s) => s.sessionType == type).toList();
+          : sessions.where((s) => s.type == type).toList();
     });
   }
 
@@ -116,7 +116,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
 
     final actualSessions = sessions
         .where((s) =>
-            s.sessionType.toLowerCase() == selectedSessionsType.toLowerCase())
+            s.type.toLowerCase() == selectedSessionsType.toLowerCase())
         .fold<Map<int, Session>>({}, (map, session) {
           map[session.id] = session;
           return map;
@@ -267,7 +267,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                                 ? sessions
                                                 : sessions
                                                     .where((s) =>
-                                                        s.sessionType ==
+                                                        s.type ==
                                                         selectedSessionsType)
                                                     .toList();
                                       });
@@ -326,7 +326,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                                             ? sessions
                                                             : sessions
                                                                 .where((s) =>
-                                                                    s.sessionType ==
+                                                                    s.type ==
                                                                     selectedSessionsType)
                                                                 .toList();
 
@@ -338,7 +338,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
 
                                                     final session = filteredSessions
                                                         .firstWhere((s) =>
-                                                            '${s.date} ${s.sessionType} ${s.id}' ==
+                                                            '${s.date} ${s.type} ${s.id}' ==
                                                             toRemove);
 
                                                     context
@@ -352,19 +352,6 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                                                     .id,
                                                             groupId:
                                                                 selectedGroupId!));
-
-                                                    context
-                                                        .read<JournalBloc>()
-                                                        .add(
-                                                          LoadSessions(
-                                                            disciplineId:
-                                                                disciplines[
-                                                                        selectedDisciplineIndex!]
-                                                                    .id,
-                                                            groupId:
-                                                                selectedGroupId!,
-                                                          ),
-                                                        );
 
                                                     setState(() {
                                                       _selectedColumnIndex =
@@ -381,7 +368,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                                             ? sessions
                                                             : sessions
                                                                 .where((s) =>
-                                                                    s.sessionType ==
+                                                                    s.type ==
                                                                     selectedSessionsType)
                                                                 .toList();
 
@@ -393,7 +380,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
 
                                                     final session = filteredSessions
                                                         .firstWhere((s) =>
-                                                            '${s.date} ${s.sessionType} ${s.id}' ==
+                                                            '${s.date} ${s.type} ${s.id}' ==
                                                             toEdit);
 
                                                     _showAddEventDialog(
@@ -403,7 +390,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                                               'dd.MM.yyyy')
                                                           .parse(session.date),
                                                       typeToEdit:
-                                                          session.sessionType,
+                                                          session.type,
                                                     );
                                                   },
                                                   buttonName:
@@ -436,14 +423,6 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                               },
                                               onSessionsChanged:
                                                   (updatedSessions) {
-                                                context
-                                                    .read<JournalBloc>()
-                                                    .add(LoadSessions(
-                                                      disciplineId: disciplines[
-                                                              selectedDisciplineIndex!]
-                                                          .id,
-                                                      groupId: selectedGroupId!,
-                                                    ));
                                                 print(
                                                     'Сессии изменились: $updatedSessions');
                                               },
@@ -592,14 +571,13 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                   final filteredSessions = selectedSessionsType == 'Все'
                       ? sessions
                       : sessions
-                          .where((s) => s.sessionType == selectedSessionsType)
+                          .where((s) => s.type == selectedSessionsType)
                           .toList();
                   final dates = extractUniqueDateTypes(filteredSessions);
                   final toUpdate = dates[_selectedColumnIndex!];
                   final session = filteredSessions.firstWhere(
-                    (s) => '${s.date} ${s.sessionType} ${s.id}' == toUpdate,
+                    (s) => '${s.date} ${s.type} ${s.id}' == toUpdate,
                   );
-                  String formattedDate = "${_selectedDate?.year}-${_selectedDate?.month.toString().padLeft(2, '0')}-${_selectedDate?.day.toString().padLeft(2, '0')}";
 
                   parentContext
                       .read<JournalBloc>()
@@ -609,9 +587,9 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                       groupId: selectedGroupId!,
                       sessionId: session.id,
                       date: _selectedDate != null
-                          ? formattedDate
+                          ? "${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}"
                           : null,
-                      sessionType: _selectedEventType,
+                      type: _selectedEventType,
                     ),
                   );
 
@@ -631,7 +609,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                         disciplineId: disciplines[selectedDisciplineIndex!].id,
                         groupId: selectedGroupId!,
                         date: formattedDate,
-                        sessionType: _selectedEventType!,
+                        type: _selectedEventType!,
                       ),
                     );
                   }

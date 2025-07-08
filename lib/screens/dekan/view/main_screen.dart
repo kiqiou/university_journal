@@ -98,7 +98,7 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
 
     final filtered = type == 'Все'
         ? sessions
-        : sessions.where((s) => s.sessionType == type).toList();
+        : sessions.where((s) => s.type == type).toList();
 
     tableKey.currentState?.updateDataSource(filtered, students);
   }
@@ -129,7 +129,7 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
     final plannedHours = planItem?.hoursAllocated ?? 0;
 
     final actualSessions = sessions
-        .where((s) => s.sessionType.toLowerCase() == selectedSessionsType.toLowerCase())
+        .where((s) => s.type.toLowerCase() == selectedSessionsType.toLowerCase())
         .fold<Map<int, Session>>({}, (map, session) {
       map[session.id] = session;
       return map;
@@ -139,7 +139,7 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
 
     print('Total sessions matching type "$selectedSessionsType": ${actualSessions.length}');
     for (var s in actualSessions) {
-      print(' - ${s.sessionType} (${s.date})');
+      print(' - ${s.type} (${s.date})');
     }
 
     final conductedHours = actualSessions.length * 2;
@@ -266,7 +266,7 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
                                           ? sessions
                                           : sessions
                                           .where((s) =>
-                                      s.sessionType ==
+                                      s.type ==
                                           selectedSessionsType)
                                           .toList();
                                     });

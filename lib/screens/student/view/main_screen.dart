@@ -113,7 +113,7 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
 
     final filtered = type == 'Все'
         ? sessions
-        : sessions.where((s) => s.sessionType == type).toList();
+        : sessions.where((s) => s.type == type).toList();
 
     tableKey.currentState?.updateDataSource(filtered, students);
   }
@@ -145,20 +145,13 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
 
     final actualSessions = sessions
         .where((s) =>
-    s.sessionType.toLowerCase() == selectedSessionsType.toLowerCase())
+    s.type.toLowerCase() == selectedSessionsType.toLowerCase())
         .fold<Map<int, Session>>({}, (map, session) {
       map[session.id] = session;
       return map;
     })
         .values
         .toList();
-
-    print(
-        'Total sessions matching type "$selectedSessionsType": ${actualSessions
-            .length}');
-    for (var s in actualSessions) {
-      print(' - ${s.sessionType} (${s.date})');
-    }
 
     final conductedHours = actualSessions.length * 2;
 
@@ -284,7 +277,7 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
                                           ? sessions
                                           : sessions
                                           .where((s) =>
-                                      s.sessionType ==
+                                      s.type ==
                                           selectedSessionsType)
                                           .toList();
                                     });

@@ -151,7 +151,7 @@ class _ThemeTableState extends State<ThemeTable> {
                     padding: const EdgeInsets.all(8.0),
                     child: Center(
                       child: Text(
-                        session.sessionType,
+                        session.type,
                         textAlign: TextAlign.center,
                       ),
                     ),
