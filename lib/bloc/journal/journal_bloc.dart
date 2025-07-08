@@ -64,15 +64,15 @@ class JournalBloc extends Bloc<JournalEvent, JournalState> {
   Future<void> _onAddSession(AddSession event, Emitter<JournalState> emit) async {
     try {
       final newSession = await journalRepository.addSession(
-        type: event.session.sessionType,
-        date: event.session.date,
-        disciplineId: event.session.disciplineId,
+        type: event.sessionType,
+        date: event.date,
+        disciplineId: event.disciplineId,
         groupId: event.groupId,
       );
 
       if (newSession == null) throw Exception('Сессия не была создана');
 
-      await _reloadSessions(event.session.disciplineId, event.groupId, emit);
+      await _reloadSessions(event.disciplineId, event.groupId, emit);
     } catch (e) {
       emit(JournalError('Ошибка при добавлении: $e'));
     }
@@ -81,14 +81,14 @@ class JournalBloc extends Bloc<JournalEvent, JournalState> {
   Future<void> _onUpdateSession(UpdateSession event, Emitter<JournalState> emit) async {
     try {
       final success = await journalRepository.updateSession(
-        id: event.session.id,
-        date: event.session.date,
-        type: event.session.sessionType,
-        topic: event.session.topic,
+        id: event.sessionId,
+        date: event.date,
+        type: event.sessionType,
+        topic: event.topic,
       );
       if (!success) throw Exception('Ошибка обновления');
 
-      await _reloadSessions(event.session.disciplineId, event.groupId, emit);
+      await _reloadSessions(event.disciplineId, event.groupId, emit);
     } catch (e) {
       emit(JournalError('Ошибка при обновлении: $e'));
     }

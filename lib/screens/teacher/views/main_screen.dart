@@ -543,12 +543,24 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
   }
 
   void _showAddEventDialog(
-    BuildContext parentContext,
-    bool isEditing, {
-    DateTime? dateToEdit,
-    String? typeToEdit,
-  }) async {
-    _selectedDate ??= DateTime.now();
+      BuildContext parentContext,
+      bool isEditing, {
+        DateTime? dateToEdit,
+        String? typeToEdit,
+      }) async {
+
+    if (!isEditing && _selectedDate == null) {
+      _selectedDate = DateTime.now();
+    }
+
+    if (isEditing && dateToEdit != null) {
+      _selectedDate = dateToEdit;
+    }
+
+    if (isEditing && typeToEdit != null) {
+      _selectedEventType = typeToEdit;
+    }
+
     await showDialog<bool>(
       context: parentContext,
       builder: (BuildContext context) {
@@ -581,38 +593,51 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
               },
               onSavePressed: () async {
                 if (isEditing) {
-                  final journalRepository = JournalRepository();
                   final filteredSessions = selectedSessionsType == 'Все'
                       ? sessions
                       : sessions
                           .where((s) => s.sessionType == selectedSessionsType)
                           .toList();
                   final dates = extractUniqueDateTypes(filteredSessions);
-                  final toRemove = dates[_selectedColumnIndex!];
+                  final toUpdate = dates[_selectedColumnIndex!];
                   final session = filteredSessions.firstWhere(
-                    (s) => '${s.date} ${s.sessionType} ${s.id}' == toRemove,
+                    (s) => '${s.date} ${s.sessionType} ${s.id}' == toUpdate,
                   );
 
-                  bool success = await journalRepository.updateSession(
-                    id: session.id,
-                    type: _selectedEventType,
-                    date: _selectedDate != null
-                        ? "${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}"
-                        : null,
+                  parentContext
+                      .read<JournalBloc>()
+                      .add(
+                    UpdateSession(
+                      disciplineId: disciplines[selectedDisciplineIndex!].id,
+                      groupId: selectedGroupId!,
+                      sessionId: session.id,
+                      date: _selectedDate != null
+                          ? "${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}"
+                          : null,
+                      sessionType: _selectedEventType,
+                    ),
                   );
+
+                  // bool success = await journalRepository.updateSession(
+                  //   id: session.id,
+                  //   type: _selectedEventType,
+                  //   date: _selectedDate != null
+                  //       ? "${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}"
+                  //       : null,
+                  // );
 
                   setState(() {
                     _selectedColumnIndex = null;
                   });
 
-                  if (success) {
-                    context = parentContext;
-                    context.read<JournalBloc>().add(LoadSessions(
-                          disciplineId:
-                              disciplines[selectedDisciplineIndex!].id,
-                          groupId: selectedGroupId!,
-                        ));
-                  }
+                  // if (success) {
+                  //   context = parentContext;
+                  //   context.read<JournalBloc>().add(LoadSessions(
+                  //         disciplineId:
+                  //             disciplines[selectedDisciplineIndex!].id,
+                  //         groupId: selectedGroupId!,
+                  //       ));
+                  // }
                 } else {
                   if (_selectedDate != null && _selectedEventType != null) {
                     final journalRepository = JournalRepository();

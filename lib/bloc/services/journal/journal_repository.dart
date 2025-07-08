@@ -107,34 +107,6 @@ class JournalRepository {
     }
   }
 
-  Future<bool> updateSession({
-    required int id,
-    String? date,
-    String? type,
-    String? topic,
-  }) async {
-    final Map<String, dynamic> body = {};
-    if (date != null) body['date'] = date;
-    if (type != null) body['type'] = type;
-    if (topic != null) body['topic'] = topic;
-
-    final response = await http.patch(
-      Uri.parse('http://127.0.0.1:8000/api/update_session/$id/'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode(body),
-    );
-
-    if (response.statusCode == 200) {
-      print('✅ Занятие обновлено');
-      return true;
-    } else {
-      print('❌ Ошибка обновления занятия: ${response.body}');
-      return false;
-    }
-  }
-
   Future<Session?> addSession({
     required String type,
     required String date,
@@ -168,6 +140,34 @@ class JournalRepository {
     } catch (e) {
       print('❌ Ошибка соединения: $e');
       return null;
+    }
+  }
+
+  Future<bool> updateSession({
+    required int id,
+    String? date,
+    String? type,
+    String? topic,
+  }) async {
+    final Map<String, dynamic> body = {};
+    if (date != null) body['date'] = date;
+    if (type != null) body['type'] = type;
+    if (topic != null) body['topic'] = topic;
+
+    final response = await http.patch(
+      Uri.parse('http://127.0.0.1:8000/api/update_session/$id/'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(body),
+    );
+
+    if (response.statusCode == 200) {
+      print('✅ Занятие обновлено');
+      return true;
+    } else {
+      print('❌ Ошибка обновления занятия: ${response.body}');
+      return false;
     }
   }
 
