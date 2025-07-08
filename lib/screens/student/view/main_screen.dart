@@ -38,6 +38,7 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
   int? selectedGroupId;
   String selectedSessionsType = 'Все';
   List<Session> sessions = [];
+  List<Session> filteredSessions = [];
   List<MyUser> students = [];
   List<MyUser> teachers = [];
   List<Discipline> disciplines = [];
@@ -56,7 +57,9 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
   @override
   void initState() {
     super.initState();
-    final authState = context.read<AuthenticationBloc>().state;
+    final authState = context
+        .read<AuthenticationBloc>()
+        .state;
     isHeadman = authState.user!.isHeadman;
     selectedGroupId = authState.user!.groupId;
 
@@ -68,13 +71,13 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
     });
   }
 
-
   Future<Map<String, dynamic>> loadJournalData() async {
     final userRepository = UserRepository();
     final journalRepository = JournalRepository();
     print('$selectedGroupId');
 
-    final students = await userRepository.getStudentsByGroupList(selectedGroupId!);
+    final students =
+    await userRepository.getStudentsByGroupList(selectedGroupId!);
     final sessions = await journalRepository.journalData(
       disciplineId: disciplines[selectedDisciplineIndex!].id,
       groupId: selectedGroupId!,
@@ -121,7 +124,7 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
     final currentDiscipline = disciplines[selectedDisciplineIndex!];
 
     final selectedTypeMap = lessonTypeOptions.firstWhere(
-      (type) => type['label'] == selectedSessionsType,
+          (type) => type['label'] == selectedSessionsType,
       orElse: () => {},
     );
 
@@ -132,7 +135,7 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
     PlanItem? planItem;
     try {
       planItem = currentDiscipline.planItems.firstWhere(
-        (item) => item.type.toLowerCase() == selectedKey.toLowerCase(),
+            (item) => item.type.toLowerCase() == selectedKey.toLowerCase(),
       );
     } catch (_) {
       planItem = null;
@@ -141,7 +144,8 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
     final plannedHours = planItem?.hoursAllocated ?? 0;
 
     final actualSessions = sessions
-        .where((s) => s.sessionType.toLowerCase() == selectedSessionsType.toLowerCase())
+        .where((s) =>
+    s.sessionType.toLowerCase() == selectedSessionsType.toLowerCase())
         .fold<Map<int, Session>>({}, (map, session) {
       map[session.id] = session;
       return map;
@@ -149,7 +153,9 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
         .values
         .toList();
 
-    print('Total sessions matching type "$selectedSessionsType": ${actualSessions.length}');
+    print(
+        'Total sessions matching type "$selectedSessionsType": ${actualSessions
+            .length}');
     for (var s in actualSessions) {
       print(' - ${s.sessionType} (${s.date})');
     }
@@ -167,123 +173,162 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          Row(
+    return BlocProvider(
+      create: (context) =>
+          JournalBloc(
+            journalRepository: JournalRepository(),
+            userRepository: UserRepository(),
+          ),
+      child: Builder(builder: (context) {
+        return Scaffold(
+          body: Stack(
             children: [
-              SideNavigationMenu(
-                onSelectType: _filterBySessionType,
-                onProfileTap: () {},
-                onThemeTap: _showThemeScreen,
-                onToggle: () {
-                  setState(() {
-                    isMenuExpanded = !isMenuExpanded;
-                  });
-                },
-                isExpanded: isMenuExpanded,
-                showGroupSelect: showDisciplineSelect,
-                onGroupSelect: () async {
-                  setState(() {
-                    showDisciplineSelect = true;
-                    isLoading = true;
-                  });
-                  loadDisciplines();
-                  setState(() {
-                    isLoading = false;
-                  });
-                },
-              ),
-              SizedBox(width: 30),
-              Expanded(
-                child: Builder(
-                  builder: (context) {
-                    switch (currentScreen) {
-                      case StudentContentScreen.theme:
-                        return ThemeTable(
-                          sessions: sessions,
-                          onUpdate: (sessionId, date, type, topic) async {
-                            final repository = JournalRepository();
-                            final success = await repository.updateSession(
-                              id: sessionId,
-                              date: date,
-                              type: type,
-                              topic: topic,
+              Row(
+                children: [
+                  SideNavigationMenu(
+                    onSelectType: _filterBySessionType,
+                    onProfileTap: () {},
+                    onThemeTap: _showThemeScreen,
+                    onToggle: () {
+                      setState(() {
+                        isMenuExpanded = !isMenuExpanded;
+                      });
+                    },
+                    isExpanded: isMenuExpanded,
+                    showGroupSelect: showDisciplineSelect,
+                    onGroupSelect: () async {
+                      setState(() {
+                        showDisciplineSelect = true;
+                        isLoading = true;
+                      });
+                      loadDisciplines();
+                      setState(() {
+                        isLoading = false;
+                      });
+                    },
+                  ),
+                  SizedBox(width: 30),
+                  Expanded(
+                    child: Builder(
+                      builder: (context) {
+                        switch (currentScreen) {
+                          case StudentContentScreen.theme:
+                            return BlocBuilder<JournalBloc, JournalState>(
+                              builder: (context, state) {
+                                if (state is JournalLoading) {
+                                  return const Center(
+                                      child: CircularProgressIndicator());
+                                } else if (state is JournalLoaded) {
+                                  final sessions = state.sessions;
+                                  return ThemeTable(
+                                    sessions: sessions,
+                                    onUpdate:
+                                        (sessionId, date, type, topic) async {
+                                      final repository = JournalRepository();
+                                      final success =
+                                      await repository.updateSession(
+                                        id: sessionId,
+                                        date: date,
+                                        type: type,
+                                        topic: topic,
+                                      );
+
+                                      if (!success) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                              content: Text(
+                                                  'Не удалось обновить данные')),
+                                        );
+                                      }
+                                      return success;
+                                    },
+                                    isEditable: false,
+                                  );
+                                } else if (state is JournalError) {
+                                  return Center(
+                                      child: Text('Ошибка: ${state.message}'));
+                                } else {
+                                  return const SizedBox();
+                                }
+                              },
                             );
+                          case StudentContentScreen.journal:
+                            return BlocBuilder<JournalBloc, JournalState>(
+                              builder: (context, state) {
+                                if (selectedGroupId == null) {
+                                  return const Center(
+                                      child: Text('Выберите группу'));
+                                }
 
-                            if (!success) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content:
-                                        Text('Не удалось обновить данные')),
-                              );
-                            }
-                            return success;
-                          },
-                          isEditable: false,
-                        );
-                      case StudentContentScreen.journal:
-                        return selectedDisciplineIndex != null
-                            ? Scaffold(
-                                body: Column(
-                                  children: [
-                                    SizedBox(
-                                      height: 40,
-                                    ),
-                                    Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                        selectedSessionsType == 'Все'
-                                            ? 'Журнал'
-                                            : selectedSessionsType,
-                                        style: TextStyle(
-                                            color: Colors.grey.shade800,
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
-                                    if (selectedSessionsType != 'Все') ...[
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 20, vertical: 8),
-                                        child: Row(
-                                          children: [
-                                            Text(
-                                              _buildSessionStatsText(),
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                color: Colors.grey.shade700,
-                                              ),
-                                            ),
-                                          ],
+                                if (state is JournalLoading) {
+                                  return const Center(
+                                      child: CircularProgressIndicator());
+                                }
+
+                                if (state is JournalError) {
+                                  return Center(
+                                      child:
+                                      Text('Ошибка: ${state.message}'));
+                                }
+
+                                if (state is JournalLoaded) {
+                                  WidgetsBinding.instance
+                                      .addPostFrameCallback((_) {
+                                    setState(() {
+                                      sessions = state.sessions;
+                                      students = state.students;
+
+                                      filteredSessions =
+                                      selectedSessionsType == 'Все'
+                                          ? sessions
+                                          : sessions
+                                          .where((s) =>
+                                      s.sessionType ==
+                                          selectedSessionsType)
+                                          .toList();
+                                    });
+                                  });
+
+                                  return Scaffold(
+                                    body: Column(
+                                      children: [
+                                        SizedBox(
+                                          height: 40,
                                         ),
-                                      ),
-                                    ],
-                                    SizedBox(
-                                      height: 40,
-                                    ),
-                                    FutureBuilder<Map<String, dynamic>>(
-                                      future: journalDataFuture,
-                                      builder: (context, snapshot) {
-                                        if (snapshot.connectionState ==
-                                            ConnectionState.waiting) {
-                                          return Center(
-                                              child:
-                                              CircularProgressIndicator());
-                                        }
-                                        if (snapshot.hasError) {
-                                          return Center(
-                                              child: Text('Ошибка загрузки'));
-                                        }
-                                        if (!snapshot.hasData) {
-                                          return Center(
-                                              child: Text('Нет данных'));
-                                        }
-
-                                        final students = snapshot
-                                            .data!['students'] as List<MyUser>;
-
-                                        return Expanded(
+                                        Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            selectedSessionsType == 'Все'
+                                                ? 'Журнал'
+                                                : selectedSessionsType,
+                                            style: TextStyle(
+                                                color: Colors.grey.shade800,
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                        if (selectedSessionsType != 'Все') ...[
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 20, vertical: 8),
+                                            child: Row(
+                                              children: [
+                                                Text(
+                                                  _buildSessionStatsText(),
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    color: Colors.grey.shade700,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                        SizedBox(
+                                          height: 40,
+                                        ),
+                                        Expanded(
                                           child: JournalTable(
                                             key: tableKey,
                                             students: students,
@@ -292,7 +337,8 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
                                             isLoading: false,
                                             token: token,
                                             isHeadman: isHeadman,
-                                            onColumnSelected: (int index) {},
+                                            onColumnSelected:
+                                                (int index) {},
                                             onSessionsChanged:
                                                 (updatedSessions) {
                                               print(
@@ -302,77 +348,86 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
                                                   selectedSessionsType);
                                             },
                                           ),
-                                        );
-                                      },
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                              )
-                            : Center(child: Text('Выберите дисциплину'));
-                    }
-                  },
-                ),
-              ),
-            ],
-          ),
-          isMenuExpanded
-              ? Positioned(
-                  top: 40,
-                  left: 220,
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        isMenuExpanded = !isMenuExpanded;
-                      });
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(blurRadius: 4, color: Colors.black26)
-                        ],
-                      ),
-                      padding: EdgeInsets.all(20),
-                      child: Icon(
-                        Icons.arrow_back_ios,
-                        color: Colors.grey.shade500,
-                        size: 20,
-                      ),
+                                  );
+                                }
+
+                                return const SizedBox.shrink();
+                              },
+                            );
+                        }
+                      },
                     ),
                   ),
-                )
-              : SizedBox(),
-          if (showDisciplineSelect)
-            GroupSelectDialog(
-              show: showDisciplineSelect,
-              disciplines: disciplines,
-              selectedDisciplineIndex: selectedDisciplineIndex,
-              selectedGroupId: selectedGroupId,
-              showGroupSelect: false,
-              formKey: _formKey,
-              onDisciplineChanged: (value) {
-                setState(() {
-                  selectedDisciplineIndex = value;
-                });
-              },
-              onClose: () {
-                setState(() {
-                  showDisciplineSelect = false;
-                });
-              },
-              onSubmit: (groupId) async {
-                setState(() {
-                  showDisciplineSelect = false;
-                  isLoading = true;
-                  context.read<JournalBloc>().add(LoadSessions(
-                    disciplineId: disciplines[selectedDisciplineIndex!].id,
-                    groupId: selectedGroupId!,));
-                });
-              },
-            ),
-        ],
-      ),
+                ],
+              ),
+              isMenuExpanded
+                  ? Positioned(
+                top: 40,
+                left: 220,
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      isMenuExpanded = !isMenuExpanded;
+                    });
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(blurRadius: 4, color: Colors.black26)
+                      ],
+                    ),
+                    padding: EdgeInsets.all(20),
+                    child: Icon(
+                      Icons.arrow_back_ios,
+                      color: Colors.grey.shade500,
+                      size: 20,
+                    ),
+                  ),
+                ),
+              )
+                  : SizedBox(),
+              if (showDisciplineSelect)
+                GroupSelectDialog(
+                  showGroupSelect: false,
+                  show: showDisciplineSelect,
+                  disciplines: disciplines,
+                  selectedDisciplineIndex: selectedDisciplineIndex,
+                  selectedGroupId: selectedGroupId,
+                  formKey: _formKey,
+                  onDisciplineChanged: (value) {
+                    setState(() {
+                      selectedDisciplineIndex = value;
+                    });
+                  },
+                  onClose: () {
+                    setState(() {
+                      showDisciplineSelect = false;
+                    });
+                  },
+                  onSubmit: (groupId) async {
+                    setState(() {
+                      showDisciplineSelect = false;
+                      isLoading = true;
+                    });
+
+                    context.read<JournalBloc>().add(
+                      LoadSessions(
+                        disciplineId:
+                        disciplines[selectedDisciplineIndex!].id,
+                        groupId: groupId,
+                      ),
+                    );
+                  },
+                ),
+            ],
+          ),
+        );
+      }),
     );
   }
 }
