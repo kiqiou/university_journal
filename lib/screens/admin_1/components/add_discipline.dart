@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 
 import '../../../../components/colors/colors.dart';
+import '../../../components/constants/constants.dart';
 import '../../../components/widgets/multiselect.dart';
 import '../../../bloc/services/discipline/models/discipline.dart';
 import '../../../bloc/services/discipline/discipline_repository.dart';
@@ -30,6 +31,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
   final TextEditingController lectureHoursController = TextEditingController();
   final TextEditingController labHoursController = TextEditingController();
   final Map<String, TextEditingController> hoursControllers = {};
+  Map<String, bool> isGroupSplitPerType = {};
   final List<Discipline> disciplines = [];
   List<MyUser> selectedTeachers = [];
   List<Group> selectedGroups = [];
@@ -39,15 +41,6 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
   String? selectedLessonType;
   MyUser? selectedTeacher;
   Group? selectedGroup;
-
-  final List<Map<String, String>> lessonTypeOptions = [
-    {'key': 'lecture', 'label': 'Лекции'},
-    {'key': 'seminar', 'label': 'Семинар'},
-    {'key': 'practice', 'label': 'Практика'},
-    {'key': 'lab', 'label': 'Лабораторные'},
-    {'key': 'current', 'label': 'Текущая аттестация'},
-    {'key': 'final', 'label': 'Промежуточная аттестация'},
-  ];
 
   @override
   void initState() {
@@ -127,11 +120,13 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                         .map((key) {
                                       final allocatedHours = int.tryParse(hoursControllers[key]!.text) ?? 0;
                                       final hoursPerSession = 2;
+                                      final isSplit = isGroupSplitPerType[key] ?? false;
 
                                       return {
                                         'type': key,
                                         'hours_allocated': allocatedHours,
                                         'hours_per_session': hoursPerSession,
+                                        'is_group_split': isSplit,
                                       };
                                     }).toList();
 
@@ -207,7 +202,6 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Название дисциплины
                               Text(
                                 'Название дисциплины*',
                                 style: TextStyle(
@@ -249,8 +243,6 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                         : null,
                               ),
                               const SizedBox(height: 24),
-
-                              // Виды занятий
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -272,10 +264,11 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                           onTap: () {
                                             setState(() {
                                               if (isSelected) {
-                                                selectedTypes
-                                                    .remove(type['key']);
+                                                selectedTypes.remove(type['key']);
+                                                isGroupSplitPerType.remove(type['key']);
                                               } else {
                                                 selectedTypes.add(type['key']!);
+                                                isGroupSplitPerType[type['key']!] = false;
                                               }
                                             });
                                           },
@@ -444,6 +437,36 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                                         }
                                                         return null;
                                                       },
+                                                    ),
+                                                    const SizedBox(height: 15),
+                                                    Row(
+                                                      children: [
+                                                        Transform.scale(
+                                                          scale: 1.5,
+                                                          child: Checkbox(
+                                                            value: isGroupSplitPerType[typeKey] ?? false,
+                                                            onChanged: (bool? value) {
+                                                              setState(() {
+                                                                isGroupSplitPerType[typeKey] = value ?? false;
+                                                              });
+                                                            },
+                                                            shape: RoundedRectangleBorder(
+                                                              borderRadius: BorderRadius.circular(6),
+                                                            ),
+                                                            activeColor: MyColors.blueJournal,
+                                                            side: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                                          ),
+                                                        ),
+                                                        const SizedBox(width: 8),
+                                                        Expanded(
+                                                          child: Text(
+                                                            'Разделение на подгруппы',
+                                                            style: TextStyle(
+                                                                fontSize: 15,
+                                                                color: Colors.grey.shade700),
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
                                                   ],
                                                 ),

@@ -86,12 +86,15 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
   }
 
   void _filterBySessionType(String type) {
+    final newFilteredSessions = groupedSessions[type] ?? [];
+
     setState(() {
       selectedSessionsType = type;
       currentScreen = TeacherContentScreen.journal;
-
-      filteredSessions = groupedSessions[type] ?? [];
+      filteredSessions = newFilteredSessions;
     });
+
+    tableKey.currentState?.updateDataSource(newFilteredSessions, students);
   }
 
   String _buildSessionStatsText() {

@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../components/colors/colors.dart';
+import '../../../components/constants/constants.dart';
 import '../../../components/widgets/multiselect.dart';
 import '../../../bloc/services/discipline/models/discipline.dart';
 import '../../../bloc/services/discipline/discipline_repository.dart';
@@ -32,6 +33,7 @@ class _CoursesList extends State<CoursesList> {
   final TextEditingController lectureHoursController = TextEditingController();
   final TextEditingController labHoursController = TextEditingController();
   final Map<String, TextEditingController> hoursControllers = {};
+  Map<String, bool> isGroupSplitPerType = {};
   final List<Discipline> disciplines = [];
   List<MyUser> selectedTeachers = [];
   List<Group> selectedGroups = [];
@@ -41,15 +43,6 @@ class _CoursesList extends State<CoursesList> {
   bool showDeleteDialog = false;
   bool showEditDialog = false;
   int? selectedIndex;
-
-  final List<Map<String, String>> lessonTypeOptions = [
-    {'key': 'lecture', 'label': 'Лекции'},
-    {'key': 'seminar', 'label': 'Семинар'},
-    {'key': 'practice', 'label': 'Практика'},
-    {'key': 'lab', 'label': 'Лабораторные'},
-    {'key': 'current', 'label': 'Текущая аттестация'},
-    {'key': 'final', 'label': 'Промежуточная аттестация'},
-  ];
 
   @override
   void initState() {
@@ -145,12 +138,13 @@ class _CoursesList extends State<CoursesList> {
                                         selectedTeachers = widget.disciplines[selectedIndex!].teachers;
                                         selectedTypes.clear();
                                         hoursControllers.clear();
+                                        isGroupSplitPerType.clear();
 
-                                        // Пройтись по planItems и заполнить selectedTypes и контроллеры
                                         for (final item in widget.disciplines[selectedIndex!].planItems) {
                                           final type = item.type;
                                           selectedTypes.add(type);
                                           hoursControllers[type] = TextEditingController(text: item.hoursAllocated.toString());
+                                          isGroupSplitPerType[type] = item.isGroupSplit;
                                         }
                                       });
                                     },
@@ -202,7 +196,6 @@ class _CoursesList extends State<CoursesList> {
                               ],
                             ),
                           ),
-                          // Список преподавателей
                           Expanded(
                             child: ListView.builder(
                               itemCount: courses.length,
@@ -265,7 +258,6 @@ class _CoursesList extends State<CoursesList> {
                     ),
                   ),
                 ),
-                // Окно удаления преподавателя
 
                 if (showDeleteDialog && selectedIndex != null)
                   Positioned(
@@ -375,8 +367,6 @@ class _CoursesList extends State<CoursesList> {
                       },
                     ),
                   ),
-                // Окно редактирования информации
-
                 if (showEditDialog)
                   Positioned(
                     top: 0,
@@ -428,11 +418,13 @@ class _CoursesList extends State<CoursesList> {
                                                 .map((key) {
                                               final allocatedHours = int.tryParse(hoursControllers[key]!.text) ?? 0;
                                               final hoursPerSession = 2;
+                                              final isSplit = isGroupSplitPerType[key] ?? false;
 
                                               return {
                                                 'type': key,
                                                 'hours_allocated': allocatedHours,
                                                 'hours_per_session': hoursPerSession,
+                                                'is_group_split': isSplit,
                                               };
                                             }).toList();
 
@@ -507,8 +499,6 @@ class _CoursesList extends State<CoursesList> {
                                       ],
                                     ),
                                     const SizedBox(height: 30),
-
-                                    // Название дисциплины
                                     Text(
                                       "Название дисциплины*",
                                       style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
@@ -538,8 +528,6 @@ class _CoursesList extends State<CoursesList> {
                                       validator: (value) => value == null || value.isEmpty ? 'Обязательное поле' : null,
                                     ),
                                     const SizedBox(height: 28),
-
-                                    // Виды занятий
                                     Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
@@ -564,9 +552,11 @@ class _CoursesList extends State<CoursesList> {
                                                     if (isSelected) {
                                                       selectedTypes.remove(key);
                                                       hoursControllers.remove(key);
+                                                      isGroupSplitPerType.remove(type['key']);
                                                     } else {
                                                       selectedTypes.add(key);
                                                       hoursControllers[key] = TextEditingController();
+                                                      isGroupSplitPerType[type['key']!] = false;
                                                     }
                                                   });
                                                 },
@@ -734,6 +724,35 @@ class _CoursesList extends State<CoursesList> {
                                                               return null;
                                                             },
                                                           ),
+                                                          Row(
+                                                            children: [
+                                                              Transform.scale(
+                                                                scale: 1.5,
+                                                                child: Checkbox(
+                                                                  value: isGroupSplitPerType[typeKey] ?? false,
+                                                                  onChanged: (bool? value) {
+                                                                    setState(() {
+                                                                      isGroupSplitPerType[typeKey] = value ?? false;
+                                                                    });
+                                                                  },
+                                                                  shape: RoundedRectangleBorder(
+                                                                    borderRadius: BorderRadius.circular(6),
+                                                                  ),
+                                                                  activeColor: MyColors.blueJournal,
+                                                                  side: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                                                ),
+                                                              ),
+                                                              const SizedBox(width: 8),
+                                                              Expanded(
+                                                                child: Text(
+                                                                  'Разделение на подгруппы',
+                                                                  style: TextStyle(
+                                                                      fontSize: 15,
+                                                                      color: Colors.grey.shade700),
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
                                                         ],
                                                       ),
                                                     ),
@@ -744,7 +763,6 @@ class _CoursesList extends State<CoursesList> {
                                           ),
                                       ],
                                     ),
-                                    // Преподаватель 1
                                     Text(
                                       "Привязать преподавателя",
                                       style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
@@ -780,7 +798,7 @@ class _CoursesList extends State<CoursesList> {
                                           focusedBorder: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(12),
                                             borderSide: BorderSide(
-                                                color: Colors.grey.shade400, width: 1.5), // чуть ярче при фокусе
+                                                color: Colors.grey.shade400, width: 1.5),
                                           ),
                                           contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                                         ),
@@ -813,8 +831,6 @@ class _CoursesList extends State<CoursesList> {
                                         }).toList(),
                                       ),
                                     const SizedBox(height: 20),
-
-                                    // Группа
                                     Text(
                                       "Привязать группу",
                                       style: TextStyle(fontSize: 15, color: Colors.grey.shade700),

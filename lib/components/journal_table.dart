@@ -52,16 +52,6 @@ class JournalTableState extends State<JournalTable> {
     updateDataSource(widget.sessions, widget.students);
   }
 
-  void selectColumn(int index) {
-    setState(() {
-      columns = buildColumns(
-        sessions: _sessions,
-        selectedColumnIndex: index,
-        onHeaderTap: _onHeaderTap,
-      );
-    });
-  }
-
   void _updateCache(List<Session> sessions, List<MyUser> students) {
     if (_lastSessionList != null &&
         const DeepCollectionEquality().equals(_lastSessionList, sessions)) {
@@ -152,23 +142,20 @@ class JournalTableState extends State<JournalTable> {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedSwitcher(
-      duration: Duration(milliseconds: 400),
-      child: dataSource == null
-          ? const SizedBox.shrink()
-          : SfDataGrid(
-        key: ValueKey(dataSource),
-        gridLinesVisibility: GridLinesVisibility.none,
-        headerGridLinesVisibility: GridLinesVisibility.none,
-        source: dataSource!,
-        columns: columns,
-        headerRowHeight: 100,
-      ),
+    return dataSource == null
+        ? const CircularProgressIndicator()
+        : SfDataGrid(
+      key: ValueKey(dataSource),
+      source: dataSource!,
+      columns: columns,
+      gridLinesVisibility: GridLinesVisibility.none,
+      headerGridLinesVisibility: GridLinesVisibility.none,
+      headerRowHeight: 100,
     );
   }
 }
 
-/// Источник данных для таблицы
+  /// Источник данных для таблицы
 class JournalDataSource extends DataGridSource {
   final Future<Map<String, dynamic>?> Function(
       int sessionId, int studentId, String status, String grade)? onUpdate;
