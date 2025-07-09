@@ -39,6 +39,9 @@ class JournalTable extends StatefulWidget {
 }
 
 class JournalTableState extends State<JournalTable> {
+  Map<String, Map<String, Session>>? _cachedGrouped;
+  List<String>? _cachedDateTypes;
+  List<Session>? _lastSessionList;
   JournalDataSource? dataSource;
   List<GridColumn> columns = [];
   List<Session> _sessions = [];
@@ -49,10 +52,30 @@ class JournalTableState extends State<JournalTable> {
     updateDataSource(widget.sessions, widget.students);
   }
 
-  void updateDataSource(List<Session> sessions, List<MyUser> students) {
-    if (_sessions == sessions) return; // если данные не изменились — выходим
+  void selectColumn(int index) {
+    setState(() {
+      columns = buildColumns(
+        sessions: _sessions,
+        selectedColumnIndex: index,
+        onHeaderTap: _onHeaderTap,
+      );
+    });
+  }
 
-    final grouped = groupSessionsByStudent(sessions, students);
+  void _updateCache(List<Session> sessions, List<MyUser> students) {
+    if (_lastSessionList != null &&
+        const DeepCollectionEquality().equals(_lastSessionList, sessions)) {
+      return;
+    }
+    _cachedGrouped = groupSessionsByStudent(sessions, students);
+    _cachedDateTypes = extractUniqueDateTypes(sessions);
+    _lastSessionList = sessions;
+  }
+
+  void updateDataSource(List<Session> sessions, List<MyUser> students) {
+    _updateCache(sessions, students);
+
+    if (listEquals(_sessions, sessions)) return;
 
     final newColumns = buildColumns(
       sessions: sessions,
@@ -65,15 +88,13 @@ class JournalTableState extends State<JournalTable> {
     setState(() {
       _sessions = sessions;
 
-      extractUniqueDateTypes(sessions);
-
       if (columnsChanged) {
         columns = newColumns;
       }
 
       dataSource = JournalDataSource(
         columns,
-        grouped,
+        _cachedGrouped ?? {},
         sessions,
         widget.isEditable,
         widget.isHeadman,
@@ -131,20 +152,18 @@ class JournalTableState extends State<JournalTable> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: widget.isLoading || dataSource == null
-              ? const Center(child: CircularProgressIndicator())
-              : SfDataGrid(
-                  gridLinesVisibility: GridLinesVisibility.none,
-                  headerGridLinesVisibility: GridLinesVisibility.none,
-                  source: dataSource!,
-                  columns: columns,
-                  headerRowHeight: 100,
-                ),
-        ),
-      ],
+    return AnimatedSwitcher(
+      duration: Duration(milliseconds: 400),
+      child: dataSource == null
+          ? const SizedBox.shrink()
+          : SfDataGrid(
+        key: ValueKey(dataSource),
+        gridLinesVisibility: GridLinesVisibility.none,
+        headerGridLinesVisibility: GridLinesVisibility.none,
+        source: dataSource!,
+        columns: columns,
+        headerRowHeight: 100,
+      ),
     );
   }
 }

@@ -47,6 +47,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
   List<Session> filteredSessions = [];
   List<MyUser> students = [];
   List<Discipline> disciplines = [];
+  late Map<String, List<Session>> groupedSessions;
 
   final List<Map<String, String>> lessonTypeOptions = [
     {'key': 'lecture', 'label': 'Лекция'},
@@ -58,6 +59,12 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
   @override
   void initState() {
     super.initState();
+    groupedSessions = {
+      'Все': sessions,
+      for (final type in {'Лекция', 'Семинар', 'Практика', 'Лабораторная'})
+        type: sessions.where((s) => s.type == type).toList(),
+    };
+    filteredSessions = groupedSessions['Все']!;
     final userRepository = UserRepository();
     userRepository.getAccessToken().then((value) {
       setState(() {
@@ -83,9 +90,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
       selectedSessionsType = type;
       currentScreen = TeacherContentScreen.journal;
 
-      filteredSessions = type == 'Все'
-          ? sessions
-          : sessions.where((s) => s.type == type).toList();
+      filteredSessions = groupedSessions[type] ?? [];
     });
   }
 
