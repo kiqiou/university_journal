@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:university_journal/components/side_navigation_menu.dart';
 import 'package:university_journal/screens/teacher/components/session_button.dart';
+import 'package:university_journal/screens/teacher/views/journal_content.dart';
 
 import '../../../../bloc/auth/authentication_bloc.dart';
 import '../../../../components/journal_table.dart';
@@ -30,7 +31,7 @@ class TeacherMainScreen extends StatefulWidget {
 class _TeacherMainScreenState extends State<TeacherMainScreen> {
   final GlobalKey<JournalTableState> tableKey = GlobalKey<JournalTableState>();
   final _formKey = GlobalKey<FormState>();
-  final userRepository = UserRepository;
+  final userRepository = UserRepository();
   TeacherContentScreen currentScreen = TeacherContentScreen.journal;
 
   DateTime? _selectedDate;
@@ -59,13 +60,20 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
   @override
   void initState() {
     super.initState();
+    groupSessions();
+    getAccessToken();
+  }
+
+  void groupSessions() {
     groupedSessions = {
       'Все': sessions,
       for (final type in {'Лекция', 'Семинар', 'Практика', 'Лабораторная'})
         type: sessions.where((s) => s.type == type).toList(),
     };
     filteredSessions = groupedSessions['Все']!;
-    final userRepository = UserRepository();
+  }
+
+  void getAccessToken() {
     userRepository.getAccessToken().then((value) {
       setState(() {
         token = value;
@@ -97,43 +105,34 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
     tableKey.currentState?.updateDataSource(newFilteredSessions, students);
   }
 
+  Map<String, int> getDisciplinePlanStats(String sessionType) {
+    final discipline = disciplines[selectedDisciplineIndex!];
+
+    final typeKey = lessonTypeOptions
+        .firstWhere((t) => t['label'] == sessionType, orElse: () => {})['key'];
+
+    if (typeKey == null) return {'planned': 0, 'actual': 0};
+
+    final planItem = discipline.planItems
+        .where((item) => item.type.toLowerCase() == typeKey.toLowerCase())
+        .firstOrNull;
+
+    final actual = sessions
+        .where((s) => s.type.toLowerCase() == sessionType.toLowerCase())
+        .map((e) => e.id)
+        .toSet()
+        .length;
+
+    return {
+      'planned': planItem?.hoursAllocated ?? 0,
+      'actual': actual * 2,
+    };
+  }
+
   String _buildSessionStatsText() {
     if (selectedSessionsType == 'Все') return '';
-
-    final currentDiscipline = disciplines[selectedDisciplineIndex!];
-
-    final selectedTypeMap = lessonTypeOptions.firstWhere(
-      (type) => type['label'] == selectedSessionsType,
-      orElse: () => {},
-    );
-
-    final selectedKey = selectedTypeMap['key'];
-
-    if (selectedKey == null) return '';
-
-    PlanItem? planItem;
-    try {
-      planItem = currentDiscipline.planItems.firstWhere(
-        (item) => item.type.toLowerCase() == selectedKey.toLowerCase(),
-      );
-    } catch (_) {
-      planItem = null;
-    }
-
-    final plannedHours = planItem?.hoursAllocated ?? 0;
-
-    final actualSessions = sessions
-        .where((s) =>
-            s.type.toLowerCase() == selectedSessionsType.toLowerCase())
-        .fold<Map<int, Session>>({}, (map, session) {
-          map[session.id] = session;
-          return map;
-        })
-        .values
-        .toList();
-    final conductedHours = actualSessions.length * 2;
-
-    return '$plannedHours ч. запланировано / $conductedHours ч. проведено';
+    final stats = getDisciplinePlanStats(selectedSessionsType);
+    return '${stats['planned']} ч. запланировано / ${stats['actual']} ч. проведено';
   }
 
   void _showAccountScreen() {
@@ -248,196 +247,66 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                               return BlocBuilder<JournalBloc, JournalState>(
                                 builder: (context, state) {
                                   if (selectedGroupId == null) {
-                                    return const Center(
-                                        child: Text('Выберите группу'));
+                                    return const Center(child: Text('Выберите группу'));
                                   }
 
                                   if (state is JournalLoading) {
-                                    return const Center(
-                                        child: CircularProgressIndicator());
+                                    return const Center(child: CircularProgressIndicator());
                                   }
 
                                   if (state is JournalError) {
-                                    return Center(
-                                        child:
-                                            Text('Ошибка: ${state.message}'));
+                                    return Center(child: Text('Ошибка: ${state.message}'));
                                   }
 
                                   if (state is JournalLoaded) {
-                                    WidgetsBinding.instance
-                                        .addPostFrameCallback((_) {
+                                    WidgetsBinding.instance.addPostFrameCallback((_) {
                                       setState(() {
                                         sessions = state.sessions;
                                         students = state.students;
 
-                                        filteredSessions =
-                                            selectedSessionsType == 'Все'
-                                                ? sessions
-                                                : sessions
-                                                    .where((s) =>
-                                                        s.type ==
-                                                        selectedSessionsType)
-                                                    .toList();
+                                        filteredSessions = selectedSessionsType == 'Все'
+                                            ? sessions
+                                            : sessions
+                                            .where((s) => s.type == selectedSessionsType)
+                                            .toList();
                                       });
                                     });
 
-                                    return GestureDetector(
-                                      behavior: HitTestBehavior.opaque,
-                                      onTap: () {
+                                    return JournalContentScreen(
+                                      sessions: filteredSessions,
+                                      students: students,
+                                      selectedSessionsType: selectedSessionsType,
+                                      selectedDisciplineIndex: selectedDisciplineIndex,
+                                      selectedGroupId: selectedGroupId,
+                                      selectedColumnIndex: _selectedColumnIndex,
+                                      disciplines: disciplines,
+                                      tableKey: tableKey,
+                                      token: token,
+                                      onColumnSelected: (index) {
+                                        setState(() {
+                                          _selectedColumnIndex = index;
+                                        });
+                                      },
+                                      onDeleteSession: (session) {
+                                        context.read<JournalBloc>().add(DeleteSession(
+                                          sessionId: session.id,
+                                          disciplineId: disciplines[selectedDisciplineIndex!].id,
+                                          groupId: selectedGroupId!,
+                                        ));
                                         setState(() {
                                           _selectedColumnIndex = null;
                                         });
                                       },
-                                      child: Column(
-                                        children: [
-                                          const SizedBox(height: 40),
-                                          Row(
-                                            children: [
-                                              Text(
-                                                selectedSessionsType == 'Все'
-                                                    ? 'Журнал'
-                                                    : selectedSessionsType,
-                                                style: TextStyle(
-                                                  color: Colors.grey.shade800,
-                                                  fontSize: 20,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                              if (selectedSessionsType != 'Все')
-                                                Padding(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                    horizontal: 20,
-                                                    vertical: 8,
-                                                  ),
-                                                  child: Row(
-                                                    children: [
-                                                      Text(
-                                                        _buildSessionStatsText(),
-                                                        style: TextStyle(
-                                                          fontSize: 16,
-                                                          color: Colors
-                                                              .grey.shade700,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              const Spacer(),
-                                              if (_selectedColumnIndex !=
-                                                  null) ...[
-                                                SessionButton(
-                                                  onChange: () {
-                                                    final filteredSessions =
-                                                        selectedSessionsType ==
-                                                                'Все'
-                                                            ? sessions
-                                                            : sessions
-                                                                .where((s) =>
-                                                                    s.type ==
-                                                                    selectedSessionsType)
-                                                                .toList();
-
-                                                    final dates =
-                                                        extractUniqueDateTypes(
-                                                            filteredSessions);
-                                                    final toRemove = dates[
-                                                        _selectedColumnIndex!];
-
-                                                    final session = filteredSessions
-                                                        .firstWhere((s) =>
-                                                            '${s.date} ${s.type} ${s.id}' ==
-                                                            toRemove);
-
-                                                    context
-                                                        .read<JournalBloc>()
-                                                        .add(DeleteSession(
-                                                            sessionId:
-                                                                session.id,
-                                                            disciplineId:
-                                                                disciplines[
-                                                                        selectedDisciplineIndex!]
-                                                                    .id,
-                                                            groupId:
-                                                                selectedGroupId!));
-
-                                                    setState(() {
-                                                      _selectedColumnIndex =
-                                                          null;
-                                                    });
-                                                  },
-                                                  buttonName: 'Удалить занятие',
-                                                ),
-                                                SessionButton(
-                                                  onChange: () {
-                                                    final filteredSessions =
-                                                        selectedSessionsType ==
-                                                                'Все'
-                                                            ? sessions
-                                                            : sessions
-                                                                .where((s) =>
-                                                                    s.type ==
-                                                                    selectedSessionsType)
-                                                                .toList();
-
-                                                    final dates =
-                                                        extractUniqueDateTypes(
-                                                            filteredSessions);
-                                                    final toEdit = dates[
-                                                        _selectedColumnIndex!];
-
-                                                    final session = filteredSessions
-                                                        .firstWhere((s) =>
-                                                            '${s.date} ${s.type} ${s.id}' ==
-                                                            toEdit);
-
-                                                    _showAddEventDialog(
-                                                      context,
-                                                      true,
-                                                      dateToEdit: DateFormat(
-                                                              'dd.MM.yyyy')
-                                                          .parse(session.date),
-                                                      typeToEdit:
-                                                          session.type,
-                                                    );
-                                                  },
-                                                  buttonName:
-                                                      'Редактировать занятие',
-                                                ),
-                                              ],
-                                              SessionButton(
-                                                onChange: () =>
-                                                    _showAddEventDialog(
-                                                        context, false),
-                                                buttonName: 'Добавить занятие',
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 40),
-                                          Expanded(
-                                            child: JournalTable(
-                                              key: tableKey,
-                                              students: students,
-                                              sessions: filteredSessions,
-                                              isEditable: true,
-                                              isLoading: false,
-                                              token: token,
-                                              selectedColumnIndex:
-                                                  _selectedColumnIndex,
-                                              onColumnSelected: (int index) {
-                                                setState(() {
-                                                  _selectedColumnIndex = index;
-                                                });
-                                              },
-                                              onSessionsChanged:
-                                                  (updatedSessions) {
-                                                print(
-                                                    'Сессии изменились: $updatedSessions');
-                                              },
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                      onEditSession: (session) {
+                                        _showAddEventDialog(
+                                          context,
+                                          true,
+                                          dateToEdit: DateFormat('dd.MM.yyyy').parse(session.date),
+                                          typeToEdit: session.type,
+                                        );
+                                      },
+                                      onAddSession: () => _showAddEventDialog(context, false),
+                                      buildSessionStatsText: _buildSessionStatsText,
                                     );
                                   }
 
