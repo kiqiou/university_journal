@@ -9,11 +9,13 @@ import '../../../bloc/services/journal/journal_repository.dart';
 import '../../../bloc/services/journal/models/session.dart';
 import '../../../bloc/services/user/models/user.dart';
 import '../../../bloc/services/user/user_repository.dart';
+import '../../../components/constants/constants.dart';
 import '../../../components/journal_table.dart';
 import '../../../components/side_navigation_menu.dart';
 import '../../../components/theme_table.dart';
 import '../../../components/widgets/discipline_and_group_select.dart';
 import '../../../components/widgets/menu_arrow.dart';
+import '../../../utils/session_utils.dart';
 
 enum DeanContentScreen { journal, theme }
 
@@ -41,15 +43,6 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
   List<MyUser> students = [];
   List<MyUser> teachers = [];
   List<Discipline> disciplines = [];
-
-  final List<Map<String, String>> lessonTypeOptions = [
-    {'key': 'lecture', 'label': 'Лекция'},
-    {'key': 'seminar', 'label': 'Семинар'},
-    {'key': 'practice', 'label': 'Практика'},
-    {'key': 'lab', 'label': 'Лабораторная'},
-    {'key': 'current', 'label': 'Текущая аттестация'},
-    {'key': 'final', 'label': 'Промежуточная аттестация'},
-  ];
 
   @override
   void initState() {
@@ -90,45 +83,12 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
 
     final currentDiscipline = disciplines[selectedDisciplineIndex!];
 
-    final selectedTypeMap = lessonTypeOptions.firstWhere(
-      (type) => type['label'] == selectedSessionsType,
-      orElse: () => {},
+    return SessionUtils().buildSessionStatsText(
+      selectedType: selectedSessionsType,
+      discipline: currentDiscipline,
+      sessions: sessions,
+      lessonTypeOptions: lessonTypeOptions,
     );
-
-    final selectedKey = selectedTypeMap['key'];
-
-    if (selectedKey == null) return '';
-
-    PlanItem? planItem;
-    try {
-      planItem = currentDiscipline.planItems.firstWhere(
-        (item) => item.type.toLowerCase() == selectedKey.toLowerCase(),
-      );
-    } catch (_) {
-      planItem = null;
-    }
-
-    final plannedHours = planItem?.hoursAllocated ?? 0;
-
-    final actualSessions = sessions
-        .where(
-            (s) => s.type.toLowerCase() == selectedSessionsType.toLowerCase())
-        .fold<Map<int, Session>>({}, (map, session) {
-          map[session.id] = session;
-          return map;
-        })
-        .values
-        .toList();
-
-    print(
-        'Total sessions matching type "$selectedSessionsType": ${actualSessions.length}');
-    for (var s in actualSessions) {
-      print(' - ${s.type} (${s.date})');
-    }
-
-    final conductedHours = actualSessions.length * 2;
-
-    return '$plannedHours ч. запланировано / $conductedHours ч. проведено';
   }
 
   void _showThemeScreen() {

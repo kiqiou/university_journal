@@ -33,13 +33,13 @@ class _CoursesList extends State<CoursesList> {
   final TextEditingController lectureHoursController = TextEditingController();
   final TextEditingController labHoursController = TextEditingController();
   final Map<String, TextEditingController> hoursControllers = {};
-  Map<String, bool> isGroupSplitPerType = {};
   final List<Discipline> disciplines = [];
   List<MyUser> selectedTeachers = [];
   List<Group> selectedGroups = [];
   List<String> selectedTypes = [];
   List<String> selectedLessonTypes = [];
   bool isLoading = true;
+  bool? isGroupSplit;
   bool showDeleteDialog = false;
   bool showEditDialog = false;
   int? selectedIndex;
@@ -136,15 +136,14 @@ class _CoursesList extends State<CoursesList> {
                                         nameController.text = widget.disciplines[selectedIndex!].name;
                                         selectedGroups = widget.disciplines[selectedIndex!].groups;
                                         selectedTeachers = widget.disciplines[selectedIndex!].teachers;
+                                        isGroupSplit =  widget.disciplines[selectedIndex!].isGroupSplit;
                                         selectedTypes.clear();
                                         hoursControllers.clear();
-                                        isGroupSplitPerType.clear();
 
                                         for (final item in widget.disciplines[selectedIndex!].planItems) {
                                           final type = item.type;
                                           selectedTypes.add(type);
                                           hoursControllers[type] = TextEditingController(text: item.hoursAllocated.toString());
-                                          isGroupSplitPerType[type] = item.isGroupSplit;
                                         }
                                       });
                                     },
@@ -418,13 +417,11 @@ class _CoursesList extends State<CoursesList> {
                                                 .map((key) {
                                               final allocatedHours = int.tryParse(hoursControllers[key]!.text) ?? 0;
                                               final hoursPerSession = 2;
-                                              final isSplit = isGroupSplitPerType[key] ?? false;
 
                                               return {
                                                 'type': key,
                                                 'hours_allocated': allocatedHours,
                                                 'hours_per_session': hoursPerSession,
-                                                'is_group_split': isSplit,
                                               };
                                             }).toList();
 
@@ -445,6 +442,7 @@ class _CoursesList extends State<CoursesList> {
                                               groupIds: groupIds,
                                               planItems: planItems,
                                               appendTeachers: false,
+                                              isGroupSplit: isGroupSplit,
                                             );
 
                                             if (result) {
@@ -528,6 +526,36 @@ class _CoursesList extends State<CoursesList> {
                                       validator: (value) => value == null || value.isEmpty ? 'Обязательное поле' : null,
                                     ),
                                     const SizedBox(height: 28),
+                                    Row(
+                                      children: [
+                                        Transform.scale(
+                                          scale: 2,
+                                          child: Checkbox(
+                                            value: isGroupSplit,
+                                            onChanged: (bool? value) {
+                                              setState(() {
+                                                isGroupSplit = value;
+                                              });
+                                            },
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(6),
+                                            ),
+                                            activeColor: MyColors.blueJournal,
+                                            side: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            'Разделение на подгруппы',
+                                            style: TextStyle(
+                                                fontSize: 15,
+                                                color: Colors.grey.shade700),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 28),
                                     Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
@@ -552,11 +580,9 @@ class _CoursesList extends State<CoursesList> {
                                                     if (isSelected) {
                                                       selectedTypes.remove(key);
                                                       hoursControllers.remove(key);
-                                                      isGroupSplitPerType.remove(type['key']);
                                                     } else {
                                                       selectedTypes.add(key);
                                                       hoursControllers[key] = TextEditingController();
-                                                      isGroupSplitPerType[type['key']!] = false;
                                                     }
                                                   });
                                                 },
@@ -723,35 +749,6 @@ class _CoursesList extends State<CoursesList> {
                                                               }
                                                               return null;
                                                             },
-                                                          ),
-                                                          Row(
-                                                            children: [
-                                                              Transform.scale(
-                                                                scale: 1.5,
-                                                                child: Checkbox(
-                                                                  value: isGroupSplitPerType[typeKey] ?? false,
-                                                                  onChanged: (bool? value) {
-                                                                    setState(() {
-                                                                      isGroupSplitPerType[typeKey] = value ?? false;
-                                                                    });
-                                                                  },
-                                                                  shape: RoundedRectangleBorder(
-                                                                    borderRadius: BorderRadius.circular(6),
-                                                                  ),
-                                                                  activeColor: MyColors.blueJournal,
-                                                                  side: BorderSide(color: Colors.grey.shade400, width: 1.5),
-                                                                ),
-                                                              ),
-                                                              const SizedBox(width: 8),
-                                                              Expanded(
-                                                                child: Text(
-                                                                  'Разделение на подгруппы',
-                                                                  style: TextStyle(
-                                                                      fontSize: 15,
-                                                                      color: Colors.grey.shade700),
-                                                                ),
-                                                              ),
-                                                            ],
                                                           ),
                                                         ],
                                                       ),

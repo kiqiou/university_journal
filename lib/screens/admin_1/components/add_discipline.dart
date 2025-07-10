@@ -31,7 +31,6 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
   final TextEditingController lectureHoursController = TextEditingController();
   final TextEditingController labHoursController = TextEditingController();
   final Map<String, TextEditingController> hoursControllers = {};
-  Map<String, bool> isGroupSplitPerType = {};
   final List<Discipline> disciplines = [];
   List<MyUser> selectedTeachers = [];
   List<Group> selectedGroups = [];
@@ -41,6 +40,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
   String? selectedLessonType;
   MyUser? selectedTeacher;
   Group? selectedGroup;
+  bool isGroupSplit = false;
 
   @override
   void initState() {
@@ -98,7 +98,6 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Заголовок и кнопки
                     Row(
                       children: [
                         Expanded(
@@ -120,13 +119,11 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                         .map((key) {
                                       final allocatedHours = int.tryParse(hoursControllers[key]!.text) ?? 0;
                                       final hoursPerSession = 2;
-                                      final isSplit = isGroupSplitPerType[key] ?? false;
 
                                       return {
                                         'type': key,
                                         'hours_allocated': allocatedHours,
                                         'hours_per_session': hoursPerSession,
-                                        'is_group_split': isSplit,
                                       };
                                     }).toList();
 
@@ -143,6 +140,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                       teacherIds: teacherIds,
                                       groupIds: groupIds,
                                       planItems: planItems,
+                                          isGroupSplit: isGroupSplit,
                                     );
 
                                     if (result) {
@@ -242,7 +240,37 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                         ? 'Обязательное поле'
                                         : null,
                               ),
-                              const SizedBox(height: 24),
+                              const SizedBox(height: 28),
+                              Row(
+                                children: [
+                                  Transform.scale(
+                                    scale: 2,
+                                    child: Checkbox(
+                                      value: isGroupSplit,
+                                      onChanged: (bool? value) {
+                                        setState(() {
+                                          isGroupSplit = value ?? false;
+                                        });
+                                      },
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      activeColor: MyColors.blueJournal,
+                                      side: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      'Разделение на подгруппы',
+                                      style: TextStyle(
+                                          fontSize: 15,
+                                          color: Colors.grey.shade700),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 28),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -265,10 +293,8 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                             setState(() {
                                               if (isSelected) {
                                                 selectedTypes.remove(type['key']);
-                                                isGroupSplitPerType.remove(type['key']);
                                               } else {
                                                 selectedTypes.add(type['key']!);
-                                                isGroupSplitPerType[type['key']!] = false;
                                               }
                                             });
                                           },
@@ -439,35 +465,6 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                                       },
                                                     ),
                                                     const SizedBox(height: 15),
-                                                    Row(
-                                                      children: [
-                                                        Transform.scale(
-                                                          scale: 1.5,
-                                                          child: Checkbox(
-                                                            value: isGroupSplitPerType[typeKey] ?? false,
-                                                            onChanged: (bool? value) {
-                                                              setState(() {
-                                                                isGroupSplitPerType[typeKey] = value ?? false;
-                                                              });
-                                                            },
-                                                            shape: RoundedRectangleBorder(
-                                                              borderRadius: BorderRadius.circular(6),
-                                                            ),
-                                                            activeColor: MyColors.blueJournal,
-                                                            side: BorderSide(color: Colors.grey.shade400, width: 1.5),
-                                                          ),
-                                                        ),
-                                                        const SizedBox(width: 8),
-                                                        Expanded(
-                                                          child: Text(
-                                                            'Разделение на подгруппы',
-                                                            style: TextStyle(
-                                                                fontSize: 15,
-                                                                color: Colors.grey.shade700),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
                                                   ],
                                                 ),
                                               ),

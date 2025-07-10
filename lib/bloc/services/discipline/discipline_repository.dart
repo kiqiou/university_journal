@@ -33,6 +33,7 @@ class DisciplineRepository{
     required String name,
     required List<int> teacherIds,
     required List<int> groupIds,
+    required bool isGroupSplit,
     required List<Map<String, dynamic>> planItems,
   }) async {
     try {
@@ -46,6 +47,7 @@ class DisciplineRepository{
           'name': name,
           'teachers': teacherIds,
           'groups': groupIds,
+          'is_group_split': isGroupSplit,
           'plan_items': planItems,
         }),
       );
@@ -69,6 +71,7 @@ class DisciplineRepository{
     String? name,
     List<int>? teacherIds,
     List<int>? groupIds,
+    bool? isGroupSplit,
     required bool appendTeachers,
     List<Map<String, dynamic>>? planItems, // nullable
   }) async {
@@ -79,6 +82,7 @@ class DisciplineRepository{
       };
 
       if (name != null) body['name'] = name;
+      if(isGroupSplit != null) body['is_group_split'] = isGroupSplit;
       if (teacherIds != null) body['teachers'] = teacherIds;
       if (groupIds != null) body['groups'] = groupIds;
       if (planItems != null) body['plan_items'] = planItems;

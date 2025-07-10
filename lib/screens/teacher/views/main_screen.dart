@@ -15,7 +15,9 @@ import '../../../bloc/services/journal/journal_repository.dart';
 import '../../../bloc/services/journal/models/session.dart';
 import '../../../bloc/services/user/models/user.dart';
 import '../../../bloc/services/user/user_repository.dart';
+import '../../../components/constants/constants.dart';
 import '../../../components/widgets/discipline_and_group_select.dart';
+import '../../../utils/session_utils.dart';
 import 'account_screen.dart';
 import '../components/add_session_dialog.dart';
 import '../../../../components/theme_table.dart';
@@ -50,13 +52,6 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
   List<MyUser> students = [];
   List<Discipline> disciplines = [];
   late Map<String, List<Session>> groupedSessions;
-
-  final List<Map<String, String>> lessonTypeOptions = [
-    {'key': 'lecture', 'label': 'Лекция'},
-    {'key': 'seminar', 'label': 'Семинар'},
-    {'key': 'practice', 'label': 'Практика'},
-    {'key': 'lab', 'label': 'Лабораторная'},
-  ];
 
   @override
   void initState() {
@@ -106,34 +101,17 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
     tableKey.currentState?.updateDataSource(newFilteredSessions, students);
   }
 
-  Map<String, int> getDisciplinePlanStats(String sessionType) {
-    final discipline = disciplines[selectedDisciplineIndex!];
-
-    final typeKey = lessonTypeOptions
-        .firstWhere((t) => t['label'] == sessionType, orElse: () => {})['key'];
-
-    if (typeKey == null) return {'planned': 0, 'actual': 0};
-
-    final planItem = discipline.planItems
-        .where((item) => item.type.toLowerCase() == typeKey.toLowerCase())
-        .firstOrNull;
-
-    final actual = sessions
-        .where((s) => s.type.toLowerCase() == sessionType.toLowerCase())
-        .map((e) => e.id)
-        .toSet()
-        .length;
-
-    return {
-      'planned': planItem?.hoursAllocated ?? 0,
-      'actual': actual * 2,
-    };
-  }
-
   String _buildSessionStatsText() {
     if (selectedSessionsType == 'Все') return '';
-    final stats = getDisciplinePlanStats(selectedSessionsType);
-    return '${stats['planned']} ч. запланировано / ${stats['actual']} ч. проведено';
+
+    final currentDiscipline = disciplines[selectedDisciplineIndex!];
+
+    return SessionUtils().buildSessionStatsText(
+      selectedType: selectedSessionsType,
+      discipline: currentDiscipline,
+      sessions: sessions,
+      lessonTypeOptions: lessonTypeOptions,
+    );
   }
 
   void _showAccountScreen() {
