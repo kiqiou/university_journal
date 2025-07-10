@@ -13,6 +13,7 @@ import '../../../components/journal_table.dart';
 import '../../../components/side_navigation_menu.dart';
 import '../../../components/theme_table.dart';
 import '../../../components/widgets/discipline_and_group_select.dart';
+import '../../../components/widgets/menu_arrow.dart';
 
 enum DeanContentScreen { journal, theme }
 
@@ -55,25 +56,6 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
     super.initState();
   }
 
-  Future<Map<String, dynamic>> loadJournalData(int groupId) async {
-    final userRepository = UserRepository();
-    final journalRepository = JournalRepository();
-
-    final studentsFuture = userRepository.getStudentsByGroupList(groupId);
-    final sessionsFuture = journalRepository.journalData(
-      disciplineId: disciplines[selectedDisciplineIndex!].id,
-      groupId: groupId,
-    );
-
-    final students = await studentsFuture;
-    final sessions = await sessionsFuture;
-
-    return {
-      'students': students ?? [],
-      'sessions': sessions ?? [],
-    };
-  }
-
   Future<void> loadDisciplines() async {
     try {
       final disciplinesRepository = DisciplineRepository();
@@ -109,7 +91,7 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
     final currentDiscipline = disciplines[selectedDisciplineIndex!];
 
     final selectedTypeMap = lessonTypeOptions.firstWhere(
-          (type) => type['label'] == selectedSessionsType,
+      (type) => type['label'] == selectedSessionsType,
       orElse: () => {},
     );
 
@@ -120,7 +102,7 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
     PlanItem? planItem;
     try {
       planItem = currentDiscipline.planItems.firstWhere(
-            (item) => item.type.toLowerCase() == selectedKey.toLowerCase(),
+        (item) => item.type.toLowerCase() == selectedKey.toLowerCase(),
       );
     } catch (_) {
       planItem = null;
@@ -129,15 +111,17 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
     final plannedHours = planItem?.hoursAllocated ?? 0;
 
     final actualSessions = sessions
-        .where((s) => s.type.toLowerCase() == selectedSessionsType.toLowerCase())
+        .where(
+            (s) => s.type.toLowerCase() == selectedSessionsType.toLowerCase())
         .fold<Map<int, Session>>({}, (map, session) {
-      map[session.id] = session;
-      return map;
-    })
+          map[session.id] = session;
+          return map;
+        })
         .values
         .toList();
 
-    print('Total sessions matching type "$selectedSessionsType": ${actualSessions.length}');
+    print(
+        'Total sessions matching type "$selectedSessionsType": ${actualSessions.length}');
     for (var s in actualSessions) {
       print(' - ${s.type} (${s.date})');
     }
@@ -156,11 +140,10 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          JournalBloc(
-            journalRepository: JournalRepository(),
-            userRepository: UserRepository(),
-          ),
+      create: (context) => JournalBloc(
+        journalRepository: JournalRepository(),
+        userRepository: UserRepository(),
+      ),
       child: Builder(builder: (context) {
         return Scaffold(
           body: Stack(
@@ -208,7 +191,7 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
                                         (sessionId, date, type, topic) async {
                                       final repository = JournalRepository();
                                       final success =
-                                      await repository.updateSession(
+                                          await repository.updateSession(
                                         id: sessionId,
                                         date: date,
                                         type: type,
@@ -250,8 +233,7 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
 
                                 if (state is JournalError) {
                                   return Center(
-                                      child:
-                                      Text('Ошибка: ${state.message}'));
+                                      child: Text('Ошибка: ${state.message}'));
                                 }
 
                                 if (state is JournalLoaded) {
@@ -262,13 +244,13 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
                                       students = state.students;
 
                                       filteredSessions =
-                                      selectedSessionsType == 'Все'
-                                          ? sessions
-                                          : sessions
-                                          .where((s) =>
-                                      s.type ==
-                                          selectedSessionsType)
-                                          .toList();
+                                          selectedSessionsType == 'Все'
+                                              ? sessions
+                                              : sessions
+                                                  .where((s) =>
+                                                      s.type ==
+                                                      selectedSessionsType)
+                                                  .toList();
                                     });
                                   });
 
@@ -317,8 +299,7 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
                                             sessions: sessions,
                                             isEditable: false,
                                             isLoading: false,
-                                            onColumnSelected:
-                                                (int index) {},
+                                            onColumnSelected: (int index) {},
                                             onSessionsChanged:
                                                 (updatedSessions) {
                                               print(
@@ -344,32 +325,15 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
                 ],
               ),
               isMenuExpanded
-                  ? Positioned(
-                top: 40,
-                left: 220,
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      isMenuExpanded = !isMenuExpanded;
-                    });
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(blurRadius: 4, color: Colors.black26)
-                      ],
-                    ),
-                    padding: EdgeInsets.all(20),
-                    child: Icon(
-                      Icons.arrow_back_ios,
-                      color: Colors.grey.shade500,
-                      size: 20,
-                    ),
-                  ),
-                ),
-              )
+                  ? MenuArrow(
+                      onTap: () {
+                        setState(() {
+                          isMenuExpanded = !isMenuExpanded;
+                        });
+                      },
+                      top: 40,
+                      left: 220,
+                    )
                   : SizedBox(),
               if (showTeacherDisciplineGroupSelect)
                 GroupSelectDialog(
@@ -402,12 +366,12 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
                     });
 
                     context.read<JournalBloc>().add(
-                      LoadSessions(
-                        disciplineId:
-                        disciplines[selectedDisciplineIndex!].id,
-                        groupId: groupId,
-                      ),
-                    );
+                          LoadSessions(
+                            disciplineId:
+                                disciplines[selectedDisciplineIndex!].id,
+                            groupId: groupId,
+                          ),
+                        );
                   },
                 ),
             ],

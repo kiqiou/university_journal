@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:university_journal/components/widgets/menu_arrow.dart';
 import 'package:university_journal/screens/admin_2/components/admin_2_side_navigation_menu.dart';
 import 'package:university_journal/screens/admin_2/views/student_list.dart';
 import 'package:university_journal/screens/admin_2/views/group_list.dart';
@@ -103,40 +104,34 @@ class _Admin2MainScreenState extends State<Admin2MainScreen> {
                   builder: (context) {
                     switch (currentScreen) {
                       case Admin2ContentScreen.students:
-                        return StudentsList(students: students, loadStudents: loadStudents, groups: groups,);
+                        return StudentsList(
+                          students: students,
+                          loadStudents: loadStudents,
+                          groups: groups,
+                        );
                       case Admin2ContentScreen.groups:
-                        return GroupsList(groups: groups, loadGroups: loadGroups, students: students,);
+                        return GroupsList(
+                          groups: groups,
+                          loadGroups: loadGroups,
+                          students: students,
+                        );
                     }
                   },
                 ),
               ),
             ],
           ),
-          isMenuExpanded ?
-          Positioned(
-            top: 40,
-            left: 270,
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  isMenuExpanded = !isMenuExpanded;
-                });
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  boxShadow: [BoxShadow(blurRadius: 4, color: Colors.black26)],
-                ),
-                padding: EdgeInsets.all(20),
-                child: Icon(
-                  Icons.arrow_back_ios,
-                  color: Colors.grey.shade500,
-                  size: 20,
-                ),
-              ),
-            ),
-          ) : SizedBox(),
+          isMenuExpanded
+              ? MenuArrow(
+                  onTap: () {
+                    setState(() {
+                      isMenuExpanded = !isMenuExpanded;
+                    });
+                  },
+                  top: 40,
+                  left: 270,
+                )
+              : SizedBox(),
         ],
       ),
     );

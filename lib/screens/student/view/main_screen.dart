@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:university_journal/components/widgets/menu_arrow.dart';
 
 import '../../../bloc/auth/authentication_bloc.dart';
 import '../../../bloc/journal/journal_bloc.dart';
@@ -57,9 +58,7 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
   @override
   void initState() {
     super.initState();
-    final authState = context
-        .read<AuthenticationBloc>()
-        .state;
+    final authState = context.read<AuthenticationBloc>().state;
     isHeadman = authState.user!.isHeadman;
     selectedGroupId = authState.user!.groupId;
 
@@ -77,7 +76,7 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
     print('$selectedGroupId');
 
     final students =
-    await userRepository.getStudentsByGroupList(selectedGroupId!);
+        await userRepository.getStudentsByGroupList(selectedGroupId!);
     final sessions = await journalRepository.journalData(
       disciplineId: disciplines[selectedDisciplineIndex!].id,
       groupId: selectedGroupId!,
@@ -124,7 +123,7 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
     final currentDiscipline = disciplines[selectedDisciplineIndex!];
 
     final selectedTypeMap = lessonTypeOptions.firstWhere(
-          (type) => type['label'] == selectedSessionsType,
+      (type) => type['label'] == selectedSessionsType,
       orElse: () => {},
     );
 
@@ -135,7 +134,7 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
     PlanItem? planItem;
     try {
       planItem = currentDiscipline.planItems.firstWhere(
-            (item) => item.type.toLowerCase() == selectedKey.toLowerCase(),
+        (item) => item.type.toLowerCase() == selectedKey.toLowerCase(),
       );
     } catch (_) {
       planItem = null;
@@ -144,12 +143,12 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
     final plannedHours = planItem?.hoursAllocated ?? 0;
 
     final actualSessions = sessions
-        .where((s) =>
-    s.type.toLowerCase() == selectedSessionsType.toLowerCase())
+        .where(
+            (s) => s.type.toLowerCase() == selectedSessionsType.toLowerCase())
         .fold<Map<int, Session>>({}, (map, session) {
-      map[session.id] = session;
-      return map;
-    })
+          map[session.id] = session;
+          return map;
+        })
         .values
         .toList();
 
@@ -167,11 +166,10 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          JournalBloc(
-            journalRepository: JournalRepository(),
-            userRepository: UserRepository(),
-          ),
+      create: (context) => JournalBloc(
+        journalRepository: JournalRepository(),
+        userRepository: UserRepository(),
+      ),
       child: Builder(builder: (context) {
         return Scaffold(
           body: Stack(
@@ -219,7 +217,7 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
                                         (sessionId, date, type, topic) async {
                                       final repository = JournalRepository();
                                       final success =
-                                      await repository.updateSession(
+                                          await repository.updateSession(
                                         id: sessionId,
                                         date: date,
                                         type: type,
@@ -261,8 +259,7 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
 
                                 if (state is JournalError) {
                                   return Center(
-                                      child:
-                                      Text('Ошибка: ${state.message}'));
+                                      child: Text('Ошибка: ${state.message}'));
                                 }
 
                                 if (state is JournalLoaded) {
@@ -273,13 +270,13 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
                                       students = state.students;
 
                                       filteredSessions =
-                                      selectedSessionsType == 'Все'
-                                          ? sessions
-                                          : sessions
-                                          .where((s) =>
-                                      s.type ==
-                                          selectedSessionsType)
-                                          .toList();
+                                          selectedSessionsType == 'Все'
+                                              ? sessions
+                                              : sessions
+                                                  .where((s) =>
+                                                      s.type ==
+                                                      selectedSessionsType)
+                                                  .toList();
                                     });
                                   });
 
@@ -330,8 +327,7 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
                                             isLoading: false,
                                             token: token,
                                             isHeadman: isHeadman,
-                                            onColumnSelected:
-                                                (int index) {},
+                                            onColumnSelected: (int index) {},
                                             onSessionsChanged:
                                                 (updatedSessions) {
                                               print(
@@ -357,32 +353,14 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
                 ],
               ),
               isMenuExpanded
-                  ? Positioned(
-                top: 40,
-                left: 220,
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      isMenuExpanded = !isMenuExpanded;
-                    });
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(blurRadius: 4, color: Colors.black26)
-                      ],
-                    ),
-                    padding: EdgeInsets.all(20),
-                    child: Icon(
-                      Icons.arrow_back_ios,
-                      color: Colors.grey.shade500,
-                      size: 20,
-                    ),
-                  ),
-                ),
-              )
+                  ? MenuArrow(
+                      onTap: () {
+                        setState(() {
+                          isMenuExpanded = !isMenuExpanded;
+                        });
+                      },
+                      top: 40,
+                      left: 220)
                   : SizedBox(),
               if (showDisciplineSelect)
                 GroupSelectDialog(
@@ -409,12 +387,12 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
                     });
 
                     context.read<JournalBloc>().add(
-                      LoadSessions(
-                        disciplineId:
-                        disciplines[selectedDisciplineIndex!].id,
-                        groupId: groupId,
-                      ),
-                    );
+                          LoadSessions(
+                            disciplineId:
+                                disciplines[selectedDisciplineIndex!].id,
+                            groupId: groupId,
+                          ),
+                        );
                   },
                 ),
             ],

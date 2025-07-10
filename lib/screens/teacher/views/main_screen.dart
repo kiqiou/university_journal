@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:university_journal/components/side_navigation_menu.dart';
+import 'package:university_journal/components/widgets/menu_arrow.dart';
 import 'package:university_journal/screens/teacher/components/session_button.dart';
 import 'package:university_journal/screens/teacher/views/journal_content.dart';
 
@@ -247,36 +248,46 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                               return BlocBuilder<JournalBloc, JournalState>(
                                 builder: (context, state) {
                                   if (selectedGroupId == null) {
-                                    return const Center(child: Text('Выберите группу'));
+                                    return const Center(
+                                        child: Text('Выберите группу'));
                                   }
 
                                   if (state is JournalLoading) {
-                                    return const Center(child: CircularProgressIndicator());
+                                    return const Center(
+                                        child: CircularProgressIndicator());
                                   }
 
                                   if (state is JournalError) {
-                                    return Center(child: Text('Ошибка: ${state.message}'));
+                                    return Center(
+                                        child:
+                                            Text('Ошибка: ${state.message}'));
                                   }
 
                                   if (state is JournalLoaded) {
-                                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                                    WidgetsBinding.instance
+                                        .addPostFrameCallback((_) {
                                       setState(() {
                                         sessions = state.sessions;
                                         students = state.students;
 
-                                        filteredSessions = selectedSessionsType == 'Все'
-                                            ? sessions
-                                            : sessions
-                                            .where((s) => s.type == selectedSessionsType)
-                                            .toList();
+                                        filteredSessions =
+                                            selectedSessionsType == 'Все'
+                                                ? sessions
+                                                : sessions
+                                                    .where((s) =>
+                                                        s.type ==
+                                                        selectedSessionsType)
+                                                    .toList();
                                       });
                                     });
 
                                     return JournalContentScreen(
                                       sessions: filteredSessions,
                                       students: students,
-                                      selectedSessionsType: selectedSessionsType,
-                                      selectedDisciplineIndex: selectedDisciplineIndex,
+                                      selectedSessionsType:
+                                          selectedSessionsType,
+                                      selectedDisciplineIndex:
+                                          selectedDisciplineIndex,
                                       selectedGroupId: selectedGroupId,
                                       selectedColumnIndex: _selectedColumnIndex,
                                       disciplines: disciplines,
@@ -288,11 +299,15 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                         });
                                       },
                                       onDeleteSession: (session) {
-                                        context.read<JournalBloc>().add(DeleteSession(
-                                          sessionId: session.id,
-                                          disciplineId: disciplines[selectedDisciplineIndex!].id,
-                                          groupId: selectedGroupId!,
-                                        ));
+                                        context
+                                            .read<JournalBloc>()
+                                            .add(DeleteSession(
+                                              sessionId: session.id,
+                                              disciplineId: disciplines[
+                                                      selectedDisciplineIndex!]
+                                                  .id,
+                                              groupId: selectedGroupId!,
+                                            ));
                                         setState(() {
                                           _selectedColumnIndex = null;
                                         });
@@ -301,12 +316,15 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                         _showAddEventDialog(
                                           context,
                                           true,
-                                          dateToEdit: DateFormat('dd.MM.yyyy').parse(session.date),
+                                          dateToEdit: DateFormat('dd.MM.yyyy')
+                                              .parse(session.date),
                                           typeToEdit: session.type,
                                         );
                                       },
-                                      onAddSession: () => _showAddEventDialog(context, false),
-                                      buildSessionStatsText: _buildSessionStatsText,
+                                      onAddSession: () =>
+                                          _showAddEventDialog(context, false),
+                                      buildSessionStatsText:
+                                          _buildSessionStatsText,
                                     );
                                   }
 
@@ -320,31 +338,14 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                   ],
                 ),
                 isMenuExpanded
-                    ? Positioned(
+                    ? MenuArrow(
+                        onTap: () {
+                          setState(() {
+                            isMenuExpanded = !isMenuExpanded;
+                          });
+                        },
                         top: 40,
                         left: 220,
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              isMenuExpanded = !isMenuExpanded;
-                            });
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(blurRadius: 4, color: Colors.black26)
-                              ],
-                            ),
-                            padding: EdgeInsets.all(20),
-                            child: Icon(
-                              Icons.arrow_back_ios,
-                              color: Colors.grey.shade500,
-                              size: 20,
-                            ),
-                          ),
-                        ),
                       )
                     : SizedBox(),
                 if (showDisciplineAndGroupSelect)
@@ -395,12 +396,11 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
   }
 
   void _showAddEventDialog(
-      BuildContext parentContext,
-      bool isEditing, {
-        DateTime? dateToEdit,
-        String? typeToEdit,
-      }) async {
-
+    BuildContext parentContext,
+    bool isEditing, {
+    DateTime? dateToEdit,
+    String? typeToEdit,
+  }) async {
     if (!isEditing && _selectedDate == null) {
       _selectedDate = DateTime.now();
     }
@@ -456,39 +456,36 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                     (s) => '${s.date} ${s.type} ${s.id}' == toUpdate,
                   );
 
-                  parentContext
-                      .read<JournalBloc>()
-                      .add(
-                    UpdateSession(
-                      disciplineId: disciplines[selectedDisciplineIndex!].id,
-                      groupId: selectedGroupId!,
-                      sessionId: session.id,
-                      date: _selectedDate != null
-                          ? "${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}"
-                          : null,
-                      type: _selectedEventType,
-                    ),
-                  );
+                  parentContext.read<JournalBloc>().add(
+                        UpdateSession(
+                          disciplineId:
+                              disciplines[selectedDisciplineIndex!].id,
+                          groupId: selectedGroupId!,
+                          sessionId: session.id,
+                          date: _selectedDate != null
+                              ? "${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}"
+                              : null,
+                          type: _selectedEventType,
+                        ),
+                      );
 
                   setState(() {
                     _selectedColumnIndex = null;
                   });
-
                 } else {
                   if (_selectedDate != null && _selectedEventType != null) {
                     String formattedDate =
                         "${_selectedDate?.year}-${_selectedDate?.month.toString().padLeft(2, '0')}-${_selectedDate?.day.toString().padLeft(2, '0')}";
 
-                    parentContext
-                        .read<JournalBloc>()
-                        .add(
-                      AddSession(
-                        disciplineId: disciplines[selectedDisciplineIndex!].id,
-                        groupId: selectedGroupId!,
-                        date: formattedDate,
-                        type: _selectedEventType!,
-                      ),
-                    );
+                    parentContext.read<JournalBloc>().add(
+                          AddSession(
+                            disciplineId:
+                                disciplines[selectedDisciplineIndex!].id,
+                            groupId: selectedGroupId!,
+                            date: formattedDate,
+                            type: _selectedEventType!,
+                          ),
+                        );
                   }
                 }
               },

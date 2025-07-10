@@ -8,6 +8,7 @@ import '../../../bloc/services/group/group_repository.dart';
 import '../../../bloc/services/journal/journal_repository.dart';
 import '../../../bloc/services/user/models/user.dart';
 import '../../../bloc/services/user/user_repository.dart';
+import '../../../components/widgets/menu_arrow.dart';
 import 'disciplines_list.dart';
 
 enum Admin1ContentScreen { teachers, courses }
@@ -124,40 +125,36 @@ class _Admin1MainScreenState extends State<Admin1MainScreen> {
                   builder: (context) {
                     switch (currentScreen) {
                       case Admin1ContentScreen.teachers:
-                        return TeachersList(loadTeachers: loadTeachers, teachers: teachers, disciplines: disciplines, loadDisciplines: loadDisciplines,);
+                        return TeachersList(
+                          loadTeachers: loadTeachers,
+                          teachers: teachers,
+                          disciplines: disciplines,
+                          loadDisciplines: loadDisciplines,
+                        );
                       case Admin1ContentScreen.courses:
-                        return CoursesList(loadCourses: loadDisciplines, disciplines: disciplines, groups: groups, teachers: teachers,);
+                        return CoursesList(
+                          loadCourses: loadDisciplines,
+                          disciplines: disciplines,
+                          groups: groups,
+                          teachers: teachers,
+                        );
                     }
                   },
                 ),
               ),
             ],
           ),
-          isMenuExpanded ?
-          Positioned(
-            top: 40,
-            left: 270,
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  isMenuExpanded = !isMenuExpanded;
-                });
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  boxShadow: [BoxShadow(blurRadius: 4, color: Colors.black26)],
-                ),
-                padding: EdgeInsets.all(20),
-                child: Icon(
-                  Icons.arrow_back_ios,
-                  color: Colors.grey.shade500,
-                  size: 20,
-                ),
-              ),
-            ),
-          ) : SizedBox(),
+          isMenuExpanded
+              ? MenuArrow(
+                  onTap: () {
+                    setState(() {
+                      isMenuExpanded = !isMenuExpanded;
+                    });
+                  },
+                  top: 40,
+                  left: 270,
+                )
+              : SizedBox(),
         ],
       ),
     );
