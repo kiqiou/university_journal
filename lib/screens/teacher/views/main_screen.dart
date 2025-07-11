@@ -3,14 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:university_journal/components/side_navigation_menu.dart';
 import 'package:university_journal/components/widgets/menu_arrow.dart';
-import 'package:university_journal/screens/teacher/components/session_button.dart';
-import 'package:university_journal/screens/teacher/views/journal_content.dart';
 
 import '../../../../bloc/auth/authentication_bloc.dart';
 import '../../../../components/journal_table.dart';
 import '../../../bloc/journal/journal_bloc.dart';
 import '../../../bloc/services/discipline/models/discipline.dart';
-import '../../../bloc/services/discipline/models/discipline_plan.dart';
 import '../../../bloc/services/journal/journal_repository.dart';
 import '../../../bloc/services/journal/models/session.dart';
 import '../../../bloc/services/user/models/user.dart';
@@ -21,6 +18,7 @@ import '../../../utils/session_utils.dart';
 import 'account_screen.dart';
 import '../components/add_session_dialog.dart';
 import '../../../../components/theme_table.dart';
+import 'journal/journal_screen.dart';
 
 enum TeacherContentScreen { journal, account, theme }
 
@@ -223,54 +221,17 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                 },
                               );
                             case TeacherContentScreen.journal:
-                              return BlocBuilder<JournalBloc, JournalState>(
-                                builder: (context, state) {
-                                  if (selectedGroupId == null) {
-                                    return const Center(
-                                        child: Text('Выберите группу'));
-                                  }
-
-                                  if (state is JournalLoading) {
-                                    return const Center(
-                                        child: CircularProgressIndicator());
-                                  }
-
-                                  if (state is JournalError) {
-                                    return Center(
-                                        child:
-                                            Text('Ошибка: ${state.message}'));
-                                  }
-
-                                  if (state is JournalLoaded) {
-                                    WidgetsBinding.instance
-                                        .addPostFrameCallback((_) {
-                                      setState(() {
-                                        sessions = state.sessions;
-                                        students = state.students;
-
-                                        filteredSessions =
-                                            selectedSessionsType == 'Все'
-                                                ? sessions
-                                                : sessions
-                                                    .where((s) =>
-                                                        s.type ==
-                                                        selectedSessionsType)
-                                                    .toList();
-                                      });
-                                    });
-
-                                    return JournalContentScreen(
-                                      sessions: filteredSessions,
-                                      students: students,
+                              return selectedGroupId != null
+                                  ? JournalScreen(
+                                      selectedGroupId: selectedGroupId,
                                       selectedSessionsType:
                                           selectedSessionsType,
                                       selectedDisciplineIndex:
                                           selectedDisciplineIndex,
-                                      selectedGroupId: selectedGroupId,
-                                      selectedColumnIndex: _selectedColumnIndex,
                                       disciplines: disciplines,
-                                      tableKey: tableKey,
                                       token: token,
+                                      tableKey: tableKey,
+                                      selectedColumnIndex: _selectedColumnIndex,
                                       onColumnSelected: (index) {
                                         setState(() {
                                           _selectedColumnIndex = index;
@@ -303,12 +264,11 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                           _showAddEventDialog(context, false),
                                       buildSessionStatsText:
                                           _buildSessionStatsText,
+                                    )
+                                  : Center(
+                                      child:
+                                          Text('Выберите дисциплину и группу'),
                                     );
-                                  }
-
-                                  return const SizedBox.shrink();
-                                },
-                              );
                           }
                         },
                       ),
