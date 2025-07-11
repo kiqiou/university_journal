@@ -5,10 +5,10 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:collection/collection.dart';
 
-import '../bloc/services/journal/journal_repository.dart';
-import '../bloc/services/journal/models/session.dart';
-import '../bloc/services/user/models/user.dart';
-import 'colors/colors.dart';
+import '../../../bloc/services/journal/journal_repository.dart';
+import '../../../bloc/services/journal/models/session.dart';
+import '../../../bloc/services/user/models/user.dart';
+import '../../../components/colors/colors.dart';
 
 class JournalTable extends StatefulWidget {
   final bool isLoading;

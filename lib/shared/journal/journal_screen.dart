@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import '../../../../bloc/services/discipline/models/discipline.dart';
 import '../../../../bloc/services/journal/models/session.dart';
-import '../../../../components/journal_table.dart';
+import 'widgets/journal_table.dart';
 import 'journal_bloc_handler.dart';
 
 class JournalScreen extends StatefulWidget {
@@ -11,6 +11,7 @@ class JournalScreen extends StatefulWidget {
   final List<Discipline> disciplines;
   final String? token;
   final bool isEditable;
+  final bool? isHeadman;
   final GlobalKey<JournalTableState> tableKey;
   final int? selectedColumnIndex;
 
@@ -35,6 +36,7 @@ class JournalScreen extends StatefulWidget {
     this.onAddSession,
     required this.buildSessionStatsText,
     required this.isEditable,
+    this.isHeadman,
   });
 
   @override
@@ -58,6 +60,7 @@ class _JournalScreenState extends State<JournalScreen> {
       onAddSession: widget.onAddSession,
       buildSessionStatsText: widget.buildSessionStatsText,
       isEditable: widget.isEditable,
+      isHeadman: widget.isHeadman,
     );
   }
 }

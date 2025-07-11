@@ -5,7 +5,7 @@ import 'package:university_journal/components/side_navigation_menu.dart';
 import 'package:university_journal/components/widgets/menu_arrow.dart';
 
 import '../../../../bloc/auth/authentication_bloc.dart';
-import '../../../../components/journal_table.dart';
+import '../../../shared/journal/widgets/journal_table.dart';
 import '../../../bloc/journal/journal_bloc.dart';
 import '../../../bloc/services/discipline/models/discipline.dart';
 import '../../../bloc/services/journal/journal_repository.dart';
@@ -18,7 +18,7 @@ import '../../../shared/journal/journal_screen.dart';
 import '../../../shared/utils/session_utils.dart';
 import 'account_screen.dart';
 import '../components/add_session_dialog.dart';
-import '../../../../components/theme_table.dart';
+import '../../../shared/theme_table/theme_table.dart';
 
 enum TeacherContentScreen { journal, account, theme }
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../bloc/services/discipline/models/discipline.dart';
 import '../../../../bloc/services/journal/models/session.dart';
 import '../../../../bloc/services/user/models/user.dart';
-import '../../../../components/journal_table.dart';
+import 'widgets/journal_table.dart';
 import 'widgets/journal_header.dart';
 
 class JournalContentScreen extends StatelessWidget {
@@ -16,6 +16,7 @@ class JournalContentScreen extends StatelessWidget {
   final GlobalKey tableKey;
   final String? token;
   final bool isEditable;
+  final bool? isHeadman;
   final Function(int?)? onColumnSelected;
   final Function(Session session)? onDeleteSession;
   final Function(Session session)? onEditSession;
@@ -39,6 +40,7 @@ class JournalContentScreen extends StatelessWidget {
     required this.onAddSession,
     required this.buildSessionStatsText,
     required this.isEditable,
+    this.isHeadman,
   });
 
   @override
@@ -49,7 +51,11 @@ class JournalContentScreen extends StatelessWidget {
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => onColumnSelected!(null),
+      onTap: () {
+        if (isEditable && onColumnSelected != null) {
+          onColumnSelected!(null);
+        }
+      },
       child: Column(
         children: [
           const SizedBox(height: 40),
@@ -69,6 +75,7 @@ class JournalContentScreen extends StatelessWidget {
               students: students,
               sessions: sessions,
               isEditable: isEditable,
+              isHeadman: isHeadman,
               isLoading: false,
               token: token,
               selectedColumnIndex: selectedColumnIndex,

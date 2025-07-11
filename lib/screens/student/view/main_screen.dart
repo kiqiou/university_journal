@@ -11,10 +11,11 @@ import '../../../bloc/services/journal/models/session.dart';
 import '../../../bloc/services/user/models/user.dart';
 import '../../../bloc/services/user/user_repository.dart';
 import '../../../components/constants/constants.dart';
-import '../../../components/journal_table.dart';
+import '../../../shared/journal/widgets/journal_table.dart';
 import '../../../components/side_navigation_menu.dart';
-import '../../../components/theme_table.dart';
+import '../../../shared/theme_table/theme_table.dart';
 import '../../../components/widgets/discipline_and_group_select.dart';
+import '../../../shared/journal/journal_screen.dart';
 import '../../../shared/utils/session_utils.dart';
 
 enum StudentContentScreen { journal, theme }
@@ -165,155 +166,67 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
                   ),
                   SizedBox(width: 30),
                   Expanded(
-                    child: Builder(
-                      builder: (context) {
-                        switch (currentScreen) {
-                          case StudentContentScreen.theme:
-                            return BlocBuilder<JournalBloc, JournalState>(
-                              builder: (context, state) {
-                                if (state is JournalLoading) {
-                                  return const Center(
-                                      child: CircularProgressIndicator());
-                                } else if (state is JournalLoaded) {
-                                  final sessions = state.sessions;
-                                  return ThemeTable(
-                                    sessions: sessions,
-                                    onUpdate:
-                                        (sessionId, date, type, topic) async {
-                                      final repository = JournalRepository();
-                                      final success =
-                                          await repository.updateSession(
-                                        id: sessionId,
-                                        date: date,
-                                        type: type,
-                                        topic: topic,
+                    child: Builder(builder: (context) {
+                      switch (currentScreen) {
+                        case StudentContentScreen.theme:
+                          return BlocBuilder<JournalBloc, JournalState>(
+                            builder: (context, state) {
+                              if (state is JournalLoading) {
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              } else if (state is JournalLoaded) {
+                                final sessions = state.sessions;
+                                return ThemeTable(
+                                  sessions: sessions,
+                                  onUpdate:
+                                      (sessionId, date, type, topic) async {
+                                    final repository = JournalRepository();
+                                    final success =
+                                        await repository.updateSession(
+                                      id: sessionId,
+                                      date: date,
+                                      type: type,
+                                      topic: topic,
+                                    );
+
+                                    if (!success) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                            content: Text(
+                                                'Не удалось обновить данные')),
                                       );
-
-                                      if (!success) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          const SnackBar(
-                                              content: Text(
-                                                  'Не удалось обновить данные')),
-                                        );
-                                      }
-                                      return success;
-                                    },
-                                    isEditable: false,
-                                  );
-                                } else if (state is JournalError) {
-                                  return Center(
-                                      child: Text('Ошибка: ${state.message}'));
-                                } else {
-                                  return const SizedBox();
-                                }
-                              },
-                            );
-                          case StudentContentScreen.journal:
-                            return BlocBuilder<JournalBloc, JournalState>(
-                              builder: (context, state) {
-                                if (selectedGroupId == null) {
-                                  return const Center(
-                                      child: Text('Выберите группу'));
-                                }
-
-                                if (state is JournalLoading) {
-                                  return const Center(
-                                      child: CircularProgressIndicator());
-                                }
-
-                                if (state is JournalError) {
-                                  return Center(
-                                      child: Text('Ошибка: ${state.message}'));
-                                }
-
-                                if (state is JournalLoaded) {
-                                  WidgetsBinding.instance
-                                      .addPostFrameCallback((_) {
-                                    setState(() {
-                                      sessions = state.sessions;
-                                      students = state.students;
-
-                                      filteredSessions =
-                                          selectedSessionsType == 'Все'
-                                              ? sessions
-                                              : sessions
-                                                  .where((s) =>
-                                                      s.type ==
-                                                      selectedSessionsType)
-                                                  .toList();
-                                    });
-                                  });
-
-                                  return Scaffold(
-                                    body: Column(
-                                      children: [
-                                        SizedBox(
-                                          height: 40,
-                                        ),
-                                        Align(
-                                          alignment: Alignment.centerLeft,
-                                          child: Text(
-                                            selectedSessionsType == 'Все'
-                                                ? 'Журнал'
-                                                : selectedSessionsType,
-                                            style: TextStyle(
-                                                color: Colors.grey.shade800,
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ),
-                                        if (selectedSessionsType != 'Все') ...[
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 20, vertical: 8),
-                                            child: Row(
-                                              children: [
-                                                Text(
-                                                  _buildSessionStatsText(),
-                                                  style: TextStyle(
-                                                    fontSize: 16,
-                                                    color: Colors.grey.shade700,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                        SizedBox(
-                                          height: 40,
-                                        ),
-                                        Expanded(
-                                          child: JournalTable(
-                                            key: tableKey,
-                                            students: students,
-                                            sessions: sessions,
-                                            isEditable: false,
-                                            isLoading: false,
-                                            token: token,
-                                            isHeadman: isHeadman,
-                                            onColumnSelected: (int index) {},
-                                            onSessionsChanged:
-                                                (updatedSessions) {
-                                              print(
-                                                  'Загружено занятий: $updatedSessions');
-                                              sessions = updatedSessions;
-                                              _filterBySessionType(
-                                                  selectedSessionsType);
-                                            },
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }
-
-                                return const SizedBox.shrink();
-                              },
-                            );
-                        }
-                      },
-                    ),
+                                    }
+                                    return success;
+                                  },
+                                  isEditable: false,
+                                );
+                              } else if (state is JournalError) {
+                                return Center(
+                                    child: Text('Ошибка: ${state.message}'));
+                              } else {
+                                return const SizedBox();
+                              }
+                            },
+                          );
+                        case StudentContentScreen.journal:
+                          return selectedDisciplineIndex != null
+                              ? JournalScreen(
+                                  selectedGroupId: selectedGroupId,
+                                  selectedSessionsType: selectedSessionsType,
+                                  selectedDisciplineIndex: selectedDisciplineIndex,
+                                  disciplines: disciplines,
+                                  token: token,
+                                  tableKey: tableKey,
+                                  buildSessionStatsText: _buildSessionStatsText,
+                                  isEditable: false,
+                                  isHeadman: isHeadman,
+                                )
+                              : Center(
+                                  child: Text('Выберите дисциплину и группу'),
+                                );
+                      }
+                    }),
                   ),
                 ],
               ),

@@ -9,9 +9,9 @@ import '../../../bloc/services/journal/models/session.dart';
 import '../../../bloc/services/user/models/user.dart';
 import '../../../bloc/services/user/user_repository.dart';
 import '../../../components/constants/constants.dart';
-import '../../../components/journal_table.dart';
+import '../../../shared/journal/widgets/journal_table.dart';
 import '../../../components/side_navigation_menu.dart';
-import '../../../components/theme_table.dart';
+import '../../../shared/theme_table/theme_table.dart';
 import '../../../components/widgets/discipline_and_group_select.dart';
 import '../../../components/widgets/menu_arrow.dart';
 import '../../../shared/journal/journal_screen.dart';
@@ -37,6 +37,7 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
   bool showTeacherDisciplineGroupSelect = false;
   int? selectedDisciplineIndex;
   int? selectedGroupId;
+  int? pendingSelectedGroupId;
   String selectedSessionsType = 'Все';
   List<Session> sessions = [];
   List<Session> filteredSessions = [];
@@ -227,7 +228,7 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
                   },
                   onGroupChanged: (value) {
                     setState(() {
-                      selectedGroupId = value;
+                      pendingSelectedGroupId = value;
                     });
                   },
                   onClose: () {
@@ -239,14 +240,14 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
                     setState(() {
                       showTeacherDisciplineGroupSelect = false;
                       isLoading = true;
-                      selectedGroupId = groupId;
+                      selectedGroupId = pendingSelectedGroupId;
                     });
 
                     context.read<JournalBloc>().add(
                           LoadSessions(
                             disciplineId:
                                 disciplines[selectedDisciplineIndex!].id,
-                            groupId: groupId,
+                            groupId: selectedGroupId!,
                           ),
                         );
                   },

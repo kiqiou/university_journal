@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../bloc/journal/journal_bloc.dart';
 import '../../../../bloc/services/discipline/models/discipline.dart';
 import '../../../../bloc/services/journal/models/session.dart';
-import '../../../../components/journal_table.dart';
+import 'widgets/journal_table.dart';
 import 'journal_content_screen.dart';
 
 class JournalBlocHandler extends StatelessWidget {
@@ -15,6 +15,7 @@ class JournalBlocHandler extends StatelessWidget {
   final int? selectedColumnIndex;
   final int? selectedDisciplineIndex;
   final bool isEditable;
+  final bool? isHeadman;
   final List<Discipline> disciplines;
   final String Function() buildSessionStatsText;
   final Function(Session)? onDeleteSession;
@@ -38,6 +39,7 @@ class JournalBlocHandler extends StatelessWidget {
     required this.selectedColumnIndex,
     required this.onColumnSelected,
     required this.isEditable,
+    this.isHeadman,
   });
 
   @override
@@ -75,6 +77,7 @@ class JournalBlocHandler extends StatelessWidget {
             onAddSession: onAddSession,
             buildSessionStatsText: buildSessionStatsText,
             isEditable: isEditable,
+            isHeadman: isHeadman,
           );
         }
 
