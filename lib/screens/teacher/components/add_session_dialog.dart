@@ -202,7 +202,6 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
                           ),
                           onPressed: () {
                             setState(() {
-                              // Сохраняем выбранный день, если он есть в новом месяце, иначе берем последний день месяца
                               int day = _selectedDate.day;
                               int year = _focusedDay.year;
                               int daysInMonth =
@@ -251,9 +250,6 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-
-    final dialogWidth = screenWidth < 600 ? screenWidth * 0.9 : 600.0;
-    final dialogHeight = screenHeight < 500 ? screenHeight * 0.8 : 500.0;
 
     return SizedBox(
       height: screenHeight,
@@ -479,3 +475,45 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
     );
   }
 }
+
+Future<void> showAddEventDialog({
+  required BuildContext context,
+  required bool isEditing,
+  DateTime? dateToEdit,
+  String? typeToEdit,
+  required Function(DateTime?) onDateSelected,
+  required Function(String?) onEventTypeSelected,
+  required VoidCallback onSavePressed,
+}) async {
+  await showDialog(
+    context: context,
+    builder: (context) {
+      final screenWidth = MediaQuery.of(context).size.width;
+      final screenHeight = MediaQuery.of(context).size.height;
+
+      return Dialog(
+        insetPadding: EdgeInsets.only(
+          left: screenWidth * 0.7,
+          top: 20,
+          right: 20,
+          bottom: 20,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        child: Container(
+          width: screenWidth * 0.25,
+          height: screenHeight * 0.85,
+          padding: EdgeInsets.all(20),
+          child: AddEventDialogContent(
+            onDateSelected: onDateSelected,
+            onEventTypeSelected: onEventTypeSelected,
+            onSavePressed: onSavePressed,
+            isEditing: isEditing,
+            initialDate: dateToEdit,
+            initialEventType: typeToEdit,
+          ),
+        ),
+      );
+    },
+  );
+}
+

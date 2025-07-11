@@ -39,9 +39,6 @@ class JournalTable extends StatefulWidget {
 }
 
 class JournalTableState extends State<JournalTable> {
-  Map<String, Map<String, Session>>? _cachedGrouped;
-  List<String>? _cachedDateTypes;
-  List<Session>? _lastSessionList;
   JournalDataSource? dataSource;
   List<GridColumn> columns = [];
   List<Session> _sessions = [];
@@ -50,16 +47,6 @@ class JournalTableState extends State<JournalTable> {
   void initState() {
     super.initState();
     updateDataSource(widget.sessions, widget.students);
-  }
-
-  void _updateCache(List<Session> sessions, List<MyUser> students) {
-    if (_lastSessionList != null &&
-        const DeepCollectionEquality().equals(_lastSessionList, sessions)) {
-      return;
-    }
-    _cachedGrouped = groupSessionsByStudent(sessions, students);
-    _cachedDateTypes = extractUniqueDateTypes(sessions);
-    _lastSessionList = sessions;
   }
 
   void updateDataSource(List<Session> sessions, List<MyUser> students) {

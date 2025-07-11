@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:university_journal/screens/teacher/views/journal/widgets/table_wrapper.dart';
+import 'package:university_journal/screens/teacher/views/journal/widgets/journal_table_wrapper.dart';
 import '../../../../bloc/services/discipline/models/discipline.dart';
 import '../../../../bloc/services/journal/models/session.dart';
 import '../../../../bloc/services/user/models/user.dart';
@@ -83,10 +83,6 @@ class JournalContentScreen extends StatelessWidget {
         : sessions.where((s) => s.type == selectedSessionsType).toList();
 
     final dates = extractUniqueDateTypes(filtered);
-    if (selectedColumnIndex == null || selectedColumnIndex! >= dates.length) {
-      return null;
-    }
-
     final key = dates[selectedColumnIndex!];
     return filtered.firstWhere((s) => '${s.date} ${s.type} ${s.id}' == key);
   }

@@ -42,8 +42,6 @@ class Session {
       formattedDate = rawDate;
     }
 
-    log('${json['modified_by']?['username']}, ${json['updated_at']}');
-
     return Session(
       id: json['journal']['id'] ?? 0,
       disciplineId: json['journal']['course']['id'] ?? 0,
@@ -92,4 +90,6 @@ class Session {
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
+
+  List<Object?> get props => [id, date, type];
 }

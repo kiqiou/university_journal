@@ -204,9 +204,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                       onTopicChanged: () {
                                         context.read<JournalBloc>().add(
                                               LoadSessions(
-                                                disciplineId: disciplines[
-                                                        selectedDisciplineIndex!]
-                                                    .id,
+                                                disciplineId: disciplines[selectedDisciplineIndex!].id,
                                                 groupId: selectedGroupId!,
                                               ),
                                             );
@@ -225,10 +223,8 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                               return selectedGroupId != null
                                   ? JournalScreen(
                                       selectedGroupId: selectedGroupId,
-                                      selectedSessionsType:
-                                          selectedSessionsType,
-                                      selectedDisciplineIndex:
-                                          selectedDisciplineIndex,
+                                      selectedSessionsType: selectedSessionsType,
+                                      selectedDisciplineIndex: selectedDisciplineIndex,
                                       disciplines: disciplines,
                                       token: token,
                                       tableKey: tableKey,
@@ -253,16 +249,72 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                         });
                                       },
                                       onEditSession: (session) {
-                                        _showAddEventDialog(
-                                          context,
-                                          true,
+                                        showAddEventDialog(
                                           dateToEdit: DateFormat('dd.MM.yyyy')
                                               .parse(session.date),
                                           typeToEdit: session.type,
+                                          context: context,
+                                          isEditing: true,
+                                          onDateSelected: (date) {
+                                            setState(() {
+                                              _selectedDate = date;
+                                            });
+                                          },
+                                          onEventTypeSelected: (eventType) {
+                                            setState(() {
+                                              _selectedEventType = eventType;
+                                            });
+                                          },
+                                          onSavePressed: () {
+                                            context.read<JournalBloc>().add(
+                                                  UpdateSession(
+                                                    disciplineId: disciplines[selectedDisciplineIndex!].id,
+                                                    groupId: selectedGroupId!,
+                                                    sessionId: session.id,
+                                                    date: _selectedDate != null
+                                                        ? "${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}"
+                                                        : null,
+                                                    type: _selectedEventType,
+                                                  ),
+                                                );
+
+                                            setState(() {
+                                              _selectedColumnIndex = null;
+                                            });
+                                          },
                                         );
                                       },
-                                      onAddSession: () =>
-                                          _showAddEventDialog(context, false),
+                                      onAddSession: () => showAddEventDialog(
+                                          context: context,
+                                          isEditing: false,
+                                          onDateSelected: (date) {
+                                            setState(() {
+                                              _selectedDate = date;
+                                            });
+                                          },
+                                          onEventTypeSelected: (eventType) {
+                                            setState(() {
+                                              _selectedEventType = eventType;
+                                            });
+                                          },
+                                          onSavePressed: () {
+                                            if (_selectedDate != null &&
+                                                _selectedEventType != null) {
+                                              String formattedDate =
+                                                  "${_selectedDate?.year}-${_selectedDate?.month.toString().padLeft(2, '0')}-${_selectedDate?.day.toString().padLeft(2, '0')}";
+
+                                              context.read<JournalBloc>().add(
+                                                    AddSession(
+                                                      disciplineId: disciplines[
+                                                              selectedDisciplineIndex!]
+                                                          .id,
+                                                      groupId: selectedGroupId!,
+                                                      date: formattedDate,
+                                                      type: _selectedEventType!,
+                                                    ),
+                                                  );
+                                            }
+                                          }),
                                       buildSessionStatsText:
                                           _buildSessionStatsText,
                                     )
@@ -332,110 +384,6 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
           );
         },
       ),
-    );
-  }
-
-  void _showAddEventDialog(
-    BuildContext parentContext,
-    bool isEditing, {
-    DateTime? dateToEdit,
-    String? typeToEdit,
-  }) async {
-    if (!isEditing && _selectedDate == null) {
-      _selectedDate = DateTime.now();
-    }
-
-    if (isEditing && dateToEdit != null) {
-      _selectedDate = dateToEdit;
-    }
-
-    if (isEditing && typeToEdit != null) {
-      _selectedEventType = typeToEdit;
-    }
-
-    await showDialog<bool>(
-      context: parentContext,
-      builder: (BuildContext context) {
-        final screenWidth = MediaQuery.of(context).size.width;
-        final screenHeight = MediaQuery.of(context).size.height;
-
-        return Dialog(
-          insetPadding: EdgeInsets.only(
-            left: screenWidth * 0.7,
-            top: 20,
-            right: 20,
-            bottom: 20,
-          ),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          child: Container(
-            width: screenWidth * 0.25,
-            height: screenHeight * 0.85,
-            padding: EdgeInsets.all(20),
-            child: AddEventDialogContent(
-              onDateSelected: (date) {
-                setState(() {
-                  _selectedDate = date;
-                });
-              },
-              onEventTypeSelected: (eventType) {
-                setState(() {
-                  _selectedEventType = eventType;
-                });
-              },
-              onSavePressed: () async {
-                if (isEditing) {
-                  final filteredSessions = selectedSessionsType == 'Все'
-                      ? sessions
-                      : sessions
-                          .where((s) => s.type == selectedSessionsType)
-                          .toList();
-                  final dates = extractUniqueDateTypes(filteredSessions);
-                  final toUpdate = dates[_selectedColumnIndex!];
-                  final session = filteredSessions.firstWhere(
-                    (s) => '${s.date} ${s.type} ${s.id}' == toUpdate,
-                  );
-
-                  parentContext.read<JournalBloc>().add(
-                        UpdateSession(
-                          disciplineId:
-                              disciplines[selectedDisciplineIndex!].id,
-                          groupId: selectedGroupId!,
-                          sessionId: session.id,
-                          date: _selectedDate != null
-                              ? "${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}"
-                              : null,
-                          type: _selectedEventType,
-                        ),
-                      );
-
-                  setState(() {
-                    _selectedColumnIndex = null;
-                  });
-                } else {
-                  if (_selectedDate != null && _selectedEventType != null) {
-                    String formattedDate =
-                        "${_selectedDate?.year}-${_selectedDate?.month.toString().padLeft(2, '0')}-${_selectedDate?.day.toString().padLeft(2, '0')}";
-
-                    parentContext.read<JournalBloc>().add(
-                          AddSession(
-                            disciplineId:
-                                disciplines[selectedDisciplineIndex!].id,
-                            groupId: selectedGroupId!,
-                            date: formattedDate,
-                            type: _selectedEventType!,
-                          ),
-                        );
-                  }
-                }
-              },
-              isEditing: isEditing,
-              initialDate: dateToEdit,
-              initialEventType: typeToEdit,
-            ),
-          ),
-        );
-      },
     );
   }
 }
