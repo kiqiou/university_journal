@@ -337,6 +337,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                     onDisciplineChanged: (value) {
                       setState(() {
                         selectedDisciplineIndex = value;
+                        selectedGroupId = null;
                       });
                     },
                     onGroupChanged: (value) {

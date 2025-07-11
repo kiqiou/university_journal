@@ -306,6 +306,7 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
                   onDisciplineChanged: (value) {
                     setState(() {
                       selectedDisciplineIndex = value;
+                      selectedGroupId = null;
                     });
                   },
                   onGroupChanged: (value) {

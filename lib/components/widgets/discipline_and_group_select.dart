@@ -70,7 +70,6 @@ class GroupSelectDialog extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Заголовок и кнопка закрытия
                       Row(
                         children: [
                           Expanded(
@@ -91,8 +90,6 @@ class GroupSelectDialog extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 28),
-
-                      // Форма
                       Form(
                         key: formKey,
                         child: Column(

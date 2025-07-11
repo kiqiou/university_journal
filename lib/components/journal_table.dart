@@ -63,28 +63,22 @@ class JournalTableState extends State<JournalTable> {
   }
 
   void updateDataSource(List<Session> sessions, List<MyUser> students) {
-    _updateCache(sessions, students);
-
-    if (listEquals(_sessions, sessions)) return;
-
-    final newColumns = buildColumns(
-      sessions: sessions,
-      selectedColumnIndex: widget.selectedColumnIndex,
-      onHeaderTap: _onHeaderTap,
-    );
-
-    final columnsChanged = !listEquals(columns, newColumns);
+    final grouped = groupSessionsByStudent(sessions, students);
 
     setState(() {
       _sessions = sessions;
 
-      if (columnsChanged) {
-        columns = newColumns;
-      }
+      extractUniqueDateTypes(sessions);
+
+      columns = buildColumns(
+        sessions: sessions,
+        selectedColumnIndex: widget.selectedColumnIndex,
+        onHeaderTap: _onHeaderTap,
+      );
 
       dataSource = JournalDataSource(
         columns,
-        _cachedGrouped ?? {},
+        grouped,
         sessions,
         widget.isEditable,
         widget.isHeadman,
@@ -142,15 +136,20 @@ class JournalTableState extends State<JournalTable> {
 
   @override
   Widget build(BuildContext context) {
-    return dataSource == null
-        ? const CircularProgressIndicator()
-        : SfDataGrid(
-      key: ValueKey(dataSource),
-      source: dataSource!,
-      columns: columns,
-      gridLinesVisibility: GridLinesVisibility.none,
-      headerGridLinesVisibility: GridLinesVisibility.none,
-      headerRowHeight: 100,
+    return Column(
+      children: [
+        Expanded(
+          child: widget.isLoading || dataSource == null
+              ? const Center(child: CircularProgressIndicator())
+              : SfDataGrid(
+            gridLinesVisibility: GridLinesVisibility.none,
+            headerGridLinesVisibility: GridLinesVisibility.none,
+            source: dataSource!,
+            columns: columns,
+            headerRowHeight: 100,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -199,9 +198,9 @@ class JournalDataSource extends DataGridSource {
   }
 
   static List<DataGridRow> _buildRows(
-    Map<String, Map<String, Session>> data,
-    List<String> dates,
-  ) {
+      Map<String, Map<String, Session>> data,
+      List<String> dates,
+      ) {
     return data.entries.mapIndexed((index, entry) {
       final studentName = entry.key;
       final sessionsByDate = entry.value;
@@ -233,28 +232,7 @@ class JournalDataSource extends DataGridSource {
         final columnIndex = entry.key;
         final cell = entry.value;
 
-        if (columnIndex == 0) {
-          // № по центру
-          return Container(
-            alignment: Alignment.center,
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.shade400),
-            ),
-            child: Text(
-              cell.value.toString(),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.grey.shade800,
-                fontFamily: 'Montserrat',
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          );
-        }
-
-        if (columnIndex == 1) {
-          // № и ФИО
+        if (columnIndex == 1 || columnIndex == 0) {
           return Container(
             alignment: Alignment.centerLeft,
             padding: const EdgeInsets.all(8),
@@ -263,7 +241,7 @@ class JournalDataSource extends DataGridSource {
             ),
             child: Text(
               cell.value.toString(),
-              textAlign: TextAlign.left,
+              textAlign: columnIndex == 1 ? TextAlign.left : TextAlign.center,
               style: TextStyle(
                 color: Colors.grey.shade800,
                 fontFamily: 'Montserrat',

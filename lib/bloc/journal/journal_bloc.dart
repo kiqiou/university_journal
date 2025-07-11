@@ -37,8 +37,8 @@ class JournalBloc extends Bloc<JournalEvent, JournalState> {
       );
 
       emit(JournalLoaded(
-        sessions: sessions ?? [],
-        students: students ?? [],
+        sessions: sessions,
+        students: students!,
       ));
     } catch (e) {
       emit(JournalError('Ошибка загрузки: $e'));

@@ -344,6 +344,7 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
                   onClose: () {
                     setState(() {
                       showDisciplineSelect = false;
+                      selectedGroupId = null;
                     });
                   },
                   onSubmit: (groupId) async {
