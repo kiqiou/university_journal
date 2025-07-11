@@ -43,6 +43,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
   bool showDisciplineAndGroupSelect = false;
   int? selectedDisciplineIndex;
   int? selectedGroupId;
+  int? pendingGroupId;
   int? _selectedColumnIndex;
   String selectedSessionsType = 'Все';
   List<Session> sessions = [];
@@ -292,7 +293,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                     show: showDisciplineAndGroupSelect,
                     disciplines: disciplines,
                     selectedDisciplineIndex: selectedDisciplineIndex,
-                    selectedGroupId: selectedGroupId,
+                    selectedGroupId: pendingGroupId,
                     formKey: _formKey,
                     onDisciplineChanged: (value) {
                       setState(() {
@@ -302,7 +303,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                     },
                     onGroupChanged: (value) {
                       setState(() {
-                        selectedGroupId = value;
+                        pendingGroupId = value;
                       });
                     },
                     onClose: () {
@@ -314,14 +315,14 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                       setState(() {
                         showDisciplineAndGroupSelect = false;
                         isLoading = true;
-                        selectedGroupId = groupId;
+                        selectedGroupId = pendingGroupId;
                       });
 
                       context.read<JournalBloc>().add(
                             LoadSessions(
                               disciplineId:
                                   disciplines[selectedDisciplineIndex!].id,
-                              groupId: groupId,
+                              groupId: selectedGroupId!,
                             ),
                           );
                     },

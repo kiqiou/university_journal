@@ -174,7 +174,7 @@ class GroupSelectDialog extends StatelessWidget {
                                     horizontal: 28, vertical: 12),
                                 minimumSize: const Size.fromHeight(55),
                               ),
-                              child: const Text('Сохранить',
+                              child: const Text('Подтвердить',
                                   style: TextStyle(fontSize: 16)),
                             ),
                           ],
