@@ -9,18 +9,19 @@ import '../../../../components/journal_table.dart';
 import 'journal_content_screen.dart';
 
 class JournalBlocHandler extends StatelessWidget {
-  final int selectedGroupId;
-  final String selectedSessionsType;
-  final int? selectedDisciplineIndex;
-  final List<Discipline> disciplines;
   final String? token;
-  final Function(Session) onDeleteSession;
-  final Function(Session) onEditSession;
-  final VoidCallback onAddSession;
-  final String Function() buildSessionStatsText;
-  final GlobalKey<JournalTableState> tableKey;
+  final String selectedSessionsType;
+  final int selectedGroupId;
   final int? selectedColumnIndex;
-  final Function(int?) onColumnSelected;
+  final int? selectedDisciplineIndex;
+  final bool isEditable;
+  final List<Discipline> disciplines;
+  final String Function() buildSessionStatsText;
+  final Function(Session)? onDeleteSession;
+  final Function(Session)? onEditSession;
+  final Function(int?)? onColumnSelected;
+  final VoidCallback? onAddSession;
+  final GlobalKey<JournalTableState> tableKey;
 
   const JournalBlocHandler({
     super.key,
@@ -36,6 +37,7 @@ class JournalBlocHandler extends StatelessWidget {
     required this.tableKey,
     required this.selectedColumnIndex,
     required this.onColumnSelected,
+    required this.isEditable,
   });
 
   @override
@@ -72,6 +74,7 @@ class JournalBlocHandler extends StatelessWidget {
             onEditSession: onEditSession,
             onAddSession: onAddSession,
             buildSessionStatsText: buildSessionStatsText,
+            isEditable: isEditable,
           );
         }
 

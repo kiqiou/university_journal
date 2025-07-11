@@ -14,11 +14,11 @@ import '../../../bloc/services/user/models/user.dart';
 import '../../../bloc/services/user/user_repository.dart';
 import '../../../components/constants/constants.dart';
 import '../../../components/widgets/discipline_and_group_select.dart';
-import '../../../utils/session_utils.dart';
+import '../../../shared/journal/journal_screen.dart';
+import '../../../shared/utils/session_utils.dart';
 import 'account_screen.dart';
 import '../components/add_session_dialog.dart';
 import '../../../../components/theme_table.dart';
-import 'journal/journal_screen.dart';
 
 enum TeacherContentScreen { journal, account, theme }
 
@@ -317,6 +317,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                           }),
                                       buildSessionStatsText:
                                           _buildSessionStatsText,
+                                isEditable: true,
                                     )
                                   : Center(
                                       child:

@@ -5,7 +5,6 @@ import 'package:university_journal/components/widgets/menu_arrow.dart';
 import '../../../bloc/auth/authentication_bloc.dart';
 import '../../../bloc/journal/journal_bloc.dart';
 import '../../../bloc/services/discipline/models/discipline.dart';
-import '../../../bloc/services/discipline/models/discipline_plan.dart';
 import '../../../bloc/services/discipline/discipline_repository.dart';
 import '../../../bloc/services/journal/journal_repository.dart';
 import '../../../bloc/services/journal/models/session.dart';
@@ -16,7 +15,7 @@ import '../../../components/journal_table.dart';
 import '../../../components/side_navigation_menu.dart';
 import '../../../components/theme_table.dart';
 import '../../../components/widgets/discipline_and_group_select.dart';
-import '../../../utils/session_utils.dart';
+import '../../../shared/utils/session_utils.dart';
 
 enum StudentContentScreen { journal, theme }
 

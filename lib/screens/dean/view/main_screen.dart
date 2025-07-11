@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../bloc/journal/journal_bloc.dart';
 import '../../../bloc/services/discipline/models/discipline.dart';
-import '../../../bloc/services/discipline/models/discipline_plan.dart';
 import '../../../bloc/services/discipline/discipline_repository.dart';
 import '../../../bloc/services/journal/journal_repository.dart';
 import '../../../bloc/services/journal/models/session.dart';
@@ -15,7 +14,8 @@ import '../../../components/side_navigation_menu.dart';
 import '../../../components/theme_table.dart';
 import '../../../components/widgets/discipline_and_group_select.dart';
 import '../../../components/widgets/menu_arrow.dart';
-import '../../../utils/session_utils.dart';
+import '../../../shared/journal/journal_screen.dart';
+import '../../../shared/utils/session_utils.dart';
 
 enum DeanContentScreen { journal, theme }
 
@@ -179,104 +179,20 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
                               },
                             );
                           case DeanContentScreen.journal:
-                            return BlocBuilder<JournalBloc, JournalState>(
-                              builder: (context, state) {
-                                if (selectedGroupId == null) {
-                                  return const Center(
-                                      child: Text('Выберите группу'));
-                                }
-
-                                if (state is JournalLoading) {
-                                  return const Center(
-                                      child: CircularProgressIndicator());
-                                }
-
-                                if (state is JournalError) {
-                                  return Center(
-                                      child: Text('Ошибка: ${state.message}'));
-                                }
-
-                                if (state is JournalLoaded) {
-                                  WidgetsBinding.instance
-                                      .addPostFrameCallback((_) {
-                                    setState(() {
-                                      sessions = state.sessions;
-                                      students = state.students;
-
-                                      filteredSessions =
-                                          selectedSessionsType == 'Все'
-                                              ? sessions
-                                              : sessions
-                                                  .where((s) =>
-                                                      s.type ==
-                                                      selectedSessionsType)
-                                                  .toList();
-                                    });
-                                  });
-
-                                  return Scaffold(
-                                    body: Column(
-                                      children: [
-                                        SizedBox(
-                                          height: 40,
-                                        ),
-                                        Align(
-                                          alignment: Alignment.centerLeft,
-                                          child: Text(
-                                            selectedSessionsType == 'Все'
-                                                ? 'Журнал'
-                                                : selectedSessionsType,
-                                            style: TextStyle(
-                                                color: Colors.grey.shade800,
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ),
-                                        if (selectedSessionsType != 'Все') ...[
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 20, vertical: 8),
-                                            child: Row(
-                                              children: [
-                                                Text(
-                                                  _buildSessionStatsText(),
-                                                  style: TextStyle(
-                                                    fontSize: 16,
-                                                    color: Colors.grey.shade700,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                        SizedBox(
-                                          height: 40,
-                                        ),
-                                        Expanded(
-                                          child: JournalTable(
-                                            key: tableKey,
-                                            students: students,
-                                            sessions: sessions,
-                                            isEditable: false,
-                                            isLoading: false,
-                                            onColumnSelected: (int index) {},
-                                            onSessionsChanged:
-                                                (updatedSessions) {
-                                              print(
-                                                  'Загружено занятий: $updatedSessions');
-                                              sessions = updatedSessions;
-                                              _filterBySessionType(
-                                                  selectedSessionsType);
-                                            },
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }
-
-                                return const SizedBox.shrink();
-                              },
+                            return selectedGroupId != null
+                                ? JournalScreen(
+                              selectedGroupId: selectedGroupId,
+                              selectedSessionsType: selectedSessionsType,
+                              selectedDisciplineIndex: selectedDisciplineIndex,
+                              disciplines: disciplines,
+                              tableKey: tableKey,
+                              buildSessionStatsText:
+                              _buildSessionStatsText,
+                              isEditable: false,
+                            )
+                                : Center(
+                              child:
+                              Text('Выберите дисциплину и группу'),
                             );
                         }
                       },

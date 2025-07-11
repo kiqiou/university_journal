@@ -10,13 +10,14 @@ class JournalScreen extends StatefulWidget {
   final int? selectedDisciplineIndex;
   final List<Discipline> disciplines;
   final String? token;
+  final bool isEditable;
   final GlobalKey<JournalTableState> tableKey;
   final int? selectedColumnIndex;
 
-  final Function(int?) onColumnSelected;
-  final Function(Session) onDeleteSession;
-  final Function(Session) onEditSession;
-  final VoidCallback onAddSession;
+  final Function(int?)? onColumnSelected;
+  final Function(Session)? onDeleteSession;
+  final Function(Session)? onEditSession;
+  final VoidCallback? onAddSession;
   final String Function() buildSessionStatsText;
 
   const JournalScreen({
@@ -25,14 +26,15 @@ class JournalScreen extends StatefulWidget {
     required this.selectedSessionsType,
     required this.selectedDisciplineIndex,
     required this.disciplines,
-    required this.token,
     required this.tableKey,
-    required this.selectedColumnIndex,
-    required this.onColumnSelected,
-    required this.onDeleteSession,
-    required this.onEditSession,
-    required this.onAddSession,
+    this.token,
+    this.selectedColumnIndex,
+    this.onColumnSelected,
+    this.onDeleteSession,
+    this.onEditSession,
+    this.onAddSession,
     required this.buildSessionStatsText,
+    required this.isEditable,
   });
 
   @override
@@ -55,6 +57,7 @@ class _JournalScreenState extends State<JournalScreen> {
       onEditSession: widget.onEditSession,
       onAddSession: widget.onAddSession,
       buildSessionStatsText: widget.buildSessionStatsText,
+      isEditable: widget.isEditable,
     );
   }
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:university_journal/screens/teacher/views/journal/widgets/journal_table_wrapper.dart';
 import '../../../../bloc/services/discipline/models/discipline.dart';
 import '../../../../bloc/services/journal/models/session.dart';
 import '../../../../bloc/services/user/models/user.dart';
@@ -16,10 +15,11 @@ class JournalContentScreen extends StatelessWidget {
   final List<Discipline> disciplines;
   final GlobalKey tableKey;
   final String? token;
-  final Function(int?) onColumnSelected;
-  final Function(Session session) onDeleteSession;
-  final Function(Session session) onEditSession;
-  final VoidCallback onAddSession;
+  final bool isEditable;
+  final Function(int?)? onColumnSelected;
+  final Function(Session session)? onDeleteSession;
+  final Function(Session session)? onEditSession;
+  final VoidCallback? onAddSession;
   final String Function() buildSessionStatsText;
 
   const JournalContentScreen({
@@ -38,6 +38,7 @@ class JournalContentScreen extends StatelessWidget {
     required this.onEditSession,
     required this.onAddSession,
     required this.buildSessionStatsText,
+    required this.isEditable,
   });
 
   @override
@@ -48,7 +49,7 @@ class JournalContentScreen extends StatelessWidget {
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => onColumnSelected(null),
+      onTap: () => onColumnSelected!(null),
       child: Column(
         children: [
           const SizedBox(height: 40),
@@ -60,16 +61,21 @@ class JournalContentScreen extends StatelessWidget {
             onAddSession: onAddSession,
             onEditSession: onEditSession,
             onDeleteSession: onDeleteSession,
+            isEditable: isEditable,
           ),
           const SizedBox(height: 40),
           Expanded(
-            child: JournalTableWrapper(
-              key: tableKey,
+            child: JournalTable(
               students: students,
               sessions: sessions,
+              isEditable: isEditable,
+              isLoading: false,
+              token: token,
               selectedColumnIndex: selectedColumnIndex,
               onColumnSelected: onColumnSelected,
-              token: token,
+              onSessionsChanged: (updatedSessions) {
+                print('Сессии изменились: $updatedSessions');
+              },
             ),
           ),
         ],
