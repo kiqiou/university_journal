@@ -1,31 +1,45 @@
 import '../../bloc/services/discipline/models/discipline.dart';
+import '../../bloc/services/discipline/models/discipline_plan.dart';
 import '../../bloc/services/journal/models/session.dart';
+import '../../components/constants/constants.dart';
 
 class SessionUtils {
   static Map<String, int> getDisciplinePlanStats({
     required Discipline discipline,
     required List<Session> sessions,
-    required String sessionType,
-    required List<Map<String, String>> lessonTypeOptions,
+    required String selectedSessionType,
   }) {
-    final typeKey = lessonTypeOptions
-        .firstWhere((t) => t['label'] == sessionType, orElse: () => {})['key'];
+    final selectedTypeMap = lessonTypeOptions.firstWhere(
+          (type) => type['label'] == selectedSessionType,
+      orElse: () => {},
+    );
 
-    if (typeKey == null) return {'planned': 0, 'actual': 0};
+    final selectedKey = selectedTypeMap['key'];
 
-    final planItem = discipline.planItems
-        .where((item) => item.type.toLowerCase() == typeKey.toLowerCase())
-        .firstOrNull;
+    // ✅ Сравнение по локализованному — потому что в Session.type лежит 'Лекция'
+    final actualSessions = sessions
+        .where((s) =>
+    s.type.toLowerCase().trim() ==
+        selectedSessionType.toLowerCase().trim())
+        .fold<Map<int, Session>>({}, (map, session) {
+      map[session.id] = session;
+      return map;
+    })
+        .values
+        .toList();
 
-    final actual = sessions
-        .where((s) => s.type.toLowerCase() == sessionType.toLowerCase())
-        .map((e) => e.id)
-        .toSet()
-        .length;
+    print("SelectedSessionType: $selectedSessionType, Key: $selectedKey");
+    print("Matched sessions: ${actualSessions.length}");
+
+    // ✅ Сравнение по ключу — потому что в planItem.type лежит 'lecture'
+    final planItem = discipline.planItems.firstWhere(
+          (item) => item.type.toLowerCase().trim() == selectedKey?.toLowerCase().trim(),
+      orElse: () => PlanItem(type: '', hoursAllocated: 0, hoursPerSession: 2),
+    );
 
     return {
-      'planned': planItem?.hoursAllocated ?? 0,
-      'actual': actual * 2,
+      'planned': planItem.hoursAllocated,
+      'actual': actualSessions.length * 2,
     };
   }
 
@@ -33,15 +47,13 @@ class SessionUtils {
     required String selectedType,
     required Discipline discipline,
     required List<Session> sessions,
-    required List<Map<String, String>> lessonTypeOptions,
   }) {
     if (selectedType == 'Все') return '';
 
     final stats = SessionUtils.getDisciplinePlanStats(
       discipline: discipline,
       sessions: sessions,
-      sessionType: selectedType,
-      lessonTypeOptions: lessonTypeOptions,
+      selectedSessionType: selectedType,
     );
 
     return '${stats['planned']} ч. запланировано / ${stats['actual']} ч. проведено';

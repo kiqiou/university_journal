@@ -11,8 +11,8 @@ import '../../../bloc/services/journal/models/session.dart';
 import '../../../bloc/services/user/models/user.dart';
 import '../../../bloc/services/user/user_repository.dart';
 import '../../../components/constants/constants.dart';
+import '../../../components/widgets/side_navigation_menu.dart';
 import '../../../shared/journal/widgets/journal_table.dart';
-import '../../../components/side_navigation_menu.dart';
 import '../../../shared/theme_table/theme_table.dart';
 import '../../../components/widgets/discipline_and_group_select.dart';
 import '../../../shared/journal/journal_screen.dart';
@@ -52,34 +52,23 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
   @override
   void initState() {
     super.initState();
+    getUserInfo();
+    getAccessToken();
+  }
+
+  void getUserInfo() {
     final authState = context.read<AuthenticationBloc>().state;
     isHeadman = authState.user!.isHeadman;
     selectedGroupId = authState.user!.groupId;
+  }
 
+  void getAccessToken() {
     final userRepository = UserRepository();
     userRepository.getAccessToken().then((value) {
       setState(() {
         token = value;
       });
     });
-  }
-
-  Future<Map<String, dynamic>> loadJournalData() async {
-    final userRepository = UserRepository();
-    final journalRepository = JournalRepository();
-    print('$selectedGroupId');
-
-    final students =
-        await userRepository.getStudentsByGroupList(selectedGroupId!);
-    final sessions = await journalRepository.journalData(
-      disciplineId: disciplines[selectedDisciplineIndex!].id,
-      groupId: selectedGroupId!,
-    );
-
-    return {
-      'students': students ?? [],
-      'sessions': sessions,
-    };
   }
 
   Future<void> loadDisciplines() async {
@@ -119,7 +108,6 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
       selectedType: selectedSessionsType,
       discipline: currentDiscipline,
       sessions: sessions,
-      lessonTypeOptions: lessonTypeOptions,
     );
   }
 

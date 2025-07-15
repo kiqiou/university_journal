@@ -43,10 +43,29 @@ class JournalContentScreen extends StatelessWidget {
     this.isHeadman,
   });
 
+  List<Session> sessionsForSubgroup(int subgroupId) {
+    if (!disciplines[selectedDisciplineIndex ?? 0].isGroupSplit) {
+      return sessions;
+    }
+    return sessions.where((s) => s.subGroup == subgroupId || s.subGroup == null).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     if (selectedGroupId == null) {
       return const Center(child: Text('Выберите группу'));
+    }
+
+    List<MyUser> firstSubgroup = [];
+    List<MyUser> secondSubgroup = [];
+
+    if (disciplines[selectedDisciplineIndex ?? 0].isGroupSplit) {
+      final half = (students.length / 2).ceil();
+      firstSubgroup = students.sublist(0, half);
+      secondSubgroup = students.sublist(half);
+    } else {
+      firstSubgroup = students;
+      secondSubgroup = [];
     }
 
     return GestureDetector(
@@ -71,7 +90,43 @@ class JournalContentScreen extends StatelessWidget {
           ),
           const SizedBox(height: 40),
           Expanded(
-            child: JournalTable(
+            child: disciplines[selectedDisciplineIndex ?? 0].isGroupSplit
+                ? Column(
+              children: [
+                Expanded(
+                  child: JournalTable(
+                    students: firstSubgroup,
+                    sessions: sessionsForSubgroup(1),
+                    isEditable: isEditable,
+                    isHeadman: isHeadman,
+                    isLoading: false,
+                    token: token,
+                    selectedColumnIndex: selectedColumnIndex,
+                    onColumnSelected: onColumnSelected,
+                    onSessionsChanged: (updatedSessions) {
+                      print('Сессии изменились: $updatedSessions');
+                    },
+                  ),
+                ),
+                SizedBox(height: 40,),
+                Expanded(
+                  child: JournalTable(
+                    students: secondSubgroup,
+                    sessions: sessionsForSubgroup(2),
+                    isEditable: isEditable,
+                    isHeadman: isHeadman,
+                    isLoading: false,
+                    token: token,
+                    selectedColumnIndex: selectedColumnIndex,
+                    onColumnSelected: onColumnSelected,
+                    onSessionsChanged: (updatedSessions) {
+                      print('Сессии изменились: $updatedSessions');
+                    },
+                  ),
+                ),
+              ],
+            )
+                : JournalTable(
               students: students,
               sessions: sessions,
               isEditable: isEditable,

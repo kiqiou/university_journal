@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/bloc/auth/authentication_bloc.dart';
 import 'package:university_journal/components/widgets/icon_container.dart';
 
-import '../shared/journal/widgets/journal_table.dart';
+import '../../shared/journal/widgets/journal_table.dart';
 
 class SideNavigationMenu extends StatefulWidget {
   final Function(String type) onSelectType;

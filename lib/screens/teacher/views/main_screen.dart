@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:university_journal/components/side_navigation_menu.dart';
 import 'package:university_journal/components/widgets/menu_arrow.dart';
 
 import '../../../../bloc/auth/authentication_bloc.dart';
+import '../../../bloc/services/discipline/models/discipline_plan.dart';
+import '../../../components/constants/constants.dart';
+import '../../../components/widgets/side_navigation_menu.dart';
 import '../../../shared/journal/widgets/journal_table.dart';
 import '../../../bloc/journal/journal_bloc.dart';
 import '../../../bloc/services/discipline/models/discipline.dart';
@@ -12,7 +14,6 @@ import '../../../bloc/services/journal/journal_repository.dart';
 import '../../../bloc/services/journal/models/session.dart';
 import '../../../bloc/services/user/models/user.dart';
 import '../../../bloc/services/user/user_repository.dart';
-import '../../../components/constants/constants.dart';
 import '../../../components/widgets/discipline_and_group_select.dart';
 import '../../../shared/journal/journal_screen.dart';
 import '../../../shared/utils/session_utils.dart';
@@ -100,17 +101,55 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
     tableKey.currentState?.updateDataSource(newFilteredSessions, students);
   }
 
+  // String _buildSessionStatsText() {
+  //   if (selectedSessionsType == 'Все') return '';
+  //
+  //   final currentDiscipline = disciplines[selectedDisciplineIndex!];
+  //
+  //   return SessionUtils().buildSessionStatsText(
+  //     selectedType: selectedSessionsType,
+  //     discipline: currentDiscipline,
+  //     sessions: filteredSessions,
+  //   );
+  // }
+
   String _buildSessionStatsText() {
     if (selectedSessionsType == 'Все') return '';
 
     final currentDiscipline = disciplines[selectedDisciplineIndex!];
 
-    return SessionUtils().buildSessionStatsText(
-      selectedType: selectedSessionsType,
-      discipline: currentDiscipline,
-      sessions: sessions,
-      lessonTypeOptions: lessonTypeOptions,
+    final selectedTypeMap = lessonTypeOptions.firstWhere(
+          (type) => type['label'] == selectedSessionsType,
+      orElse: () => {},
     );
+
+    final selectedKey = selectedTypeMap['key'];
+
+    if (selectedKey == null) return '';
+
+    PlanItem? planItem;
+    try {
+      planItem = currentDiscipline.planItems.firstWhere(
+            (item) => item.type.toLowerCase() == selectedKey.toLowerCase(),
+      );
+    } catch (_) {
+      planItem = null;
+    }
+
+    final plannedHours = planItem?.hoursAllocated ?? 0;
+
+    final actualSessions = sessions
+        .where((s) =>
+    s.type.toLowerCase() == selectedSessionsType.toLowerCase())
+        .fold<Map<int, Session>>({}, (map, session) {
+      map[session.id] = session;
+      return map;
+    })
+        .values
+        .toList();
+    final conductedHours = actualSessions.length * 2;
+
+    return '$plannedHours ч. запланировано / $conductedHours ч. проведено';
   }
 
   void _showAccountScreen() {
@@ -315,8 +354,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                                   );
                                             }
                                           }),
-                                      buildSessionStatsText:
-                                          _buildSessionStatsText,
+                                      buildSessionStatsText: _buildSessionStatsText,
                                 isEditable: true,
                                     )
                                   : Center(
