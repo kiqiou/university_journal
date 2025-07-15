@@ -54,6 +54,7 @@ class Session {
         role: json['student']['role']['role'] ?? '',
         id: json['student']['id'] ?? 0,
       ),
+      subGroup: json['subGroup'],
       topic: json['journal']['topic'],
       status: json['status'],
       grade: json['grade']?.toString(),

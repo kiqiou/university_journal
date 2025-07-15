@@ -70,6 +70,7 @@ class JournalBloc extends Bloc<JournalEvent, JournalState> {
         date: event.date,
         disciplineId: event.disciplineId,
         groupId: event.groupId,
+        subGroup: event.subgroupId,
       );
 
       if (state is JournalLoaded && newSession != null) {

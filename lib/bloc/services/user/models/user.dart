@@ -8,6 +8,7 @@ class MyUser extends Equatable {
   final String? bio;
   final String? position;
   final bool? isHeadman;
+  final int? subGroup;
   final int? groupId;
   final String? groupName;
   final String? facultyName;
@@ -23,6 +24,7 @@ class MyUser extends Equatable {
     this.position,
     this.isHeadman,
     this.groupId,
+    this.subGroup,
     this.groupName,
     this.facultyName,
     this.disciplineName,
@@ -44,6 +46,7 @@ class MyUser extends Equatable {
     String? position;
     bool? isHeadman;
     int? groupId;
+    int? subGroup;
     String? groupName;
     String? photoUrl;
     String? facultyName;
@@ -62,6 +65,10 @@ class MyUser extends Equatable {
       groupName = data['group']['name'];
       facultyName = data['group']['faculty']['name'];
       courseName = data['group']['course']['name'];
+    }
+
+    if(data['subGroup'] != null){
+      subGroup = data['subGroup'];
     }
 
     if(data['isHeadman'] != null){
@@ -84,6 +91,7 @@ class MyUser extends Equatable {
       position: position,
       isHeadman: isHeadman,
       groupId: groupId,
+      subGroup: subGroup,
       groupName: groupName,
       facultyName: facultyName,
       disciplineName: courseName,

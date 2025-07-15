@@ -15,9 +15,17 @@ class AddSession extends JournalEvent {
   final String type;
   final int disciplineId;
   final int groupId;
+  final int? subgroupId;
 
-  AddSession({required this.date, required this.type, required this.disciplineId, required this.groupId});
+  AddSession({
+    required this.date,
+    required this.type,
+    required this.disciplineId,
+    required this.groupId,
+    this.subgroupId,
+  });
 }
+
 
 class UpdateSession extends JournalEvent {
   final int groupId;

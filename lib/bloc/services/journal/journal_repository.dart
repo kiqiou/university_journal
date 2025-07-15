@@ -112,6 +112,7 @@ class JournalRepository {
     required String date,
     required int disciplineId,
     required int groupId,
+    int? subGroup,
   }) async {
     try {
       final response = await http.post(
@@ -125,6 +126,7 @@ class JournalRepository {
           "date": date,
           "course_id": disciplineId,
           "group_id": groupId,
+          "subGroup": subGroup,
         }),
       );
 

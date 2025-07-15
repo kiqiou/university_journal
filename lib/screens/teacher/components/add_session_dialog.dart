@@ -6,7 +6,9 @@ import '../../../../components/colors/colors.dart';
 class AddEventDialogContent extends StatefulWidget {
   final void Function(DateTime) onDateSelected;
   final void Function(String) onEventTypeSelected;
+  final void Function(int?)? onSubgroupSelected;
   final bool isEditing;
+  final bool isGroupSplit;
   final DateTime? initialDate;
   final String? initialEventType;
   final VoidCallback onSavePressed;
@@ -17,6 +19,7 @@ class AddEventDialogContent extends StatefulWidget {
     required this.onEventTypeSelected,
     required this.onSavePressed,
     required this.isEditing, this.initialDate, this.initialEventType,
+    required this.isGroupSplit, required this.onSubgroupSelected,
   });
 
   @override
@@ -24,13 +27,16 @@ class AddEventDialogContent extends StatefulWidget {
 }
 
 class AddEventDialogContentState extends State<AddEventDialogContent> {
+  final LayerLink _layerLink = LayerLink();
+  final LayerLink _monthLayerLink = LayerLink();
+  final GlobalKey _dropdownKey = GlobalKey();
+  final GlobalKey _monthDropdownKey = GlobalKey();
   DateTime _selectedDate = DateTime.now();
   DateTime _focusedDay = DateTime.now();
   String? _selectedEventType;
+  int? _selectedSubgroup;
   OverlayEntry? _dropdownOverlay;
   OverlayEntry? _monthDropdownOverlay;
-  final LayerLink _layerLink = LayerLink();
-  final LayerLink _monthLayerLink = LayerLink();
 
   final List<String> _eventTypes = [
     'Лекция',
@@ -40,6 +46,7 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
     'Текущая аттестация',
     'Промежуточная аттестация',
   ];
+
   final List<String> _months = [
     'Январь',
     'Февраль',
@@ -55,8 +62,11 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
     'Декабрь'
   ];
 
-  final GlobalKey _dropdownKey = GlobalKey();
-  final GlobalKey _monthDropdownKey = GlobalKey();
+  final List<Map<String, dynamic>> _subgroupOptions = [
+    {'id': null, 'label': 'Все подгруппы'},
+    {'id': 1, 'label': 'Первая подгруппа'},
+    {'id': 2, 'label': 'Вторая подгруппа'},
+  ];
 
   @override
   void initState() {
@@ -469,6 +479,41 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
                 ),
               ),
             ),
+            if (widget.isGroupSplit)
+              Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Выберите подгруппу',
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Wrap(
+                      spacing: 12,
+                      children: _subgroupOptions.map((option) {
+                        final isSelected = _selectedSubgroup == option['id'];
+                        return ChoiceChip(
+                          label: Text(option['label']),
+                          selected: isSelected,
+                          onSelected: (selected) {
+                            setState(() {
+                              _selectedSubgroup = selected ? option['id'] as int? : null;
+                            });
+                            widget.onSubgroupSelected?.call(
+                              selected ? option['id'] as int? : null,
+                            );
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              ),
           ],
         ),
       ),
@@ -479,10 +524,12 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
 Future<void> showAddEventDialog({
   required BuildContext context,
   required bool isEditing,
+  required bool isGroupSplit,
   DateTime? dateToEdit,
   String? typeToEdit,
   required Function(DateTime?) onDateSelected,
   required Function(String?) onEventTypeSelected,
+  Function(int?)? onSubgroupSelected,
   required VoidCallback onSavePressed,
 }) async {
   await showDialog(
@@ -506,10 +553,12 @@ Future<void> showAddEventDialog({
           child: AddEventDialogContent(
             onDateSelected: onDateSelected,
             onEventTypeSelected: onEventTypeSelected,
+            onSubgroupSelected: onSubgroupSelected,
             onSavePressed: onSavePressed,
             isEditing: isEditing,
             initialDate: dateToEdit,
             initialEventType: typeToEdit,
+            isGroupSplit: isGroupSplit,
           ),
         ),
       );

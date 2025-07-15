@@ -35,7 +35,6 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
   final _formKey = GlobalKey<FormState>();
   final userRepository = UserRepository();
   TeacherContentScreen currentScreen = TeacherContentScreen.journal;
-
   DateTime? _selectedDate;
   String? _selectedEventType;
   String? token;
@@ -45,6 +44,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
   int? selectedDisciplineIndex;
   int? selectedGroupId;
   int? pendingGroupId;
+  int? _selectedSubgroup;
   int? _selectedColumnIndex;
   String selectedSessionsType = 'Все';
   List<Session> sessions = [];
@@ -119,7 +119,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
     final currentDiscipline = disciplines[selectedDisciplineIndex!];
 
     final selectedTypeMap = lessonTypeOptions.firstWhere(
-          (type) => type['label'] == selectedSessionsType,
+      (type) => type['label'] == selectedSessionsType,
       orElse: () => {},
     );
 
@@ -130,7 +130,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
     PlanItem? planItem;
     try {
       planItem = currentDiscipline.planItems.firstWhere(
-            (item) => item.type.toLowerCase() == selectedKey.toLowerCase(),
+        (item) => item.type.toLowerCase() == selectedKey.toLowerCase(),
       );
     } catch (_) {
       planItem = null;
@@ -139,12 +139,12 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
     final plannedHours = planItem?.hoursAllocated ?? 0;
 
     final actualSessions = sessions
-        .where((s) =>
-    s.type.toLowerCase() == selectedSessionsType.toLowerCase())
+        .where(
+            (s) => s.type.toLowerCase() == selectedSessionsType.toLowerCase())
         .fold<Map<int, Session>>({}, (map, session) {
-      map[session.id] = session;
-      return map;
-    })
+          map[session.id] = session;
+          return map;
+        })
         .values
         .toList();
     final conductedHours = actualSessions.length * 2;
@@ -243,7 +243,9 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                       onTopicChanged: () {
                                         context.read<JournalBloc>().add(
                                               LoadSessions(
-                                                disciplineId: disciplines[selectedDisciplineIndex!].id,
+                                                disciplineId: disciplines[
+                                                        selectedDisciplineIndex!]
+                                                    .id,
                                                 groupId: selectedGroupId!,
                                               ),
                                             );
@@ -262,8 +264,10 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                               return selectedGroupId != null
                                   ? JournalScreen(
                                       selectedGroupId: selectedGroupId,
-                                      selectedSessionsType: selectedSessionsType,
-                                      selectedDisciplineIndex: selectedDisciplineIndex,
+                                      selectedSessionsType:
+                                          selectedSessionsType,
+                                      selectedDisciplineIndex:
+                                          selectedDisciplineIndex,
                                       disciplines: disciplines,
                                       token: token,
                                       tableKey: tableKey,
@@ -307,7 +311,9 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                           onSavePressed: () {
                                             context.read<JournalBloc>().add(
                                                   UpdateSession(
-                                                    disciplineId: disciplines[selectedDisciplineIndex!].id,
+                                                    disciplineId: disciplines[
+                                                            selectedDisciplineIndex!]
+                                                        .id,
                                                     groupId: selectedGroupId!,
                                                     sessionId: session.id,
                                                     date: _selectedDate != null
@@ -321,41 +327,52 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                               _selectedColumnIndex = null;
                                             });
                                           },
+                                          isGroupSplit: disciplines[
+                                                  selectedDisciplineIndex!]
+                                              .isGroupSplit,
                                         );
                                       },
                                       onAddSession: () => showAddEventDialog(
-                                          context: context,
-                                          isEditing: false,
-                                          onDateSelected: (date) {
-                                            setState(() {
-                                              _selectedDate = date;
-                                            });
-                                          },
-                                          onEventTypeSelected: (eventType) {
-                                            setState(() {
-                                              _selectedEventType = eventType;
-                                            });
-                                          },
-                                          onSavePressed: () {
-                                            if (_selectedDate != null &&
-                                                _selectedEventType != null) {
-                                              String formattedDate =
-                                                  "${_selectedDate?.year}-${_selectedDate?.month.toString().padLeft(2, '0')}-${_selectedDate?.day.toString().padLeft(2, '0')}";
+                                        context: context,
+                                        isEditing: false,
+                                        onDateSelected: (date) {
+                                          setState(() {
+                                            _selectedDate = date;
+                                          });
+                                        },
+                                        onEventTypeSelected: (eventType) {
+                                          setState(() {
+                                            _selectedEventType = eventType;
+                                          });
+                                        },
+                                        onSubgroupSelected: (subgroup) {
+                                          setState(() {
+                                            _selectedSubgroup =
+                                                subgroup;
+                                          });
+                                        },
+                                        onSavePressed: () {
+                                          if (_selectedDate != null &&
+                                              _selectedEventType != null) {
+                                            String formattedDate =
+                                                "${_selectedDate?.year}-${_selectedDate?.month.toString().padLeft(2, '0')}-${_selectedDate?.day.toString().padLeft(2, '0')}";
 
-                                              context.read<JournalBloc>().add(
-                                                    AddSession(
-                                                      disciplineId: disciplines[
-                                                              selectedDisciplineIndex!]
-                                                          .id,
-                                                      groupId: selectedGroupId!,
-                                                      date: formattedDate,
-                                                      type: _selectedEventType!,
-                                                    ),
-                                                  );
-                                            }
-                                          }),
-                                      buildSessionStatsText: _buildSessionStatsText,
-                                isEditable: true,
+                                            context.read<JournalBloc>().add(
+                                                  AddSession(
+                                                    disciplineId: disciplines[selectedDisciplineIndex!].id,
+                                                    groupId: selectedGroupId!,
+                                                    date: formattedDate,
+                                                    type: _selectedEventType!,
+                                                    subgroupId: _selectedSubgroup,
+                                                  ),
+                                                );
+                                          }
+                                        },
+                                        isGroupSplit: disciplines[selectedDisciplineIndex!].isGroupSplit,
+                                      ),
+                                      buildSessionStatsText:
+                                          _buildSessionStatsText,
+                                      isEditable: true,
                                     )
                                   : Center(
                                       child:
