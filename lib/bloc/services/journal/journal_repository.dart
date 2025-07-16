@@ -51,6 +51,7 @@ class JournalRepository {
               'student': att['student'],
               'status': att['status'],
               'grade': att['grade'],
+              'subGroup': att['session']['subGroup'],
               'updated_at': att['updated_at'],
               'modified_by': att['modified_by'],
             };

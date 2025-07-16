@@ -352,11 +352,10 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                           });
                                         },
                                         onSavePressed: () {
-                                          if (_selectedDate != null &&
-                                              _selectedEventType != null) {
+                                          if (_selectedDate != null && _selectedEventType != null) {
                                             String formattedDate =
                                                 "${_selectedDate?.year}-${_selectedDate?.month.toString().padLeft(2, '0')}-${_selectedDate?.day.toString().padLeft(2, '0')}";
-
+                                            print(_selectedSubgroup);
                                             context.read<JournalBloc>().add(
                                                   AddSession(
                                                     disciplineId: disciplines[selectedDisciplineIndex!].id,
@@ -405,8 +404,9 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                     formKey: _formKey,
                     onDisciplineChanged: (value) {
                       setState(() {
-                        selectedDisciplineIndex = value;
                         selectedGroupId = null;
+                        pendingGroupId = null;
+                        selectedDisciplineIndex = value;
                       });
                     },
                     onGroupChanged: (value) {

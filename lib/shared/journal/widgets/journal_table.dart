@@ -462,7 +462,7 @@ List<GridColumn> buildColumns({
       ),
     ),
     GridColumn(
-      columnName: 'ФИО',
+      columnName: 'Список студентов',
       width: 200,
       allowSorting: true,
       label: Container(
