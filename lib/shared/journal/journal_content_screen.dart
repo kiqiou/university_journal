@@ -11,12 +11,16 @@ class JournalContentScreen extends StatelessWidget {
   final String selectedSessionsType;
   final int? selectedDisciplineIndex;
   final int? selectedGroupId;
-  final int? selectedColumnIndex;
   final List<Discipline> disciplines;
   final GlobalKey tableKey;
   final String? token;
   final bool isEditable;
   final bool? isHeadman;
+  final int? selectedColumnIndex;
+  final int? selectedColumnIndexFirst;
+  final int? selectedColumnIndexSecond;
+  final Function(int?)? onColumnSelectedFirst;
+  final Function(int?)? onColumnSelectedSecond;
   final Function(int?)? onColumnSelected;
   final Function(Session session)? onDeleteSession;
   final Function(Session session)? onEditSession;
@@ -41,6 +45,10 @@ class JournalContentScreen extends StatelessWidget {
     required this.buildSessionStatsText,
     required this.isEditable,
     this.isHeadman,
+    this.selectedColumnIndexFirst,
+    this.selectedColumnIndexSecond,
+    this.onColumnSelectedFirst,
+    this.onColumnSelectedSecond,
   });
 
   List<Session> sessionsForSubgroup(int subgroupId) {
@@ -52,7 +60,8 @@ class JournalContentScreen extends StatelessWidget {
 
     return sessions.where((s) {
       final isStudentInSubgroup = s.student.subGroup == subgroupId;
-      final isSessionForThisGroup = s.subGroup == null || s.subGroup == subgroupId;
+      final isSessionForThisGroup =
+          s.subGroup == null || s.subGroup == subgroupId;
 
       return isStudentInSubgroup && isSessionForThisGroup;
     }).toList();
@@ -65,8 +74,6 @@ class JournalContentScreen extends StatelessWidget {
     }
     List<MyUser> firstSubgroup = [];
     List<MyUser> secondSubgroup = [];
-    int? selectedColumnIndexFirst;
-    int? selectedColumnIndexSecond;
 
     final isSplit = disciplines[selectedDisciplineIndex ?? 0].isGroupSplit;
 
@@ -90,7 +97,9 @@ class JournalContentScreen extends StatelessWidget {
           const SizedBox(height: 40),
           JournalHeader(
             selectedSessionsType: selectedSessionsType,
-            selectedColumnIndex: selectedColumnIndex,
+            selectedColumnIndex: selectedColumnIndexFirst ??
+                selectedColumnIndexSecond ??
+                selectedColumnIndex,
             buildSessionStatsText: buildSessionStatsText,
             getSelectedSession: _getSelectedSession,
             onAddSession: onAddSession,
@@ -100,55 +109,49 @@ class JournalContentScreen extends StatelessWidget {
           ),
           const SizedBox(height: 40),
           Expanded(
-            child: disciplines[selectedDisciplineIndex ?? 0].isGroupSplit && selectedSessionsType != 'Лекция'
+            child: disciplines[selectedDisciplineIndex ?? 0].isGroupSplit &&
+                    selectedSessionsType != 'Лекция'
                 ? Column(
-              children: [
-                Expanded(
-                  child: JournalTable(
-                    students: firstSubgroup,
-                    sessions: sessionsForSubgroup(1),
-                    isEditable: isEditable,
-                    isHeadman: isHeadman,
-                    isLoading: false,
-                    token: token,
-                    selectedColumnIndex: selectedColumnIndex,
-                    onColumnSelected: onColumnSelected,
-                    onSessionsChanged: (updatedSessions) {
-                      print('Сессии изменились: $updatedSessions');
-                    },
-                  ),
-                ),
-                SizedBox(height: 40,),
-                Expanded(
-                  child: JournalTable(
-                    students: secondSubgroup,
-                    sessions: sessionsForSubgroup(2),
-                    isEditable: isEditable,
-                    isHeadman: isHeadman,
-                    isLoading: false,
-                    token: token,
-                    selectedColumnIndex: selectedColumnIndex,
-                    onColumnSelected: onColumnSelected,
-                    onSessionsChanged: (updatedSessions) {
-                      print('Сессии изменились: $updatedSessions');
-                    },
-                  ),
-                ),
-              ],
-            )
+                    children: [
+                      Expanded(
+                        child: JournalTable(
+                          students: firstSubgroup,
+                          sessions: sessionsForSubgroup(1),
+                          isEditable: isEditable,
+                          isHeadman: isHeadman,
+                          isLoading: false,
+                          token: token,
+                          selectedColumnIndex: selectedColumnIndexFirst,
+                          onColumnSelected: onColumnSelectedFirst,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 40,
+                      ),
+                      Expanded(
+                        child: JournalTable(
+                          students: secondSubgroup,
+                          sessions: sessionsForSubgroup(2),
+                          isEditable: isEditable,
+                          isHeadman: isHeadman,
+                          isLoading: false,
+                          token: token,
+                          selectedColumnIndex: selectedColumnIndexSecond,
+                          onColumnSelected: onColumnSelectedSecond,
+                        ),
+                      ),
+                    ],
+                  )
                 : JournalTable(
-              students: students,
-              sessions: sessions,
-              isEditable: isEditable,
-              isHeadman: isHeadman,
-              isLoading: false,
-              token: token,
-              selectedColumnIndex: selectedColumnIndex,
-              onColumnSelected: onColumnSelected,
-              onSessionsChanged: (updatedSessions) {
-                print('Сессии изменились: $updatedSessions');
-              },
-            ),
+                    students: students,
+                    sessions: sessions,
+                    isEditable: isEditable,
+                    isHeadman: isHeadman,
+                    isLoading: false,
+                    token: token,
+                    selectedColumnIndex: selectedColumnIndex,
+                    onColumnSelected: onColumnSelected,
+                  ),
           ),
         ],
       ),
@@ -161,7 +164,9 @@ class JournalContentScreen extends StatelessWidget {
         : sessions.where((s) => s.type == selectedSessionsType).toList();
 
     final dates = extractUniqueDateTypes(filtered);
-    final key = dates[selectedColumnIndex!];
+    final key = dates[selectedColumnIndexFirst ??
+        selectedColumnIndexSecond ??
+        selectedColumnIndex!];
     return filtered.firstWhere((s) => '${s.date} ${s.type} ${s.id}' == key);
   }
 }

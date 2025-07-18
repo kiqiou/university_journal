@@ -11,16 +11,21 @@ import 'journal_content_screen.dart';
 class JournalBlocHandler extends StatelessWidget {
   final String? token;
   final String selectedSessionsType;
-  final int selectedGroupId;
-  final int? selectedColumnIndex;
   final int? selectedDisciplineIndex;
   final bool isEditable;
   final bool? isHeadman;
   final List<Discipline> disciplines;
+  final int selectedGroupId;
+  final int? selectedColumnIndex;
+  final int? selectedColumnIndexFirst;
+  final int? selectedColumnIndexSecond;
+  final Function(int?)? onColumnSelectedFirst;
+  final Function(int?)? onColumnSelectedSecond;
+  final Function(int?)? onColumnSelected;
   final String Function() buildSessionStatsText;
   final Function(Session)? onDeleteSession;
   final Function(Session)? onEditSession;
-  final Function(int?)? onColumnSelected;
+
   final VoidCallback? onAddSession;
   final GlobalKey<JournalTableState> tableKey;
 
@@ -40,6 +45,10 @@ class JournalBlocHandler extends StatelessWidget {
     required this.onColumnSelected,
     required this.isEditable,
     this.isHeadman,
+    this.selectedColumnIndexFirst,
+    this.selectedColumnIndexSecond,
+    this.onColumnSelectedFirst,
+    this.onColumnSelectedSecond,
   });
 
   @override
@@ -58,8 +67,8 @@ class JournalBlocHandler extends StatelessWidget {
           final filteredSessions = selectedSessionsType == 'Все'
               ? state.sessions
               : state.sessions
-              .where((s) => s.type == selectedSessionsType)
-              .toList();
+                  .where((s) => s.type == selectedSessionsType)
+                  .toList();
 
           return JournalContentScreen(
             sessions: filteredSessions,
@@ -68,10 +77,14 @@ class JournalBlocHandler extends StatelessWidget {
             selectedDisciplineIndex: selectedDisciplineIndex,
             selectedGroupId: selectedGroupId,
             selectedColumnIndex: selectedColumnIndex,
+            selectedColumnIndexFirst: selectedColumnIndexFirst,
+            selectedColumnIndexSecond: selectedColumnIndexSecond,
             disciplines: disciplines,
             tableKey: tableKey,
             token: token,
             onColumnSelected: onColumnSelected,
+            onColumnSelectedFirst: onColumnSelectedFirst,
+            onColumnSelectedSecond: onColumnSelectedSecond,
             onDeleteSession: onDeleteSession,
             onEditSession: onEditSession,
             onAddSession: onAddSession,

@@ -41,11 +41,14 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
   bool isLoading = true;
   bool isMenuExpanded = false;
   bool showDisciplineAndGroupSelect = false;
+  late bool isSplit;
   int? selectedDisciplineIndex;
   int? selectedGroupId;
   int? pendingGroupId;
   int? _selectedSubgroup;
-  int? _selectedColumnIndex;
+  int? selectedColumnIndexGeneral;
+  int? selectedColumnIndexFirstSubgroup;
+  int? selectedColumnIndexSecondSubgroup;
   String selectedSessionsType = 'Все';
   List<Session> sessions = [];
   List<Session> filteredSessions = [];
@@ -271,24 +274,44 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                       disciplines: disciplines,
                                       token: token,
                                       tableKey: tableKey,
-                                      selectedColumnIndex: _selectedColumnIndex,
-                                      onColumnSelected: (index) {
-                                        setState(() {
-                                          _selectedColumnIndex = index;
-                                        });
-                                      },
+                                selectedColumnIndex: isSplit ? null : selectedColumnIndexGeneral,
+                                selectedColumnIndexFirst: isSplit ? selectedColumnIndexFirstSubgroup : null,
+                                selectedColumnIndexSecond: isSplit ? selectedColumnIndexSecondSubgroup : null,
+                                onColumnSelected: isSplit
+                                    ? null
+                                    : (index) {
+                                  setState(() {
+                                    selectedColumnIndexGeneral = index;
+                                  });
+                                },
+                                onColumnSelectedFirst: isSplit
+                                    ? (index) {
+                                  setState(() {
+                                    selectedColumnIndexFirstSubgroup = index;
+                                    selectedColumnIndexSecondSubgroup = null;
+                                  });
+                                }
+                                    : null,
+                                onColumnSelectedSecond: isSplit
+                                    ? (index) {
+                                  setState(() {
+                                    selectedColumnIndexSecondSubgroup = index;
+                                    selectedColumnIndexFirstSubgroup = null;
+                                  });
+                                }
+                                    : null,
                                       onDeleteSession: (session) {
                                         context
                                             .read<JournalBloc>()
                                             .add(DeleteSession(
                                               sessionId: session.id,
-                                              disciplineId: disciplines[
-                                                      selectedDisciplineIndex!]
-                                                  .id,
+                                              disciplineId: disciplines[selectedDisciplineIndex!].id,
                                               groupId: selectedGroupId!,
                                             ));
                                         setState(() {
-                                          _selectedColumnIndex = null;
+                                          selectedColumnIndexGeneral = null;
+                                          selectedColumnIndexFirstSubgroup = null;
+                                          selectedColumnIndexSecondSubgroup = null;
                                         });
                                       },
                                       onEditSession: (session) {
@@ -322,9 +345,10 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                                     type: _selectedEventType,
                                                   ),
                                                 );
-
                                             setState(() {
-                                              _selectedColumnIndex = null;
+                                              selectedColumnIndexGeneral = null;
+                                              selectedColumnIndexFirstSubgroup = null;
+                                              selectedColumnIndexSecondSubgroup = null;
                                             });
                                           },
                                           isGroupSplit: disciplines[
@@ -424,6 +448,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                         showDisciplineAndGroupSelect = false;
                         isLoading = true;
                         selectedGroupId = pendingGroupId;
+                        isSplit = disciplines[selectedDisciplineIndex!].isGroupSplit;
                       });
 
                       context.read<JournalBloc>().add(

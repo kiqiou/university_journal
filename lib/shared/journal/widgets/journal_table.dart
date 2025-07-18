@@ -19,13 +19,11 @@ class JournalTable extends StatefulWidget {
   final List<Session> sessions;
   final List<MyUser> students;
   final void Function(int)? onColumnSelected;
-  final void Function(List<Session>)? onSessionsChanged;
 
   const JournalTable({
     super.key,
     required this.isLoading,
     required this.sessions,
-    this.onSessionsChanged,
     required this.isEditable,
     required this.students,
     this.onColumnSelected,

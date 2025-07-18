@@ -14,7 +14,10 @@ class JournalScreen extends StatefulWidget {
   final bool? isHeadman;
   final GlobalKey<JournalTableState> tableKey;
   final int? selectedColumnIndex;
-
+  final int? selectedColumnIndexFirst;
+  final int? selectedColumnIndexSecond;
+  final Function(int?)? onColumnSelectedFirst;
+  final Function(int?)? onColumnSelectedSecond;
   final Function(int?)? onColumnSelected;
   final Function(Session)? onDeleteSession;
   final Function(Session)? onEditSession;
@@ -37,6 +40,10 @@ class JournalScreen extends StatefulWidget {
     required this.buildSessionStatsText,
     required this.isEditable,
     this.isHeadman,
+    this.selectedColumnIndexFirst,
+    this.selectedColumnIndexSecond,
+    this.onColumnSelectedFirst,
+    this.onColumnSelectedSecond,
   });
 
   @override
@@ -54,6 +61,10 @@ class _JournalScreenState extends State<JournalScreen> {
       token: widget.token,
       tableKey: widget.tableKey,
       selectedColumnIndex: widget.selectedColumnIndex,
+      selectedColumnIndexFirst: widget.selectedColumnIndexFirst,
+      selectedColumnIndexSecond: widget.selectedColumnIndexSecond,
+      onColumnSelectedFirst: widget.onColumnSelectedFirst,
+      onColumnSelectedSecond: widget.onColumnSelectedSecond,
       onColumnSelected: widget.onColumnSelected,
       onDeleteSession: widget.onDeleteSession,
       onEditSession: widget.onEditSession,
