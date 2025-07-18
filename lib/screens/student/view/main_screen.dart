@@ -52,8 +52,18 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
   @override
   void initState() {
     super.initState();
+    groupSessions();
     getUserInfo();
     getAccessToken();
+  }
+
+  void groupSessions() {
+    groupedSessions = {
+      'Все': sessions,
+      for (final type in {'Лекция', 'Семинар', 'Практика', 'Лабораторная'})
+        type: sessions.where((s) => s.type == type).toList(),
+    };
+    filteredSessions = groupedSessions['Все']!;
   }
 
   void getUserInfo() {

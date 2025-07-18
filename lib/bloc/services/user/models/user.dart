@@ -11,8 +11,8 @@ class MyUser extends Equatable {
   final int? subGroup;
   final int? groupId;
   final String? groupName;
-  final String? facultyName;
-  final String? disciplineName;
+  final String? faculty;
+  final String? course;
   final String? photoUrl;
   final List<Discipline> disciplines;
 
@@ -26,8 +26,8 @@ class MyUser extends Equatable {
     this.groupId,
     this.subGroup,
     this.groupName,
-    this.facultyName,
-    this.disciplineName,
+    this.faculty,
+    this.course,
     this.photoUrl,
     this.disciplines = const [],
   });
@@ -36,6 +36,7 @@ class MyUser extends Equatable {
     return MyUser(
       id: json['id'],
       username: json['username'],
+      subGroup: json['subGroup'],
       role: 'Студент',
     );
   }
@@ -49,8 +50,8 @@ class MyUser extends Equatable {
     int? subGroup;
     String? groupName;
     String? photoUrl;
-    String? facultyName;
-    String? courseName;
+    String? faculty;
+    String? course;
 
     if (data['teacher_profile'] != null) {
       bio = data['teacher_profile']['bio'];
@@ -63,12 +64,13 @@ class MyUser extends Equatable {
     if (data['group'] != null) {
       groupId = data['group']['id'];
       groupName = data['group']['name'];
-      facultyName = data['group']['faculty']['name'];
-      courseName = data['group']['course']['name'];
+      faculty = data['group']['faculty']['name'];
+      course = data['group']['course']['name'];
     }
 
     if(data['subGroup'] != null){
       subGroup = data['subGroup'];
+      print('Student subGroup: ${data['subGroup']}');
     }
 
     if(data['isHeadman'] != null){
@@ -93,8 +95,8 @@ class MyUser extends Equatable {
       groupId: groupId,
       subGroup: subGroup,
       groupName: groupName,
-      facultyName: facultyName,
-      disciplineName: courseName,
+      faculty: faculty,
+      course: course,
       photoUrl: photoUrl,
     );
   }

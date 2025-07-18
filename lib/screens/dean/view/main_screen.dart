@@ -41,6 +41,7 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
   String selectedSessionsType = 'Все';
   List<Session> sessions = [];
   List<Session> filteredSessions = [];
+  late Map<String, List<Session>> groupedSessions;
   List<MyUser> students = [];
   List<MyUser> teachers = [];
   List<Discipline> disciplines = [];
@@ -48,6 +49,16 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
   @override
   void initState() {
     super.initState();
+    groupSessions();
+  }
+
+  void groupSessions() {
+    groupedSessions = {
+      'Все': sessions,
+      for (final type in {'Лекция', 'Семинар', 'Практика', 'Лабораторная'})
+        type: sessions.where((s) => s.type == type).toList(),
+    };
+    filteredSessions = groupedSessions['Все']!;
   }
 
   Future<void> loadDisciplines() async {

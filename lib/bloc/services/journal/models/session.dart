@@ -43,8 +43,6 @@ class Session {
       formattedDate = rawDate;
     }
 
-    print('Сессия ${json['journal']['id']}, subGroup=${json['subGroup']} (${json['subGroup'].runtimeType})');
-
     return Session(
       id: json['journal']['id'] ?? 0,
       disciplineId: json['journal']['course']['id'] ?? 0,
@@ -55,6 +53,7 @@ class Session {
         username: json['student']['username'] ?? '',
         role: json['student']['role']['role'] ?? '',
         id: json['student']['id'] ?? 0,
+        subGroup: json['student']['subGroup'] ?? 0,
       ),
       subGroup: json['subGroup'],
       topic: json['journal']['topic'],

@@ -38,6 +38,7 @@ class JournalRepository {
               'date': sessionJson['date'],
               'type': sessionJson['type'],
               'topic': sessionJson['topic'],
+              'subGroup': sessionJson['subGroup'],
               'course': {
                 'id': sessionJson['course'],
                 'name': '—',

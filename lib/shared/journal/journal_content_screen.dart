@@ -46,18 +46,16 @@ class JournalContentScreen extends StatelessWidget {
   List<Session> sessionsForSubgroup(int subgroupId) {
     final isSplit = disciplines[selectedDisciplineIndex ?? 0].isGroupSplit;
 
-    for (var s in sessions) {
-      print('Сессия ${s.id}, subGroup=${s.subGroup} (${s.subGroup.runtimeType})');
-    }
-
     if (!isSplit) {
       return sessions;
     }
 
-    return sessions.where((s) =>
-    s.subGroup == subgroupId ||
-        s.subGroup == null
-    ).toList();
+    return sessions.where((s) {
+      final isStudentInSubgroup = s.student.subGroup == subgroupId;
+      final isSessionForThisGroup = s.subGroup == null || s.subGroup == subgroupId;
+
+      return isStudentInSubgroup && isSessionForThisGroup;
+    }).toList();
   }
 
   @override
@@ -65,9 +63,10 @@ class JournalContentScreen extends StatelessWidget {
     if (selectedGroupId == null) {
       return const Center(child: Text('Выберите группу'));
     }
-
     List<MyUser> firstSubgroup = [];
     List<MyUser> secondSubgroup = [];
+    int? selectedColumnIndexFirst;
+    int? selectedColumnIndexSecond;
 
     final isSplit = disciplines[selectedDisciplineIndex ?? 0].isGroupSplit;
 
