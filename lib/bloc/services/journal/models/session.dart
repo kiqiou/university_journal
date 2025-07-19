@@ -86,7 +86,7 @@ class Session {
       disciplineName: disciplineName ?? this.disciplineName,
       date: date ?? this.date,
       type: type ?? this.type,
-      subGroup: subGroup ?? this.subGroup,
+      subGroup: subGroup,
       student: student ?? this.student,
       topic: topic ?? this.topic,
       status: status ?? this.status,

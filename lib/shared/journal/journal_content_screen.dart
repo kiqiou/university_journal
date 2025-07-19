@@ -159,14 +159,33 @@ class JournalContentScreen extends StatelessWidget {
   }
 
   Session? _getSelectedSession() {
+    final isSplit = disciplines[selectedDisciplineIndex ?? 0].isGroupSplit;
+    List<Session> relevantSessions;
+
+    if (selectedColumnIndexFirst != null) {
+      relevantSessions = isSplit && selectedSessionsType != 'Лекция'
+          ? sessionsForSubgroup(1)
+          : sessions;
+    } else if (selectedColumnIndexSecond != null) {
+      relevantSessions = isSplit && selectedSessionsType != 'Лекция'
+          ? sessionsForSubgroup(2)
+          : sessions;
+    } else {
+      relevantSessions = sessions;
+    }
+
     final filtered = selectedSessionsType == 'Все'
-        ? sessions
-        : sessions.where((s) => s.type == selectedSessionsType).toList();
+        ? relevantSessions
+        : relevantSessions.where((s) => s.type == selectedSessionsType).toList();
 
     final dates = extractUniqueDateTypes(filtered);
-    final key = dates[selectedColumnIndexFirst ??
-        selectedColumnIndexSecond ??
-        selectedColumnIndex!];
-    return filtered.firstWhere((s) => '${s.date} ${s.type} ${s.id}' == key);
+    final index = selectedColumnIndexFirst ?? selectedColumnIndexSecond ?? selectedColumnIndex!;
+    if (index >= dates.length) return null;
+
+    final key = dates[index];
+    return filtered.firstWhere(
+          (s) => '${s.date} ${s.type} ${s.id}' == key,
+    );
   }
+
 }

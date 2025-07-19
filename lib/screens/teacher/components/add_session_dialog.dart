@@ -7,6 +7,7 @@ class AddEventDialogContent extends StatefulWidget {
   final void Function(DateTime) onDateSelected;
   final void Function(String) onEventTypeSelected;
   final void Function(int?)? onSubgroupSelected;
+  final int? initialSubGroup;
   final bool isEditing;
   final bool isGroupSplit;
   final DateTime? initialDate;
@@ -18,8 +19,12 @@ class AddEventDialogContent extends StatefulWidget {
     required this.onDateSelected,
     required this.onEventTypeSelected,
     required this.onSavePressed,
-    required this.isEditing, this.initialDate, this.initialEventType,
-    required this.isGroupSplit, required this.onSubgroupSelected,
+    required this.isEditing,
+    this.initialDate,
+    this.initialEventType,
+    required this.isGroupSplit,
+    required this.onSubgroupSelected,
+    this.initialSubGroup,
   });
 
   @override
@@ -74,6 +79,7 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
     _selectedDate = widget.initialDate ?? DateTime.now();
     _focusedDay = widget.initialDate ?? DateTime.now();
     _selectedEventType = widget.initialEventType;
+    _selectedSubgroup = widget.initialSubGroup;
   }
 
   void _showDropdown() {
@@ -273,8 +279,9 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  widget.isEditing ? 'Редактировать занятие' :
-                  'Добавить занятие',
+                  widget.isEditing
+                      ? 'Редактировать занятие'
+                      : 'Добавить занятие',
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.grey.shade800,
@@ -502,7 +509,8 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
                           selected: isSelected,
                           onSelected: (selected) {
                             setState(() {
-                              _selectedSubgroup = selected ? option['id'] as int? : null;
+                              _selectedSubgroup =
+                                  selected ? option['id'] as int? : null;
                             });
                             widget.onSubgroupSelected?.call(
                               selected ? option['id'] as int? : null,
@@ -527,6 +535,7 @@ Future<void> showAddEventDialog({
   required bool isGroupSplit,
   DateTime? dateToEdit,
   String? typeToEdit,
+  int? subGroupToEdit,
   required Function(DateTime?) onDateSelected,
   required Function(String?) onEventTypeSelected,
   Function(int?)? onSubgroupSelected,
@@ -558,6 +567,7 @@ Future<void> showAddEventDialog({
             isEditing: isEditing,
             initialDate: dateToEdit,
             initialEventType: typeToEdit,
+            initialSubGroup: subGroupToEdit,
             isGroupSplit: isGroupSplit,
           ),
         ),
@@ -565,4 +575,3 @@ Future<void> showAddEventDialog({
     },
   );
 }
-

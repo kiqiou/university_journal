@@ -267,10 +267,8 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                               return selectedGroupId != null
                                   ? JournalScreen(
                                       selectedGroupId: selectedGroupId,
-                                      selectedSessionsType:
-                                          selectedSessionsType,
-                                      selectedDisciplineIndex:
-                                          selectedDisciplineIndex,
+                                      selectedSessionsType: selectedSessionsType,
+                                      selectedDisciplineIndex: selectedDisciplineIndex,
                                       disciplines: disciplines,
                                       token: token,
                                       tableKey: tableKey,
@@ -319,6 +317,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                           dateToEdit: DateFormat('dd.MM.yyyy')
                                               .parse(session.date),
                                           typeToEdit: session.type,
+                                          subGroupToEdit: session.subGroup,
                                           context: context,
                                           isEditing: true,
                                           onDateSelected: (date) {
@@ -329,6 +328,11 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                           onEventTypeSelected: (eventType) {
                                             setState(() {
                                               _selectedEventType = eventType;
+                                            });
+                                          },
+                                          onSubgroupSelected: (subGroupId) {
+                                            setState(() {
+                                              _selectedSubgroup = subGroupId;
                                             });
                                           },
                                           onSavePressed: () {
@@ -343,6 +347,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                                         ? "${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}"
                                                         : null,
                                                     type: _selectedEventType,
+                                                    subGroup: _selectedSubgroup,
                                                   ),
                                                 );
                                             setState(() {
@@ -379,7 +384,6 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                           if (_selectedDate != null && _selectedEventType != null) {
                                             String formattedDate =
                                                 "${_selectedDate?.year}-${_selectedDate?.month.toString().padLeft(2, '0')}-${_selectedDate?.day.toString().padLeft(2, '0')}";
-                                            print(_selectedSubgroup);
                                             context.read<JournalBloc>().add(
                                                   AddSession(
                                                     disciplineId: disciplines[selectedDisciplineIndex!].id,

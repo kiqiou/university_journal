@@ -26,16 +26,24 @@ class AddSession extends JournalEvent {
   });
 }
 
-
 class UpdateSession extends JournalEvent {
-  final int groupId;
   final String? date;
   final String? type;
   final String? topic;
+  final int? subGroup;
   final int disciplineId;
+  final int groupId;
   final int sessionId;
 
-  UpdateSession({required this.groupId, required this.date, required this.type, required this.disciplineId, required this.sessionId, this.topic,});
+  UpdateSession({
+    required this.groupId,
+    required this.date,
+    required this.type,
+    required this.disciplineId,
+    required this.sessionId,
+    required this.subGroup,
+    this.topic,
+  });
 }
 
 class DeleteSession extends JournalEvent {

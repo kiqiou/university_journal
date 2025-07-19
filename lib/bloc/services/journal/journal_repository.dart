@@ -152,11 +152,13 @@ class JournalRepository {
     String? date,
     String? type,
     String? topic,
+    int? subGroup,
   }) async {
     final Map<String, dynamic> body = {};
     if (date != null) body['date'] = date;
     if (type != null) body['type'] = type;
     if (topic != null) body['topic'] = topic;
+    body['subGroup'] = subGroup;
 
     final response = await http.patch(
       Uri.parse('http://127.0.0.1:8000/api/update_session/$id/'),
