@@ -14,50 +14,33 @@ import 'package:university_journal/screens/teacher/views/main_screen.dart';
 class AppView extends StatelessWidget {
   const AppView({super.key});
 
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AuthenticationBloc, AuthenticationState>(
       builder: (context, state) {
-        log('➡️ Обновление состояния: ${state.status}');
-        log('🔐 Пользователь с ролью: ${state.user?.role ?? 'Не определено'}');
-        Widget? nextScreen;
-
-        if (state.status == AuthenticationStatus.authenticated) {
-          final role = state.user?.role ?? '';
-          switch (role) {
-            case 'Администратор 1':
-              nextScreen = const Admin1MainScreen();
-              break;
-            case 'Администратор 2':
-              nextScreen = const Admin2MainScreen();
-              break;
-            case 'Декан':
-              nextScreen = const DeanMainScreen();
-              break;
-            case 'Преподаватель':
-              nextScreen = const TeacherMainScreen();
-              break;
-            case 'Студент':
-              nextScreen = const StudentMainScreen();
-              break;
-            default:
-              nextScreen = SignInScreen();
-              break;
-          }
-        } else if (state.status == AuthenticationStatus.unauthenticated) {
-          return SignInScreen(errorMessage: state.error);
+        switch (state.status) {
+          case AuthenticationStatus.authenticated:
+            final role = state.user?.role ?? '';
+            switch (role) {
+              case 'Администратор 1':
+                return const Admin1MainScreen();
+              case 'Администратор 2':
+                return const Admin2MainScreen();
+              case 'Декан':
+                return const DeanMainScreen();
+              case 'Преподаватель':
+                return const TeacherMainScreen();
+              case 'Студент':
+                return const StudentMainScreen();
+              default:
+                return  SignInScreen();
+            }
+          case AuthenticationStatus.unauthenticated:
+            return SignInScreen(errorMessage: state.error);
+          case AuthenticationStatus.unknown:
+            return SignInScreen();
         }
-
-        if (nextScreen != null) {
-          log('🔄 Переход на: ${nextScreen.runtimeType}');
-
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) => nextScreen!),
-            );
-          });
-        }
-        return SignInScreen();
       },
     );
   }

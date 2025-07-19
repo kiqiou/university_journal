@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 import '../../bloc/services/discipline/models/discipline.dart';
+import '../../bloc/services/user/models/user.dart';
 import 'input_decoration.dart';
 
 class GroupSelectDialog extends StatelessWidget {
   final bool show;
   final bool showGroupSelect;
+  final bool showTeacherSelect;
+  final List<MyUser>? teachers;
   final List<Discipline> disciplines;
   final int? selectedDisciplineIndex;
   final int? selectedGroupId;
+  final int? selectedTeacherIndex;
   final GlobalKey<FormState> formKey;
   final void Function(int?) onDisciplineChanged;
   final void Function(int?)? onGroupChanged;
+  final void Function(int?)? onTeacherChanged;
   final void Function() onClose;
   final Future<void> Function(int groupId) onSubmit;
 
@@ -26,6 +31,7 @@ class GroupSelectDialog extends StatelessWidget {
     required this.onClose,
     required this.onSubmit,
     required this.showGroupSelect,
+    required this.showTeacherSelect, this.selectedTeacherIndex, this.teachers, this.onTeacherChanged,
   });
 
   @override
@@ -95,6 +101,38 @@ class GroupSelectDialog extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            if(showTeacherSelect)...[
+                              Text(
+                                'Преподавателя*',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.grey.shade700,
+                                ),
+                              ),
+                              const SizedBox(height: 18),
+                            DropdownButtonFormField<int>(
+                              value: selectedTeacherIndex,
+                              decoration:
+                              inputDecoration('Выберите преподавателя'),
+                              items: List.generate(teachers!.length, (index) {
+                                return DropdownMenuItem<int>(
+                                  value: index,
+                                  child: Text(
+                                    teachers![index].username,
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      color: Color(0xFF6B7280),
+                                    ),
+                                  ),
+                                );
+                              }),
+                              onChanged: onTeacherChanged,
+                              validator: (value) =>
+                              value == null ? 'Выберите дисциплину' : null,
+                            ),
+                            SizedBox(height: 18,),
+                            ],
+                            if(selectedTeacherIndex != null || !showTeacherSelect)...[
                             Text(
                               'Выберите дисциплину*',
                               style: TextStyle(
@@ -107,11 +145,16 @@ class GroupSelectDialog extends StatelessWidget {
                               value: selectedDisciplineIndex,
                               decoration:
                                   inputDecoration('Выберите дисциплину'),
-                              items: List.generate(disciplines.length, (index) {
+                              items: List.generate(selectedTeacherIndex != null
+                                  ? teachers![selectedTeacherIndex!].disciplines.length
+                                  : disciplines.length, (index) {
+                                final discipline = selectedTeacherIndex != null
+                                    ? teachers![selectedTeacherIndex!].disciplines[index]
+                                    : disciplines[index];
                                 return DropdownMenuItem<int>(
                                   value: index,
                                   child: Text(
-                                    disciplines[index].name,
+                                    discipline.name,
                                     style: const TextStyle(
                                       fontSize: 15,
                                       color: Color(0xFF6B7280),
@@ -123,9 +166,18 @@ class GroupSelectDialog extends StatelessWidget {
                               validator: (value) =>
                                   value == null ? 'Выберите дисциплину' : null,
                             ),
+                            ],
                             const SizedBox(height: 18),
                             if (selectedDisciplineIndex != null &&
-                                showGroupSelect)
+                                showGroupSelect)...[
+                              Text(
+                                'Выберите группу*',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.grey.shade700,
+                                ),
+                              ),
+                            const SizedBox(height: 18),
                               DropdownButtonFormField<int>(
                                 value: selectedGroupId,
                                 decoration: inputDecoration('Выберите группу'),
@@ -141,6 +193,7 @@ class GroupSelectDialog extends StatelessWidget {
                                 validator: (value) =>
                                     value == null ? 'Выберите группу' : null,
                               ),
+                            ],
                             const SizedBox(height: 18),
                             ElevatedButton(
                               onPressed: () async {

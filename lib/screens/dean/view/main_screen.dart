@@ -9,10 +9,8 @@ import '../../../bloc/services/journal/journal_repository.dart';
 import '../../../bloc/services/journal/models/session.dart';
 import '../../../bloc/services/user/models/user.dart';
 import '../../../bloc/services/user/user_repository.dart';
-import '../../../components/constants/constants.dart';
 import '../../../components/widgets/side_navigation_menu.dart';
 import '../../../shared/journal/widgets/journal_table.dart';
-import '../../../shared/theme_table/theme_table.dart';
 import '../../../components/widgets/discipline_and_group_select.dart';
 import '../../../components/widgets/menu_arrow.dart';
 import '../../../shared/journal/journal_screen.dart';
@@ -29,28 +27,30 @@ class DeanMainScreen extends StatefulWidget {
 
 class _DeanMainScreenState extends State<DeanMainScreen> {
   final GlobalKey<JournalTableState> tableKey = GlobalKey<JournalTableState>();
-  final _formKey = GlobalKey<FormState>();
   DeanContentScreen currentScreen = DeanContentScreen.journal;
+  final _formKey = GlobalKey<FormState>();
+  final userRepository = UserRepository();
   Future<Map<String, dynamic>>? journalDataFuture;
-
+  late Map<String, List<Session>> groupedSessions;
+  List<Session> filteredSessions = [];
+  List<Session> sessions = [];
+  List<Discipline> disciplines = [];
+  List<MyUser> students = [];
+  List<MyUser> teachers = [];
   bool isLoading = true;
   bool isMenuExpanded = false;
   bool showTeacherDisciplineGroupSelect = false;
   int? selectedDisciplineIndex;
+  int? selectedTeacherIndex;
   int? selectedGroupId;
   int? pendingSelectedGroupId;
   String selectedSessionsType = 'Все';
-  List<Session> sessions = [];
-  List<Session> filteredSessions = [];
-  late Map<String, List<Session>> groupedSessions;
   late bool isGroupSplit;
-  List<MyUser> students = [];
-  List<MyUser> teachers = [];
-  List<Discipline> disciplines = [];
 
   @override
   void initState() {
     super.initState();
+    loadTeachers();
     groupSessions();
   }
 
@@ -61,6 +61,21 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
         type: sessions.where((s) => s.type == type).toList(),
     };
     filteredSessions = groupedSessions['Все']!;
+  }
+
+  Future<void> loadTeachers() async {
+    try {
+      final list = await userRepository.getTeacherList();
+      setState(() {
+        teachers = list!..sort((a, b) => a.username.compareTo(b.username));
+        isLoading = false;
+      });
+    } catch (e) {
+      print("Ошибка при загрузке преподавателей: $e");
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   Future<void> loadDisciplines() async {
@@ -188,16 +203,26 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
                   : SizedBox(),
               if (showTeacherDisciplineGroupSelect)
                 GroupSelectDialog(
+                  showTeacherSelect: true,
                   showGroupSelect: true,
                   show: showTeacherDisciplineGroupSelect,
                   disciplines: disciplines,
+                  teachers: teachers,
+                  selectedTeacherIndex: selectedTeacherIndex,
                   selectedDisciplineIndex: selectedDisciplineIndex,
                   selectedGroupId: pendingSelectedGroupId,
                   formKey: _formKey,
+                  onTeacherChanged: (value) {
+                    setState(() {
+                      selectedDisciplineIndex = null;
+                      selectedGroupId = null;
+                      selectedTeacherIndex = value;
+                    });
+                  },
                   onDisciplineChanged: (value) {
                     setState(() {
-                      selectedDisciplineIndex = value;
                       selectedGroupId = null;
+                      selectedDisciplineIndex = value;
                     });
                   },
                   onGroupChanged: (value) {

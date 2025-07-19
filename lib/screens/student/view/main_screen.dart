@@ -204,6 +204,7 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
               if (showDisciplineSelect)
                 GroupSelectDialog(
                   showGroupSelect: false,
+                  showTeacherSelect: false,
                   show: showDisciplineSelect,
                   disciplines: disciplines,
                   selectedDisciplineIndex: selectedDisciplineIndex,

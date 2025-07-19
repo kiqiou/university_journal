@@ -424,6 +424,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                     : SizedBox(),
                 if (showDisciplineAndGroupSelect)
                   GroupSelectDialog(
+                    showTeacherSelect: false,
                     showGroupSelect: true,
                     show: showDisciplineAndGroupSelect,
                     disciplines: disciplines,
