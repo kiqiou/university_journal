@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:university_journal/components/widgets/menu_arrow.dart';
+import 'package:university_journal/shared/theme_table/theme_screen.dart';
 
 import '../../../../bloc/auth/authentication_bloc.dart';
 import '../../../bloc/services/discipline/models/discipline_plan.dart';
@@ -41,7 +42,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
   bool isLoading = true;
   bool isMenuExpanded = false;
   bool showDisciplineAndGroupSelect = false;
-  late bool isSplit;
+  late bool isGroupSplit;
   int? selectedDisciplineIndex;
   int? selectedGroupId;
   int? pendingGroupId;
@@ -211,58 +212,19 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                             case TeacherContentScreen.account:
                               return const AccountScreen();
                             case TeacherContentScreen.theme:
-                              return BlocBuilder<JournalBloc, JournalState>(
-                                builder: (context, state) {
-                                  if (state is JournalLoading) {
-                                    return const Center(
-                                        child: CircularProgressIndicator());
-                                  } else if (state is JournalLoaded) {
-                                    final sessions = state.sessions;
+                              return ThemeScreen(isEditable: true,
 
-                                    return ThemeTable(
-                                      sessions: sessions,
-                                      onUpdate:
-                                          (sessionId, date, type, topic) async {
-                                        final repository = JournalRepository();
-                                        final success =
-                                            await repository.updateSession(
-                                          id: sessionId,
-                                          date: date,
-                                          type: type,
-                                          topic: topic,
-                                        );
+                          onTopicChanged: () {
+                          context.read<JournalBloc>().add(
+                          LoadSessions(
+                          disciplineId: disciplines[
+                          selectedDisciplineIndex!]
+                              .id,
+                          groupId: selectedGroupId!,
+                          ),
+                          );
+                          }, isGroupSplit: isGroupSplit,);
 
-                                        if (!success) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            const SnackBar(
-                                                content: Text(
-                                                    'Не удалось обновить данные')),
-                                          );
-                                        }
-                                        return success;
-                                      },
-                                      isEditable: true,
-                                      onTopicChanged: () {
-                                        context.read<JournalBloc>().add(
-                                              LoadSessions(
-                                                disciplineId: disciplines[
-                                                        selectedDisciplineIndex!]
-                                                    .id,
-                                                groupId: selectedGroupId!,
-                                              ),
-                                            );
-                                      },
-                                    );
-                                  } else if (state is JournalError) {
-                                    return Center(
-                                        child:
-                                            Text('Ошибка: ${state.message}'));
-                                  } else {
-                                    return const SizedBox();
-                                  }
-                                },
-                              );
                             case TeacherContentScreen.journal:
                               return selectedGroupId != null
                                   ? JournalScreen(
@@ -272,17 +234,17 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                       disciplines: disciplines,
                                       token: token,
                                       tableKey: tableKey,
-                                selectedColumnIndex: isSplit ? null : selectedColumnIndexGeneral,
-                                selectedColumnIndexFirst: isSplit ? selectedColumnIndexFirstSubgroup : null,
-                                selectedColumnIndexSecond: isSplit ? selectedColumnIndexSecondSubgroup : null,
-                                onColumnSelected: isSplit
+                                selectedColumnIndex: isGroupSplit ? null : selectedColumnIndexGeneral,
+                                selectedColumnIndexFirst: isGroupSplit ? selectedColumnIndexFirstSubgroup : null,
+                                selectedColumnIndexSecond: isGroupSplit ? selectedColumnIndexSecondSubgroup : null,
+                                onColumnSelected: isGroupSplit
                                     ? null
                                     : (index) {
                                   setState(() {
                                     selectedColumnIndexGeneral = index;
                                   });
                                 },
-                                onColumnSelectedFirst: isSplit
+                                onColumnSelectedFirst: isGroupSplit
                                     ? (index) {
                                   setState(() {
                                     selectedColumnIndexFirstSubgroup = index;
@@ -290,7 +252,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                   });
                                 }
                                     : null,
-                                onColumnSelectedSecond: isSplit
+                                onColumnSelectedSecond: isGroupSplit
                                     ? (index) {
                                   setState(() {
                                     selectedColumnIndexSecondSubgroup = index;
@@ -452,7 +414,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                         showDisciplineAndGroupSelect = false;
                         isLoading = true;
                         selectedGroupId = pendingGroupId;
-                        isSplit = disciplines[selectedDisciplineIndex!].isGroupSplit;
+                        isGroupSplit = disciplines[selectedDisciplineIndex!].isGroupSplit;
                       });
 
                       context.read<JournalBloc>().add(

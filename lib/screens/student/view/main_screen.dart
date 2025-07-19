@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/components/widgets/menu_arrow.dart';
+import 'package:university_journal/shared/theme_table/theme_screen.dart';
 
 import '../../../bloc/auth/authentication_bloc.dart';
 import '../../../bloc/journal/journal_bloc.dart';
@@ -34,6 +35,7 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
 
   bool? isHeadman;
   bool isLoading = true;
+  late bool isGroupSplit;
   bool isMenuExpanded = false;
   bool showDisciplineSelect = false;
   String? token;
@@ -167,46 +169,7 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
                     child: Builder(builder: (context) {
                       switch (currentScreen) {
                         case StudentContentScreen.theme:
-                          return BlocBuilder<JournalBloc, JournalState>(
-                            builder: (context, state) {
-                              if (state is JournalLoading) {
-                                return const Center(
-                                    child: CircularProgressIndicator());
-                              } else if (state is JournalLoaded) {
-                                final sessions = state.sessions;
-                                return ThemeTable(
-                                  sessions: sessions,
-                                  onUpdate:
-                                      (sessionId, date, type, topic) async {
-                                    final repository = JournalRepository();
-                                    final success =
-                                        await repository.updateSession(
-                                      id: sessionId,
-                                      date: date,
-                                      type: type,
-                                      topic: topic,
-                                    );
-
-                                    if (!success) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                            content: Text(
-                                                'Не удалось обновить данные')),
-                                      );
-                                    }
-                                    return success;
-                                  },
-                                  isEditable: false,
-                                );
-                              } else if (state is JournalError) {
-                                return Center(
-                                    child: Text('Ошибка: ${state.message}'));
-                              } else {
-                                return const SizedBox();
-                              }
-                            },
-                          );
+                          return ThemeScreen(isEditable: false, isGroupSplit: isGroupSplit);
                         case StudentContentScreen.journal:
                           return selectedDisciplineIndex != null
                               ? JournalScreen(
@@ -261,6 +224,7 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
                     setState(() {
                       showDisciplineSelect = false;
                       isLoading = true;
+                      isGroupSplit = disciplines[selectedDisciplineIndex!].isGroupSplit;
                     });
 
                     context.read<JournalBloc>().add(

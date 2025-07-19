@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:university_journal/shared/theme_table/theme_screen.dart';
 
 import '../../../bloc/journal/journal_bloc.dart';
 import '../../../bloc/services/discipline/models/discipline.dart';
@@ -42,6 +43,7 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
   List<Session> sessions = [];
   List<Session> filteredSessions = [];
   late Map<String, List<Session>> groupedSessions;
+  late bool isGroupSplit;
   List<MyUser> students = [];
   List<MyUser> teachers = [];
   List<Discipline> disciplines = [];
@@ -149,62 +151,24 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
                       builder: (context) {
                         switch (currentScreen) {
                           case DeanContentScreen.theme:
-                            return BlocBuilder<JournalBloc, JournalState>(
-                              builder: (context, state) {
-                                if (state is JournalLoading) {
-                                  return const Center(
-                                      child: CircularProgressIndicator());
-                                } else if (state is JournalLoaded) {
-                                  final sessions = state.sessions;
-                                  return ThemeTable(
-                                    sessions: sessions,
-                                    onUpdate:
-                                        (sessionId, date, type, topic) async {
-                                      final repository = JournalRepository();
-                                      final success =
-                                          await repository.updateSession(
-                                        id: sessionId,
-                                        date: date,
-                                        type: type,
-                                        topic: topic,
-                                      );
-
-                                      if (!success) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          const SnackBar(
-                                              content: Text(
-                                                  'Не удалось обновить данные')),
-                                        );
-                                      }
-                                      return success;
-                                    },
-                                    isEditable: false,
-                                  );
-                                } else if (state is JournalError) {
-                                  return Center(
-                                      child: Text('Ошибка: ${state.message}'));
-                                } else {
-                                  return const SizedBox();
-                                }
-                              },
-                            );
+                            return ThemeScreen(
+                                isEditable: false, isGroupSplit: isGroupSplit);
                           case DeanContentScreen.journal:
                             return selectedGroupId != null
                                 ? JournalScreen(
-                              selectedGroupId: selectedGroupId,
-                              selectedSessionsType: selectedSessionsType,
-                              selectedDisciplineIndex: selectedDisciplineIndex,
-                              disciplines: disciplines,
-                              tableKey: tableKey,
-                              buildSessionStatsText:
-                              _buildSessionStatsText,
-                              isEditable: false,
-                            )
+                                    selectedGroupId: selectedGroupId,
+                                    selectedSessionsType: selectedSessionsType,
+                                    selectedDisciplineIndex:
+                                        selectedDisciplineIndex,
+                                    disciplines: disciplines,
+                                    tableKey: tableKey,
+                                    buildSessionStatsText:
+                                        _buildSessionStatsText,
+                                    isEditable: false,
+                                  )
                                 : Center(
-                              child:
-                              Text('Выберите дисциплину и группу'),
-                            );
+                                    child: Text('Выберите дисциплину и группу'),
+                                  );
                         }
                       },
                     ),
@@ -251,6 +215,8 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
                       showTeacherDisciplineGroupSelect = false;
                       isLoading = true;
                       selectedGroupId = pendingSelectedGroupId;
+                      isGroupSplit =
+                          disciplines[selectedDisciplineIndex!].isGroupSplit;
                     });
 
                     context.read<JournalBloc>().add(
