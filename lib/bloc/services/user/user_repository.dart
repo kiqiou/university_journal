@@ -89,15 +89,15 @@ class UserRepository {
         final refreshToken = data['refresh'];
         if (accessToken != null && refreshToken != null) {
           await saveTokens(accessToken, refreshToken);
-          print('Токены сохранены');
+          log('Токены сохранены');
           return true;
         }
       } else {
-        print('Ошибка входа: ${response.body}');
+        log('Ошибка входа: ${response.body}');
         return false;
       }
     } catch (e) {
-      print('Ошибка соединения: $e');
+      log('Ошибка соединения: $e');
       return false;
     }
     return false;

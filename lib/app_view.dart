@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/bloc/auth/authentication_bloc.dart';
 import 'package:university_journal/screens/admin_1/views/admin_1_home_screen.dart';
 import 'package:university_journal/screens/admin_2/views/admin_2_home_screen.dart';
+import 'package:university_journal/screens/auth/views/sign_in_screen.dart';
 import 'package:university_journal/screens/auth/views/sign_up_screen.dart';
 import 'package:university_journal/screens/dean/view/main_screen.dart';
 import 'package:university_journal/screens/student/view/main_screen.dart';
@@ -23,7 +24,6 @@ class AppView extends StatelessWidget {
 
         if (state.status == AuthenticationStatus.authenticated) {
           final role = state.user?.role ?? '';
-          log('🔐 Пользователь с ролью: $role');
           switch (role) {
             case 'Администратор 1':
               nextScreen = const Admin1MainScreen();
@@ -41,11 +41,11 @@ class AppView extends StatelessWidget {
               nextScreen = const StudentMainScreen();
               break;
             default:
-              nextScreen = const WelcomeScreen();
+              nextScreen = SignInScreen();
               break;
           }
         } else if (state.status == AuthenticationStatus.unauthenticated) {
-          nextScreen = const WelcomeScreen();
+          return SignInScreen(errorMessage: state.error);
         }
 
         if (nextScreen != null) {
@@ -57,7 +57,7 @@ class AppView extends StatelessWidget {
             );
           });
         }
-        return WelcomeScreen();
+        return SignInScreen();
       },
     );
   }
