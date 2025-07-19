@@ -42,6 +42,7 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
   bool showTeacherDisciplineGroupSelect = false;
   int? selectedDisciplineIndex;
   int? selectedTeacherIndex;
+  int? pendingTeacherIndex;
   int? selectedGroupId;
   int? pendingSelectedGroupId;
   String selectedSessionsType = 'Все';
@@ -208,7 +209,7 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
                   show: showTeacherDisciplineGroupSelect,
                   disciplines: disciplines,
                   teachers: teachers,
-                  selectedTeacherIndex: selectedTeacherIndex,
+                  selectedTeacherIndex: pendingTeacherIndex,
                   selectedDisciplineIndex: selectedDisciplineIndex,
                   selectedGroupId: pendingSelectedGroupId,
                   formKey: _formKey,
@@ -216,7 +217,7 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
                     setState(() {
                       selectedDisciplineIndex = null;
                       selectedGroupId = null;
-                      selectedTeacherIndex = value;
+                      pendingTeacherIndex = value;
                     });
                   },
                   onDisciplineChanged: (value) {
@@ -240,8 +241,8 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
                       showTeacherDisciplineGroupSelect = false;
                       isLoading = true;
                       selectedGroupId = pendingSelectedGroupId;
-                      isGroupSplit =
-                          disciplines[selectedDisciplineIndex!].isGroupSplit;
+                      isGroupSplit = disciplines[selectedDisciplineIndex!].isGroupSplit;
+                      selectedTeacherIndex = pendingTeacherIndex;
                     });
 
                     context.read<JournalBloc>().add(

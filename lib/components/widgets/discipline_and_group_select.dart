@@ -38,6 +38,22 @@ class GroupSelectDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!show) return const SizedBox.shrink();
 
+    final disciplinesList = selectedTeacherIndex != null
+        ? teachers![selectedTeacherIndex!].disciplines
+        : disciplines;
+
+    final safeSelectedDisciplineIndex = (selectedDisciplineIndex != null && selectedDisciplineIndex! < disciplinesList.length)
+        ? selectedDisciplineIndex
+        : null;
+
+    final groupsList = selectedDisciplineIndex != null
+        ? disciplines[selectedDisciplineIndex!].groups
+        : [];
+
+    final safeSelectedGroupId = (selectedGroupId != null && groupsList.any((g) => g.id == selectedGroupId))
+        ? selectedGroupId
+        : null;
+
     final media = MediaQuery.of(context).size;
     final double dialogWidth =
         (media.width - 32 - 80).clamp(320, 600).toDouble();
@@ -142,15 +158,11 @@ class GroupSelectDialog extends StatelessWidget {
                             ),
                             const SizedBox(height: 18),
                             DropdownButtonFormField<int>(
-                              value: selectedDisciplineIndex,
+                                value: safeSelectedDisciplineIndex,
                               decoration:
                                   inputDecoration('Выберите дисциплину'),
-                              items: List.generate(selectedTeacherIndex != null
-                                  ? teachers![selectedTeacherIndex!].disciplines.length
-                                  : disciplines.length, (index) {
-                                final discipline = selectedTeacherIndex != null
-                                    ? teachers![selectedTeacherIndex!].disciplines[index]
-                                    : disciplines[index];
+                              items: List.generate(disciplinesList.length, (index) {
+                                final discipline = disciplinesList[index];
                                 return DropdownMenuItem<int>(
                                   value: index,
                                   child: Text(
@@ -179,11 +191,9 @@ class GroupSelectDialog extends StatelessWidget {
                               ),
                             const SizedBox(height: 18),
                               DropdownButtonFormField<int>(
-                                value: selectedGroupId,
+                                value: safeSelectedGroupId,
                                 decoration: inputDecoration('Выберите группу'),
-                                items: disciplines[selectedDisciplineIndex!]
-                                    .groups
-                                    .map((group) {
+                                items: groupsList.map((group) {
                                   return DropdownMenuItem<int>(
                                     value: group.id,
                                     child: Text(group.name),
