@@ -9,8 +9,9 @@ class ThemeBlocHandler extends StatelessWidget {
   final bool isEditable;
   final bool isGroupSplit;
   final Function()? onTopicChanged;
+  final Future<void> Function(int sessionId, String topic)? onUpdate;
 
-  const ThemeBlocHandler({super.key, required this.isEditable, this.onTopicChanged, required this.isGroupSplit});
+  const ThemeBlocHandler({super.key, required this.isEditable, this.onTopicChanged, required this.isGroupSplit, this.onUpdate});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +21,7 @@ class ThemeBlocHandler extends StatelessWidget {
       } else if (state is JournalLoaded) {
         final sessions = state.sessions;
 
-        return ThemeTable(sessions: sessions, isEditable: isEditable, onTopicChanged: onTopicChanged, isGroupSplit: isGroupSplit,);
+        return ThemeTable(sessions: sessions, isEditable: isEditable, onTopicChanged: onTopicChanged, isGroupSplit: isGroupSplit, onUpdate: onUpdate,);
       } else {
         return Text('Выберите группу');
       }

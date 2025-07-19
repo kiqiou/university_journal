@@ -212,66 +212,97 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                             case TeacherContentScreen.account:
                               return const AccountScreen();
                             case TeacherContentScreen.theme:
-                              return ThemeScreen(isEditable: true,
-
-                          onTopicChanged: () {
-                          context.read<JournalBloc>().add(
-                          LoadSessions(
-                          disciplineId: disciplines[
-                          selectedDisciplineIndex!]
-                              .id,
-                          groupId: selectedGroupId!,
-                          ),
-                          );
-                          }, isGroupSplit: isGroupSplit,);
+                              return ThemeScreen(
+                                isEditable: true,
+                                onUpdate: (sessionId, topic) async {
+                                  final success = context
+                                      .read<JournalBloc>()
+                                      .add(UpdateSession(
+                                          groupId: selectedGroupId!,
+                                          disciplineId: disciplines[
+                                                  selectedDisciplineIndex!]
+                                              .id,
+                                          sessionId: sessionId,
+                                          topic: topic));
+                                  return success;
+                                },
+                                onTopicChanged: () {
+                                  context.read<JournalBloc>().add(
+                                        LoadSessions(
+                                          disciplineId: disciplines[
+                                                  selectedDisciplineIndex!]
+                                              .id,
+                                          groupId: selectedGroupId!,
+                                        ),
+                                      );
+                                },
+                                isGroupSplit: isGroupSplit,
+                              );
 
                             case TeacherContentScreen.journal:
                               return selectedGroupId != null
                                   ? JournalScreen(
                                       selectedGroupId: selectedGroupId,
-                                      selectedSessionsType: selectedSessionsType,
-                                      selectedDisciplineIndex: selectedDisciplineIndex,
+                                      selectedSessionsType:
+                                          selectedSessionsType,
+                                      selectedDisciplineIndex:
+                                          selectedDisciplineIndex,
                                       disciplines: disciplines,
                                       token: token,
                                       tableKey: tableKey,
-                                selectedColumnIndex: isGroupSplit ? null : selectedColumnIndexGeneral,
-                                selectedColumnIndexFirst: isGroupSplit ? selectedColumnIndexFirstSubgroup : null,
-                                selectedColumnIndexSecond: isGroupSplit ? selectedColumnIndexSecondSubgroup : null,
-                                onColumnSelected: isGroupSplit
-                                    ? null
-                                    : (index) {
-                                  setState(() {
-                                    selectedColumnIndexGeneral = index;
-                                  });
-                                },
-                                onColumnSelectedFirst: isGroupSplit
-                                    ? (index) {
-                                  setState(() {
-                                    selectedColumnIndexFirstSubgroup = index;
-                                    selectedColumnIndexSecondSubgroup = null;
-                                  });
-                                }
-                                    : null,
-                                onColumnSelectedSecond: isGroupSplit
-                                    ? (index) {
-                                  setState(() {
-                                    selectedColumnIndexSecondSubgroup = index;
-                                    selectedColumnIndexFirstSubgroup = null;
-                                  });
-                                }
-                                    : null,
+                                      selectedColumnIndex: isGroupSplit
+                                          ? null
+                                          : selectedColumnIndexGeneral,
+                                      selectedColumnIndexFirst: isGroupSplit
+                                          ? selectedColumnIndexFirstSubgroup
+                                          : null,
+                                      selectedColumnIndexSecond: isGroupSplit
+                                          ? selectedColumnIndexSecondSubgroup
+                                          : null,
+                                      onColumnSelected: isGroupSplit
+                                          ? null
+                                          : (index) {
+                                              setState(() {
+                                                selectedColumnIndexGeneral =
+                                                    index;
+                                              });
+                                            },
+                                      onColumnSelectedFirst: isGroupSplit
+                                          ? (index) {
+                                              setState(() {
+                                                selectedColumnIndexFirstSubgroup =
+                                                    index;
+                                                selectedColumnIndexSecondSubgroup =
+                                                    null;
+                                              });
+                                            }
+                                          : null,
+                                      onColumnSelectedSecond: isGroupSplit
+                                          ? (index) {
+                                              setState(() {
+                                                selectedColumnIndexSecondSubgroup =
+                                                    index;
+                                                selectedColumnIndexFirstSubgroup =
+                                                    null;
+                                              });
+                                            }
+                                          : null,
                                       onDeleteSession: (session) {
                                         context
                                             .read<JournalBloc>()
                                             .add(DeleteSession(
                                               sessionId: session.id,
-                                              disciplineId: disciplines[selectedDisciplineIndex!].id,
+                                              disciplineId: disciplines[
+                                                      selectedDisciplineIndex!]
+                                                  .id,
                                               groupId: selectedGroupId!,
                                             ));
                                         setState(() {
                                           selectedColumnIndexGeneral = null;
-                                          selectedColumnIndexFirstSubgroup = null;
-                                          selectedColumnIndexSecondSubgroup = null;
+                                          selectedColumnIndexFirstSubgroup =
+                                              null;
+                                          selectedColumnIndexSecondSubgroup =
+                                              null;
                                         });
                                       },
                                       onEditSession: (session) {
@@ -314,8 +345,10 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                                 );
                                             setState(() {
                                               selectedColumnIndexGeneral = null;
-                                              selectedColumnIndexFirstSubgroup = null;
-                                              selectedColumnIndexSecondSubgroup = null;
+                                              selectedColumnIndexFirstSubgroup =
+                                                  null;
+                                              selectedColumnIndexSecondSubgroup =
+                                                  null;
                                             });
                                           },
                                           isGroupSplit: disciplines[
@@ -338,26 +371,31 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                         },
                                         onSubgroupSelected: (subgroup) {
                                           setState(() {
-                                            _selectedSubgroup =
-                                                subgroup;
+                                            _selectedSubgroup = subgroup;
                                           });
                                         },
                                         onSavePressed: () {
-                                          if (_selectedDate != null && _selectedEventType != null) {
+                                          if (_selectedDate != null &&
+                                              _selectedEventType != null) {
                                             String formattedDate =
                                                 "${_selectedDate?.year}-${_selectedDate?.month.toString().padLeft(2, '0')}-${_selectedDate?.day.toString().padLeft(2, '0')}";
                                             context.read<JournalBloc>().add(
                                                   AddSession(
-                                                    disciplineId: disciplines[selectedDisciplineIndex!].id,
+                                                    disciplineId: disciplines[
+                                                            selectedDisciplineIndex!]
+                                                        .id,
                                                     groupId: selectedGroupId!,
                                                     date: formattedDate,
                                                     type: _selectedEventType!,
-                                                    subgroupId: _selectedSubgroup,
+                                                    subgroupId:
+                                                        _selectedSubgroup,
                                                   ),
                                                 );
                                           }
                                         },
-                                        isGroupSplit: disciplines[selectedDisciplineIndex!].isGroupSplit,
+                                        isGroupSplit: disciplines[
+                                                selectedDisciplineIndex!]
+                                            .isGroupSplit,
                                       ),
                                       buildSessionStatsText:
                                           _buildSessionStatsText,
@@ -414,7 +452,8 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                         showDisciplineAndGroupSelect = false;
                         isLoading = true;
                         selectedGroupId = pendingGroupId;
-                        isGroupSplit = disciplines[selectedDisciplineIndex!].isGroupSplit;
+                        isGroupSplit =
+                            disciplines[selectedDisciplineIndex!].isGroupSplit;
                       });
 
                       context.read<JournalBloc>().add(

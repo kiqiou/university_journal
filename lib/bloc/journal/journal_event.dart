@@ -37,11 +37,11 @@ class UpdateSession extends JournalEvent {
 
   UpdateSession({
     required this.groupId,
-    required this.date,
-    required this.type,
     required this.disciplineId,
     required this.sessionId,
-    required this.subGroup,
+    this.date,
+    this.type,
+    this.subGroup,
     this.topic,
   });
 }

@@ -5,7 +5,8 @@ class ThemeScreen extends StatefulWidget{
   final bool isEditable;
   final bool isGroupSplit;
   final Function()? onTopicChanged;
-  const ThemeScreen({super.key, required this.isEditable, this.onTopicChanged, required this.isGroupSplit,});
+  final Future<void> Function(int sessionId, String topic)? onUpdate;
+  const ThemeScreen({super.key, required this.isEditable, this.onTopicChanged, required this.isGroupSplit, this.onUpdate,});
 
   @override
   State<ThemeScreen> createState() => _ThemeScreenState();
@@ -14,6 +15,6 @@ class ThemeScreen extends StatefulWidget{
 class _ThemeScreenState extends State<ThemeScreen>{
   @override
   Widget build(BuildContext context) {
-    return ThemeBlocHandler(isEditable: widget.isEditable, onTopicChanged: widget.onTopicChanged, isGroupSplit: widget.isGroupSplit,);
+    return ThemeBlocHandler(isEditable: widget.isEditable, onTopicChanged: widget.onTopicChanged, isGroupSplit: widget.isGroupSplit, onUpdate: widget.onUpdate,);
   }
 }
