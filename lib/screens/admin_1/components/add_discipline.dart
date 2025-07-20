@@ -151,7 +151,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                           .showSnackBar(
                                         const SnackBar(
                                             content: Text(
-                                                '❌ Не удалось добавить курс')),
+                                                '❌ Не удалось добавить дисциплину')),
                                       );
                                     }
                                   }
@@ -475,8 +475,6 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                     ),
                                 ],
                               ),
-
-                              // Привязка преподавателя
                               Text("Привязать преподавателя",
                                   style: TextStyle(
                                       color: Color(0xFF6B7280), fontSize: 15)),
