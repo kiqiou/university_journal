@@ -295,7 +295,7 @@ class _CoursesList extends State<CoursesList> {
                                   children: [
                                     const Text(
                                       "Удаление дисциплины",
-                                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400),
+                                      style: TextStyle(fontSize: 18,),
                                     ),
                                     const Spacer(),
                                     InkWell(
@@ -402,7 +402,6 @@ class _CoursesList extends State<CoursesList> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    // Верхняя панель
                                     Row(
                                       children: [
                                         Text(
