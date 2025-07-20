@@ -248,11 +248,36 @@ class _StudentsListState extends State<StudentsList> {
                             color: Colors.orange.shade100,
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: Text(
-                            'Староста',
-                            style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.orange.shade800),
+                          alignment: Alignment.centerLeft,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: student.isHeadman! ? Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                student.username,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              Text(
+                                'Отмечен как староста',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            ],
+                          ) : Text(
+                            student.username,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                            ),
+
                           ),
                         ),
                       ],

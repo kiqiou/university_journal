@@ -9,7 +9,7 @@ class JournalRepository {
     required int disciplineId,
     required int groupId,
   }) async {
-    final uri = Uri.parse('http://127.0.0.1:8000/api/get_attendance/')
+    final uri = Uri.parse('http://127.0.0.1:8000/session/api/get_attendance/')
         .replace(queryParameters: {
       'course_id': disciplineId.toString(),
       'group_id': groupId.toString(),
@@ -38,6 +38,7 @@ class JournalRepository {
               'date': sessionJson['date'],
               'type': sessionJson['type'],
               'topic': sessionJson['topic'],
+              'subGroup': sessionJson['subGroup'],
               'course': {
                 'id': sessionJson['course'],
                 'name': '—',
@@ -51,6 +52,7 @@ class JournalRepository {
               'student': att['student'],
               'status': att['status'],
               'grade': att['grade'],
+              'subGroup': att['session']['subGroup'],
               'updated_at': att['updated_at'],
               'modified_by': att['modified_by'],
             };
@@ -90,7 +92,7 @@ class JournalRepository {
     }
 
     final response = await http.put(
-      Uri.parse('http://127.0.0.1:8000/api/update_attendance/'),
+      Uri.parse('http://127.0.0.1:8000/session/api/update_attendance/'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
@@ -112,10 +114,11 @@ class JournalRepository {
     required String date,
     required int disciplineId,
     required int groupId,
+    int? subGroup,
   }) async {
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/api/add_session/'),
+        Uri.parse('http://127.0.0.1:8000/session/api/add_session/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
@@ -125,6 +128,7 @@ class JournalRepository {
           "date": date,
           "course_id": disciplineId,
           "group_id": groupId,
+          "subGroup": subGroup,
         }),
       );
 
@@ -148,14 +152,16 @@ class JournalRepository {
     String? date,
     String? type,
     String? topic,
+    int? subGroup,
   }) async {
     final Map<String, dynamic> body = {};
     if (date != null) body['date'] = date;
     if (type != null) body['type'] = type;
     if (topic != null) body['topic'] = topic;
+    body['subGroup'] = subGroup;
 
     final response = await http.patch(
-      Uri.parse('http://127.0.0.1:8000/api/update_session/$id/'),
+      Uri.parse('http://127.0.0.1:8000/session/api/update_session/$id/'),
       headers: {
         'Content-Type': 'application/json',
       },
@@ -176,7 +182,7 @@ class JournalRepository {
   }) async {
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/api/delete_session/'),
+        Uri.parse('http://127.0.0.1:8000/session/api/delete_session/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',

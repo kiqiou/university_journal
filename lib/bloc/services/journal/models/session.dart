@@ -11,8 +11,8 @@ class Session {
   final String date;
   final String type;
   final MyUser student;
+  int? subGroup;
   String? topic;
-
   String? status;
   String? grade;
   String? modifiedByUsername;
@@ -30,6 +30,7 @@ class Session {
     this.topic,
     this.modifiedByUsername,
     this.updatedAt,
+    this.subGroup,
   });
 
   factory Session.fromJson(Map<String, dynamic> json) {
@@ -52,7 +53,9 @@ class Session {
         username: json['student']['username'] ?? '',
         role: json['student']['role']['role'] ?? '',
         id: json['student']['id'] ?? 0,
+        subGroup: json['student']['subGroup'] ?? 0,
       ),
+      subGroup: json['subGroup'],
       topic: json['journal']['topic'],
       status: json['status'],
       grade: json['grade']?.toString(),
@@ -70,6 +73,7 @@ class Session {
     String? date,
     String? type,
     MyUser? student,
+    int? subGroup,
     String? topic,
     String? status,
     String? grade,
@@ -82,6 +86,7 @@ class Session {
       disciplineName: disciplineName ?? this.disciplineName,
       date: date ?? this.date,
       type: type ?? this.type,
+      subGroup: subGroup,
       student: student ?? this.student,
       topic: topic ?? this.topic,
       status: status ?? this.status,
