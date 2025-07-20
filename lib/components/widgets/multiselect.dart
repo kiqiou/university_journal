@@ -55,7 +55,7 @@ class _MultiSelectDialogState<T> extends State<MultiSelectDialog<T>> {
         side: BorderSide(color: Colors.grey.shade200, width: 1.5),
       ),
       content: SizedBox(
-        width: double.maxFinite,
+        width: MediaQuery.of(context).size.width / 2,
         height: 400,
         child: Column(
           children: [

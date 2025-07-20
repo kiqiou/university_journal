@@ -7,7 +7,7 @@ class DisciplineRepository{
   Future<List<Discipline>?> getDisciplinesList() async {
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/api/get_courses_list/'),
+        Uri.parse('http://127.0.0.1:8000/discipline/api/get_disciplines_list/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
@@ -38,7 +38,7 @@ class DisciplineRepository{
   }) async {
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/api/add_course/'),
+        Uri.parse('http://127.0.0.1:8000/discipline/api/add_course/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
@@ -73,7 +73,7 @@ class DisciplineRepository{
     List<int>? groupIds,
     bool? isGroupSplit,
     required bool appendTeachers,
-    List<Map<String, dynamic>>? planItems, // nullable
+    List<Map<String, dynamic>>? planItems,
   }) async {
     try {
       final Map<String, dynamic> body = {
@@ -88,7 +88,7 @@ class DisciplineRepository{
       if (planItems != null) body['plan_items'] = planItems;
 
       final response = await http.put(
-        Uri.parse('http://127.0.0.1:8000/api/update_course/'),
+        Uri.parse('http://127.0.0.1:8000/discipline/api/update_course/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
@@ -116,7 +116,7 @@ class DisciplineRepository{
   }) async {
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/api/delete_course/'),
+        Uri.parse('http://127.0.0.1:8000/discipline/api/delete_course/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',

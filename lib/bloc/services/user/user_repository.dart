@@ -188,7 +188,7 @@ class UserRepository {
   Future<List<MyUser>?> getTeacherList() async {
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/api/get_teacher_list/'),
+        Uri.parse('http://127.0.0.1:8000/user/api/get_teacher_list/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
@@ -213,7 +213,7 @@ class UserRepository {
   Future<List<MyUser>?> getStudentList() async {
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/api/get_student_list/'),
+        Uri.parse('http://127.0.0.1:8000/user/api/get_student_list/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
@@ -238,7 +238,7 @@ class UserRepository {
   Future<List<MyUser>?> getStudentsByGroupList(int groupId) async {
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/api/get_students_by_group/'),
+        Uri.parse('http://127.0.0.1:8000/user/api/get_students_by_group/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
@@ -273,7 +273,7 @@ class UserRepository {
     String? photoName,
   }) async {
     try {
-      final uri = Uri.parse('http://127.0.0.1:8000/api/update_user/$userId/');
+      final uri = Uri.parse('http://127.0.0.1:8000/user/api/update_user/$userId/');
       final request = http.MultipartRequest('PUT', uri);
 
       request.fields['username'] = username ?? '';
@@ -314,7 +314,7 @@ class UserRepository {
     required List<int> disciplineIds,
   }) async {
     try {
-      final uri = Uri.parse('http://127.0.0.1:8000/api/update_teacher_disciplines/');
+      final uri = Uri.parse('http://127.0.0.1:8000/user/api/update_teacher_disciplines/');
       final response = await http.put(
         uri,
         headers: {'Content-Type': 'application/json'},
@@ -339,7 +339,7 @@ class UserRepository {
   }) async {
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/api/delete_user/'),
+        Uri.parse('http://127.0.0.1:8000/user/api/delete_user/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
