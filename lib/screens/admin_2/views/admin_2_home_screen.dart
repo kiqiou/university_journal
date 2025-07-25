@@ -107,7 +107,7 @@ class _Admin2MainScreenState extends State<Admin2MainScreen> {
                         return StudentsList(
                           students: students,
                           loadStudents: loadStudents,
-                          groups: groups,
+                          groups: groups, allGroups: [],
                         );
                       case Admin2ContentScreen.groups:
                         return GroupsList(
