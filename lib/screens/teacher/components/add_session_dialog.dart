@@ -500,24 +500,40 @@ class AddEventDialogContentState extends State<AddEventDialogContent> {
                       ),
                     ),
                     SizedBox(height: 10),
-                    Wrap(
-                      spacing: 12,
-                      children: _subgroupOptions.map((option) {
-                        final isSelected = _selectedSubgroup == option['id'];
-                        return ChoiceChip(
-                          label: Text(option['label']),
-                          selected: isSelected,
-                          onSelected: (selected) {
-                            setState(() {
-                              _selectedSubgroup =
-                                  selected ? option['id'] as int? : null;
-                            });
-                            widget.onSubgroupSelected?.call(
-                              selected ? option['id'] as int? : null,
-                            );
-                          },
-                        );
-                      }).toList(),
+                    ChipTheme(
+                      data: ChipTheme.of(context).copyWith(
+                        selectedColor: MyColors.blueJournal,
+                        backgroundColor: Colors.white,
+                        checkmarkColor: Colors.white,
+                        secondarySelectedColor: MyColors.blueJournal,
+                      ),
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: _subgroupOptions.map((option) {
+                          final isSelected = _selectedSubgroup == option['id'];
+                          return ChoiceChip(
+                            label: Text(
+                              option['label'],
+                              style: TextStyle(
+                                  color: isSelected
+                                      ? Colors.white
+                                      : Colors.grey.shade700),
+                            ),
+                            side: BorderSide(color: Colors.grey.shade500),
+                            selected: isSelected,
+                            onSelected: (selected) {
+                              setState(() {
+                                _selectedSubgroup =
+                                    selected ? option['id'] as int? : null;
+                              });
+                              widget.onSubgroupSelected?.call(
+                                selected ? option['id'] as int? : null,
+                              );
+                            },
+                          );
+                        }).toList(),
+                      ),
                     ),
                   ],
                 ),

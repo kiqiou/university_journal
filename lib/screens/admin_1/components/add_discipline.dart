@@ -40,7 +40,13 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
   String? selectedLessonType;
   MyUser? selectedTeacher;
   Group? selectedGroup;
+  String? _selectedAttestationType;
   bool isGroupSplit = false;
+
+  List<String> _attestationOptions = [
+    'Зачет',
+    'Экзамен'
+  ];
 
   @override
   void initState() {
@@ -141,6 +147,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                       groupIds: groupIds,
                                       planItems: planItems,
                                           isGroupSplit: isGroupSplit,
+                                          attestationType: _selectedAttestationType!,
                                     );
 
                                     if (result) {
@@ -635,6 +642,50 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                   }).toList(),
                                 ),
                               const SizedBox(height: 20),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Выберите тип аттестации',
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.grey.shade700,
+                                    ),
+                                  ),
+                                  SizedBox(height: 10),
+                                  ChipTheme(
+                                    data: ChipTheme.of(context).copyWith(
+                                      selectedColor: MyColors.blueJournal,
+                                      backgroundColor: Colors.white,
+                                      checkmarkColor: Colors.white,
+                                      secondarySelectedColor: MyColors.blueJournal,
+                                    ),
+                                    child: Wrap(
+                                      spacing: 10,
+                                      runSpacing: 10,
+                                      children: _attestationOptions.map((option) {
+                                        final isSelected = _selectedAttestationType == option;
+                                        return ChoiceChip(
+                                          label: Text(
+                                            option,
+                                            style: TextStyle(
+                                                color: isSelected
+                                                    ? Colors.white
+                                                    : Colors.grey.shade700),
+                                          ),
+                                          side: BorderSide(color: Colors.grey.shade500),
+                                          selected: isSelected,
+                                          onSelected: (selected) {
+                                            setState(() {
+                                              _selectedAttestationType = selected ? option as String? : null;
+                                            });
+                                          },
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
                         ),

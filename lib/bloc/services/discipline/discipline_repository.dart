@@ -34,6 +34,7 @@ class DisciplineRepository{
     required List<int> teacherIds,
     required List<int> groupIds,
     required bool isGroupSplit,
+    required String attestationType,
     required List<Map<String, dynamic>> planItems,
   }) async {
     try {
@@ -49,6 +50,7 @@ class DisciplineRepository{
           'groups': groupIds,
           'is_group_split': isGroupSplit,
           'plan_items': planItems,
+          'attestation_type': attestationType,
         }),
       );
 
