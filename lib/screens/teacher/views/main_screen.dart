@@ -5,9 +5,12 @@ import 'package:university_journal/components/widgets/menu_arrow.dart';
 import 'package:university_journal/shared/theme_table/theme_screen.dart';
 
 import '../../../../bloc/auth/authentication_bloc.dart';
+import '../../../bloc/attestation/attestation_bloc.dart';
+import '../../../bloc/services/attestation/attestation_repository.dart';
 import '../../../bloc/services/discipline/models/discipline_plan.dart';
 import '../../../components/constants/constants.dart';
 import '../../../components/widgets/side_navigation_menu.dart';
+import '../../../shared/attestation/attestation_screen.dart';
 import '../../../shared/journal/widgets/journal_table.dart';
 import '../../../bloc/journal/journal_bloc.dart';
 import '../../../bloc/services/discipline/models/discipline.dart';
@@ -17,12 +20,10 @@ import '../../../bloc/services/user/models/user.dart';
 import '../../../bloc/services/user/user_repository.dart';
 import '../../../components/widgets/discipline_and_group_select.dart';
 import '../../../shared/journal/journal_screen.dart';
-import '../../../shared/utils/session_utils.dart';
 import 'account_screen.dart';
 import '../components/add_session_dialog.dart';
-import '../../../shared/theme_table/theme_table.dart';
 
-enum TeacherContentScreen { journal, account, theme }
+enum TeacherContentScreen { journal, account, theme , attestation}
 
 class TeacherMainScreen extends StatefulWidget {
   const TeacherMainScreen({super.key});
@@ -168,13 +169,26 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
     });
   }
 
+  void _showAttestationScreen() {
+    setState(() {
+      currentScreen = TeacherContentScreen.attestation;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => JournalBloc(
-        journalRepository: JournalRepository(),
-        userRepository: UserRepository(),
-      ),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => JournalBloc(
+            journalRepository: JournalRepository(),
+            userRepository: UserRepository(),
+          ),
+        ),
+        BlocProvider(
+          create: (_) => AttestationBloc(repository: USRRepository()),
+        ),
+      ],
       child: Builder(
         builder: (context) {
           return Scaffold(
@@ -186,6 +200,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                       onSelectType: _filterBySessionType,
                       onProfileTap: _showAccountScreen,
                       onThemeTap: _showThemeScreen,
+                      onAttestationTap: _showAttestationScreen,
                       onToggle: () {
                         setState(() {
                           isMenuExpanded = !isMenuExpanded;
@@ -405,6 +420,8 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                       child:
                                           Text('Выберите дисциплину и группу'),
                                     );
+                            case TeacherContentScreen.attestation:
+                              return AttestationScreen(attestations: [], isEditable: true,);
                           }
                         },
                       ),
@@ -464,6 +481,10 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                               groupId: selectedGroupId!,
                             ),
                           );
+
+                      context.read<AttestationBloc>().add(
+                        LoadAttestations(groupId: selectedGroupId!, disciplineId: disciplines[selectedDisciplineIndex!].id),
+                      );
                     },
                   ),
               ],

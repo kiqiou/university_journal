@@ -11,6 +11,7 @@ class SideNavigationMenu extends StatefulWidget {
   final Function(String type) onSelectType;
   final VoidCallback onProfileTap;
   final VoidCallback onThemeTap;
+  final VoidCallback onAttestationTap;
   final VoidCallback onToggle;
   final VoidCallback onGroupSelect;
   final bool isExpanded;
@@ -25,6 +26,7 @@ class SideNavigationMenu extends StatefulWidget {
     required this.isExpanded,
     required this.showGroupSelect,
     required this.onGroupSelect,
+    required this.onAttestationTap,
   });
 
   @override
@@ -290,6 +292,8 @@ class _SideNavigationMenuState extends State<SideNavigationMenu> {
                                             });
                                             if (index == _icons.length - 1) {
                                               widget.onThemeTap();
+                                            } else if (index == _icons.length - 2){
+                                              widget.onAttestationTap();
                                             } else {
                                               final type = _filterText[index];
                                               widget.onSelectType(type);

@@ -3,23 +3,24 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/components/widgets/menu_arrow.dart';
 import 'package:university_journal/shared/theme_table/theme_screen.dart';
 
+import '../../../bloc/attestation/attestation_bloc.dart';
 import '../../../bloc/auth/authentication_bloc.dart';
 import '../../../bloc/journal/journal_bloc.dart';
+import '../../../bloc/services/attestation/attestation_repository.dart';
 import '../../../bloc/services/discipline/models/discipline.dart';
 import '../../../bloc/services/discipline/discipline_repository.dart';
 import '../../../bloc/services/journal/journal_repository.dart';
 import '../../../bloc/services/journal/models/session.dart';
 import '../../../bloc/services/user/models/user.dart';
 import '../../../bloc/services/user/user_repository.dart';
-import '../../../components/constants/constants.dart';
 import '../../../components/widgets/side_navigation_menu.dart';
+import '../../../shared/attestation/attestation_screen.dart';
 import '../../../shared/journal/widgets/journal_table.dart';
-import '../../../shared/theme_table/theme_table.dart';
 import '../../../components/widgets/discipline_and_group_select.dart';
 import '../../../shared/journal/journal_screen.dart';
 import '../../../shared/utils/session_utils.dart';
 
-enum StudentContentScreen { journal, theme }
+enum StudentContentScreen { journal, theme , attestation}
 
 class StudentMainScreen extends StatefulWidget {
   const StudentMainScreen({super.key});
@@ -129,13 +130,26 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
     });
   }
 
+  void _showAttestationScreen() {
+    setState(() {
+      currentScreen = StudentContentScreen.attestation;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => JournalBloc(
-        journalRepository: JournalRepository(),
-        userRepository: UserRepository(),
-      ),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => JournalBloc(
+            journalRepository: JournalRepository(),
+            userRepository: UserRepository(),
+          ),
+        ),
+        BlocProvider(
+          create: (_) => AttestationBloc(repository: USRRepository()),
+        ),
+      ],
       child: Builder(builder: (context) {
         return Scaffold(
           body: Stack(
@@ -146,6 +160,7 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
                     onSelectType: _filterBySessionType,
                     onProfileTap: () {},
                     onThemeTap: _showThemeScreen,
+                    onAttestationTap: _showAttestationScreen,
                     onToggle: () {
                       setState(() {
                         isMenuExpanded = !isMenuExpanded;
@@ -186,6 +201,8 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
                               : Center(
                                   child: Text('Выберите дисциплину и группу'),
                                 );
+                        case StudentContentScreen.attestation:
+                          return AttestationScreen(attestations: [], isEditable: false,);
                       }
                     }),
                   ),
@@ -235,6 +252,10 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
                             groupId: groupId,
                           ),
                         );
+
+                    context.read<AttestationBloc>().add(
+                      LoadAttestations(groupId: selectedGroupId!, disciplineId: disciplines[selectedDisciplineIndex!].id),
+                    );
                   },
                 ),
             ],
