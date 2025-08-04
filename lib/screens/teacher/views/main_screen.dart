@@ -421,7 +421,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                           Text('Выберите дисциплину и группу'),
                                     );
                             case TeacherContentScreen.attestation:
-                              return AttestationScreen(attestations: [], isEditable: true,);
+                              return AttestationScreen(isEditable: true,);
                           }
                         },
                       ),

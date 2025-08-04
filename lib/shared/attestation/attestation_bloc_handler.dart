@@ -7,14 +7,12 @@ import '../../bloc/services/attestation/model/attestation.dart';
 import 'attestation_content_screen.dart';
 
 class AttestationBlocHandler extends StatelessWidget {
-  final List<Attestation> attestations;
   final VoidCallback onUpdate;
   final bool isEditable;
 
   const AttestationBlocHandler({
     super.key,
     required this.isEditable,
-    required this.attestations,
     required this.onUpdate,
   });
 

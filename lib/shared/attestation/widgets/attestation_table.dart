@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import '../../../bloc/services/attestation/model/attestation.dart';
 
@@ -21,6 +22,9 @@ class AttestationTable extends StatelessWidget {
     final maxUsrCount = attestations.map((a) => a.usrItems.length).fold(0, max);
 
     return SfDataGrid(
+      gridLinesVisibility: GridLinesVisibility.none,
+      headerGridLinesVisibility: GridLinesVisibility.none,
+      headerRowHeight: 100,
       source: _AttestationDataSource(
         attestations: attestations,
         maxUsrCount: maxUsrCount,
@@ -31,17 +35,61 @@ class AttestationTable extends StatelessWidget {
         GridColumn(
           columnName: '№',
           width: 50,
-          label: _headerCell('№'),
+          allowSorting: true,
+          label: Container(
+            decoration: BoxDecoration(
+              color: Colors.grey.shade300,
+              border: Border.all(color: Colors.grey.shade400),
+            ),
+            alignment: Alignment.centerLeft,
+            padding: const EdgeInsets.all(8),
+            child: Text(
+              '№',
+              style: TextStyle(
+                  color: Colors.grey.shade900,
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.w700),
+            ),
+          ),
         ),
         GridColumn(
-          columnName: 'ФИО',
-          width: 180,
-          label: _headerCell('ФИО'),
+          columnName: 'Список студентов',
+          width: 200,
+          allowSorting: true,
+          label: Container(
+            decoration: BoxDecoration(
+              color: Colors.grey.shade300,
+              border: Border.all(color: Colors.grey.shade400),
+            ),
+            alignment: Alignment.center,
+            padding: const EdgeInsets.all(8),
+            child: Text(
+              'ФИО',
+              style: TextStyle(
+                  color: Colors.grey.shade900,
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.w700),
+            ),
+          ),
         ),
         GridColumn(
           columnName: 'Средний балл',
           width: 120,
-          label: _headerCell('Средний балл'),
+          label: Container(
+            decoration: BoxDecoration(
+              color: Colors.grey.shade300,
+              border: Border.all(color: Colors.grey.shade400),
+            ),
+            alignment: Alignment.center,
+            padding: const EdgeInsets.all(8),
+            child: Text(
+              'Средний балл',
+              style: TextStyle(
+                  color: Colors.grey.shade900,
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.w700),
+            ),
+          ),
         ),
         for (int i = 0; i < maxUsrCount; i++)
           GridColumn(
@@ -52,7 +100,21 @@ class AttestationTable extends StatelessWidget {
         GridColumn(
           columnName: 'Итог',
           width: 100,
-          label: _headerCell('Итог'),
+          label: Container(
+            decoration: BoxDecoration(
+              color: Colors.grey.shade300,
+              border: Border.all(color: Colors.grey.shade400),
+            ),
+            alignment: Alignment.center,
+            padding: const EdgeInsets.all(8),
+            child: Text(
+              'Итог',
+              style: TextStyle(
+                  color: Colors.grey.shade900,
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.w700),
+            ),
+          ),
         ),
       ],
     );
@@ -91,7 +153,7 @@ class _AttestationDataSource extends DataGridSource {
         DataGridCell<String>(columnName: 'ФИО', value: a.student.username),
         DataGridCell<String>(
             columnName: 'Средний балл',
-            value: a.averageScore?.toStringAsFixed(2) ?? '-'),
+            value: a.averageScore.toStringAsFixed(2)),
         ...List.generate(maxUsrCount, (i) {
           final grade = i < a.usrItems.length ? a.usrItems[i].grade : null;
           return DataGridCell<String>(
@@ -105,36 +167,75 @@ class _AttestationDataSource extends DataGridSource {
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
     return DataGridRowAdapter(cells: row.getCells().asMap().entries.map((entry) {
-      final colIndex = entry.key;
+      final columnIndex = entry.key;
       final cell = entry.value;
+      final rowIndex = rows.indexOf(row);
 
-      final isUSRColumn = colIndex >= 3 && colIndex < 3 + maxUsrCount;
+      final isUSRColumn = columnIndex >= 3 && columnIndex < 3 + maxUsrCount;
 
-      if (isUSRColumn && isEditable) {
-        final usrIndex = colIndex - 3;
-        final attestationIndex = rows.indexOf(row);
-        final controller = TextEditingController(text: cell.value);
-
-        return Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: TextField(
-            controller: controller,
-            textAlign: TextAlign.center,
-            decoration: const InputDecoration(border: InputBorder.none),
-            onSubmitted: (newGrade) {
-              final attestationId = attestations[attestationIndex].id;
-              onUpdate(attestationId, usrIndex, newGrade);
-            },
+      if (columnIndex == 1 || columnIndex == 0) {
+        return Container(
+          alignment: Alignment.centerLeft,
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade400),
+          ),
+          child: Text(
+            cell.value.toString(),
+            textAlign: columnIndex == 1 ? TextAlign.left : TextAlign.center,
+            style: TextStyle(
+              color: Colors.grey.shade800,
+              fontFamily: 'Montserrat',
+              fontWeight: FontWeight.w700,
+            ),
           ),
         );
       }
 
+      if (isUSRColumn && isEditable) {
+        final usrIndex = columnIndex - 3;
+        final attestationId = attestations[rowIndex].id;
+        final controller = TextEditingController(text: cell.value);
+
+        return Container(
+          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade400),
+          ),
+          child: TextField(
+            controller: controller,
+            textAlign: TextAlign.center,
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+            ),
+            style: TextStyle(color: Colors.grey.shade700),
+            onSubmitted: (newGrade) {
+              onUpdate(attestationId, usrIndex, newGrade);
+            },
+            inputFormatters: [
+              LengthLimitingTextInputFormatter(2),
+              FilteringTextInputFormatter.digitsOnly,
+            ],
+          ),
+        );
+      }
+
+      // 📄 Нередактируемые ячейки
       return Container(
         alignment: Alignment.center,
-        padding: const EdgeInsets.all(4),
-        child: Text(cell.value.toString()),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade400),
+        ),
+        child: Text(
+          cell.value.toString(),
+          style: TextStyle(color: Colors.grey.shade800),
+        ),
       );
-    }).toList());
+    }).toList(),
+    );
   }
 }
 

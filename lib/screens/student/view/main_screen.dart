@@ -202,7 +202,7 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
                                   child: Text('Выберите дисциплину и группу'),
                                 );
                         case StudentContentScreen.attestation:
-                          return AttestationScreen(attestations: [], isEditable: false,);
+                          return AttestationScreen(isEditable: false,);
                       }
                     }),
                   ),

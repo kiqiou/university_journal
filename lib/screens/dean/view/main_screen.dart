@@ -204,7 +204,6 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
                                   );
                           case DeanContentScreen.attestation:
                             return AttestationScreen(
-                              attestations: [],
                               isEditable: false,
                             );
                         }
@@ -277,8 +276,11 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
                         );
 
                     context.read<AttestationBloc>().add(
-                      LoadAttestations(groupId: selectedGroupId!, disciplineId: disciplines[selectedDisciplineIndex!].id),
-                    );
+                          LoadAttestations(
+                              groupId: selectedGroupId!,
+                              disciplineId:
+                                  disciplines[selectedDisciplineIndex!].id),
+                        );
                   },
                 ),
             ],
