@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:university_journal/shared/journal/widgets/session_button.dart';
+import 'package:university_journal/components/widgets/button.dart';
 import '../../../../../bloc/services/journal/models/session.dart';
 
 class JournalHeader extends StatelessWidget {

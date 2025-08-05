@@ -23,7 +23,7 @@ import '../../../shared/journal/journal_screen.dart';
 import 'account_screen.dart';
 import '../components/add_session_dialog.dart';
 
-enum TeacherContentScreen { journal, account, theme , attestation}
+enum TeacherContentScreen { journal, account, theme, attestation }
 
 class TeacherMainScreen extends StatefulWidget {
   const TeacherMainScreen({super.key});
@@ -48,6 +48,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
   int? selectedGroupId;
   int? pendingGroupId;
   int? _selectedSubgroup;
+  int? selectedAttestationColumnIndex;
   int? selectedColumnIndexGeneral;
   int? selectedColumnIndexFirstSubgroup;
   int? selectedColumnIndexSecondSubgroup;
@@ -421,7 +422,28 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                           Text('Выберите дисциплину и группу'),
                                     );
                             case TeacherContentScreen.attestation:
-                              return AttestationScreen(isEditable: true,);
+                              return AttestationScreen(
+                                isEditable: true,
+                                onAddUSR: () {
+                                  context.read<AttestationBloc>().add(
+                                        AddUSR(
+                                          groupId: selectedGroupId!,
+                                          disciplineId: disciplines[
+                                                  selectedDisciplineIndex!]
+                                              .id,
+                                        ),
+                                      );
+                                },
+                                onDeleteUSR: (int position) {
+                                  context.read<AttestationBloc>().add(DeleteUSR(
+                                        position: position,
+                                        disciplineId: disciplines[
+                                                selectedDisciplineIndex!]
+                                            .id,
+                                        groupId: selectedGroupId!,
+                                      ));
+                                },
+                              );
                           }
                         },
                       ),
@@ -483,8 +505,11 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                           );
 
                       context.read<AttestationBloc>().add(
-                        LoadAttestations(groupId: selectedGroupId!, disciplineId: disciplines[selectedDisciplineIndex!].id),
-                      );
+                            LoadAttestations(
+                                groupId: selectedGroupId!,
+                                disciplineId:
+                                    disciplines[selectedDisciplineIndex!].id),
+                          );
                     },
                   ),
               ],

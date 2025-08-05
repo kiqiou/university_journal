@@ -12,12 +12,14 @@ class USRRepository {
     required int groupId,
   }) async {
     try {
-      final uri = Uri.parse('${_baseUrl}get_attestation/').replace(queryParameters: {
+      final uri =
+          Uri.parse('${_baseUrl}get_attestation/').replace(queryParameters: {
         'discipline_id': disciplineId.toString(),
         'group_id': groupId.toString(),
       });
 
-      final response = await http.get(uri, headers: {'Accept': 'application/json'});
+      final response =
+          await http.get(uri, headers: {'Accept': 'application/json'});
       final data = jsonDecode(utf8.decode(response.bodyBytes));
 
       if (response.statusCode == 200 && data is List) {
@@ -33,12 +35,18 @@ class USRRepository {
     }
   }
 
-  Future<bool> addUSR(int attestationId) async {
+  Future<bool> addUSR(
+    int disciplineId,
+    int groupId,
+  ) async {
     try {
       final response = await http.post(
         Uri.parse('${_baseUrl}add_usr/'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'attestation_id': attestationId}),
+        body: jsonEncode({
+          'group_id': groupId,
+          'discipline_id': disciplineId,
+        }),
       );
 
       final data = jsonDecode(utf8.decode(response.bodyBytes));
@@ -57,7 +65,6 @@ class USRRepository {
 
   Future<bool> updateUSR({
     required int usrId,
-    required int attestationId,
     required int grade,
   }) async {
     try {
@@ -66,7 +73,6 @@ class USRRepository {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'usr_id': usrId,
-          'attestation_id': attestationId,
           'grade': grade,
         }),
       );
@@ -85,12 +91,20 @@ class USRRepository {
     }
   }
 
-  Future<bool> deleteUSR(int attestationId) async {
+  Future<bool> deleteUSR(
+    int disciplineId,
+    int groupId,
+      int position,
+  ) async {
     try {
       final response = await http.post(
         Uri.parse('${_baseUrl}delete_usr/'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'attestation_id': attestationId}),
+        body: jsonEncode({
+          'group_id': groupId,
+          'discipline_id': disciplineId,
+          'position': position,
+        }),
       );
 
       if (response.statusCode == 200) {

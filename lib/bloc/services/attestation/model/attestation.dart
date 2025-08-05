@@ -64,19 +64,16 @@ class Attestation {
 class USRItem {
   final int id;
   final int? grade;
-  final int attestationId;
 
   USRItem({
     required this.id,
     this.grade,
-    required this.attestationId,
   });
 
   factory USRItem.fromJson(Map<String, dynamic> json) {
     return USRItem(
       id: json['id'],
       grade: json['grade'],
-      attestationId: json['attestation_id'],
     );
   }
 }

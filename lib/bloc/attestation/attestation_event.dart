@@ -15,35 +15,40 @@ class LoadAttestations extends AttestationEvent {
   List<Object?> get props => [groupId];
 }
 
-class AddAttestation extends AttestationEvent {
-  final Attestation attestation;
+class AddUSR extends AttestationEvent {
+  final int groupId;
+  final int disciplineId;
 
-  AddAttestation({required this.attestation});
+  AddUSR({required this.groupId, required this.disciplineId, });
 
   @override
-  List<Object?> get props => [attestation];
+  List<Object?> get props => [];
 }
 
 class UpdateAttestation extends AttestationEvent {
-  final int attestationId;
-  final Attestation updated;
+  final int id;
+  final int grade;
+  final int groupId;
   final int disciplineId;
 
   UpdateAttestation({
-    required this.attestationId,
-    required this.updated,
+    required this.id,
+    required this.grade,
+    required this.groupId,
     required this.disciplineId,
   });
 
   @override
-  List<Object?> get props => [attestationId, updated, disciplineId];
+  List<Object?> get props => [id, groupId, disciplineId];
 }
 
-class DeleteAttestation extends AttestationEvent {
-  final int attestationId;
+class DeleteUSR extends AttestationEvent {
+  final int position;
+  final int groupId;
+  final int disciplineId;
 
-  DeleteAttestation({required this.attestationId});
+  DeleteUSR({required this.position, required this.groupId, required this.disciplineId,});
 
   @override
-  List<Object?> get props => [attestationId];
+  List<Object?> get props => [];
 }

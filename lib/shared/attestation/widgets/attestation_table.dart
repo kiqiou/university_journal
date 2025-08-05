@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import '../../../bloc/services/attestation/model/attestation.dart';
+import '../../../components/colors/colors.dart';
 
-class AttestationTable extends StatelessWidget {
+class AttestationTable extends StatefulWidget {
   final List<Attestation> attestations;
   final bool isEditable;
   final Function(int attestationId, int usrIndex, String newGrade) onUpdate;
@@ -18,18 +19,27 @@ class AttestationTable extends StatelessWidget {
   });
 
   @override
+  AttestationTableState createState() => AttestationTableState();
+}
+
+class AttestationTableState extends State<AttestationTable> {
+  int? selectedUsrColumnIndex;
+
+  @override
   Widget build(BuildContext context) {
-    final maxUsrCount = attestations.map((a) => a.usrItems.length).fold(0, max);
+    final maxUsrCount =
+        widget.attestations.map((a) => a.usrItems.length).fold(0, max);
 
     return SfDataGrid(
       gridLinesVisibility: GridLinesVisibility.none,
       headerGridLinesVisibility: GridLinesVisibility.none,
       headerRowHeight: 100,
       source: _AttestationDataSource(
-        attestations: attestations,
+        attestations: widget.attestations,
         maxUsrCount: maxUsrCount,
-        onUpdate: onUpdate,
-        isEditable: isEditable,
+        onUpdate: widget.onUpdate,
+        isEditable: widget.isEditable,
+        selectedColumnIndex: selectedUsrColumnIndex,
       ),
       columns: [
         GridColumn(
@@ -95,7 +105,36 @@ class AttestationTable extends StatelessWidget {
           GridColumn(
             columnName: 'УСР-${i + 1}',
             width: 80,
-            label: _headerCell('УСР-${i + 1}'),
+            label: GestureDetector(
+              onTap: () {
+                setState(() {
+                  if (selectedUsrColumnIndex == i) {
+                    selectedUsrColumnIndex = null;
+                  } else {
+                    selectedUsrColumnIndex = i;
+                  }
+                });
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  border: Border.all(
+                      color: selectedUsrColumnIndex == i
+                          ? MyColors.blueJournal
+                          : Colors.grey.shade400),
+                ),
+                alignment: Alignment.center,
+                padding: const EdgeInsets.all(8),
+                child: Text(
+                  'УСР-${i + 1}',
+                  style: TextStyle(
+                    color: Colors.grey.shade900,
+                    fontFamily: 'Montserrat',
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
           ),
         GridColumn(
           columnName: 'Итог',
@@ -119,16 +158,6 @@ class AttestationTable extends StatelessWidget {
       ],
     );
   }
-
-  Widget _headerCell(String text) => Container(
-    alignment: Alignment.center,
-    color: Colors.grey.shade300,
-    padding: const EdgeInsets.all(8),
-    child: Text(
-      text,
-      style: const TextStyle(fontWeight: FontWeight.bold),
-    ),
-  );
 }
 
 class _AttestationDataSource extends DataGridSource {
@@ -136,19 +165,20 @@ class _AttestationDataSource extends DataGridSource {
   final int maxUsrCount;
   final bool isEditable;
   final Function(int attestationId, int usrIndex, String newGrade) onUpdate;
+  int? selectedColumnIndex;
+
+  late final List<DataGridRow> _rows;
 
   _AttestationDataSource({
     required this.attestations,
     required this.maxUsrCount,
     required this.onUpdate,
     required this.isEditable,
-  });
-
-  @override
-  List<DataGridRow> get rows => List.generate(attestations.length, (index) {
-    final a = attestations[index];
-    return DataGridRow(
-      cells: [
+    this.selectedColumnIndex,
+  }) {
+    _rows = List.generate(attestations.length, (index) {
+      final a = attestations[index];
+      return DataGridRow(cells: [
         DataGridCell<int>(columnName: '№', value: index + 1),
         DataGridCell<String>(columnName: 'ФИО', value: a.student.username),
         DataGridCell<String>(
@@ -160,82 +190,103 @@ class _AttestationDataSource extends DataGridSource {
               columnName: 'УСР-${i + 1}', value: grade?.toString() ?? '');
         }),
         DataGridCell<String>(columnName: 'Итог', value: a.result),
-      ],
-    );
-  });
+      ]);
+    });
+  }
+
+  @override
+  List<DataGridRow> get rows => _rows;
 
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
-    return DataGridRowAdapter(cells: row.getCells().asMap().entries.map((entry) {
-      final columnIndex = entry.key;
-      final cell = entry.value;
-      final rowIndex = rows.indexOf(row);
+    final rowIndex = _rows.indexOf(row);
+    if (rowIndex == -1) {
+      throw Exception('Row not found in data source');
+    }
+    return DataGridRowAdapter(
+      cells: row.getCells().asMap().entries.map((entry) {
+        final columnIndex = entry.key;
+        final cell = entry.value;
+        final rowIndex = rows.indexOf(row);
 
-      final isUSRColumn = columnIndex >= 3 && columnIndex < 3 + maxUsrCount;
+        final isUSRColumn = columnIndex >= 3 && columnIndex < 3 + maxUsrCount;
 
-      if (columnIndex == 1 || columnIndex == 0) {
-        return Container(
-          alignment: Alignment.centerLeft,
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.shade400),
-          ),
-          child: Text(
-            cell.value.toString(),
-            textAlign: columnIndex == 1 ? TextAlign.left : TextAlign.center,
-            style: TextStyle(
-              color: Colors.grey.shade800,
-              fontFamily: 'Montserrat',
-              fontWeight: FontWeight.w700,
+        if (columnIndex == 1 || columnIndex == 0) {
+          return Container(
+            alignment: Alignment.centerLeft,
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey.shade400),
             ),
-          ),
-        );
-      }
+            child: Text(
+              cell.value.toString(),
+              textAlign: columnIndex == 1 ? TextAlign.left : TextAlign.center,
+              style: TextStyle(
+                color: Colors.grey.shade800,
+                fontFamily: 'Montserrat',
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          );
+        }
 
-      if (isUSRColumn && isEditable) {
+        if (isUSRColumn) {
+          final usrIndex = columnIndex - 3;
+          final attestationId = attestations[rowIndex].id;
+          final controller = TextEditingController(text: cell.value);
+
+          return Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey.shade400),
+            ),
+            child: TextField(
+              readOnly: isEditable,
+              controller: controller,
+              textAlign: TextAlign.center,
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+              ),
+              style: TextStyle(color: Colors.grey.shade700),
+              onSubmitted: (newGrade) {
+                onUpdate(attestationId, usrIndex, newGrade);
+              },
+              inputFormatters: [
+                LengthLimitingTextInputFormatter(2),
+                FilteringTextInputFormatter.digitsOnly,
+              ],
+            ),
+          );
+        }
+
         final usrIndex = columnIndex - 3;
         final attestationId = attestations[rowIndex].id;
         final controller = TextEditingController(text: cell.value);
 
         return Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.shade400),
-          ),
-          child: TextField(
-            controller: controller,
-            textAlign: TextAlign.center,
-            decoration: const InputDecoration(
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey.shade400),
             ),
-            style: TextStyle(color: Colors.grey.shade700),
-            onSubmitted: (newGrade) {
-              onUpdate(attestationId, usrIndex, newGrade);
-            },
-            inputFormatters: [
-              LengthLimitingTextInputFormatter(2),
-              FilteringTextInputFormatter.digitsOnly,
-            ],
-          ),
-        );
-      }
-
-      // 📄 Нередактируемые ячейки
-      return Container(
-        alignment: Alignment.center,
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade400),
-        ),
-        child: Text(
-          cell.value.toString(),
-          style: TextStyle(color: Colors.grey.shade800),
-        ),
-      );
-    }).toList(),
+            child: TextField(
+              readOnly: !isEditable,
+              controller: controller,
+              textAlign: TextAlign.center,
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+              ),
+              style: TextStyle(color: Colors.grey.shade700),
+              onSubmitted: (newGrade) {
+                onUpdate(attestationId, usrIndex, newGrade);
+              },
+            ));
+      }).toList(),
     );
   }
 }
-

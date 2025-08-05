@@ -12,9 +12,9 @@ class AttestationBloc extends Bloc<AttestationEvent, AttestationState> {
 
   AttestationBloc({required this.repository}) : super(AttestationInitial()) {
     on<LoadAttestations>(_onLoad);
-    on<AddAttestation>(_onAdd);
+    on<AddUSR>(_onAdd);
     on<UpdateAttestation>(_onUpdate);
-    on<DeleteAttestation>(_onDelete);
+    on<DeleteUSR>(_onDelete);
   }
 
   Future<void> _onLoad(
@@ -35,13 +35,13 @@ class AttestationBloc extends Bloc<AttestationEvent, AttestationState> {
   }
 
   Future<void> _onAdd(
-      AddAttestation event,
+      AddUSR event,
       Emitter<AttestationState> emit,
       ) async {
     try {
-      final success = await repository.addUSR(event.attestation.id);
+      final success = await repository.addUSR(event.disciplineId, event.groupId, );
       if (success) {
-        add(LoadAttestations(groupId: event.attestation.group.id, disciplineId: event.attestation.discipline.id));
+        add(LoadAttestations(groupId: event.groupId, disciplineId: event.disciplineId));
       } else {
         emit(AttestationError('Не удалось добавить USR'));
       }
@@ -55,19 +55,14 @@ class AttestationBloc extends Bloc<AttestationEvent, AttestationState> {
       Emitter<AttestationState> emit,
       ) async {
     try {
-      final usrItem = event.updated.usrItems.firstWhere(
-            (u) => u.attestationId == event.attestationId,
-        orElse: () => throw Exception('USR не найден'),
-      );
 
       final success = await repository.updateUSR(
-        usrId: usrItem.id!,
-        attestationId: event.attestationId,
-        grade: usrItem.grade!,
+        usrId: event.id,
+        grade: event.grade,
       );
 
       if (success) {
-        add(LoadAttestations(groupId: event.updated.group.id, disciplineId: event.updated.discipline.id));
+        add(LoadAttestations(groupId: event.groupId, disciplineId: event.disciplineId));
       } else {
         emit(AttestationError('Не удалось обновить USR'));
       }
@@ -77,11 +72,11 @@ class AttestationBloc extends Bloc<AttestationEvent, AttestationState> {
   }
 
   Future<void> _onDelete(
-      DeleteAttestation event,
+      DeleteUSR event,
       Emitter<AttestationState> emit,
       ) async {
     try {
-      final success = await repository.deleteUSR(event.attestationId);
+      final success = await repository.deleteUSR(event.disciplineId, event.groupId, event.position,);
       if (success) {
         // Неизвестно какой groupId, но можно хранить его в состоянии
         final currentState = state;

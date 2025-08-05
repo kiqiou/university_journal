@@ -187,5 +187,4 @@ class JournalContentScreen extends StatelessWidget {
           (s) => '${s.date} ${s.type} ${s.id}' == key,
     );
   }
-
 }
