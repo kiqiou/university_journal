@@ -423,6 +423,13 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                     );
                             case TeacherContentScreen.attestation:
                               return AttestationScreen(
+                                onColumnSelected:
+                                      (index) {
+                                    setState(() {
+                                      selectedAttestationColumnIndex =
+                                          index;
+                                    });
+                                  },
                                 isEditable: true,
                                 onAddUSR: () {
                                   context.read<AttestationBloc>().add(

@@ -4,7 +4,7 @@ import 'package:university_journal/shared/attestation/widgets/attestation_table.
 
 import '../../bloc/services/attestation/model/attestation.dart';
 
-class AttestationContentScreen extends StatelessWidget {
+class AttestationContentScreen extends StatefulWidget {
   final List<Attestation> attestations;
   final bool isEditable;
   final int? selectedColumnIndex;
@@ -22,11 +22,18 @@ class AttestationContentScreen extends StatelessWidget {
       this.onAddUSR});
 
   @override
+  State<AttestationContentScreen> createState() => _AttestationContentScreenState();
+}
+
+class _AttestationContentScreenState extends State<AttestationContentScreen> {
+  int? selectedColumnIndex;
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        if (isEditable && onColumnSelected != null) {
-          onColumnSelected!(null);
+        if (widget.isEditable && widget.onColumnSelected != null) {
+          widget.onColumnSelected!(null);
         }
       },
       child: Column(
@@ -35,16 +42,25 @@ class AttestationContentScreen extends StatelessWidget {
           AttestationHeader(
               selectedColumnIndex: selectedColumnIndex,
               getSelectedUSR: () => selectedColumnIndex,
-              onDeleteUSR: onDeleteUSR,
-              onAddUSR: onAddUSR),
+              onDeleteUSR: widget.onDeleteUSR,
+              onAddUSR: widget.onAddUSR),
           SizedBox(
             height: 40,
           ),
           Expanded(
             child: AttestationTable(
-                attestations: attestations,
+                attestations: widget.attestations,
+                selectedColumnIndex: selectedColumnIndex,
+                onColumnSelected: (index) {
+                  setState(() {
+                    selectedColumnIndex = index;
+                  });
+                  if (widget.onColumnSelected != null) {
+                    widget.onColumnSelected!(index);
+                  }
+                },
                 onUpdate: (int attestationId, int usrIndex, String newGrade) {},
-                isEditable: isEditable),
+                isEditable: widget.isEditable),
           ),
         ],
       ),

@@ -9,13 +9,17 @@ import '../../../components/colors/colors.dart';
 class AttestationTable extends StatefulWidget {
   final List<Attestation> attestations;
   final bool isEditable;
+  final void Function(int)? onColumnSelected;
+  late int? selectedColumnIndex;
   final Function(int attestationId, int usrIndex, String newGrade) onUpdate;
 
-  const AttestationTable({
+  AttestationTable({
     super.key,
     required this.attestations,
     required this.onUpdate,
     required this.isEditable,
+    this.onColumnSelected,
+    this.selectedColumnIndex,
   });
 
   @override
@@ -23,8 +27,6 @@ class AttestationTable extends StatefulWidget {
 }
 
 class AttestationTableState extends State<AttestationTable> {
-  int? selectedUsrColumnIndex;
-
   @override
   Widget build(BuildContext context) {
     final maxUsrCount =
@@ -39,7 +41,7 @@ class AttestationTableState extends State<AttestationTable> {
         maxUsrCount: maxUsrCount,
         onUpdate: widget.onUpdate,
         isEditable: widget.isEditable,
-        selectedColumnIndex: selectedUsrColumnIndex,
+        selectedColumnIndex: widget.selectedColumnIndex,
       ),
       columns: [
         GridColumn(
@@ -107,19 +109,19 @@ class AttestationTableState extends State<AttestationTable> {
             width: 80,
             label: GestureDetector(
               onTap: () {
-                setState(() {
-                  if (selectedUsrColumnIndex == i) {
-                    selectedUsrColumnIndex = null;
+                if (widget.onColumnSelected != null) {
+                  if (widget.selectedColumnIndex == i) {
+                    widget.onColumnSelected!(0);
                   } else {
-                    selectedUsrColumnIndex = i;
+                    widget.onColumnSelected!(i);
                   }
-                });
+                }
               },
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.grey.shade300,
                   border: Border.all(
-                      color: selectedUsrColumnIndex == i
+                      color: widget.selectedColumnIndex == i
                           ? MyColors.blueJournal
                           : Colors.grey.shade400),
                 ),

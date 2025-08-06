@@ -24,7 +24,7 @@ class AttestationHeader extends StatelessWidget {
           style: TextStyle(
             fontSize: 20,
             color: Colors.grey.shade700),),
-        if (selectedColumnIndex != null) ...[
+        if (selectedColumnIndex != null)
           SessionButton(
             onChange: () {
               final position = getSelectedUSR!();
@@ -32,7 +32,6 @@ class AttestationHeader extends StatelessWidget {
             },
             buttonName: 'Удалить УСР',
           ),
-        ],
         SessionButton(
           onChange: onAddUSR!,
           buttonName: 'Добавить УСР',
