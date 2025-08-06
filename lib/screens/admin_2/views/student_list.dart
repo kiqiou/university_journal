@@ -25,15 +25,15 @@ class _StudentsListState extends State<StudentsList> {
   late List<MyUser> filteredStudents = [];
   late List<Group> allGroups         = [];
 
-  late List<int> courses     = [];
-  late List<String> faculties= [];
+  late List<int>    allCourses;
+  late List<String> allFaculties;
 
-  String? selectedFaculty;
-  int?    selectedCourse;
-  Set<int> selectedGroupIds  = {};
+  Set<String> selectedFaculties = {};
+  Set<int>    selectedCourses   = {};
+  Set<int>    selectedGroupIds  = {};
 
   bool isFilteringActive = false;
-  int?  selectedIndex;
+  int? selectedIndex;
 
   bool showFilterDialog = false;
   bool showDeleteDialog = false;
@@ -49,46 +49,56 @@ class _StudentsListState extends State<StudentsList> {
       allStudents      = widget.students.toList();
       filteredStudents = allStudents;
       allGroups        = widget.groups.toList();
-      _buildFilterLists();
+
+      allCourses = allGroups
+          .map((g) => g.courseId)
+          .toSet()
+          .toList()
+        ..sort();
+      allFaculties = allGroups
+          .map((g) => g.facultyName)
+          .where((f) => f.isNotEmpty)
+          .toSet()
+          .toList()
+        ..sort();
+
       setState(() {});
     });
   }
 
-  void _buildFilterLists() {
-    courses = allGroups.map((g) => g.courseId).toSet().toList()..sort();
-    faculties = allGroups
-        .map((g) => g.facultyName)
-        .where((f) => f.isNotEmpty)
-        .toSet()
-        .toList();
-  }
-
   bool get _canApply =>
-      selectedFaculty != null ||
-          selectedCourse  != null ||
+      selectedFaculties.isNotEmpty ||
+          selectedCourses.isNotEmpty ||
           selectedGroupIds.isNotEmpty;
 
   void _applyFilters() {
     setState(() {
       isFilteringActive = true;
       filteredStudents = allStudents.where((u) {
-        final facOk = selectedFaculty == null
-            || allGroups.any((g) =>
-            g.id == u.groupId && g.facultyName == selectedFaculty);
-        final couOk = selectedCourse == null
-            || allGroups.any((g) =>
-            g.id == u.groupId && g.courseId == selectedCourse);
-        final grpOk = selectedGroupIds.isEmpty
-            || (u.groupId != null && selectedGroupIds.contains(u.groupId!));
+        // получить все группы с нужным id
+        final matches = allGroups.where((g) => g.id == u.groupId);
+        if (matches.isEmpty) return false;
+        final grp = matches.first;
+
+        final facOk = selectedFaculties.isEmpty ||
+            selectedFaculties.contains(grp.facultyName);
+        final couOk = selectedCourses.isEmpty ||
+            selectedCourses.contains(grp.courseId);
+        final grpOk = selectedGroupIds.isEmpty ||
+            selectedGroupIds.contains(grp.id);
+
         return facOk && couOk && grpOk;
       }).toList();
     });
   }
 
-  int? _getCourse(MyUser u) {
-    final match = allGroups.where((g) => g.id == u.groupId);
-    if (match.isEmpty) return null;
-    return match.first.courseId;
+
+  void _resetFilters() {
+    setState(() {
+      selectedFaculties.clear();
+      selectedCourses.clear();
+      selectedGroupIds.clear();
+    });
   }
 
   void _onEditPressed() {
@@ -101,13 +111,11 @@ class _StudentsListState extends State<StudentsList> {
 
   @override
   Widget build(BuildContext context) {
-    final btnH = 40.0;
-
+    const btnH = 40.0;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Список студентов'),
         actions: [
-          // Изменить фильтры
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
             child: ElevatedButton.icon(
@@ -123,8 +131,7 @@ class _StudentsListState extends State<StudentsList> {
               onPressed: () => setState(() => showFilterDialog = true),
             ),
           ),
-          // Редактировать студента
-          if (selectedIndex != null)
+          if (selectedIndex != null) ...[
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
               child: ElevatedButton(
@@ -141,8 +148,6 @@ class _StudentsListState extends State<StudentsList> {
                 child: const Icon(Icons.edit, size: 20),
               ),
             ),
-          // Удалить студента
-          if (selectedIndex != null)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
               child: ElevatedButton(
@@ -159,6 +164,7 @@ class _StudentsListState extends State<StudentsList> {
                 child: const Icon(Icons.delete, size: 20),
               ),
             ),
+          ]
         ],
       ),
       body: Stack(
@@ -174,8 +180,7 @@ class _StudentsListState extends State<StudentsList> {
               ),
             ),
           ),
-          if (showFilterDialog)
-            Center(child: _buildFilterDialog(context)),
+          if (showFilterDialog) Center(child: _buildFilterDialog(context)),
           if (showDeleteDialog && selectedIndex != null)
             Center(child: _buildDeleteDialog(btnH)),
           if (showEditDialog && selectedIndex != null)
@@ -190,25 +195,31 @@ class _StudentsListState extends State<StudentsList> {
       final groups = allGroups
           .where((g) => selectedGroupIds.contains(g.id))
           .where((g) => filteredStudents.any((u) => u.groupId == g.id))
-          .toList()..sort((a,b) => a.name.compareTo(b.name));
+          .toList()
+        ..sort((a, b) => a.name.compareTo(b.name));
 
       return ListView(
         children: groups.expand((g) {
-          final studs = filteredStudents.where((u) => u.groupId == g.id).toList();
+          final studs = filteredStudents.where((u) => u.groupId == g.id);
           return [
-            // Заголовок группы/курса
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
               child: Text(
                 '${g.name} — ${g.courseId} курс',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
             ...studs.map((st) {
               final idx = filteredStudents.indexOf(st);
-              final isSel = selectedIndex == idx;
-              return _buildStudentItem(st, isSel, idx);
-            }).toList(),
+              return _buildStudentItem(
+                st,
+                selectedIndex == idx,
+                idx,
+              );
+            }),
           ];
         }).toList(),
       );
@@ -237,12 +248,18 @@ class _StudentsListState extends State<StudentsList> {
             width: 1.5,
           ),
           boxShadow: isSelected
-              ? [BoxShadow(color: Colors.blue.withOpacity(0.2), blurRadius: 8, offset: const Offset(0,4))]
+              ? [
+            BoxShadow(
+              color: Colors.blue.withOpacity(0.2),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            )
+          ]
               : null,
         ),
         child: Text(
           st.username,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
             color: Colors.black87,
@@ -253,8 +270,48 @@ class _StudentsListState extends State<StudentsList> {
   }
 
   Widget _buildFilterDialog(BuildContext context) {
-    final w = (MediaQuery.of(context).size.width  * 0.6).clamp(300.0, 600.0);
+    final w = (MediaQuery.of(context).size.width * 0.6).clamp(300.0, 600.0);
     final h = (MediaQuery.of(context).size.height * 0.7).clamp(400.0, 600.0);
+
+    Widget multiDropdown<T>(
+        String label,
+        List<T> items,
+        Set<T> selectedValues,
+        String hint,
+        String Function(T) itemLabel,
+        void Function(Set<T>) onChanged,
+        ) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: const TextStyle(fontSize: 16)),
+          const SizedBox(height: 8),
+          GestureDetector(
+            onTap: () async {
+              final picked = await showDialog<List<T>>(
+                context: context,
+                builder: (_) => MultiSelectDialog<T>(
+                  items: items,
+                  initiallySelected: selectedValues.toList(),
+                  itemLabel: itemLabel,
+                ),
+              );
+              if (picked != null) onChanged(picked.toSet());
+            },
+            child: InputDecorator(
+              decoration: const InputDecoration(border: OutlineInputBorder()),
+              isEmpty: selectedValues.isEmpty,
+              child: Text(
+                selectedValues.isEmpty
+                    ? hint
+                    : selectedValues.map(itemLabel).join(', '),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ],
+      );
+    }
 
     return Material(
       color: Colors.black26,
@@ -285,58 +342,63 @@ class _StudentsListState extends State<StudentsList> {
               ),
               const SizedBox(height: 16),
 
-              const Text('Факультет', style: TextStyle(fontSize: 16)),
-              const SizedBox(height: 8),
-              DropdownButtonFormField<String?>(
-                decoration: const InputDecoration(border: OutlineInputBorder()),
-                value: selectedFaculty,
-                hint: const Text('Все факультеты'),
-                items: <String?>[null, ...faculties].map((f) {
-                  return DropdownMenuItem<String?>(
-                    value: f,
-                    child: Text(f ?? 'Все факультеты'),
-                  );
-                }).toList(),
-                onChanged: (v) => setState(() => selectedFaculty = v),
+              multiDropdown<String>(
+                'Факультет',
+                allFaculties,
+                selectedFaculties,
+                'Все факультеты',
+                    (f) => f,
+                    (sel) => setState(() => selectedFaculties = sel),
               ),
-
               const SizedBox(height: 16),
-              const Text('Курс', style: TextStyle(fontSize: 16)),
-              const SizedBox(height: 8),
-              DropdownButtonFormField<int?>(
-                decoration: const InputDecoration(border: OutlineInputBorder()),
-                value: selectedCourse,
-                hint: const Text('Все курсы'),
-                items: <int?>[null, ...courses].map((c) {
-                  return DropdownMenuItem<int?>(
-                    value: c,
-                    child: Text(c == null ? 'Все курсы' : '$c курс'),
-                  );
-                }).toList(),
-                onChanged: (v) => setState(() => selectedCourse = v),
+
+              // Курсы: мультивыбор, но визуал «дропдауна»
+              multiDropdown<int>(
+                'Курс',
+                allCourses,
+                selectedCourses,
+                'Все курсы',
+                    (c) => '$c курс',
+                    (sel) => setState(() => selectedCourses = sel),
               ),
-
               const SizedBox(height: 16),
-              const Text('Группы', style: TextStyle(fontSize: 16)),
+
+              // Группы
+              Text('Группы', style: const TextStyle(fontSize: 16)),
               const SizedBox(height: 8),
               ElevatedButton(
                 onPressed: () async {
+                  final availableGroups = allGroups.where((g) {
+                    final facOk = selectedFaculties.isEmpty ||
+                        selectedFaculties.contains(g.facultyName);
+                    final couOk = selectedCourses.isEmpty ||
+                        selectedCourses.contains(g.courseId);
+                    return facOk && couOk;
+                  }).toList();
+
                   final picked = await showDialog<List<Group>>(
                     context: context,
                     builder: (_) => MultiSelectDialog<Group>(
-                      items: allGroups,
-                      initiallySelected: allGroups
+                      items: availableGroups,
+                      initiallySelected: availableGroups
                           .where((g) => selectedGroupIds.contains(g.id))
                           .toList(),
                       itemLabel: (g) => g.name,
                     ),
                   );
-                  if (picked != null) { setState(() => selectedGroupIds = picked.map((g) => g.id).toSet()); }
+                  if (picked != null) {
+                    setState(() =>
+                    selectedGroupIds = picked.map((g) => g.id).toSet());
+                  }
                 },
                 child: Text(
                   selectedGroupIds.isEmpty
                       ? 'Выбрать группы'
-                      : 'Выбрано ${selectedGroupIds.length}',
+                      : allGroups
+                      .where((g) => selectedGroupIds.contains(g.id))
+                      .map((g) => g.name)
+                      .join(', '),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
 
@@ -364,14 +426,6 @@ class _StudentsListState extends State<StudentsList> {
     );
   }
 
-  void _resetFilters() {
-    setState(() {
-      selectedFaculty   = null;
-      selectedCourse    = null;
-      selectedGroupIds.clear();
-    });
-  }
-
   Widget _buildDeleteDialog(double btnH) {
     final st = filteredStudents[selectedIndex!];
     return Material(
@@ -380,14 +434,19 @@ class _StudentsListState extends State<StudentsList> {
         child: Container(
           width: 320,
           padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Удалить студента', style: TextStyle(fontSize: 16, color: Colors.grey.shade700)),
+              Text('Удалить студента',
+                  style: TextStyle(fontSize: 16, color: Colors.grey.shade700)),
               const SizedBox(height: 12),
-              Text(st.username, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(st.username,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
               const Text('Вы уверены?'),
               const SizedBox(height: 24),
@@ -397,13 +456,16 @@ class _StudentsListState extends State<StudentsList> {
                     child: SizedBox(
                       height: btnH,
                       child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(backgroundColor: Colors.red.shade600),
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red.shade600),
                         onPressed: () async {
-                          final ok = await UserRepository().deleteUser(userId: st.id);
+                          final ok = await UserRepository().deleteUser(
+                            userId: st.id,
+                          );
                           if (ok) {
                             await widget.loadStudents();
                             setState(() {
-                              showDeleteDialog   = false;
+                              showDeleteDialog = false;
                               isFilteringActive = false;
                             });
                           }
@@ -435,7 +497,6 @@ class _StudentsListState extends State<StudentsList> {
     final st = filteredStudents[selectedIndex!];
     final w  = MediaQuery.of(context).size.width * 0.7;
     final h  = MediaQuery.of(context).size.height * 0.6;
-
     return Material(
       color: Colors.black26,
       child: Center(
@@ -443,28 +504,43 @@ class _StudentsListState extends State<StudentsList> {
           width: w.clamp(300.0, 600.0),
           height: h.clamp(350.0, 550.0),
           padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  const Text('Редактировать студента', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const Text('Редактировать студента',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const Spacer(),
-                  InkWell(onTap: () => setState(() => showEditDialog = false), child: const Icon(Icons.close)),
+                  InkWell(
+                    onTap: () => setState(() => showEditDialog = false),
+                    child: const Icon(Icons.close),
+                  ),
                 ],
               ),
               const SizedBox(height: 16),
               const Text('ФИО', style: TextStyle(fontSize: 14, color: Colors.grey)),
               const SizedBox(height: 8),
-              TextFormField(controller: nameController, decoration: const InputDecoration(border: OutlineInputBorder())),
+              TextFormField(
+                controller: nameController,
+                decoration: const InputDecoration(border: OutlineInputBorder()),
+              ),
               const SizedBox(height: 16),
               const Text('Группа', style: TextStyle(fontSize: 14, color: Colors.grey)),
               const SizedBox(height: 8),
               DropdownButtonFormField<Group>(
                 decoration: const InputDecoration(border: OutlineInputBorder()),
-                value: allGroups.firstWhere((g) => g.id == st.groupId, orElse: () => allGroups.first),
-                items: allGroups.map((g) => DropdownMenuItem(value: g, child: Text(g.name))).toList(),
+                value: allGroups.firstWhere(
+                      (g) => g.id == st.groupId,
+                  orElse: () => allGroups.first,
+                ),
+                items: allGroups
+                    .map((g) => DropdownMenuItem(value: g, child: Text(g.name)))
+                    .toList(),
                 onChanged: (v) => setState(() => selectedGroupIds = v != null ? {v.id} : {}),
               ),
               const SizedBox(height: 16),
@@ -490,7 +566,7 @@ class _StudentsListState extends State<StudentsList> {
                     if (ok) {
                       await widget.loadStudents();
                       setState(() {
-                        showEditDialog     = false;
+                        showEditDialog = false;
                         isFilteringActive = false;
                       });
                     }
