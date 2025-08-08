@@ -5,6 +5,7 @@ import 'attestation_bloc_handler.dart';
 
 class AttestationScreen extends StatefulWidget {
   final bool isEditable;
+  final String attestationType;
   final Function(int?)? onColumnSelected;
   final Function(int)? onDeleteUSR;
   final Function(int, double?, String?)? onAttestationUpdate;
@@ -16,7 +17,7 @@ class AttestationScreen extends StatefulWidget {
     required this.isEditable,
     this.onColumnSelected,
     this.onDeleteUSR,
-    this.onAddUSR, this.onAttestationUpdate, this.onUSRUpdate,
+    this.onAddUSR, this.onAttestationUpdate, this.onUSRUpdate, required this.attestationType,
   });
 
   @override
@@ -39,6 +40,7 @@ class _AttestationScreenState extends State<AttestationScreen> {
   Widget build(BuildContext context) {
     return AttestationBlocHandler(
       isEditable: widget.isEditable,
+      attestationType: widget.attestationType,
       onAddUSR: widget.onAddUSR,
       onDeleteUSR: widget.onDeleteUSR,
       onAttestationUpdate: widget.onAttestationUpdate,

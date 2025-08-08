@@ -8,6 +8,7 @@ class AttestationContentScreen extends StatefulWidget {
   final List<Attestation> attestations;
   final bool isEditable;
   final int? selectedColumnIndex;
+  final String attestationType;
   final Function(int?)? onColumnSelected;
   final Function(int, double?, String?)? onAttestationUpdate;
   final Function(int, int)? onUSRUpdate;
@@ -23,7 +24,7 @@ class AttestationContentScreen extends StatefulWidget {
       this.onDeleteUSR,
       this.onAddUSR,
       this.onAttestationUpdate,
-      this.onUSRUpdate});
+      this.onUSRUpdate, required this.attestationType});
 
   @override
   State<AttestationContentScreen> createState() =>
@@ -55,6 +56,8 @@ class _AttestationContentScreenState extends State<AttestationContentScreen> {
         children: [
           const SizedBox(height: 40),
           AttestationHeader(
+            attestationType: widget.attestationType,
+            isEditable: widget.isEditable,
             selectedColumnIndex: selectedColumnIndex,
             getSelectedUSR: () => selectedColumnIndex,
             onDeleteUSR: widget.onDeleteUSR,

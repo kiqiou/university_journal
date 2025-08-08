@@ -9,6 +9,7 @@ import 'attestation_content_screen.dart';
 class AttestationBlocHandler extends StatelessWidget {
   final bool isEditable;
   final int? selectedColumnIndex;
+  final String attestationType;
   final Function(int?)? onColumnSelected;
   final Function(int)? onDeleteUSR;
   final Function(int, double?, String?)? onAttestationUpdate;
@@ -23,7 +24,7 @@ class AttestationBlocHandler extends StatelessWidget {
     this.onDeleteUSR,
     this.onAddUSR,
     this.onAttestationUpdate,
-    this.onUSRUpdate,
+    this.onUSRUpdate, required this.attestationType,
   });
 
   @override
@@ -43,6 +44,7 @@ class AttestationBlocHandler extends StatelessWidget {
 
           return AttestationContentScreen(
             attestations: attestations,
+            attestationType: attestationType,
             isEditable: isEditable,
             selectedColumnIndex: selectedColumnIndex,
             onAddUSR: onAddUSR,

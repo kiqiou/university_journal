@@ -20,7 +20,7 @@ import '../../../components/widgets/discipline_and_group_select.dart';
 import '../../../shared/journal/journal_screen.dart';
 import '../../../shared/utils/session_utils.dart';
 
-enum StudentContentScreen { journal, theme , attestation}
+enum StudentContentScreen { journal, theme, attestation }
 
 class StudentMainScreen extends StatefulWidget {
   const StudentMainScreen({super.key});
@@ -184,13 +184,15 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
                     child: Builder(builder: (context) {
                       switch (currentScreen) {
                         case StudentContentScreen.theme:
-                          return ThemeScreen(isEditable: false, isGroupSplit: isGroupSplit);
+                          return ThemeScreen(
+                              isEditable: false, isGroupSplit: isGroupSplit);
                         case StudentContentScreen.journal:
                           return selectedDisciplineIndex != null
                               ? JournalScreen(
                                   selectedGroupId: selectedGroupId,
                                   selectedSessionsType: selectedSessionsType,
-                                  selectedDisciplineIndex: selectedDisciplineIndex,
+                                  selectedDisciplineIndex:
+                                      selectedDisciplineIndex,
                                   disciplines: disciplines,
                                   token: token,
                                   tableKey: tableKey,
@@ -202,7 +204,12 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
                                   child: Text('Выберите дисциплину и группу'),
                                 );
                         case StudentContentScreen.attestation:
-                          return AttestationScreen(isEditable: false,);
+                          return AttestationScreen(
+                            isEditable: false,
+                            attestationType:
+                                disciplines[selectedDisciplineIndex!]
+                                    .attestationType,
+                          );
                       }
                     }),
                   ),
@@ -242,7 +249,8 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
                     setState(() {
                       showDisciplineSelect = false;
                       isLoading = true;
-                      isGroupSplit = disciplines[selectedDisciplineIndex!].isGroupSplit;
+                      isGroupSplit =
+                          disciplines[selectedDisciplineIndex!].isGroupSplit;
                     });
 
                     context.read<JournalBloc>().add(
@@ -254,8 +262,11 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
                         );
 
                     context.read<AttestationBloc>().add(
-                      LoadAttestations(groupId: selectedGroupId!, disciplineId: disciplines[selectedDisciplineIndex!].id),
-                    );
+                          LoadAttestations(
+                              groupId: selectedGroupId!,
+                              disciplineId:
+                                  disciplines[selectedDisciplineIndex!].id),
+                        );
                   },
                 ),
             ],

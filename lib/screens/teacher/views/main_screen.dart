@@ -424,6 +424,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                             case TeacherContentScreen.attestation:
                               return AttestationScreen(
                                 isEditable: true,
+                                attestationType: disciplines[selectedDisciplineIndex!].attestationType,
                                 onColumnSelected:
                                       (index) {
                                     setState(() {
@@ -432,7 +433,6 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                     });
                                   },
                                 onAttestationUpdate: (id, averageScore, result) {
-                                  print('ВЫЗВАНО ОБНОВЛЕНИЕ АТТЕСТАЦИИ');
                                   context.read<AttestationBloc>().add(
                                     UpdateAttestation(
                                       id: id,
@@ -445,7 +445,6 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                   );
                                 },
                                 onUSRUpdate: (id, grade) {
-                                  print('ВЫЗВАНО ОБНОВЛЕНИЕ УСР');
                                   context.read<AttestationBloc>().add(
                                     UpdateUSR(
                                       id: id,

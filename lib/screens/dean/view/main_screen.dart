@@ -205,6 +205,7 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
                           case DeanContentScreen.attestation:
                             return AttestationScreen(
                               isEditable: false,
+                              attestationType: disciplines[selectedDisciplineIndex!].attestationType,
                             );
                         }
                       },
