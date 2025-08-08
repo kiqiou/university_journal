@@ -423,6 +423,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                     );
                             case TeacherContentScreen.attestation:
                               return AttestationScreen(
+                                isEditable: true,
                                 onColumnSelected:
                                       (index) {
                                     setState(() {
@@ -430,7 +431,31 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                           index;
                                     });
                                   },
-                                isEditable: true,
+                                onAttestationUpdate: (id, averageScore, result) {
+                                  print('ВЫЗВАНО ОБНОВЛЕНИЕ АТТЕСТАЦИИ');
+                                  context.read<AttestationBloc>().add(
+                                    UpdateAttestation(
+                                      id: id,
+                                      averageScore: averageScore,
+                                      result: result,
+                                      groupId: selectedGroupId!,
+                                      disciplineId: disciplines[
+                                      selectedDisciplineIndex!].id,
+                                    ),
+                                  );
+                                },
+                                onUSRUpdate: (id, grade) {
+                                  print('ВЫЗВАНО ОБНОВЛЕНИЕ УСР');
+                                  context.read<AttestationBloc>().add(
+                                    UpdateUSR(
+                                      id: id,
+                                      grade: grade,
+                                      groupId: selectedGroupId!,
+                                      disciplineId: disciplines[
+                                      selectedDisciplineIndex!].id,
+                                    ),
+                                  );
+                                },
                                 onAddUSR: () {
                                   context.read<AttestationBloc>().add(
                                         AddUSR(

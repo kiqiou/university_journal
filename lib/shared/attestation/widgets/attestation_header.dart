@@ -24,18 +24,23 @@ class AttestationHeader extends StatelessWidget {
           style: TextStyle(
             fontSize: 20,
             color: Colors.grey.shade700),),
-        if (selectedColumnIndex != null)
-          SessionButton(
-            onChange: () {
-              final position = getSelectedUSR!();
-              if (position != null) onDeleteUSR!(position);
-            },
-            buttonName: 'Удалить УСР',
-          ),
-        SessionButton(
-          onChange: onAddUSR!,
-          buttonName: 'Добавить УСР',
+        Row(
+          children: [
+            if (selectedColumnIndex != null)
+              SessionButton(
+                onChange: () {
+                  final position = getSelectedUSR!();
+                  if (position != null) onDeleteUSR!(position);
+                },
+                buttonName: 'Удалить УСР',
+              ),
+            SessionButton(
+              onChange: onAddUSR!,
+              buttonName: 'Добавить УСР',
+            ),
+          ],
         ),
+
       ],
     );
   }

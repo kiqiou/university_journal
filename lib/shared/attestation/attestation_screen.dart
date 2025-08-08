@@ -7,6 +7,8 @@ class AttestationScreen extends StatefulWidget {
   final bool isEditable;
   final Function(int?)? onColumnSelected;
   final Function(int)? onDeleteUSR;
+  final Function(int, double?, String?)? onAttestationUpdate;
+  final Function(int, int)? onUSRUpdate;
   final VoidCallback? onAddUSR;
 
   const AttestationScreen({
@@ -14,7 +16,7 @@ class AttestationScreen extends StatefulWidget {
     required this.isEditable,
     this.onColumnSelected,
     this.onDeleteUSR,
-    this.onAddUSR,
+    this.onAddUSR, this.onAttestationUpdate, this.onUSRUpdate,
   });
 
   @override
@@ -39,9 +41,10 @@ class _AttestationScreenState extends State<AttestationScreen> {
       isEditable: widget.isEditable,
       onAddUSR: widget.onAddUSR,
       onDeleteUSR: widget.onDeleteUSR,
+      onAttestationUpdate: widget.onAttestationUpdate,
+      onUSRUpdate: widget.onUSRUpdate,
       selectedColumnIndex: selectedColumnIndex,
       onColumnSelected: _handleColumnSelected,
-      onUpdate: () {},
     );
   }
 }

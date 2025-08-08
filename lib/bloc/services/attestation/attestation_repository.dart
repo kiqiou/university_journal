@@ -35,6 +35,36 @@ class USRRepository {
     }
   }
 
+  Future<bool> updateAttestation({
+    required int attestationId,
+    required double? averageScore,
+    required String? result,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${_baseUrl}update_attestation/'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'attestation_id': attestationId,
+          'average_score': averageScore,
+          'result': result,
+        }),
+      );
+
+      final data = jsonDecode(utf8.decode(response.bodyBytes));
+      if (response.statusCode == 200) {
+        log('✅ USR обновлён: $data');
+        return true;
+      } else {
+        log('❌ Ошибка обновления USR: $data');
+        return false;
+      }
+    } catch (e) {
+      log('❌ Ошибка соединения при обновлении USR: $e');
+      return false;
+    }
+  }
+
   Future<bool> addUSR(
     int disciplineId,
     int groupId,

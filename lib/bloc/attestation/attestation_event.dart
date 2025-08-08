@@ -15,6 +15,25 @@ class LoadAttestations extends AttestationEvent {
   List<Object?> get props => [groupId];
 }
 
+class UpdateAttestation extends AttestationEvent {
+  final int id;
+  final double? averageScore;
+  final String? result;
+  final int groupId;
+  final int disciplineId;
+
+  UpdateAttestation({
+    required this.id,
+    this.averageScore,
+    this.result,
+    required this.groupId,
+    required this.disciplineId,
+  });
+
+  @override
+  List<Object?> get props => [id, groupId, disciplineId];
+}
+
 class AddUSR extends AttestationEvent {
   final int groupId;
   final int disciplineId;
@@ -25,13 +44,13 @@ class AddUSR extends AttestationEvent {
   List<Object?> get props => [];
 }
 
-class UpdateAttestation extends AttestationEvent {
+class UpdateUSR extends AttestationEvent {
   final int id;
   final int grade;
   final int groupId;
   final int disciplineId;
 
-  UpdateAttestation({
+  UpdateUSR({
     required this.id,
     required this.grade,
     required this.groupId,

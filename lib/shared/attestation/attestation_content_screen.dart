@@ -9,6 +9,8 @@ class AttestationContentScreen extends StatefulWidget {
   final bool isEditable;
   final int? selectedColumnIndex;
   final Function(int?)? onColumnSelected;
+  final Function(int, double?, String?)? onAttestationUpdate;
+  final Function(int, int)? onUSRUpdate;
   final Function(int)? onDeleteUSR;
   final VoidCallback? onAddUSR;
 
@@ -19,20 +21,33 @@ class AttestationContentScreen extends StatefulWidget {
       this.selectedColumnIndex,
       this.onColumnSelected,
       this.onDeleteUSR,
-      this.onAddUSR});
+      this.onAddUSR,
+      this.onAttestationUpdate,
+      this.onUSRUpdate});
 
   @override
-  State<AttestationContentScreen> createState() => _AttestationContentScreenState();
+  State<AttestationContentScreen> createState() =>
+      _AttestationContentScreenState();
 }
 
 class _AttestationContentScreenState extends State<AttestationContentScreen> {
   int? selectedColumnIndex;
 
   @override
+  void initState() {
+    super.initState();
+    selectedColumnIndex = widget.selectedColumnIndex;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: () {
         if (widget.isEditable && widget.onColumnSelected != null) {
+          setState(() {
+            selectedColumnIndex = null;
+          });
           widget.onColumnSelected!(null);
         }
       },
@@ -40,27 +55,28 @@ class _AttestationContentScreenState extends State<AttestationContentScreen> {
         children: [
           const SizedBox(height: 40),
           AttestationHeader(
-              selectedColumnIndex: selectedColumnIndex,
-              getSelectedUSR: () => selectedColumnIndex,
-              onDeleteUSR: widget.onDeleteUSR,
-              onAddUSR: widget.onAddUSR),
-          SizedBox(
-            height: 40,
+            selectedColumnIndex: selectedColumnIndex,
+            getSelectedUSR: () => selectedColumnIndex,
+            onDeleteUSR: widget.onDeleteUSR,
+            onAddUSR: widget.onAddUSR,
           ),
+          const SizedBox(height: 40),
           Expanded(
             child: AttestationTable(
-                attestations: widget.attestations,
-                selectedColumnIndex: selectedColumnIndex,
-                onColumnSelected: (index) {
-                  setState(() {
-                    selectedColumnIndex = index;
-                  });
-                  if (widget.onColumnSelected != null) {
-                    widget.onColumnSelected!(index);
-                  }
-                },
-                onUpdate: (int attestationId, int usrIndex, String newGrade) {},
-                isEditable: widget.isEditable),
+              attestations: widget.attestations,
+              selectedColumnIndex: selectedColumnIndex,
+              onUSRUpdate: widget.onUSRUpdate,
+              onAttestationUpdate: widget.onAttestationUpdate,
+              onColumnSelected: (index) {
+                setState(() {
+                  selectedColumnIndex = index;
+                });
+                if (widget.onColumnSelected != null) {
+                  widget.onColumnSelected!(index);
+                }
+              },
+              isEditable: widget.isEditable,
+            ),
           ),
         ],
       ),
