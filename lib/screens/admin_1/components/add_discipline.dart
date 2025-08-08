@@ -43,11 +43,6 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
   String? _selectedAttestationType;
   bool isGroupSplit = false;
 
-  List<String> _attestationOptions = [
-    'Зачет',
-    'Экзамен'
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -663,7 +658,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                     child: Wrap(
                                       spacing: 10,
                                       runSpacing: 10,
-                                      children: _attestationOptions.map((option) {
+                                      children: attestationOptions.map((option) {
                                         final isSelected = _selectedAttestationType == option;
                                         return ChoiceChip(
                                           label: Text(

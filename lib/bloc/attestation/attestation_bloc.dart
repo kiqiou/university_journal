@@ -59,7 +59,6 @@ class AttestationBloc extends Bloc<AttestationEvent, AttestationState> {
               group: att.group,
               averageScore: event.averageScore ?? att.averageScore,
               result: event.result ?? att.result,
-              attestationType: att.attestationType,
               updatedAt: DateTime.now(),
               usrItems: att.usrItems,
             );
@@ -123,7 +122,6 @@ class AttestationBloc extends Bloc<AttestationEvent, AttestationState> {
             group: attestation.group,
             averageScore: attestation.averageScore,
             result: attestation.result,
-            attestationType: attestation.attestationType,
             updatedAt: attestation.updatedAt,
             usrItems: updatedUsrItems,
           );

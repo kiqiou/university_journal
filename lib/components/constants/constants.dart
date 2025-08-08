@@ -4,3 +4,8 @@ final List<Map<String, String>> lessonTypeOptions = [
   {'key': 'practice', 'label': 'Практика'},
   {'key': 'lab', 'label': 'Лабораторная'},
 ];
+
+List<String> attestationOptions = [
+  'Зачет',
+  'Экзамен'
+];

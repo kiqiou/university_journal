@@ -74,6 +74,7 @@ class DisciplineRepository{
     List<int>? teacherIds,
     List<int>? groupIds,
     bool? isGroupSplit,
+    String? attestationType,
     required bool appendTeachers,
     List<Map<String, dynamic>>? planItems,
   }) async {
@@ -88,6 +89,7 @@ class DisciplineRepository{
       if (teacherIds != null) body['teachers'] = teacherIds;
       if (groupIds != null) body['groups'] = groupIds;
       if (planItems != null) body['plan_items'] = planItems;
+      if(attestationType != null) body['attestation_type'] = attestationType;
 
       final response = await http.put(
         Uri.parse('http://127.0.0.1:8000/discipline/api/update_course/'),

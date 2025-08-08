@@ -9,7 +9,6 @@ class Attestation {
   final Group group;
   final double averageScore;
   final String? result;
-  final String attestationType;
   DateTime? updatedAt;
   final List<USRItem> usrItems;
 
@@ -20,7 +19,6 @@ class Attestation {
     required this.group,
     required this.averageScore,
     required this.result,
-    required this.attestationType,
     this.updatedAt,
     required this.usrItems,
   });
@@ -32,7 +30,6 @@ class Attestation {
       group: Group.fromJson(json['group']),
       averageScore: json['average_score'] ?? 0,
       result: json['result'],
-      attestationType: json['attestation_type'] ?? '',
       student: MyUser(
         username: json['student']['username'] ?? '',
         role: json['student']['role']['role'] ?? '',
@@ -55,7 +52,6 @@ class Attestation {
         group,
         averageScore,
         result,
-        attestationType,
         updatedAt,
         usrItems,
       ];
