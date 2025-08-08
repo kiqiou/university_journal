@@ -5,10 +5,10 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:collection/collection.dart';
 
-import '../bloc/services/journal/journal_repository.dart';
-import '../bloc/services/journal/models/session.dart';
-import '../bloc/services/user/models/user.dart';
-import 'colors/colors.dart';
+import '../../../bloc/services/journal/journal_repository.dart';
+import '../../../bloc/services/journal/models/session.dart';
+import '../../../bloc/services/user/models/user.dart';
+import '../../../components/colors/colors.dart';
 
 class JournalTable extends StatefulWidget {
   final bool isLoading;
@@ -19,13 +19,11 @@ class JournalTable extends StatefulWidget {
   final List<Session> sessions;
   final List<MyUser> students;
   final void Function(int)? onColumnSelected;
-  final void Function(List<Session>)? onSessionsChanged;
 
   const JournalTable({
     super.key,
     required this.isLoading,
     required this.sessions,
-    this.onSessionsChanged,
     required this.isEditable,
     required this.students,
     this.onColumnSelected,
@@ -462,7 +460,7 @@ List<GridColumn> buildColumns({
       ),
     ),
     GridColumn(
-      columnName: 'ФИО',
+      columnName: 'Список студентов',
       width: 200,
       allowSorting: true,
       label: Container(
