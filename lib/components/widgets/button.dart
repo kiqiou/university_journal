@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 
 import '../colors/colors.dart';
 
-class SessionButton extends StatelessWidget{
+class MyButton extends StatelessWidget{
   final VoidCallback onChange;
   final String buttonName;
-  const SessionButton({super.key, required this.onChange, required this.buttonName});
+  const MyButton({super.key, required this.onChange, required this.buttonName});
 
   @override
   Widget build(BuildContext context) {

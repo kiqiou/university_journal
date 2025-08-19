@@ -49,14 +49,14 @@ class JournalHeader extends StatelessWidget {
           ),
         const Spacer(),
         if (selectedColumnIndex != null && isEditable) ...[
-          SessionButton(
+          MyButton(
             onChange: () {
               final session = getSelectedSession();
               if (session != null) onDeleteSession!(session);
             },
             buttonName: 'Удалить занятие',
           ),
-          SessionButton(
+          MyButton(
             onChange: () {
               final session = getSelectedSession();
               if (session != null) onEditSession!(session);
@@ -66,7 +66,7 @@ class JournalHeader extends StatelessWidget {
 
         ],
         if(isEditable) ...[
-          SessionButton(
+          MyButton(
             onChange: onAddSession!,
             buttonName: 'Добавить занятие',
           ),

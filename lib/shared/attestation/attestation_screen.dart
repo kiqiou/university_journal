@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
 import '../../bloc/services/attestation/model/attestation.dart';
+import '../../bloc/services/journal/models/session.dart';
 import 'attestation_bloc_handler.dart';
 
 class AttestationScreen extends StatefulWidget {

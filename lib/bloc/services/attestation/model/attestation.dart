@@ -7,7 +7,7 @@ class Attestation {
   final MyUser student;
   final Discipline discipline;
   final Group group;
-  final double averageScore;
+  double averageScore;
   final String? result;
   DateTime? updatedAt;
   final List<USRItem> usrItems;

@@ -48,7 +48,11 @@ class JournalTableState extends State<JournalTable> {
   }
 
   void updateDataSource(List<Session> sessions, List<MyUser> students) {
-    final grouped = groupSessionsByStudent(sessions, students);
+    // сортируем студентов по алфавиту
+    final sortedStudents = List<MyUser>.from(students)
+      ..sort((a, b) => a.username.compareTo(b.username));
+
+    final grouped = groupSessionsByStudent(sessions, sortedStudents);
 
     setState(() {
       _sessions = sessions;
@@ -219,7 +223,7 @@ class JournalDataSource extends DataGridSource {
 
         if (columnIndex == 1 || columnIndex == 0) {
           return Container(
-            alignment: Alignment.centerLeft,
+            alignment: columnIndex == 1 ? Alignment.centerLeft : Alignment.center,
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               border: Border.all(color: Colors.grey.shade400),

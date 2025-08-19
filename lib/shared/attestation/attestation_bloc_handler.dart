@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../bloc/attestation/attestation_bloc.dart';
+import '../../bloc/journal/journal_bloc.dart';
 import '../../bloc/services/attestation/model/attestation.dart';
+import '../../bloc/services/journal/models/session.dart';
 import 'attestation_content_screen.dart';
 
 class AttestationBlocHandler extends StatelessWidget {
@@ -30,17 +32,19 @@ class AttestationBlocHandler extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AttestationBloc, AttestationState>(
-      builder: (context, state) {
-        if (state is AttestationLoading) {
-          return Center(child: CircularProgressIndicator());
+      builder: (context, attState) {
+        if (attState is AttestationLoading) {
+          return const Center(child: CircularProgressIndicator());
         }
-
-        if (state is AttestationError) {
-          return Center(child: Text('Ошибка: ${state.message}'));
+        if (attState is AttestationError) {
+          return Center(child: Text('Ошибка: ${attState.message}'));
         }
+        if (attState is AttestationLoaded) {
+          final attestations = attState.attestations;
 
-        if (state is AttestationLoaded) {
-          final attestations = state.attestations;
+          // 👉 добавляем слушатель JournalBloc
+          final journalState = context.watch<JournalBloc>().state;
+          final sessions = journalState is JournalLoaded ? journalState.sessions : <Session>[];
 
           return AttestationContentScreen(
             attestations: attestations,
@@ -52,10 +56,11 @@ class AttestationBlocHandler extends StatelessWidget {
             onDeleteUSR: onDeleteUSR,
             onAttestationUpdate: onAttestationUpdate,
             onUSRUpdate: onUSRUpdate,
+            sessions: sessions, // ✅ всегда актуальные
           );
         }
 
-        return SizedBox.shrink();
+        return const SizedBox.shrink();
       },
     );
   }

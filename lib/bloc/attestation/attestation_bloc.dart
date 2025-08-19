@@ -105,11 +105,9 @@ class AttestationBloc extends Bloc<AttestationEvent, AttestationState> {
       );
 
       if (success) {
-        // Проходим по всем аттестациям и обновляем usrItems, где id совпадает
         final updatedAttestations = currentState.attestations.map((attestation) {
           final updatedUsrItems = attestation.usrItems.map((usrItem) {
             if (usrItem.id == event.id) {
-              // Обновляем grade для нужного usrItem
               return USRItem(id: usrItem.id, grade: event.grade);
             }
             return usrItem;

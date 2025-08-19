@@ -109,7 +109,7 @@ class USRRepository {
 
       final data = jsonDecode(utf8.decode(response.bodyBytes));
       if (response.statusCode == 200) {
-        log('✅ USR обновлён: $data');
+        log('✅ Аттестация обновлена: $data');
         return true;
       } else {
         log('❌ Ошибка обновления USR: $data');
