@@ -20,84 +20,112 @@ class StudentsList extends StatefulWidget {
   State<StudentsList> createState() => _StudentsListState();
 }
 
-class _StudentsListState extends State<StudentsList> {
-  late List<MyUser> allStudents      = [];
-  late List<MyUser> filteredStudents = [];
-  late List<Group> allGroups         = [];
+class _StudentsListState extends State<StudentsList>
+    with AutomaticKeepAliveClientMixin<StudentsList> {
 
-  late List<int>    allCourses;
+  List<MyUser> allStudents = [];
+  List<MyUser> filteredStudents = [];
+  List<Group> allGroups = [];
+
+  late List<int> allCourses;
   late List<String> allFaculties;
 
   Set<String> selectedFaculties = {};
-  Set<int>    selectedCourses   = {};
-  Set<int>    selectedGroupIds  = {};
+  Set<int> selectedCourses = {};
+  Set<int> selectedGroupIds = {};
 
   bool isFilteringActive = false;
   int? selectedIndex;
 
   bool showFilterDialog = false;
   bool showDeleteDialog = false;
-  bool showEditDialog   = false;
+  bool showEditDialog = false;
 
   final nameController = TextEditingController();
   bool? isHeadman;
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   void initState() {
     super.initState();
-    widget.loadStudents().then((_) {
-      allStudents      = widget.students.toList();
+    widget.loadStudents().then((_) => _populateLocalData());
+  }
+
+  @override
+  void didUpdateWidget(covariant StudentsList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.students != widget.students ||
+        oldWidget.groups   != widget.groups) {
+      _populateLocalData();
+    }
+  }
+
+  void _populateLocalData() {
+    allStudents = widget.students.toList();
+    allGroups   = widget.groups.toList();
+    allCourses = allGroups
+        .map((g) => g.courseId)
+        .toSet()
+        .toList()
+      ..sort((a, b) => a.compareTo(b));
+
+    allFaculties = allGroups
+        .map((g) => g.facultyName)
+        .where((f) => f.isNotEmpty)
+        .toSet()
+        .toList()
+      ..sort();
+
+    if (isFilteringActive && _canApply) {
+      _applyFilters(noSetState: true);
+    } else {
       filteredStudents = allStudents;
-      allGroups        = widget.groups.toList();
+    }
 
-      allCourses = allGroups
-          .map((g) => g.courseId)
-          .toSet()
-          .toList()
-        ..sort();
-      allFaculties = allGroups
-          .map((g) => g.facultyName)
-          .where((f) => f.isNotEmpty)
-          .toSet()
-          .toList()
-        ..sort();
-
-      setState(() {});
-    });
+    setState(() {});
   }
 
   bool get _canApply =>
       selectedFaculties.isNotEmpty ||
-          selectedCourses.isNotEmpty ||
+          selectedCourses.isNotEmpty   ||
           selectedGroupIds.isNotEmpty;
 
-  void _applyFilters() {
+  void _applyFilters({bool noSetState = false}) {
+    final newList = allStudents.where((u) {
+      final grpMatch = allGroups.where((g) => g.id == u.groupId);
+      if (grpMatch.isEmpty) return false;
+      final grp = grpMatch.first;
+
+      final facOk = selectedFaculties.isEmpty ||
+          selectedFaculties.contains(grp.facultyName);
+      final couOk = selectedCourses.isEmpty ||
+          selectedCourses.contains(grp.courseId);
+      final grpOk = selectedGroupIds.isEmpty ||
+          selectedGroupIds.contains(grp.id);
+
+      return facOk && couOk && grpOk;
+    }).toList();
+
+    if (noSetState) {
+      filteredStudents = newList;
+      return;
+    }
+
     setState(() {
       isFilteringActive = true;
-      filteredStudents = allStudents.where((u) {
-        // получить все группы с нужным id
-        final matches = allGroups.where((g) => g.id == u.groupId);
-        if (matches.isEmpty) return false;
-        final grp = matches.first;
-
-        final facOk = selectedFaculties.isEmpty ||
-            selectedFaculties.contains(grp.facultyName);
-        final couOk = selectedCourses.isEmpty ||
-            selectedCourses.contains(grp.courseId);
-        final grpOk = selectedGroupIds.isEmpty ||
-            selectedGroupIds.contains(grp.id);
-
-        return facOk && couOk && grpOk;
-      }).toList();
+      filteredStudents = newList;
     });
   }
-
 
   void _resetFilters() {
     setState(() {
       selectedFaculties.clear();
       selectedCourses.clear();
       selectedGroupIds.clear();
+      filteredStudents = allStudents;
+      isFilteringActive = false;
     });
   }
 
@@ -111,6 +139,8 @@ class _StudentsListState extends State<StudentsList> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     const btnH = 40.0;
     return Scaffold(
       appBar: AppBar(
@@ -270,8 +300,13 @@ class _StudentsListState extends State<StudentsList> {
   }
 
   Widget _buildFilterDialog(BuildContext context) {
-    final w = (MediaQuery.of(context).size.width * 0.6).clamp(300.0, 600.0);
-    final h = (MediaQuery.of(context).size.height * 0.7).clamp(400.0, 600.0);
+    final double w = (MediaQuery.of(context).size.width  * 0.6).clamp(300.0, 600.0);
+    final double h = (MediaQuery.of(context).size.height * 0.7).clamp(400.0, 600.0);
+
+    final List<String> sortedFaculties = List<String>.from(allFaculties)
+      ..sort((a, b) => a.compareTo(b));
+    final List<int> sortedCourses = List<int>.from(allCourses)
+      ..sort((a, b) => a.compareTo(b));
 
     Widget multiDropdown<T>(
         String label,
@@ -344,7 +379,7 @@ class _StudentsListState extends State<StudentsList> {
 
               multiDropdown<String>(
                 'Факультет',
-                allFaculties,
+                sortedFaculties,
                 selectedFaculties,
                 'Все факультеты',
                     (f) => f,
@@ -352,10 +387,9 @@ class _StudentsListState extends State<StudentsList> {
               ),
               const SizedBox(height: 16),
 
-              // Курсы: мультивыбор, но визуал «дропдауна»
               multiDropdown<int>(
                 'Курс',
-                allCourses,
+                sortedCourses,
                 selectedCourses,
                 'Все курсы',
                     (c) => '$c курс',
@@ -363,18 +397,21 @@ class _StudentsListState extends State<StudentsList> {
               ),
               const SizedBox(height: 16),
 
-              // Группы
+
               Text('Группы', style: const TextStyle(fontSize: 16)),
               const SizedBox(height: 8),
               ElevatedButton(
                 onPressed: () async {
-                  final availableGroups = allGroups.where((g) {
+                  final availableGroups = allGroups
+                      .where((g) {
                     final facOk = selectedFaculties.isEmpty ||
                         selectedFaculties.contains(g.facultyName);
                     final couOk = selectedCourses.isEmpty ||
                         selectedCourses.contains(g.courseId);
                     return facOk && couOk;
-                  }).toList();
+                  })
+                      .toList()
+                    ..sort((a, b) => a.name.compareTo(b.name));
 
                   final picked = await showDialog<List<Group>>(
                     context: context,
@@ -387,8 +424,9 @@ class _StudentsListState extends State<StudentsList> {
                     ),
                   );
                   if (picked != null) {
-                    setState(() =>
-                    selectedGroupIds = picked.map((g) => g.id).toSet());
+                    setState(() {
+                      selectedGroupIds = picked.map((g) => g.id).toSet();
+                    });
                   }
                 },
                 child: Text(
