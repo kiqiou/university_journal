@@ -13,7 +13,8 @@ class StudentsList extends StatefulWidget {
     Key? key,
     required this.loadStudents,
     required this.students,
-    required this.groups, required List allGroups,
+    required this.groups,
+    required List allGroups,
   }) : super(key: key);
 
   @override
@@ -22,6 +23,10 @@ class StudentsList extends StatefulWidget {
 
 class _StudentsListState extends State<StudentsList>
     with AutomaticKeepAliveClientMixin<StudentsList> {
+  static Set<String> _savedFaculties = {};
+  static Set<int> _savedCourses = {};
+  static Set<int> _savedGroupIds = {};
+  static bool _savedFilteringActive = false;
 
   List<MyUser> allStudents = [];
   List<MyUser> filteredStudents = [];
@@ -50,6 +55,12 @@ class _StudentsListState extends State<StudentsList>
   @override
   void initState() {
     super.initState();
+
+    selectedFaculties = Set.from(_savedFaculties);
+    selectedCourses   = Set.from(_savedCourses);
+    selectedGroupIds  = Set.from(_savedGroupIds);
+    isFilteringActive = _savedFilteringActive;
+
     widget.loadStudents().then((_) => _populateLocalData());
   }
 
@@ -65,11 +76,12 @@ class _StudentsListState extends State<StudentsList>
   void _populateLocalData() {
     allStudents = widget.students.toList();
     allGroups   = widget.groups.toList();
+
     allCourses = allGroups
         .map((g) => g.courseId)
         .toSet()
         .toList()
-      ..sort((a, b) => a.compareTo(b));
+      ..sort();
 
     allFaculties = allGroups
         .map((g) => g.facultyName)
@@ -114,18 +126,26 @@ class _StudentsListState extends State<StudentsList>
     }
 
     setState(() {
-      isFilteringActive = true;
-      filteredStudents = newList;
+      isFilteringActive       = true;
+      filteredStudents        = newList;
+      _savedFaculties         = Set.from(selectedFaculties);
+      _savedCourses           = Set.from(selectedCourses);
+      _savedGroupIds          = Set.from(selectedGroupIds);
+      _savedFilteringActive   = true;
     });
   }
 
   void _resetFilters() {
     setState(() {
-      selectedFaculties.clear();
-      selectedCourses.clear();
-      selectedGroupIds.clear();
-      filteredStudents = allStudents;
+      selectedFaculties = {};
+      selectedCourses   = {};
+      selectedGroupIds  = {};
       isFilteringActive = false;
+      filteredStudents  = allStudents;
+      _savedFaculties.clear();
+      _savedCourses.clear();
+      _savedGroupIds.clear();
+      _savedFilteringActive = false;
     });
   }
 
@@ -140,8 +160,8 @@ class _StudentsListState extends State<StudentsList>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-
     const btnH = 40.0;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Список студентов'),
@@ -155,48 +175,53 @@ class _StudentsListState extends State<StudentsList>
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
               ),
               icon: const Icon(Icons.filter_list),
               label: const Text('Изменить фильтры'),
               onPressed: () => setState(() => showFilterDialog = true),
             ),
           ),
+
           if (selectedIndex != null) ...[
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-              child: ElevatedButton(
+              child: ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF4068EA),
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  minimumSize: Size(btnH, btnH),
-                  padding: EdgeInsets.zero,
+                  padding:
+                  const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                 ),
+                icon: const Icon(Icons.edit, size: 20),
+                label: const Text('Редактировать'),
                 onPressed: _onEditPressed,
-                child: const Icon(Icons.edit, size: 20),
               ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-              child: ElevatedButton(
+              child: ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red.shade600,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  minimumSize: Size(btnH, btnH),
-                  padding: EdgeInsets.zero,
+                  padding:
+                  const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                 ),
+                icon: const Icon(Icons.delete, size: 20),
+                label: const Text('Удалить'),
                 onPressed: () => setState(() => showDeleteDialog = true),
-                child: const Icon(Icons.delete, size: 20),
               ),
             ),
           ]
         ],
       ),
+
       body: Stack(
         children: [
           Padding(
@@ -210,9 +235,17 @@ class _StudentsListState extends State<StudentsList>
               ),
             ),
           ),
-          if (showFilterDialog) Center(child: _buildFilterDialog(context)),
+
+          if (showFilterDialog)
+            Center(child: _buildFilterDialog(context)),
+
           if (showDeleteDialog && selectedIndex != null)
-            Center(child: _buildDeleteDialog(btnH)),
+            Positioned(
+              top: 16,
+              right: 16,
+              child: _buildDeleteDialog(btnH),
+            ),
+
           if (showEditDialog && selectedIndex != null)
             Center(child: _buildEditDialog(context, btnH)),
         ],
@@ -226,7 +259,11 @@ class _StudentsListState extends State<StudentsList>
           .where((g) => selectedGroupIds.contains(g.id))
           .where((g) => filteredStudents.any((u) => u.groupId == g.id))
           .toList()
-        ..sort((a, b) => a.name.compareTo(b.name));
+        ..sort((a, b) {
+          final c = a.courseId.compareTo(b.courseId);
+          if (c != 0) return c;
+          return a.name.compareTo(b.name);
+        });
 
       return ListView(
         children: groups.expand((g) {
@@ -237,29 +274,33 @@ class _StudentsListState extends State<StudentsList>
               child: Text(
                 '${g.name} — ${g.courseId} курс',
                 style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
+                    fontSize: 18, fontWeight: FontWeight.w600),
               ),
             ),
             ...studs.map((st) {
               final idx = filteredStudents.indexOf(st);
-              return _buildStudentItem(
-                st,
-                selectedIndex == idx,
-                idx,
-              );
+              return _buildStudentItem(st, selectedIndex == idx, idx);
             }),
           ];
         }).toList(),
       );
     }
 
+    final sortedStudents = filteredStudents.toList()
+      ..sort((u1, u2) {
+        final g1 = allGroups.firstWhere((g) => g.id == u1.groupId);
+        final g2 = allGroups.firstWhere((g) => g.id == u2.groupId);
+        final c = g1.courseId.compareTo(g2.courseId);
+        if (c != 0) return c;
+        return u1.username.compareTo(u2.username);
+      });
+
     return ListView.builder(
-      itemCount: filteredStudents.length,
+      itemCount: sortedStudents.length,
       itemBuilder: (_, i) {
-        final st = filteredStudents[i];
-        return _buildStudentItem(st, selectedIndex == i, i);
+        final st = sortedStudents[i];
+        final idx = filteredStudents.indexOf(st);
+        return _buildStudentItem(st, selectedIndex == idx, idx);
       },
     );
   }
@@ -290,23 +331,18 @@ class _StudentsListState extends State<StudentsList>
         child: Text(
           st.username,
           style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-          ),
+              fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87),
         ),
       ),
     );
   }
 
   Widget _buildFilterDialog(BuildContext context) {
-    final double w = (MediaQuery.of(context).size.width  * 0.6).clamp(300.0, 600.0);
-    final double h = (MediaQuery.of(context).size.height * 0.7).clamp(400.0, 600.0);
+    final w = (MediaQuery.of(context).size.width * 0.6).clamp(300.0, 600.0);
+    final h = (MediaQuery.of(context).size.height * 0.7).clamp(400.0, 600.0);
 
-    final List<String> sortedFaculties = List<String>.from(allFaculties)
-      ..sort((a, b) => a.compareTo(b));
-    final List<int> sortedCourses = List<int>.from(allCourses)
-      ..sort((a, b) => a.compareTo(b));
+    final sortedFaculties = List<String>.from(allFaculties)..sort();
+    final sortedCourses    = List<int>.from(allCourses)..sort();
 
     Widget multiDropdown<T>(
         String label,
@@ -397,7 +433,6 @@ class _StudentsListState extends State<StudentsList>
               ),
               const SizedBox(height: 16),
 
-
               Text('Группы', style: const TextStyle(fontSize: 16)),
               const SizedBox(height: 8),
               ElevatedButton(
@@ -466,67 +501,92 @@ class _StudentsListState extends State<StudentsList>
 
   Widget _buildDeleteDialog(double btnH) {
     final st = filteredStudents[selectedIndex!];
-    return Material(
-      color: Colors.black26,
-      child: Center(
-        child: Container(
-          width: 320,
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
+    return Container(
+      width: 300,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey.shade300),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 8,
+            offset: Offset(0, 4),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Text('Удалить студента',
-                  style: TextStyle(fontSize: 16, color: Colors.grey.shade700)),
-              const SizedBox(height: 12),
-              Text(st.username,
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 16),
-              const Text('Вы уверены?'),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: SizedBox(
-                      height: btnH,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red.shade600),
-                        onPressed: () async {
-                          final ok = await UserRepository().deleteUser(
-                            userId: st.id,
-                          );
-                          if (ok) {
-                            await widget.loadStudents();
-                            setState(() {
-                              showDeleteDialog = false;
-                              isFilteringActive = false;
-                            });
-                          }
-                        },
-                        child: const Text('Удалить'),
-                      ),
-                    ),
+              const Text(
+                'Удаление студента',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const Spacer(),
+              InkWell(
+                onTap: () => setState(() => showDeleteDialog = false),
+                borderRadius: BorderRadius.circular(4),
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF4068EA),
+                    borderRadius: BorderRadius.circular(4),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: SizedBox(
-                      height: btnH,
-                      child: OutlinedButton(
-                        onPressed: () => setState(() => showDeleteDialog = false),
-                        child: const Text('Отмена'),
-                      ),
-                    ),
-                  ),
-                ],
+                  child: const Icon(Icons.close, size: 16, color: Colors.white),
+                ),
               ),
             ],
           ),
-        ),
+          const SizedBox(height: 12),
+          Text(
+            st.username,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 8),
+          const Text('Вы действительно хотите удалить студента?'),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: btnH,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red.shade600,
+                    ),
+                    onPressed: () async {
+                      final ok = await UserRepository().deleteUser(
+                        userId: st.id,
+                      );
+                      if (ok) {
+                        await widget.loadStudents();
+                        setState(() {
+                          showDeleteDialog = false;
+                          isFilteringActive = false;
+                        });
+                      }
+                    },
+                    child: const Text('Удалить'),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: SizedBox(
+                  height: btnH,
+                  child: OutlinedButton(
+                    onPressed: () => setState(() => showDeleteDialog = false),
+                    child: const Text('Отмена'),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -551,8 +611,10 @@ class _StudentsListState extends State<StudentsList>
             children: [
               Row(
                 children: [
-                  const Text('Редактировать студента',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const Text(
+                    'Редактировать студента',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
                   const Spacer(),
                   InkWell(
                     onTap: () => setState(() => showEditDialog = false),
@@ -579,7 +641,8 @@ class _StudentsListState extends State<StudentsList>
                 items: allGroups
                     .map((g) => DropdownMenuItem(value: g, child: Text(g.name)))
                     .toList(),
-                onChanged: (v) => setState(() => selectedGroupIds = v != null ? {v.id} : {}),
+                onChanged: (v) =>
+                    setState(() => selectedGroupIds = v != null ? {v.id} : {}),
               ),
               const SizedBox(height: 16),
               CheckboxListTile(
@@ -597,7 +660,9 @@ class _StudentsListState extends State<StudentsList>
                   onPressed: () async {
                     final ok = await UserRepository().updateUser(
                       userId: st.id,
-                      groupId: selectedGroupIds.isEmpty ? null : selectedGroupIds.first,
+                      groupId: selectedGroupIds.isEmpty
+                          ? null
+                          : selectedGroupIds.first,
                       username: nameController.text,
                       isHeadman: isHeadman,
                     );
