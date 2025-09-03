@@ -32,10 +32,7 @@ class _AddGroupDialogState extends State<AddGroupDialog> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-
-    if (screenWidth < 500 || screenHeight < 500) return const SizedBox.shrink();
-
+    final screenHeight = MediaQuery.of(context).size.height * 0.9;
     final dialogWidth = min(800.0, max(420.0, screenWidth * 0.45));
 
     return Dialog(
@@ -47,6 +44,7 @@ class _AddGroupDialogState extends State<AddGroupDialog> {
           alignment: Alignment.centerRight,
           child: SizedBox(
             width: dialogWidth,
+            height: screenHeight,
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.white,
