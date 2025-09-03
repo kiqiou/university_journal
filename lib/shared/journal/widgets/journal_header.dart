@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:university_journal/components/widgets/button.dart';
 import '../../../../../bloc/services/journal/models/session.dart';
-import '../../../components/session_button.dart';
 
 class JournalHeader extends StatelessWidget {
   final String selectedSessionsType;
   final int? selectedColumnIndex;
+  final bool isEditable;
   final String Function() buildSessionStatsText;
   final Session? Function() getSelectedSession;
-  final Function(Session) onEditSession;
-  final Function(Session) onDeleteSession;
-  final VoidCallback onAddSession;
+  final Function(Session)? onEditSession;
+  final Function(Session)? onDeleteSession;
+  final VoidCallback? onAddSession;
 
   const JournalHeader({
     super.key,
@@ -20,6 +21,7 @@ class JournalHeader extends StatelessWidget {
     required this.onEditSession,
     required this.onDeleteSession,
     required this.onAddSession,
+    required this.isEditable,
   });
 
   @override
@@ -46,26 +48,29 @@ class JournalHeader extends StatelessWidget {
             ),
           ),
         const Spacer(),
-        if (selectedColumnIndex != null) ...[
-          SessionButton(
+        if (selectedColumnIndex != null && isEditable) ...[
+          MyButton(
             onChange: () {
               final session = getSelectedSession();
-              if (session != null) onDeleteSession(session);
+              if (session != null) onDeleteSession!(session);
             },
             buttonName: 'Удалить занятие',
           ),
-          SessionButton(
+          MyButton(
             onChange: () {
               final session = getSelectedSession();
-              if (session != null) onEditSession(session);
+              if (session != null) onEditSession!(session);
             },
             buttonName: 'Редактировать занятие',
           ),
+
         ],
-        SessionButton(
-          onChange: onAddSession,
-          buttonName: 'Добавить занятие',
-        ),
+        if(isEditable) ...[
+          MyButton(
+            onChange: onAddSession!,
+            buttonName: 'Добавить занятие',
+          ),
+        ]
       ],
     );
   }

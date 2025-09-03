@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 class GroupRepository {
   Future<List<Group>?> getGroupsList() async {
     final response = await http.get(
-      Uri.parse('http://127.0.0.1:8000/api/get_groups_list/'),
+      Uri.parse('http://127.0.0.1:8000/group/api/get_groups_list/'),
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
         'Accept-Charset': 'utf-8',
@@ -32,7 +32,7 @@ class GroupRepository {
   }) async {
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/api/add_group/'),
+        Uri.parse('http://127.0.0.1:8000/group/api/add_group/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
@@ -68,7 +68,7 @@ class GroupRepository {
   }) async {
     try {
       final response = await http.put(
-        Uri.parse('http://127.0.0.1:8000/api/update_group/'),
+        Uri.parse('http://127.0.0.1:8000/group/api/update_group/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
@@ -101,7 +101,7 @@ class GroupRepository {
   }) async {
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/api/delete_group/'),
+        Uri.parse('http://127.0.0.1:8000/group/api/delete_group/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
