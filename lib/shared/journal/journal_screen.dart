@@ -22,7 +22,6 @@ class JournalScreen extends StatefulWidget {
   final Function(Session)? onDeleteSession;
   final Function(Session)? onEditSession;
   final VoidCallback? onAddSession;
-  final String Function() buildSessionStatsText;
 
   const JournalScreen({
     super.key,
@@ -37,7 +36,6 @@ class JournalScreen extends StatefulWidget {
     this.onDeleteSession,
     this.onEditSession,
     this.onAddSession,
-    required this.buildSessionStatsText,
     required this.isEditable,
     this.isHeadman,
     this.selectedColumnIndexFirst,
@@ -69,7 +67,6 @@ class _JournalScreenState extends State<JournalScreen> {
       onDeleteSession: widget.onDeleteSession,
       onEditSession: widget.onEditSession,
       onAddSession: widget.onAddSession,
-      buildSessionStatsText: widget.buildSessionStatsText,
       isEditable: widget.isEditable,
       isHeadman: widget.isHeadman,
     );

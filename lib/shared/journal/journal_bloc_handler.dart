@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../bloc/journal/journal_bloc.dart';
 import '../../../../bloc/services/discipline/models/discipline.dart';
 import '../../../../bloc/services/journal/models/session.dart';
+import '../utils/session_utils.dart';
 import 'widgets/journal_table.dart';
 import 'journal_content_screen.dart';
 
@@ -22,10 +23,8 @@ class JournalBlocHandler extends StatelessWidget {
   final Function(int?)? onColumnSelectedFirst;
   final Function(int?)? onColumnSelectedSecond;
   final Function(int?)? onColumnSelected;
-  final String Function() buildSessionStatsText;
   final Function(Session)? onDeleteSession;
   final Function(Session)? onEditSession;
-
   final VoidCallback? onAddSession;
   final GlobalKey<JournalTableState> tableKey;
 
@@ -39,7 +38,6 @@ class JournalBlocHandler extends StatelessWidget {
     required this.onDeleteSession,
     required this.onEditSession,
     required this.onAddSession,
-    required this.buildSessionStatsText,
     required this.tableKey,
     required this.selectedColumnIndex,
     required this.onColumnSelected,
@@ -69,6 +67,26 @@ class JournalBlocHandler extends StatelessWidget {
               : state.sessions
                   .where((s) => s.type == selectedSessionsType)
                   .toList();
+
+          String buildSessionStatsText() {
+            if (selectedSessionsType == 'Все') return '';
+
+            final currentDiscipline = disciplines[selectedDisciplineIndex!];
+
+            if (currentDiscipline.isGroupSplit) {
+              return SessionUtils().buildSessionStatsTextWithSubgroups(
+                selectedType: selectedSessionsType,
+                discipline: currentDiscipline,
+                sessions: filteredSessions,
+              );
+            } else {
+              return SessionUtils().buildSessionStatsText(
+                selectedType: selectedSessionsType,
+                discipline: currentDiscipline,
+                sessions: filteredSessions,
+              );
+            }
+          }
 
           return JournalContentScreen(
             sessions: filteredSessions,

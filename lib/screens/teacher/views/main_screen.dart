@@ -7,8 +7,7 @@ import 'package:university_journal/shared/theme_table/theme_screen.dart';
 import '../../../../bloc/auth/authentication_bloc.dart';
 import '../../../bloc/attestation/attestation_bloc.dart';
 import '../../../bloc/services/attestation/attestation_repository.dart';
-import '../../../bloc/services/discipline/models/discipline_plan.dart';
-import '../../../components/constants/constants.dart';
+import '../../../shared/utils/session_utils.dart';
 import '../../../components/widgets/side_navigation_menu.dart';
 import '../../../shared/attestation/attestation_screen.dart';
 import '../../../shared/journal/widgets/journal_table.dart';
@@ -105,57 +104,6 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
     });
 
     tableKey.currentState?.updateDataSource(newFilteredSessions, students);
-  }
-
-  // String _buildSessionStatsText() {
-  //   if (selectedSessionsType == 'Все') return '';
-  //
-  //   final currentDiscipline = disciplines[selectedDisciplineIndex!];
-  //
-  //   return SessionUtils().buildSessionStatsText(
-  //     selectedType: selectedSessionsType,
-  //     discipline: currentDiscipline,
-  //     sessions: filteredSessions,
-  //   );
-  // }
-
-  String _buildSessionStatsText() {
-    if (selectedSessionsType == 'Все') return '';
-
-    final currentDiscipline = disciplines[selectedDisciplineIndex!];
-
-    final selectedTypeMap = lessonTypeOptions.firstWhere(
-      (type) => type['label'] == selectedSessionsType,
-      orElse: () => {},
-    );
-
-    final selectedKey = selectedTypeMap['key'];
-
-    if (selectedKey == null) return '';
-
-    PlanItem? planItem;
-    try {
-      planItem = currentDiscipline.planItems.firstWhere(
-        (item) => item.type.toLowerCase() == selectedKey.toLowerCase(),
-      );
-    } catch (_) {
-      planItem = null;
-    }
-
-    final plannedHours = planItem?.hoursAllocated ?? 0;
-
-    final actualSessions = sessions
-        .where(
-            (s) => s.type.toLowerCase() == selectedSessionsType.toLowerCase())
-        .fold<Map<int, Session>>({}, (map, session) {
-          map[session.id] = session;
-          return map;
-        })
-        .values
-        .toList();
-    final conductedHours = actualSessions.length * 2;
-
-    return '$plannedHours ч. запланировано / $conductedHours ч. проведено';
   }
 
   void _showAccountScreen() {
@@ -413,8 +361,6 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                                 selectedDisciplineIndex!]
                                             .isGroupSplit,
                                       ),
-                                      buildSessionStatsText:
-                                          _buildSessionStatsText,
                                       isEditable: true,
                                     )
                                   : Center(
@@ -424,36 +370,39 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                             case TeacherContentScreen.attestation:
                               return AttestationScreen(
                                 isEditable: true,
-                                attestationType: disciplines[selectedDisciplineIndex!].attestationType,
-                                onColumnSelected:
-                                      (index) {
-                                    setState(() {
-                                      selectedAttestationColumnIndex =
-                                          index;
-                                    });
-                                  },
-                                onAttestationUpdate: (id, averageScore, result) {
+                                attestationType:
+                                    disciplines[selectedDisciplineIndex!]
+                                        .attestationType,
+                                onColumnSelected: (index) {
+                                  setState(() {
+                                    selectedAttestationColumnIndex = index;
+                                  });
+                                },
+                                onAttestationUpdate:
+                                    (id, averageScore, result) {
                                   context.read<AttestationBloc>().add(
-                                    UpdateAttestation(
-                                      id: id,
-                                      averageScore: averageScore,
-                                      result: result,
-                                      groupId: selectedGroupId!,
-                                      disciplineId: disciplines[
-                                      selectedDisciplineIndex!].id,
-                                    ),
-                                  );
+                                        UpdateAttestation(
+                                          id: id,
+                                          averageScore: averageScore,
+                                          result: result,
+                                          groupId: selectedGroupId!,
+                                          disciplineId: disciplines[
+                                                  selectedDisciplineIndex!]
+                                              .id,
+                                        ),
+                                      );
                                 },
                                 onUSRUpdate: (id, grade) {
                                   context.read<AttestationBloc>().add(
-                                    UpdateUSR(
-                                      id: id,
-                                      grade: grade,
-                                      groupId: selectedGroupId!,
-                                      disciplineId: disciplines[
-                                      selectedDisciplineIndex!].id,
-                                    ),
-                                  );
+                                        UpdateUSR(
+                                          id: id,
+                                          grade: grade,
+                                          groupId: selectedGroupId!,
+                                          disciplineId: disciplines[
+                                                  selectedDisciplineIndex!]
+                                              .id,
+                                        ),
+                                      );
                                 },
                                 onAddUSR: () {
                                   context.read<AttestationBloc>().add(

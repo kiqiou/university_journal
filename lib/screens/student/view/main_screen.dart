@@ -112,18 +112,6 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
     tableKey.currentState?.updateDataSource(newFilteredSessions, students);
   }
 
-  String _buildSessionStatsText() {
-    if (selectedSessionsType == 'Все') return '';
-
-    final currentDiscipline = disciplines[selectedDisciplineIndex!];
-
-    return SessionUtils().buildSessionStatsText(
-      selectedType: selectedSessionsType,
-      discipline: currentDiscipline,
-      sessions: sessions,
-    );
-  }
-
   void _showThemeScreen() {
     setState(() {
       currentScreen = StudentContentScreen.theme;
@@ -196,7 +184,6 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
                                   disciplines: disciplines,
                                   token: token,
                                   tableKey: tableKey,
-                                  buildSessionStatsText: _buildSessionStatsText,
                                   isEditable: false,
                                   isHeadman: isHeadman,
                                 )

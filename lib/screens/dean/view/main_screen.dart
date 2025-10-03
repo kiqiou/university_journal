@@ -111,18 +111,6 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
     tableKey.currentState?.updateDataSource(filtered, students);
   }
 
-  String _buildSessionStatsText() {
-    if (selectedSessionsType == 'Все') return '';
-
-    final currentDiscipline = disciplines[selectedDisciplineIndex!];
-
-    return SessionUtils().buildSessionStatsText(
-      selectedType: selectedSessionsType,
-      discipline: currentDiscipline,
-      sessions: sessions,
-    );
-  }
-
   void _showThemeScreen() {
     setState(() {
       currentScreen = DeanContentScreen.theme;
@@ -195,8 +183,6 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
                                         selectedDisciplineIndex,
                                     disciplines: disciplines,
                                     tableKey: tableKey,
-                                    buildSessionStatsText:
-                                        _buildSessionStatsText,
                                     isEditable: false,
                                   )
                                 : Center(
