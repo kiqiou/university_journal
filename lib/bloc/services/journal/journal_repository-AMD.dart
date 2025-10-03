@@ -80,16 +80,13 @@ class JournalRepository {
     required String grade,
     required token,
   }) async {
+
     final Map<String, dynamic> body = {
       'session_id': sessionId,
       'student_id': studentId,
       'status': status,
+      'grade': grade.isEmpty ? null : int.tryParse(grade),
     };
-
-    final parsedGrade = int.tryParse(grade);
-    if (parsedGrade != null) {
-      body['grade'] = parsedGrade;
-    }
 
     final response = await http.put(
       Uri.parse('http://127.0.0.1:8000/session/api/update_attendance/'),

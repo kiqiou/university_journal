@@ -5,10 +5,10 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:collection/collection.dart';
 
-import '../bloc/services/journal/journal_repository.dart';
-import '../bloc/services/journal/models/session.dart';
-import '../bloc/services/user/models/user.dart';
-import 'colors/colors.dart';
+import '../../../bloc/services/journal/journal_repository.dart';
+import '../../../bloc/services/journal/models/session.dart';
+import '../../../bloc/services/user/models/user.dart';
+import '../../../components/colors/colors.dart';
 
 class JournalTable extends StatefulWidget {
   final bool isLoading;
@@ -19,13 +19,11 @@ class JournalTable extends StatefulWidget {
   final List<Session> sessions;
   final List<MyUser> students;
   final void Function(int)? onColumnSelected;
-  final void Function(List<Session>)? onSessionsChanged;
 
   const JournalTable({
     super.key,
     required this.isLoading,
     required this.sessions,
-    this.onSessionsChanged,
     required this.isEditable,
     required this.students,
     this.onColumnSelected,
@@ -50,7 +48,11 @@ class JournalTableState extends State<JournalTable> {
   }
 
   void updateDataSource(List<Session> sessions, List<MyUser> students) {
-    final grouped = groupSessionsByStudent(sessions, students);
+    // сортируем студентов по алфавиту
+    final sortedStudents = List<MyUser>.from(students)
+      ..sort((a, b) => a.username.compareTo(b.username));
+
+    final grouped = groupSessionsByStudent(sessions, sortedStudents);
 
     setState(() {
       _sessions = sessions;
@@ -221,7 +223,7 @@ class JournalDataSource extends DataGridSource {
 
         if (columnIndex == 1 || columnIndex == 0) {
           return Container(
-            alignment: Alignment.centerLeft,
+            alignment: columnIndex == 1 ? Alignment.centerLeft : Alignment.center,
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               border: Border.all(color: Colors.grey.shade400),
@@ -462,7 +464,7 @@ List<GridColumn> buildColumns({
       ),
     ),
     GridColumn(
-      columnName: 'ФИО',
+      columnName: 'Список студентов',
       width: 200,
       allowSorting: true,
       label: Container(

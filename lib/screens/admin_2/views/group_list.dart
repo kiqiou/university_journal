@@ -744,4 +744,3 @@ class _GroupsListState extends State<GroupsList> {
     );
   }
 }
-
