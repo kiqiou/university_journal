@@ -9,7 +9,7 @@ import '../../../bloc/services/group/group_repository.dart';
 import '../../../bloc/services/user/models/user.dart';
 import '../../../bloc/services/user/user_repository.dart';
 
-enum Admin2ContentScreen { students, groups }
+enum Admin2ContentScreen { groups }
 
 class Admin2MainScreen extends StatefulWidget {
   const Admin2MainScreen({super.key});
@@ -21,7 +21,7 @@ class Admin2MainScreen extends StatefulWidget {
 class _Admin2MainScreenState extends State<Admin2MainScreen> {
   final userRepository = UserRepository();
   final groupRepository = GroupRepository();
-  Admin2ContentScreen currentScreen = Admin2ContentScreen.students;
+  Admin2ContentScreen currentScreen = Admin2ContentScreen.groups;
   List<MyUser> students = [];
   List<Group> groups = [];
   bool isLoading = true;
@@ -30,48 +30,25 @@ class _Admin2MainScreenState extends State<Admin2MainScreen> {
   @override
   void initState() {
     super.initState();
-    loadStudents();
-    loadGroups();
   }
 
-  Future<void> loadStudents() async {
+  Future<void> loadGroups({
+    Set<String>? faculties,
+    Set<int>? courses,
+  }) async {
     try {
-      final list = await userRepository.getStudentList();
+      final list = await groupRepository.getGroupsList(
+        faculties?.toList(),
+        courses?.toList(),
+      );
       setState(() {
-        students = list!..sort((a, b) => a.username.compareTo(b.username));
-        isLoading = false;
-      });
-    } catch (e) {
-      print("Ошибка при загрузке преподавателей: $e");
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-
-  Future<void> loadGroups() async {
-    try {
-      final list = await groupRepository.getGroupsList();
-      setState(() {
-        groups = list!;
+        groups = list ?? [];
         isLoading = false;
       });
     } catch (e) {
       print("Ошибка при загрузке групп: $e");
-      isLoading = false;
+      setState(() => isLoading = false);
     }
-  }
-
-  void _showStudentsList() {
-    setState(() {
-      currentScreen = Admin2ContentScreen.students;
-    });
-  }
-
-  void _showGroupsList() {
-    setState(() {
-      currentScreen = Admin2ContentScreen.groups;
-    });
   }
 
   @override
@@ -83,13 +60,11 @@ class _Admin2MainScreenState extends State<Admin2MainScreen> {
             children: [
               Admin2SideNavigationMenu(
                 onStudentAdded: () async {
-                  await loadStudents();
+                  await loadGroups();
                 },
                 onGroupAdded: () async {
                   await loadGroups();
                 },
-                onStudentsListTap: _showStudentsList,
-                onGroupsListTap: _showGroupsList,
                 groups: groups,
                 students: students,
                 isExpanded: isMenuExpanded,
@@ -103,17 +78,10 @@ class _Admin2MainScreenState extends State<Admin2MainScreen> {
                 child: Builder(
                   builder: (context) {
                     switch (currentScreen) {
-                      case Admin2ContentScreen.students:
-                        return StudentsList(
-                          students: students,
-                          loadStudents: loadStudents,
-                          groups: groups, allGroups: [],
-                        );
                       case Admin2ContentScreen.groups:
-                        return GroupsList(
+                        return GroupsExpandableList(
                           groups: groups,
                           loadGroups: loadGroups,
-                          students: students,
                         );
                     }
                   },

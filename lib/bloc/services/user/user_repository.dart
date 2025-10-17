@@ -210,31 +210,6 @@ class UserRepository {
     }
   }
 
-  Future<List<MyUser>?> getStudentList() async {
-    try {
-      final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/user/api/get_student_list/'),
-        headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-          'Accept-Charset': 'utf-8',
-        },
-        body: jsonEncode({}),
-      );
-
-      final data = jsonDecode(utf8.decode(response.bodyBytes));
-      if (data != null && data is List) {
-        log('📌 Ответ сервера: $data');
-        return data.map((json) => MyUser.fromJson(json)).toList();
-      } else {
-        log('❌ Ошибка: неожиданный формат ответа сервера');
-        return null;
-      }
-    } catch (e) {
-      log('❌ Ошибка соединения: $e');
-      return null;
-    }
-  }
-
   Future<List<MyUser>?> getStudentsByGroupList(int groupId) async {
     try {
       final response = await http.post(

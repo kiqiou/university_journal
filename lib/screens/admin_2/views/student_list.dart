@@ -7,13 +7,17 @@ import '../../../bloc/services/user/models/user.dart';
 import '../../../bloc/services/user/user_repository.dart';
 
 class StudentsList extends StatefulWidget {
-  final Future<void> Function() loadStudents;
+  final Future<void> Function({
+    Set<String>? faculties,
+    Set<int>? courses,
+    Set<int>? groupIds,
+  }) loadGroupsAndStudents;
   final List<MyUser> students;
   final List<Group> groups;
 
   const StudentsList({
     super.key,
-    required this.loadStudents,
+    required this.loadGroupsAndStudents,
     required this.students,
     required this.groups,
     required List allGroups,
@@ -23,7 +27,8 @@ class StudentsList extends StatefulWidget {
   State<StudentsList> createState() => _StudentsListState();
 }
 
-class _StudentsListState extends State<StudentsList> with AutomaticKeepAliveClientMixin<StudentsList> {
+class _StudentsListState extends State<StudentsList>
+    with AutomaticKeepAliveClientMixin<StudentsList> {
   static Set<String> _savedFaculties = {};
   static Set<int> _savedCourses = {};
   static Set<int> _savedGroupIds = {};
@@ -62,8 +67,6 @@ class _StudentsListState extends State<StudentsList> with AutomaticKeepAliveClie
     selectedCourses = Set.from(_savedCourses);
     selectedGroupIds = Set.from(_savedGroupIds);
     isFilteringActive = _savedFilteringActive;
-
-    widget.loadStudents().then((_) => _populateLocalData());
   }
 
   @override
@@ -79,58 +82,43 @@ class _StudentsListState extends State<StudentsList> with AutomaticKeepAliveClie
     allStudents = widget.students.toList();
     allGroups = widget.groups.toList();
 
-    allCourses = allGroups.map((g) => g.courseId).toSet().toList()
-      ..sort();
+    allCourses = allGroups.map((g) => g.courseId).toSet().toList()..sort();
 
-    allFaculties = allGroups
-        .map((g) => g.facultyName)
-        .where((f) => f.isNotEmpty)
-        .toSet()
-        .toList()
-      ..sort();
+    allFaculties = ['Экономический', 'Юридический'];
 
-    if (isFilteringActive && _canApply) {
-      _applyFilters(noSetState: true);
-    } else {
-      filteredStudents = allStudents;
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
 
-    setState(() {});
+      if (isFilteringActive && _canApply) {
+        await _applyFilters();
+      } else {
+        setState(() {
+          filteredStudents = allStudents;
+        });
+      }
+    });
   }
 
   bool get _canApply =>
       selectedFaculties.isNotEmpty ||
-          selectedCourses.isNotEmpty ||
-          selectedGroupIds.isNotEmpty;
+      selectedCourses.isNotEmpty ||
+      selectedGroupIds.isNotEmpty;
 
-  void _applyFilters({bool noSetState = false}) {
-    final newList = allStudents.where((u) {
-      final grpMatch = allGroups.where((g) => g.id == u.groupId);
-      if (grpMatch.isEmpty) return false;
-      final grp = grpMatch.first;
+  Future<void> _applyFilters() async {
+    if (!mounted) return;
 
-      final facOk = selectedFaculties.isEmpty ||
-          selectedFaculties.contains(grp.facultyName);
-      final couOk =
-          selectedCourses.isEmpty || selectedCourses.contains(grp.courseId);
-      final grpOk =
-          selectedGroupIds.isEmpty || selectedGroupIds.contains(grp.id);
+    setState(() => isFilteringActive = true);
 
-      return facOk && couOk && grpOk;
-    }).toList();
+    await widget.loadGroupsAndStudents(
+      faculties: selectedFaculties,
+      courses: selectedCourses,
+      groupIds: selectedGroupIds,
+    );
 
-    if (noSetState) {
-      filteredStudents = newList;
-      return;
-    }
+    if (!mounted) return;
 
     setState(() {
-      isFilteringActive = true;
-      filteredStudents = newList;
-      _savedFaculties = Set.from(selectedFaculties);
-      _savedCourses = Set.from(selectedCourses);
-      _savedGroupIds = Set.from(selectedGroupIds);
-      _savedFilteringActive = true;
+      filteredStudents = widget.students;
     });
   }
 
@@ -184,18 +172,15 @@ class _StudentsListState extends State<StudentsList> with AutomaticKeepAliveClie
                   if (selectedIndex != null) ...[
                     const SizedBox(width: 8),
                     MyButton(
-                        onChange: _onEditPressed,
-                        buttonName: 'Редактировать'),
+                        onChange: _onEditPressed, buttonName: 'Редактировать'),
                     const SizedBox(width: 8),
                     MyButton(
-                        onChange: () =>
-                            setState(() => showDeleteDialog = true),
+                        onChange: () => setState(() => showDeleteDialog = true),
                         buttonName: 'Удалить'),
                     const SizedBox(width: 8),
                   ],
                 ],
               ),
-              // Основная часть UI
               Expanded(
                 child: Stack(
                   children: [
@@ -205,15 +190,14 @@ class _StudentsListState extends State<StudentsList> with AutomaticKeepAliveClie
                       child: isFilteringActive
                           ? _buildStudentList()
                           : const Center(
-                        child: Text(
-                          'Пожалуйста, настройте фильтры',
-                          style:
-                          TextStyle(fontSize: 16, color: Colors.grey),
-                        ),
-                      ),
+                              child: Text(
+                                'Пожалуйста, настройте фильтры',
+                                style:
+                                    TextStyle(fontSize: 16, color: Colors.grey),
+                              ),
+                            ),
                     ),
-                    if (showFilterDialog)
-                      _buildFilterDialog(context),
+                    if (showFilterDialog) _buildFilterDialog(context),
                     if (showDeleteDialog && selectedIndex != null)
                       _buildDeleteDialog(btnH),
                     if (showEditDialog && selectedIndex != null)
@@ -249,7 +233,7 @@ class _StudentsListState extends State<StudentsList> with AutomaticKeepAliveClie
               child: Text(
                 '${g.name} — ${g.courseId} курс',
                 style:
-                const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
               ),
             ),
             ...studs.map((st) {
@@ -295,12 +279,12 @@ class _StudentsListState extends State<StudentsList> with AutomaticKeepAliveClie
           ),
           boxShadow: isSelected
               ? [
-            BoxShadow(
-              color: Colors.blue.withOpacity(0.2),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            )
-          ]
+                  BoxShadow(
+                    color: Colors.blue.withOpacity(0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  )
+                ]
               : null,
         ),
         child: Text(
@@ -313,19 +297,11 @@ class _StudentsListState extends State<StudentsList> with AutomaticKeepAliveClie
   }
 
   Widget _buildFilterDialog(BuildContext context) {
-    final w = (MediaQuery
-        .of(context)
-        .size
-        .width * 0.6).clamp(300.0, 600.0);
-    final h = (MediaQuery
-        .of(context)
-        .size
-        .height * 0.7).clamp(400.0, 600.0);
+    final w = (MediaQuery.of(context).size.width * 0.6).clamp(300.0, 600.0);
+    final h = (MediaQuery.of(context).size.height * 0.7).clamp(400.0, 600.0);
 
-    final sortedFaculties = List<String>.from(allFaculties)
-      ..sort();
-    final sortedCourses = List<int>.from(allCourses)
-      ..sort();
+    final sortedFaculties = List<String>.from(allFaculties)..sort();
+    final sortedCourses = List<int>.from(allCourses)..sort();
     Widget multiSelectInputWithChips<T>({
       required String label,
       required List<T> items,
@@ -346,12 +322,11 @@ class _StudentsListState extends State<StudentsList> with AutomaticKeepAliveClie
             onTap: () async {
               final picked = await showDialog<List<T>>(
                 context: context,
-                builder: (_) =>
-                    MultiSelectDialog<T>(
-                      items: items,
-                      initiallySelected: selectedItems.toList(),
-                      itemLabel: itemLabel,
-                    ),
+                builder: (_) => MultiSelectDialog<T>(
+                  items: items,
+                  initiallySelected: selectedItems.toList(),
+                  itemLabel: itemLabel,
+                ),
               );
               if (picked != null) onSelectionChanged(picked.toSet());
             },
@@ -370,7 +345,7 @@ class _StudentsListState extends State<StudentsList> with AutomaticKeepAliveClie
                   borderSide: BorderSide(color: borderColor, width: 1.5),
                 ),
                 contentPadding:
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               ),
               child: Text(
                 selectedItems.isEmpty
@@ -391,7 +366,7 @@ class _StudentsListState extends State<StudentsList> with AutomaticKeepAliveClie
                   side: BorderSide(color: Colors.grey.shade500),
                   backgroundColor: Colors.white,
                   deleteIcon:
-                  Icon(Icons.close, size: 18, color: Colors.grey.shade500),
+                      Icon(Icons.close, size: 18, color: Colors.grey.shade500),
                   onDeleted: () {
                     final newSet = Set<T>.from(selectedItems);
                     newSet.remove(item);
@@ -468,10 +443,9 @@ class _StudentsListState extends State<StudentsList> with AutomaticKeepAliveClie
                     .where((g) => selectedGroupIds.contains(g.id))
                     .toSet(),
                 itemLabel: (g) => g.name,
-                onSelectionChanged: (sel) =>
-                    setState(() {
-                      selectedGroupIds = sel.map((g) => g.id).toSet();
-                    }),
+                onSelectionChanged: (sel) => setState(() {
+                  selectedGroupIds = sel.map((g) => g.id).toSet();
+                }),
               ),
               const Spacer(),
               Row(
@@ -487,15 +461,16 @@ class _StudentsListState extends State<StudentsList> with AutomaticKeepAliveClie
                   const SizedBox(width: 12),
                   TextButton(
                     onPressed: _canApply
-                        ? () {
-                      _applyFilters();
-                      setState(() => showFilterDialog = false);
-                    }
+                        ? () async {
+                            await _applyFilters();
+                            if (!mounted) return;
+                            setState(() => showFilterDialog = false);
+                          }
                         : null,
                     child: const Text(
                       'Применить',
                       style:
-                      TextStyle(fontSize: 16, color: MyColors.blueJournal),
+                          TextStyle(fontSize: 16, color: MyColors.blueJournal),
                     ),
                   ),
                 ],
@@ -508,7 +483,6 @@ class _StudentsListState extends State<StudentsList> with AutomaticKeepAliveClie
   }
 
   Widget _buildDeleteDialog(double btnH) {
-    final st = filteredStudents[selectedIndex!];
     return Positioned(
       top: 32,
       right: 32,
@@ -516,11 +490,7 @@ class _StudentsListState extends State<StudentsList> with AutomaticKeepAliveClie
         builder: (context) {
           final dialogMaxWidth = 420.0;
           final dialogMinWidth = 280.0;
-          final availableWidth =
-              MediaQuery
-                  .of(context)
-                  .size
-                  .width - 32 - 80;
+          final availableWidth = MediaQuery.of(context).size.width - 32 - 80;
           final dialogWidth = availableWidth < dialogMaxWidth
               ? availableWidth.clamp(dialogMinWidth, dialogMaxWidth)
               : dialogMaxWidth;
@@ -548,8 +518,8 @@ class _StudentsListState extends State<StudentsList> with AutomaticKeepAliveClie
                     children: [
                       Text(
                         "Удаление студента",
-                        style: TextStyle(fontSize: 18, color: Colors.grey
-                            .shade700),
+                        style: TextStyle(
+                            fontSize: 18, color: Colors.grey.shade700),
                       ),
                       const Spacer(),
                       InkWell(
@@ -607,10 +577,10 @@ class _StudentsListState extends State<StudentsList> with AutomaticKeepAliveClie
                         if (selectedIndex != null) {
                           final userId = filteredStudents[selectedIndex!].id;
                           final userRepository = UserRepository();
-                          bool success = await userRepository.deleteUser(
-                              userId: userId);
+                          bool success =
+                              await userRepository.deleteUser(userId: userId);
                           if (success) {
-                            await widget.loadStudents();
+                            await widget.loadGroupsAndStudents();
                             setState(() {
                               showDeleteDialog = false;
                               selectedIndex = null;
@@ -643,9 +613,7 @@ class _StudentsListState extends State<StudentsList> with AutomaticKeepAliveClie
       right: 32,
       child: Builder(
         builder: (context) {
-          final media = MediaQuery
-              .of(context)
-              .size;
+          final media = MediaQuery.of(context).size;
           final double dialogWidth = (media.width - 32 - 80).clamp(320, 600);
           final double dialogHeight = (media.height - 64).clamp(480, 500);
           return Material(
@@ -695,16 +663,16 @@ class _StudentsListState extends State<StudentsList> with AutomaticKeepAliveClie
                                   ),
                                   onPressed: () async {
                                     final userRepository = UserRepository();
-                                    final success = await userRepository
-                                        .updateUser(
-                                      userId: filteredStudents[selectedIndex!]
-                                          .id,
+                                    final success =
+                                        await userRepository.updateUser(
+                                      userId:
+                                          filteredStudents[selectedIndex!].id,
                                       groupId: selectedGroup?.id,
                                       username: nameController.text,
                                       isHeadman: isHeadman,
                                     );
                                     if (success) {
-                                      await widget.loadStudents();
+                                      await widget.loadGroupsAndStudents();
                                       setState(() {
                                         selectedIndex = null;
                                         showEditDialog = false;
@@ -798,14 +766,14 @@ class _StudentsListState extends State<StudentsList> with AutomaticKeepAliveClie
                               const SizedBox(height: 18),
                               DropdownButtonFormField<Group>(
                                 items: widget.groups
-                                    .map((group) =>
-                                    DropdownMenuItem<Group>(
-                                      value: group,
-                                      child: Text(
-                                        group.name,
-                                        style: const TextStyle(fontSize: 16),
-                                      ),
-                                    ))
+                                    .map((group) => DropdownMenuItem<Group>(
+                                          value: group,
+                                          child: Text(
+                                            group.name,
+                                            style:
+                                                const TextStyle(fontSize: 16),
+                                          ),
+                                        ))
                                     .toList(),
                                 decoration: InputDecoration(
                                   labelText: 'Группа',

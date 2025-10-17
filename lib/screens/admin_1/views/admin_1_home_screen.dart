@@ -54,7 +54,7 @@ class _Admin1MainScreenState extends State<Admin1MainScreen> {
 
   Future<void> loadGroups() async {
     try {
-      final list = await groupRepository.getGroupsList();
+      final list = await groupRepository.getGroupsList(null, null,);
       setState(() {
         groups = list!;
         isLoading = false;

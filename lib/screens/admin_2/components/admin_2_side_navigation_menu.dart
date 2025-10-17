@@ -12,8 +12,6 @@ class Admin2SideNavigationMenu extends StatefulWidget {
   final Future<void> Function() onStudentAdded;
   final Future<void> Function() onGroupAdded;
   final VoidCallback onToggle;
-  final VoidCallback onStudentsListTap;
-  final VoidCallback onGroupsListTap;
   final List<Group> groups;
   final List<MyUser> students;
   final bool isExpanded;
@@ -22,8 +20,6 @@ class Admin2SideNavigationMenu extends StatefulWidget {
     super.key,
     required this.onStudentAdded,
     required this.onGroupAdded,
-    required this.onStudentsListTap,
-    required this.onGroupsListTap,
     required this.groups,
     required this.students,
     required this.onToggle,
@@ -42,15 +38,13 @@ class _Admin2SideNavigationMenuState extends State<Admin2SideNavigationMenu> {
   int? selectedIndex;
 
   final List<IconData> _icons = [
-    Icons.person_outline,
     Icons.groups_outlined,
     Icons.add_circle_outline,
     Icons.add_circle_outline,
   ];
 
   final List<String> _texts = [
-    'Список студентов',
-    'Список групп',
+    'Список групп и студентов',
     'Добавить студента',
     'Добавить группу',
   ];
@@ -58,8 +52,7 @@ class _Admin2SideNavigationMenuState extends State<Admin2SideNavigationMenu> {
   @override
   Widget build(BuildContext context) {
     final List<VoidCallback> functions = [
-      widget.onStudentsListTap,
-      widget.onGroupsListTap,
+      () {},
       () {
         showDialog(
           context: context,
