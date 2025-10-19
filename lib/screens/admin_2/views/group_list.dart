@@ -132,7 +132,7 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
                       ),
                       MyButton(
                         onChange: () => setState(() => showFilterDialog = true),
-                        buttonName: 'Фильтры',
+                        buttonName: 'Настроить фильтры',
                       ),
                     ],
                   ),
@@ -337,7 +337,7 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
                 onTap: () async {
                   final picked = await showDialog<List<T>>(
                     context: context,
-                    builder: (_) => MultiSelectDialog<T>(
+                    builder: (_) => SimpleMultiSelectDialog<T>(
                       items: items,
                       initiallySelected: selectedItems.toList(),
                       itemLabel: itemLabel,
