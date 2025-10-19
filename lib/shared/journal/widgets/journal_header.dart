@@ -56,6 +56,7 @@ class JournalHeader extends StatelessWidget {
             },
             buttonName: 'Удалить занятие',
           ),
+          SizedBox(width: 12,),
           MyButton(
             onChange: () {
               final session = getSelectedSession();
@@ -66,10 +67,12 @@ class JournalHeader extends StatelessWidget {
 
         ],
         if(isEditable) ...[
+          SizedBox(width: 12,),
           MyButton(
             onChange: onAddSession!,
             buttonName: 'Добавить занятие',
           ),
+          SizedBox(width: 12,),
         ]
       ],
     );

@@ -172,8 +172,13 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
                       builder: (context) {
                         switch (currentScreen) {
                           case DeanContentScreen.theme:
-                            return ThemeScreen(
-                                isEditable: false, isGroupSplit: isGroupSplit);
+                            return selectedGroupId != null
+                                ? ThemeScreen(
+                                    isEditable: false,
+                                    isGroupSplit: isGroupSplit)
+                                : Center(
+                                    child: Text('Выберите дисциплину и группу'),
+                                  );
                           case DeanContentScreen.journal:
                             return selectedGroupId != null
                                 ? JournalScreen(
@@ -189,10 +194,16 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
                                     child: Text('Выберите дисциплину и группу'),
                                   );
                           case DeanContentScreen.attestation:
-                            return AttestationScreen(
-                              isEditable: false,
-                              attestationType: disciplines[selectedDisciplineIndex!].attestationType,
-                            );
+                            return selectedGroupId != null
+                                ? AttestationScreen(
+                                    isEditable: false,
+                                    attestationType:
+                                        disciplines[selectedDisciplineIndex!]
+                                            .attestationType,
+                                  )
+                                : Center(
+                                    child: Text('Выберите дисциплину и группу'),
+                                  );
                         }
                       },
                     ),

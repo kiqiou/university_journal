@@ -172,8 +172,11 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
                     child: Builder(builder: (context) {
                       switch (currentScreen) {
                         case StudentContentScreen.theme:
-                          return ThemeScreen(
-                              isEditable: false, isGroupSplit: isGroupSplit);
+                          return selectedDisciplineIndex != null
+                              ? ThemeScreen(
+                              isEditable: false, isGroupSplit: isGroupSplit) : Center(
+                            child: Text('Выберите дисциплину и группу'),
+                          );
                         case StudentContentScreen.journal:
                           return selectedDisciplineIndex != null
                               ? JournalScreen(
@@ -191,12 +194,15 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
                                   child: Text('Выберите дисциплину и группу'),
                                 );
                         case StudentContentScreen.attestation:
-                          return AttestationScreen(
+                          return selectedDisciplineIndex != null
+                              ? AttestationScreen(
                             isEditable: false,
                             attestationType:
                                 disciplines[selectedDisciplineIndex!]
                                     .attestationType,
-                          );
+                          ) : Center(
+                      child: Text('Выберите дисциплину и группу'),
+                      );
                       }
                     }),
                   ),

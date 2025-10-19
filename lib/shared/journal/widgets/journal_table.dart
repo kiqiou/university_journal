@@ -48,7 +48,6 @@ class JournalTableState extends State<JournalTable> {
   }
 
   void updateDataSource(List<Session> sessions, List<MyUser> students) {
-    // сортируем студентов по алфавиту
     final sortedStudents = List<MyUser>.from(students)
       ..sort((a, b) => a.username.compareTo(b.username));
 
@@ -125,25 +124,27 @@ class JournalTableState extends State<JournalTable> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: widget.isLoading || dataSource == null
-              ? const Center(child: CircularProgressIndicator())
-              : SfDataGrid(
-            gridLinesVisibility: GridLinesVisibility.none,
-            headerGridLinesVisibility: GridLinesVisibility.none,
-            source: dataSource!,
-            columns: columns,
-            headerRowHeight: 100,
-          ),
-        ),
-      ],
+    if (widget.isLoading || dataSource == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    final rowHeight = 40.0;
+    final headerHeight = 100.0;
+    final tableHeight = headerHeight + widget.students.length * rowHeight;
+
+    return SizedBox(
+      height: tableHeight,
+      child: SfDataGrid(
+        gridLinesVisibility: GridLinesVisibility.none,
+        headerGridLinesVisibility: GridLinesVisibility.none,
+        source: dataSource!,
+        columns: columns,
+        headerRowHeight: headerHeight,
+        rowHeight: rowHeight,
+      ),
     );
   }
 }
 
-  /// Источник данных для таблицы
 class JournalDataSource extends DataGridSource {
   final Future<Map<String, dynamic>?> Function(
       int sessionId, int studentId, String status, String grade)? onUpdate;

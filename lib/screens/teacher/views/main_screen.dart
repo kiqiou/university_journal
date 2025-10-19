@@ -176,7 +176,8 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                             case TeacherContentScreen.account:
                               return const AccountScreen();
                             case TeacherContentScreen.theme:
-                              return ThemeScreen(
+                              return selectedGroupId != null
+                                  ? ThemeScreen(
                                 isEditable: true,
                                 onUpdate: (sessionId, topic) async {
                                   final success = context
@@ -201,8 +202,10 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                       );
                                 },
                                 isGroupSplit: isGroupSplit,
+                              ): Center(
+                                child:
+                                Text('Выберите дисциплину и группу'),
                               );
-
                             case TeacherContentScreen.journal:
                               return selectedGroupId != null
                                   ? JournalScreen(
@@ -368,7 +371,8 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                           Text('Выберите дисциплину и группу'),
                                     );
                             case TeacherContentScreen.attestation:
-                              return AttestationScreen(
+                              return selectedGroupId != null
+                                  ? AttestationScreen(
                                 isEditable: true,
                                 attestationType:
                                     disciplines[selectedDisciplineIndex!]
@@ -423,6 +427,9 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                                         groupId: selectedGroupId!,
                                       ));
                                 },
+                              ) : Center(
+                                child:
+                                Text('Выберите дисциплину и группу'),
                               );
                           }
                         },
