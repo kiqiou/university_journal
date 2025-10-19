@@ -92,77 +92,85 @@ class JournalContentScreen extends StatelessWidget {
           onColumnSelected!(null);
         }
       },
-      child:SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 40),
-            JournalHeader(
-              selectedSessionsType: selectedSessionsType,
-              selectedColumnIndex: selectedColumnIndexFirst ??
-                  selectedColumnIndexSecond ??
-                  selectedColumnIndex,
-              buildSessionStatsText: buildSessionStatsText,
-              getSelectedSession: _getSelectedSession,
-              onAddSession: onAddSession,
-              onEditSession: onEditSession,
-              onDeleteSession: onDeleteSession,
-              isEditable: isEditable,
-            ),
-            const SizedBox(height: 40),
-
-            if (disciplines[selectedDisciplineIndex ?? 0].isGroupSplit &&
-                selectedSessionsType != 'Лекция') ...[
-              Text(
-                'Подгруппа 1',
-                style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: constraints
+                    .maxHeight, // чтобы Column растягивался на весь экран
               ),
-              const SizedBox(height: 10),
-              JournalTable(
-                students: firstSubgroup,
-                sessions: sessionsForSubgroup(1),
-                isEditable: isEditable,
-                isHeadman: isHeadman,
-                isLoading: false,
-                token: token,
-                selectedColumnIndex: selectedColumnIndexFirst,
-                onColumnSelected: onColumnSelectedFirst,
-              ),
-
-              const SizedBox(height: 40),
-              Text(
-                'Подгруппа 2',
-                style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
-              ),
-              const SizedBox(height: 10),
-              JournalTable(
-                students: secondSubgroup,
-                sessions: sessionsForSubgroup(2),
-                isEditable: isEditable,
-                isHeadman: isHeadman,
-                isLoading: false,
-                token: token,
-                selectedColumnIndex: selectedColumnIndexSecond,
-                onColumnSelected: onColumnSelectedSecond,
-              ),
-            ] else
-              JournalTable(
-                students: students,
-                sessions: sessions,
-                isEditable: isEditable,
-                isHeadman: isHeadman,
-                isLoading: false,
-                token: token,
-                selectedColumnIndex: selectedColumnIndex,
-                onColumnSelected: onColumnSelected,
-              ),
-
-            const SizedBox(height: 40),
-          ],
-        ),
-      )
-
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 40),
+                    JournalHeader(
+                      selectedSessionsType: selectedSessionsType,
+                      selectedColumnIndex: selectedColumnIndexFirst ??
+                          selectedColumnIndexSecond ??
+                          selectedColumnIndex,
+                      buildSessionStatsText: buildSessionStatsText,
+                      getSelectedSession: _getSelectedSession,
+                      onAddSession: onAddSession,
+                      onEditSession: onEditSession,
+                      onDeleteSession: onDeleteSession,
+                      isEditable: isEditable,
+                    ),
+                    const SizedBox(height: 40),
+                    if (disciplines[selectedDisciplineIndex ?? 0]
+                            .isGroupSplit &&
+                        selectedSessionsType != 'Лекция') ...[
+                      Text(
+                        'Подгруппа 1',
+                        style: TextStyle(
+                            color: Colors.grey.shade700, fontSize: 16),
+                      ),
+                      const SizedBox(height: 10),
+                      JournalTable(
+                        students: firstSubgroup,
+                        sessions: sessionsForSubgroup(1),
+                        isEditable: isEditable,
+                        isHeadman: isHeadman,
+                        isLoading: false,
+                        token: token,
+                        selectedColumnIndex: selectedColumnIndexFirst,
+                        onColumnSelected: onColumnSelectedFirst,
+                      ),
+                      const SizedBox(height: 40),
+                      Text(
+                        'Подгруппа 2',
+                        style: TextStyle(
+                            color: Colors.grey.shade700, fontSize: 16),
+                      ),
+                      const SizedBox(height: 10),
+                      JournalTable(
+                        students: secondSubgroup,
+                        sessions: sessionsForSubgroup(2),
+                        isEditable: isEditable,
+                        isHeadman: isHeadman,
+                        isLoading: false,
+                        token: token,
+                        selectedColumnIndex: selectedColumnIndexSecond,
+                        onColumnSelected: onColumnSelectedSecond,
+                      ),
+                    ] else
+                      JournalTable(
+                        students: students,
+                        sessions: sessions,
+                        isEditable: isEditable,
+                        isHeadman: isHeadman,
+                        isLoading: false,
+                        token: token,
+                        selectedColumnIndex: selectedColumnIndex,
+                        onColumnSelected: onColumnSelected,
+                      ),
+                    const SizedBox(height: 40),
+                  ],
+                ),
+              ));
+        },
+      ),
     );
   }
 
@@ -184,15 +192,19 @@ class JournalContentScreen extends StatelessWidget {
 
     final filtered = selectedSessionsType == 'Все'
         ? relevantSessions
-        : relevantSessions.where((s) => s.type == selectedSessionsType).toList();
+        : relevantSessions
+            .where((s) => s.type == selectedSessionsType)
+            .toList();
 
     final dates = extractUniqueDateTypes(filtered);
-    final index = selectedColumnIndexFirst ?? selectedColumnIndexSecond ?? selectedColumnIndex!;
+    final index = selectedColumnIndexFirst ??
+        selectedColumnIndexSecond ??
+        selectedColumnIndex!;
     if (index >= dates.length) return null;
 
     final key = dates[index];
     return filtered.firstWhere(
-          (s) => '${s.date} ${s.type} ${s.id}' == key,
+      (s) => '${s.date} ${s.type} ${s.id}' == key,
     );
   }
 }

@@ -128,7 +128,7 @@ class JournalTableState extends State<JournalTable> {
       return const Center(child: CircularProgressIndicator());
     }
     final rowHeight = 40.0;
-    final headerHeight = 100.0;
+    final headerHeight = 110.0;
     final tableHeight = headerHeight + widget.students.length * rowHeight;
 
     return SizedBox(
@@ -268,7 +268,7 @@ class JournalDataSource extends DataGridSource {
         return Tooltip(
           message: 'Изменил: $modifiedBy\nВремя: $updatedAtStr',
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 4,),
             decoration: BoxDecoration(
               border: Border.all(color: Colors.grey.shade400),
             ),
@@ -331,8 +331,7 @@ class JournalDataSource extends DataGridSource {
                   ),
                   Container(
                     width: 1,
-                    color: Colors.grey.shade400,
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    color: Colors.grey.shade500,
                   ),
                   Expanded(
                     child: TextField(
@@ -487,7 +486,7 @@ List<GridColumn> buildColumns({
   ];
 
   if (dateTypeColumns.isEmpty) {
-    return columns; // Только № и ФИО
+    return columns;
   }
 
   for (var entry in dateTypeColumns.asMap().entries) {
@@ -513,22 +512,24 @@ List<GridColumn> buildColumns({
                     : Colors.grey.shade400,
               ),
             ),
-            padding: const EdgeInsets.all(4),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                RotatedBox(
-                  quarterTurns: 3,
-                  child: Text(
-                    dateType.split(' ').first,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontFamily: 'Sora',
-                        color: Colors.grey.shade800,
-                        fontSize: 12),
+                SizedBox(
+                  height: 78,
+                  child: RotatedBox(
+                    quarterTurns: 3,
+                    child: Text(
+                      dateType.split(' ').first,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontFamily: 'Sora',
+                          color: Colors.grey.shade800,
+                          fontSize: 12),
+                    ),
                   ),
                 ),
-                Divider(height: 2, color: Colors.grey.shade400),
+                Divider(height: 4, color: Colors.grey.shade400),
                 Text(
                   sessionTypeShortNames[sessionType] ?? sessionType,
                   style: TextStyle(

@@ -60,16 +60,19 @@ class AttestationHeader extends StatelessWidget {
                   },
                   buttonName: 'Удалить УСР',
                 ),
+              SizedBox(width: 12,),
               MyButton(
                 onChange: () {
                   showAverageScoreDialog(context, attestations!, sessions!, onAttestationUpdate!,);
                 },
                 buttonName: 'Рассчитать средний балл',
               ),
+              SizedBox(width: 12,),
               MyButton(
                 onChange: onAddUSR!,
                 buttonName: 'Добавить УСР',
               ),
+              SizedBox(width: 12,),
             ],
           ),
         ]

@@ -192,7 +192,6 @@ class _AttestationDataSource extends DataGridSource {
     notifyListeners();
   }
 
-
   @override
   List<DataGridRow> get rows => _rows;
 
@@ -251,7 +250,7 @@ class _AttestationDataSource extends DataGridSource {
           final usrItem = usrIndex < attestation.usrItems.length
               ? attestation.usrItems[usrIndex]
               : null;
-          final key = '${attestationId}-$columnIndex';
+          final key = '$attestationId-$columnIndex';
           final controller = _controllers.putIfAbsent(
             key,
             () => TextEditingController(text: cell.value.toString()),
@@ -270,11 +269,11 @@ class _AttestationDataSource extends DataGridSource {
         }
 
         if (isAverageScore) {
-          final key = '${attestationId}-avg';
+          final key = '$attestationId-avg';
           final controller = _controllers.putIfAbsent(
             key,
                 () => TextEditingController(
-              text: attestation.averageScore?.toStringAsFixed(2) ?? '',
+              text: attestation.averageScore.toStringAsFixed(2) ?? '',
             ),
           );
           return _buildEditableCell(
@@ -285,7 +284,7 @@ class _AttestationDataSource extends DataGridSource {
         }
 
         if (isResult) {
-          final key = '${attestationId}-$columnIndex';
+          final key = '$attestationId-$columnIndex';
           final controller = _controllers.putIfAbsent(
             key,
             () => TextEditingController(text: cell.value.toString()),
@@ -306,7 +305,7 @@ class _AttestationDataSource extends DataGridSource {
   Widget _buildStaticCell(String text, {Alignment align = Alignment.center}) {
     return Container(
       alignment: align,
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey.shade400),
       ),
@@ -340,7 +339,6 @@ class _AttestationDataSource extends DataGridSource {
         textAlign: TextAlign.center,
         decoration: const InputDecoration(
           border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
         ),
         style: TextStyle(color: Colors.grey.shade700),
         keyboardType: isDecimal
