@@ -29,6 +29,24 @@ class GroupRepository {
     }
   }
 
+  Future<List<GroupSimple>?> getGroupsSimpleList({
+    List<String>? faculties,
+    List<int>? courses,
+  }) async {
+    final response = await http.post(
+      Uri.parse('http://127.0.0.1:8000/group/api/get_groups_simple_list/'),
+      headers: {'Content-Type': 'application/json; charset=utf-8'},
+      body: jsonEncode({'faculties': faculties, 'courses': courses}),
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
+      return data.map((groupJson) => GroupSimple.fromJson(groupJson)).toList();
+    } else {
+      throw Exception('Не удалось загрузить список простых групп');
+    }
+  }
+
   Future<bool> addGroup({
     required String name,
     required List<int> studentIds,

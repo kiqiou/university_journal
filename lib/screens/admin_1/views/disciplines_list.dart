@@ -70,13 +70,6 @@ class _CoursesList extends State<CoursesList> {
   @override
   Widget build(BuildContext context) {
     final courses = widget.disciplines;
-    final screenWidth = MediaQuery.of(context).size.width;
-    const baseScreenWidth = 1920.0;
-    const baseButtonHeight = 40.0;
-    const baseWidths = [260.0, 290.0, 320.0];
-    final scale = screenWidth / baseScreenWidth;
-    final buttonHeights = baseButtonHeight * scale;
-    final buttonWidths = baseWidths.map((w) => w * scale).toList();
     return Scaffold(
       body: Row(
         children: [

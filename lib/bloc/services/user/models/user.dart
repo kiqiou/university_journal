@@ -38,6 +38,7 @@ class MyUser extends Equatable {
       username: json['username'],
       subGroup: json['subGroup'],
       role: 'Студент',
+      isHeadman: json['isHeadman'],
     );
   }
 

@@ -12,7 +12,7 @@ class Admin2SideNavigationMenu extends StatefulWidget {
   final Future<void> Function() onStudentAdded;
   final Future<void> Function() onGroupAdded;
   final VoidCallback onToggle;
-  final List<Group> groups;
+  final List<GroupSimple> groups;
   final List<MyUser> students;
   final bool isExpanded;
 

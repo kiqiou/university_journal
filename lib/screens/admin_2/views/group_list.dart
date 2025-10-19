@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:university_journal/components/widgets/button.dart';
+import 'package:university_journal/components/widgets/cancel_button.dart';
 import 'package:university_journal/components/widgets/input_decoration.dart';
 import '../../../bloc/services/group/group_repository.dart';
 import '../../../bloc/services/user/models/user.dart';
@@ -10,6 +11,7 @@ import '../../../bloc/services/user/user_repository.dart';
 
 class GroupsExpandableList extends StatefulWidget {
   final List<Group> groups;
+  final List<GroupSimple> simpleGroups;
   final Future<void> Function({
     Set<String>? faculties,
     Set<int>? courses,
@@ -19,6 +21,7 @@ class GroupsExpandableList extends StatefulWidget {
     super.key,
     required this.groups,
     required this.loadGroups,
+    required this.simpleGroups,
   });
 
   @override
@@ -27,22 +30,29 @@ class GroupsExpandableList extends StatefulWidget {
 
 class _GroupsExpandableListState extends State<GroupsExpandableList> {
   final TextEditingController nameController = TextEditingController();
+  final TextEditingController usernameController = TextEditingController();
   final searchController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   int? selectedGroupIndex;
+  int? selectedStudentIndex;
   int? selectedStudentId;
   bool showFilterDialog = false;
-  bool showEditDialog = false;
-  bool showDeleteDialog = false;
+  bool showEditGroupDialog = false;
+  bool showDeleteGroupDialog = false;
+  bool showEditStudentDialog = false;
+  bool showDeleteStudentDialog = false;
   bool isFilteringActive = false;
+  bool? isHeadman;
   Set<String> selectedFaculties = {};
   Set<int> selectedCourses = {};
   List<Group> filteredGroups = [];
   List<MyUser> selectedStudents = [];
+  GroupSimple? selectedGroup;
+  int? selectedGroupId;
   int? selectedFacultyIndex;
   int? selectedCourseIndex;
   final List<String> _faculties = ['Экономический', 'Юридический'];
-  final List<String> _courses = ['1', '2', '3', '4'];
+  final List<int> _courses = [1, 2, 3, 4];
 
   @override
   void initState() {
@@ -67,6 +77,13 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
     );
   }
 
+  Future<void> _reloadGroupsWithFilters() async {
+    await widget.loadGroups(
+      faculties: selectedFaculties.isNotEmpty ? selectedFaculties : null,
+      courses: selectedCourses.isNotEmpty ? selectedCourses : null,
+    );
+  }
+
   void _resetFilters() {
     setState(() {
       selectedFaculties.clear();
@@ -87,7 +104,7 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
             Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(14.0),
+                  padding: const EdgeInsets.all(20.0),
                   child: Row(
                     children: [
                       Expanded(
@@ -97,15 +114,12 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
                               fontSize: 20, fontWeight: FontWeight.w600),
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 20),
-                        child: SizedBox(
-                          width: 300,
-                          child: TextField(
-                            controller: searchController,
-                            onChanged: (_) => {},
-                            decoration: textInputDecoration('Поиск..'),
-                          ),
+                      SizedBox(
+                        width: 300,
+                        child: TextField(
+                          controller: searchController,
+                          onChanged: (_) => {},
+                          decoration: textInputDecoration('Поиск..'),
                         ),
                       ),
                       SizedBox(
@@ -121,99 +135,165 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
                 Expanded(
                   child: list.isEmpty
                       ? const Center(
-                    child: Text(
-                      "Нет групп по заданным критериям",
-                      style: TextStyle(color: Colors.grey, fontSize: 16),
-                    ),
-                  )
+                          child: Text(
+                            "Нет групп по заданным критериям",
+                            style: TextStyle(color: Colors.grey, fontSize: 16),
+                          ),
+                        )
                       : ListView.builder(
-                    itemCount: list.length,
-                    itemBuilder: (context, index) {
-                      final group = list[index];
-                      return ExpansionTile(
-                        title: Text(
-                          '${group.name} — ${group.courseId} курс',
-                          style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.w600),
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit,
-                                  color: MyColors.blueJournal),
-                              onPressed: () {
-                                setState(() {
-                                  selectedGroupIndex = index;
-                                  showEditDialog = true;
-                                });
-                              },
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.delete,
-                                  color: MyColors.blueJournal),
-                              onPressed: () {
-                                setState(() {
-                                  selectedGroupIndex = index;
-                                  showDeleteDialog = true;
-                                });
-                              },
-                            ),
-                          ],
-                        ),
-                        children: group.students.map((student) {
-                          return Container(
-                            margin: const EdgeInsets.symmetric(
-                                vertical: 6, horizontal: 8),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: Colors.grey.shade300,
-                                width: 1.5,
-                              ),
-                            ),
-                            child: ListTile(
-                              title: Text(student.username),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.edit,
-                                        color: Colors.blueAccent),
-                                    onPressed: () {
-                                      setState(() {
-                                        selectedStudentId = student.id;
-                                        showEditDialog = true;
-                                      });
-                                    },
+                          itemCount: list.length,
+                          itemBuilder: (context, index) {
+                            final group = list[index];
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16.0, vertical: 2),
+                              child: Theme(
+                                data: Theme.of(context).copyWith(
+                                  dividerColor: Colors.transparent,
+                                  hoverColor: Colors.transparent,
+                                  splashColor: Colors.transparent,
+                                  highlightColor: Colors.transparent,
+                                  focusColor: Colors.transparent,
+                                  colorScheme:
+                                      Theme.of(context).colorScheme.copyWith(
+                                            surfaceVariant: Colors.transparent,
+                                          ),
+                                ),
+                                child: ExpansionTile(
+                                  tilePadding: EdgeInsets.zero,
+                                  collapsedShape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
                                   ),
-                                  IconButton(
-                                    icon: const Icon(Icons.delete,
-                                        color: Colors.red),
-                                    onPressed: () {
-                                      setState(() {
-                                        selectedStudentId = student.id;
-                                        showDeleteDialog = true;
-                                      });
-                                    },
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
                                   ),
-                                ],
+                                  backgroundColor: Colors.transparent,
+                                  collapsedBackgroundColor: Colors.transparent,
+                                  title: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 10, horizontal: 14),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade100,
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                    child: Text(
+                                      '${group.name} — ${group.courseId} курс',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.grey.shade800,
+                                      ),
+                                    ),
+                                  ),
+                                  trailing: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.edit,
+                                            color: MyColors.blueJournal),
+                                        onPressed: () {
+                                          setState(() {
+                                            selectedGroupIndex = index;
+                                            showEditGroupDialog = true;
+                                          });
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.delete,
+                                            color: MyColors.blueJournal),
+                                        onPressed: () {
+                                          setState(() {
+                                            selectedGroupIndex = index;
+                                            showDeleteGroupDialog = true;
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  children: group.students
+                                      .asMap()
+                                      .entries
+                                      .map((entry) {
+                                    final studentIndex = entry.key;
+                                    final student = entry.value;
+
+                                    return Container(
+                                      height: 55,
+                                      margin: const EdgeInsets.symmetric(
+                                          vertical: 6, horizontal: 8),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        borderRadius:
+                                            BorderRadius.circular(22.0),
+                                        border: Border.all(
+                                          color: Colors.grey.shade300,
+                                          width: 1.4,
+                                        ),
+                                        color: Colors.white,
+                                      ),
+                                      child: ListTile(
+                                        title: Text(student.username),
+                                        trailing: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            if (student.isHeadman!)
+                                              Text(
+                                                'Отмечен как староста',
+                                                style: TextStyle(
+                                                    fontSize: 15,
+                                                    color:
+                                                        Colors.grey.shade700),
+                                              ),
+                                            const SizedBox(width: 20),
+                                            IconButton(
+                                              icon: const Icon(Icons.edit,
+                                                  color: MyColors.blueJournal),
+                                              onPressed: () {
+                                                setState(() {
+                                                  selectedGroupIndex = index;
+                                                  selectedStudentIndex = studentIndex;
+                                                  selectedStudentId = student.id;
+                                                  selectedGroup = GroupSimple(
+                                                    id: group.id,
+                                                    name: group.name,
+                                                  );
+                                                  showEditStudentDialog = true;
+                                                  isHeadman = student.isHeadman;
+                                                  usernameController.text = student.username;
+                                                });
+                                              },
+                                            ),
+                                            IconButton(
+                                              icon: const Icon(Icons.delete,
+                                                  color: MyColors.blueJournal),
+                                              onPressed: () {
+                                                setState(() {
+                                                  selectedGroupIndex = index;
+                                                  selectedStudentIndex = studentIndex;
+                                                  selectedStudentId = student.id;
+                                                  showDeleteStudentDialog = true;
+                                                });
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
                               ),
-                            ),
-                          );
-                        }).toList(),
-                      );
-                    },
-                  ),
+                            );
+                          },
+                        ),
                 ),
-                if (showFilterDialog) _buildFilterDialog(context),
-                if (showEditDialog) _buildEditDialog(),
-                if (showDeleteDialog) _buildDeleteDialog(),
               ],
             ),
+            if (showFilterDialog) _buildFilterDialog(context),
+            if (showEditGroupDialog) _buildEditGroupDialog(),
+            if (showDeleteGroupDialog) _buildDeleteGroupDialog(),
+            if (showDeleteStudentDialog) _buildDeleteStudentDialog(),
+            if (showEditStudentDialog) _buildEditStudentDialog(context),
           ],
         ),
       ),
@@ -222,7 +302,7 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
 
   Widget _buildFilterDialog(BuildContext context) {
     final w = (MediaQuery.of(context).size.width * 0.6).clamp(300.0, 600.0);
-    final h = (MediaQuery.of(context).size.height * 0.3).clamp(400.0, 600.0);
+    final h = (MediaQuery.of(context).size.height * 0.5).clamp(400.0, 600.0);
     final sortedFaculties = List<String>.from(_faculties)..sort();
     final sortedCourses = List<int>.from(_courses)..sort();
     Widget multiSelectInputWithChips<T>({
@@ -234,73 +314,75 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
       bool showError = false,
     }) {
       final borderColor = showError ? Colors.red : Colors.grey.shade400;
-      return Center(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(label,
-                style: TextStyle(fontSize: 16, color: Colors.grey.shade700)),
-            const SizedBox(height: 8),
-            GestureDetector(
-              onTap: () async {
-                final picked = await showDialog<List<T>>(
-                  context: context,
-                  builder: (_) => MultiSelectDialog<T>(
-                    items: items,
-                    initiallySelected: selectedItems.toList(),
-                    itemLabel: itemLabel,
-                  ),
-                );
-                if (picked != null) onSelectionChanged(picked.toSet());
-              },
-              child: InputDecorator(
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: borderColor, width: 1.5),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: borderColor, width: 1.5),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: borderColor, width: 1.5),
-                  ),
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                ),
-                child: Text(
-                  selectedItems.isEmpty
-                      ? 'Выберите из списка'
-                      : selectedItems.map(itemLabel).join(', '),
-                  style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
-                ),
-              ),
-            ),
-            const SizedBox(height: 18),
-            if (selectedItems.isNotEmpty)
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: selectedItems.map((item) {
-                  return Chip(
-                    label: Text(itemLabel(item)),
-                    side: BorderSide(color: Colors.grey.shade500),
-                    backgroundColor: Colors.white,
-                    deleteIcon:
-                        Icon(Icons.close, size: 18, color: Colors.grey.shade500),
-                    onDeleted: () {
-                      final newSet = Set<T>.from(selectedItems);
-                      newSet.remove(item);
-                      onSelectionChanged(newSet);
-                    },
+      return Builder(builder: (context) {
+        return Center(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label,
+                  style: TextStyle(fontSize: 16, color: Colors.grey.shade700)),
+              const SizedBox(height: 8),
+              GestureDetector(
+                onTap: () async {
+                  final picked = await showDialog<List<T>>(
+                    context: context,
+                    builder: (_) => MultiSelectDialog<T>(
+                      items: items,
+                      initiallySelected: selectedItems.toList(),
+                      itemLabel: itemLabel,
+                    ),
                   );
-                }).toList(),
+                  if (picked != null) onSelectionChanged(picked.toSet());
+                },
+                child: InputDecorator(
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: borderColor, width: 1.5),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: borderColor, width: 1.5),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: borderColor, width: 1.5),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 12),
+                  ),
+                  child: Text(
+                    selectedItems.isEmpty
+                        ? 'Выберите из списка'
+                        : selectedItems.map(itemLabel).join(', '),
+                    style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
+                  ),
+                ),
               ),
-          ],
-        ),
-      );
+              const SizedBox(height: 18),
+              if (selectedItems.isNotEmpty)
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: selectedItems.map((item) {
+                    return Chip(
+                      label: Text(itemLabel(item)),
+                      side: BorderSide(color: Colors.grey.shade500),
+                      backgroundColor: Colors.white,
+                      deleteIcon: Icon(Icons.close,
+                          size: 18, color: Colors.grey.shade500),
+                      onDeleted: () {
+                        final newSet = Set<T>.from(selectedItems);
+                        newSet.remove(item);
+                        onSelectionChanged(newSet);
+                      },
+                    );
+                  }).toList(),
+                ),
+            ],
+          ),
+        );
+      });
     }
 
     return Material(
@@ -392,20 +474,131 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
     if (selectedStudentId != null) {
       final repo = UserRepository();
       await repo.deleteUser(userId: selectedStudentId!);
-      await widget.loadGroups();
+      await _reloadGroupsWithFilters();
       selectedStudentId = null;
     } else if (selectedGroupIndex != null) {
       final repo = GroupRepository();
       final groupId = widget.groups[selectedGroupIndex!].id;
       final success = await repo.deleteGroup(groupId: groupId);
       if (success) {
-        await widget.loadGroups();
+        await _reloadGroupsWithFilters();
       }
       selectedGroupIndex = null;
     }
   }
 
-  Widget _buildDeleteDialog() {
+  Widget _buildDeleteStudentDialog() {
+    return Positioned(
+      top: 32,
+      right: 32,
+      child: Builder(
+        builder: (context) {
+          final dialogMaxWidth = 420.0;
+          final dialogMinWidth = 280.0;
+          final availableWidth = MediaQuery.of(context).size.width - 32 - 80;
+          final dialogWidth = availableWidth < dialogMaxWidth
+              ? availableWidth.clamp(dialogMinWidth, dialogMaxWidth)
+              : dialogMaxWidth;
+          final student = widget
+              .groups[selectedGroupIndex!].students[selectedStudentIndex!];
+          return Material(
+            color: Colors.transparent,
+            child: Container(
+              width: dialogWidth,
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 24,
+                    offset: Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        "Удаление студента",
+                        style: TextStyle(
+                            fontSize: 18, color: Colors.grey.shade700),
+                      ),
+                      const Spacer(),
+                      CancelButton(onPressed:  () {
+                        setState(() {
+                          showDeleteStudentDialog = false;
+                        });
+                      },),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    student.username,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      color: Colors.black87,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    "Вы действительно хотите удалить студента?",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF4068EA),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      onPressed: () async {
+                        if (selectedStudentIndex != null) {
+                          final userId = selectedStudentId;
+                          final userRepository = UserRepository();
+                          bool success =
+                              await userRepository.deleteUser(userId: userId!);
+                          if (success) {
+                            await _reloadGroupsWithFilters();
+                            setState(() {
+                              showDeleteStudentDialog = false;
+                              selectedStudentIndex = null;
+                            });
+                          }
+                        }
+                      },
+                      child: const Text(
+                        "Удалить",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildDeleteGroupDialog() {
     return Positioned(
       top: 32,
       right: 32,
@@ -440,31 +633,17 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
                   Row(
                     children: [
                       Text(
-                        "Удаление студента",
+                        "Удаление группы",
                         style: TextStyle(
-                            fontSize: 15, color: Colors.grey.shade700),
+                            fontSize: 18, color: Colors.grey.shade700),
                       ),
                       const Spacer(),
-                      InkWell(
-                        onTap: () {
+                      CancelButton(
+                        onPressed: () {
                           setState(() {
-                            showDeleteDialog = false;
+                            showDeleteGroupDialog = false;
                           });
                         },
-                        borderRadius: BorderRadius.circular(10),
-                        child: Container(
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF4068EA),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Icon(
-                            Icons.close,
-                            color: Colors.white,
-                            size: 22,
-                          ),
-                        ),
                       ),
                     ],
                   ),
@@ -518,7 +697,218 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
     );
   }
 
-  Widget _buildEditDialog() {
+  Widget _buildEditStudentDialog(BuildContext context) {
+    return Positioned(
+      top: 32,
+      right: 32,
+      child: Builder(
+        builder: (context) {
+          final media = MediaQuery.of(context).size;
+          final double dialogWidth = (media.width - 32 - 80).clamp(320, 600);
+          final double dialogHeight = (media.height - 64).clamp(480, 500);
+          return Material(
+            color: Colors.transparent,
+            child: Container(
+              width: dialogWidth,
+              height: dialogHeight,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFF4068EA), width: 2),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 24,
+                    offset: Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                "Редактирование студента",
+                                style: TextStyle(
+                                    fontSize: 18, color: Colors.grey.shade700),
+                              ),
+                              const Spacer(),
+                              MyButton(onChange: () async {
+                                final userRepository = UserRepository();
+                                final success =
+                                await userRepository.updateUser(
+                                  userId: selectedStudentId!,
+                                  groupId: selectedGroup?.id,
+                                  username: usernameController.text,
+                                  isHeadman: isHeadman,
+                                );
+                                if (success) {
+                                  await _reloadGroupsWithFilters();
+                                  setState(() {
+                                    selectedStudentIndex = null;
+                                    showEditStudentDialog = false;
+                                  });
+                                }
+                              }, buttonName: 'Сохранить'),
+                              const SizedBox(width: 12),
+                              CancelButton(onPressed:  () {
+                                setState(() {
+                                  showEditStudentDialog = false;
+                                });
+                              },),
+                            ],
+                          ),
+                          SizedBox(height: constraints.maxHeight * 0.1),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'ФИО студента',
+                                style: TextStyle(
+                                    fontSize: 15, color: Colors.grey.shade700),
+                              ),
+                              const SizedBox(height: 18),
+                              TextFormField(
+                                controller: usernameController,
+                                decoration: InputDecoration(
+                                  hintText: 'Введите ФИО студента',
+                                  hintStyle: const TextStyle(
+                                    color: Color(0xFF9CA3AF),
+                                    fontSize: 15,
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 14),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(11),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey.shade400,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(11),
+                                    borderSide: BorderSide(
+                                        color: MyColors.blueJournal,
+                                        width: 1.5),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(11),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey.shade400,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 48),
+                              Text(
+                                'Привязка группы',
+                                style: TextStyle(
+                                    fontSize: 15, color: Colors.grey.shade700),
+                              ),
+                              const SizedBox(height: 18),
+                              DropdownButtonFormField<GroupSimple>(
+                                items: widget.simpleGroups
+                                    .map((group) => DropdownMenuItem<GroupSimple>(
+                                          value: group,
+                                          child: Text(
+                                            group.name,
+                                            style:
+                                                const TextStyle(fontSize: 16),
+                                          ),
+                                        ))
+                                    .toList(),
+                                decoration: InputDecoration(
+                                  labelText: 'Группа',
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey.shade400,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey.shade400,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                        color: MyColors.blueJournal,
+                                        width: 1.5),
+                                  ),
+                                ),
+                                value: selectedGroup,
+                                onChanged: (GroupSimple? value) {
+                                  setState(() {
+                                    selectedGroup = value;
+                                  });
+                                },
+                              ),
+                              const SizedBox(height: 48),
+                              Text(
+                                'Отметить как старосту',
+                                style: TextStyle(
+                                    fontSize: 15, color: Colors.grey.shade700),
+                              ),
+                              const SizedBox(height: 18),
+                              Row(
+                                children: [
+                                  Transform.scale(
+                                    scale: 1.5,
+                                    child: Checkbox(
+                                      value: isHeadman,
+                                      onChanged: (bool? newValue) {
+                                        setState(() {
+                                          isHeadman = newValue;
+                                        });
+                                      },
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      activeColor: MyColors.blueJournal,
+                                      side: BorderSide(
+                                          color: Colors.grey.shade400,
+                                          width: 1.5),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    isHeadman ?? false ? 'Да' : 'Нет',
+                                    style: TextStyle(
+                                        color: Color(0xFF9CA3AF), fontSize: 15),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildEditGroupDialog() {
     if (selectedGroupIndex == null) return const SizedBox.shrink();
 
     final group = widget.groups[selectedGroupIndex!];
@@ -563,22 +953,11 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
                         children: [
                           const Text(
                             "Редактирование группы",
-                            style: TextStyle(fontSize: 15),
+                            style: TextStyle(fontSize: 18),
                           ),
                           const Spacer(),
-                          SizedBox(
-                            height: 36,
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF4068EA),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                elevation: 0,
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 24),
-                              ),
-                              onPressed: () async {
+                          MyButton(
+                              onChange: () async {
                                 if (_formKey.currentState!.validate()) {
                                   _formKey.currentState!.save();
                                   final groupRepository = GroupRepository();
@@ -612,7 +991,7 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
                                     await widget.loadGroups();
                                     setState(() {
                                       selectedGroupIndex = null;
-                                      showEditDialog = false;
+                                      showEditGroupDialog = false;
                                     });
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
@@ -623,31 +1002,14 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
                                   }
                                 }
                               },
-                              child: const Text('Сохранить',
-                                  style: TextStyle(color: Colors.white)),
-                            ),
-                          ),
+                              buttonName: 'Сохранить'),
                           const SizedBox(width: 12),
-                          InkWell(
-                            onTap: () {
+                          CancelButton(
+                            onPressed: () {
                               setState(() {
-                                showEditDialog = false;
+                                showEditGroupDialog = false;
                               });
                             },
-                            borderRadius: BorderRadius.circular(10),
-                            child: Container(
-                              width: 36,
-                              height: 36,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF4068EA),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: const Icon(
-                                Icons.close,
-                                color: Colors.white,
-                                size: 22,
-                              ),
-                            ),
                           ),
                         ],
                       ),
@@ -663,24 +1025,8 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
                             const SizedBox(height: 18),
                             TextFormField(
                               controller: nameController,
-                              decoration: InputDecoration(
-                                hintText: 'Введите название группы',
-                                hintStyle: const TextStyle(
-                                    color: Color(0xFF9CA3AF), fontSize: 15),
-                                filled: true,
-                                fillColor: Colors.white,
-                                contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 14),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(11),
-                                  borderSide: BorderSide(
-                                      color: Colors.grey.shade400, width: 1.5),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(11),
-                                  borderSide: BorderSide(
-                                      color: MyColors.blueJournal, width: 1.5),
-                                ),
+                              decoration: textInputDecoration(
+                                'Введите название группы',
                               ),
                             ),
                             const SizedBox(height: 28),
@@ -690,14 +1036,8 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
                             const SizedBox(height: 18),
                             DropdownButtonFormField<int>(
                               value: selectedFacultyIndex,
-                              decoration: InputDecoration(
-                                labelText: 'Факультет',
-                                labelStyle: const TextStyle(fontSize: 15),
-                                filled: true,
-                                fillColor: Colors.white,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
+                              decoration: inputDecoration(
+                                'Факультет',
                               ),
                               items: List.generate(_faculties.length, (index) {
                                 return DropdownMenuItem<int>(
@@ -718,19 +1058,11 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
                             const SizedBox(height: 18),
                             DropdownButtonFormField<int>(
                               value: selectedCourseIndex,
-                              decoration: InputDecoration(
-                                labelText: 'Курс',
-                                labelStyle: const TextStyle(fontSize: 15),
-                                filled: true,
-                                fillColor: Colors.white,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
+                              decoration: inputDecoration('Выберите крус'),
                               items: List.generate(_courses.length, (index) {
                                 return DropdownMenuItem<int>(
                                   value: index,
-                                  child: Text(_courses[index]),
+                                  child: Text(_courses[index].toString()),
                                 );
                               }),
                               onChanged: (value) {
@@ -761,12 +1093,7 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
                                 }
                               },
                               child: InputDecorator(
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12)),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 14, vertical: 12),
-                                ),
+                                decoration: inputDecoration(''),
                                 child: Text(
                                   selectedStudents.isEmpty
                                       ? "Выберите студентов"
@@ -784,6 +1111,11 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
                                 children: selectedStudents.map((student) {
                                   return Chip(
                                     label: Text(student.username),
+                                    side:
+                                        BorderSide(color: Colors.grey.shade500),
+                                    backgroundColor: Colors.white,
+                                    deleteIcon: Icon(Icons.close, size: 18),
+                                    deleteIconColor: Colors.grey.shade500,
                                     onDeleted: () {
                                       setState(() {
                                         selectedStudents.remove(student);
