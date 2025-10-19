@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:university_journal/components/widgets/button.dart';
+import 'package:university_journal/components/widgets/cancel_button.dart';
+import 'package:university_journal/components/widgets/input_decoration.dart';
 import 'dart:math';
 
 import '../../../../components/colors/colors.dart';
@@ -105,89 +108,70 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                           child: Text(
                             'Создание дисциплины',
                             style: TextStyle(
-                                fontSize: 15, color: Colors.grey.shade700),
+                                fontSize: 18, color: Colors.grey.shade700),
                           ),
                         ),
                         SizedBox(
                           height: 48,
                           child: Row(
                             children: [
-                              ElevatedButton(
-                                onPressed: () async {
-                                  if (_formKey.currentState!.validate()) {
-                                    final planItems = selectedTypes
-                                        .where((key) => hoursControllers[key]?.text.isNotEmpty == true)
-                                        .map((key) {
-                                      final allocatedHours = int.tryParse(hoursControllers[key]!.text) ?? 0;
-                                      final hoursPerSession = 2;
+                              MyButton(
+                                  onChange: () async {
+                                    if (_formKey.currentState!.validate()) {
+                                      final planItems = selectedTypes
+                                          .where((key) =>
+                                              hoursControllers[key]
+                                                  ?.text
+                                                  .isNotEmpty ==
+                                              true)
+                                          .map((key) {
+                                        final allocatedHours = int.tryParse(
+                                                hoursControllers[key]!.text) ??
+                                            0;
+                                        final hoursPerSession = 2;
 
-                                      return {
-                                        'type': key,
-                                        'hours_allocated': allocatedHours,
-                                        'hours_per_session': hoursPerSession,
-                                      };
-                                    }).toList();
+                                        return {
+                                          'type': key,
+                                          'hours_allocated': allocatedHours,
+                                          'hours_per_session': hoursPerSession,
+                                        };
+                                      }).toList();
 
-                                    List<int> teacherIds = selectedTeachers
-                                        .map((e) => e.id)
-                                        .toList();
-                                    List<int> groupIds = selectedGroups
-                                        .map((e) => e.id)
-                                        .toList();
+                                      List<int> teacherIds = selectedTeachers
+                                          .map((e) => e.id)
+                                          .toList();
+                                      List<int> groupIds = selectedGroups
+                                          .map((e) => e.id)
+                                          .toList();
 
-                                    bool result =
-                                        await DisciplineRepository().addDiscipline(
-                                      name: nameController.text,
-                                      teacherIds: teacherIds,
-                                      groupIds: groupIds,
-                                      planItems: planItems,
-                                          isGroupSplit: isGroupSplit,
-                                          attestationType: _selectedAttestationType!,
-                                    );
-
-                                    if (result) {
-                                      widget.onCourseAdded();
-                                      Navigator.of(context).pop();
-                                    } else {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                            content: Text(
-                                                '❌ Не удалось добавить дисциплину')),
+                                      bool result = await DisciplineRepository()
+                                          .addDiscipline(
+                                        name: nameController.text,
+                                        teacherIds: teacherIds,
+                                        groupIds: groupIds,
+                                        planItems: planItems,
+                                        isGroupSplit: isGroupSplit,
+                                        attestationType:
+                                            _selectedAttestationType!,
                                       );
+
+                                      if (result) {
+                                        widget.onCourseAdded();
+                                        Navigator.of(context).pop();
+                                      } else {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                              content: Text(
+                                                  '❌ Не удалось добавить дисциплину')),
+                                        );
+                                      }
                                     }
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF4068EA),
-                                  foregroundColor: Colors.white,
-                                  elevation: 0,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 28, vertical: 0),
-                                  minimumSize: const Size(140, 48),
-                                  textStyle: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                                child: const Text('Сохранить'),
-                              ),
+                                  },
+                                  buttonName: 'Сохранить'),
                               const SizedBox(width: 12),
-                              Container(
-                                width: 48,
-                                height: 48,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF4068EA),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: IconButton(
-                                  icon: const Icon(Icons.close,
-                                      size: 28, color: Colors.white),
-                                  splashRadius: 24,
-                                  onPressed: () => Navigator.of(context).pop(),
-                                ),
+                              CancelButton(
+                                onPressed: () => Navigator.of(context).pop(),
                               ),
                             ],
                           ),
@@ -210,33 +194,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                               const SizedBox(height: 18),
                               TextFormField(
                                 controller: nameController,
-                                decoration: InputDecoration(
-                                  hintText: 'Введите название дисциплины',
-                                  hintStyle: const TextStyle(
-                                      color: Color(0xFF9CA3AF), fontSize: 15),
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 16, vertical: 14),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(11),
-                                    borderSide: BorderSide(
-                                        color: Colors.grey.shade400,
-                                        width: 1.5),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(11),
-                                    borderSide: BorderSide(
-                                        color: MyColors.blueJournal,
-                                        width: 1.5),
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(11),
-                                    borderSide: BorderSide(
-                                        color: Colors.grey.shade400,
-                                        width: 1.5),
-                                  ),
-                                ),
+                                decoration: textInputDecoration('Введите название дисциплины'),
                                 validator: (value) =>
                                     value == null || value.isEmpty
                                         ? 'Обязательное поле'
@@ -258,7 +216,9 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                         borderRadius: BorderRadius.circular(6),
                                       ),
                                       activeColor: MyColors.blueJournal,
-                                      side: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                                      side: BorderSide(
+                                          color: Colors.grey.shade400,
+                                          width: 1.5),
                                     ),
                                   ),
                                   const SizedBox(width: 8),
@@ -294,7 +254,8 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                           onTap: () {
                                             setState(() {
                                               if (isSelected) {
-                                                selectedTypes.remove(type['key']);
+                                                selectedTypes
+                                                    .remove(type['key']);
                                               } else {
                                                 selectedTypes.add(type['key']!);
                                               }
@@ -555,8 +516,6 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                   }).toList(),
                                 ),
                               const SizedBox(height: 20),
-
-                              // Привязка группы
                               Text(
                                 "Привязать группу",
                                 style: TextStyle(
@@ -653,13 +612,16 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                       selectedColor: MyColors.blueJournal,
                                       backgroundColor: Colors.white,
                                       checkmarkColor: Colors.white,
-                                      secondarySelectedColor: MyColors.blueJournal,
+                                      secondarySelectedColor:
+                                          MyColors.blueJournal,
                                     ),
                                     child: Wrap(
                                       spacing: 10,
                                       runSpacing: 10,
-                                      children: attestationOptions.map((option) {
-                                        final isSelected = _selectedAttestationType == option;
+                                      children:
+                                          attestationOptions.map((option) {
+                                        final isSelected =
+                                            _selectedAttestationType == option;
                                         return ChoiceChip(
                                           label: Text(
                                             option,
@@ -668,11 +630,15 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                                                     ? Colors.white
                                                     : Colors.grey.shade700),
                                           ),
-                                          side: BorderSide(color: Colors.grey.shade500),
+                                          side: BorderSide(
+                                              color: Colors.grey.shade500),
                                           selected: isSelected,
                                           onSelected: (selected) {
                                             setState(() {
-                                              _selectedAttestationType = selected ? option as String? : null;
+                                              _selectedAttestationType =
+                                                  selected
+                                                      ? option as String?
+                                                      : null;
                                             });
                                           },
                                         );

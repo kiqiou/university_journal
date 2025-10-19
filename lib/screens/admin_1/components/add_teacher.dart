@@ -2,8 +2,11 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'dart:html' as html;
 import 'package:flutter/material.dart';
+import 'package:university_journal/components/widgets/button.dart';
+import 'package:university_journal/components/widgets/cancel_button.dart';
 
 import '../../../bloc/services/user/user_repository.dart';
+import '../../../components/colors/colors.dart';
 import '../../../components/widgets/input_decoration.dart';
 
 class AddTeacherDialog extends StatefulWidget {
@@ -80,78 +83,54 @@ class _AddTeacherDialogState extends State<AddTeacherDialog> {
                 ],
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 32),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 36, vertical: 32),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // --- Шапка ---
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.center, // ВЫРОВНЯТЬ ПО ВЕРХУ!
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Expanded(
                           child: Text(
                             'Создание преподавателя',
-                            style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+                            style: TextStyle(
+                                fontSize: 18, color: Colors.grey.shade700),
                           ),
                         ),
+                        MyButton(
+                            onChange: () async {
+                              if (_formKey.currentState!.validate()) {
+                                _formKey.currentState!.save();
+                                final userRepository = UserRepository();
+
+                                await userRepository.signUp(
+                                  username: fio ?? '',
+                                  password: '123456',
+                                  roleId: 1,
+                                  position: position,
+                                  bio: bio,
+                                  photoBytes: _selectedPhotoBytes,
+                                  photoName: _photoName,
+                                );
+                                widget.onTeacherAdded();
+                                Navigator.of(context).pop();
+                              }
+                            },
+                            buttonName: 'Сохранить'),
                         SizedBox(
                           height: 48,
                           child: Row(
                             children: [
-                              ElevatedButton(
-                                onPressed: () async {
-                                  if (_formKey.currentState!.validate()) {
-                                    _formKey.currentState!.save();
-                                    final userRepository = UserRepository();
-
-                                    await userRepository.signUp(
-                                      username: fio ?? '',
-                                      password: '123456',
-                                      roleId: 1,
-                                      position: position,
-                                      bio: bio,
-                                      photoBytes: _selectedPhotoBytes,
-                                      photoName: _photoName,
-                                    );
-                                    widget.onTeacherAdded();
-                                    Navigator.of(context).pop();
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF4068EA),
-                                  foregroundColor: Colors.white,
-                                  elevation: 0,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 0),
-                                  minimumSize: const Size(160, 55),
-                                  // <-- высота и ширина!
-                                  textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                                ),
-                                child: const Text('Сохранить'),
-                              ),
                               const SizedBox(width: 12),
-                              Container(
-                                width: 48,
-                                height: 48,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF4068EA),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: IconButton(
-                                  icon: const Icon(Icons.close, size: 28, color: Colors.white),
-                                  splashRadius: 24,
-                                  onPressed: () => Navigator.of(context).pop(),
-                                ),
-                              ),
+                              CancelButton(
+                                  onPressed: () => Navigator.of(context).pop()),
                             ],
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 28),
-                    // --- Аватар + кнопка ---
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -164,7 +143,8 @@ class _AddTeacherDialogState extends State<AddTeacherDialog> {
                           ),
                           child: _photoPreviewUrl != null
                               ? Image.network(_photoPreviewUrl!)
-                              : Icon(Icons.person, size: 54, color: Color(0xFF9CA3AF)),
+                              : Icon(Icons.person,
+                                  size: 54, color: Color(0xFF9CA3AF)),
                         ),
                         const SizedBox(width: 18),
                         SizedBox(
@@ -180,13 +160,13 @@ class _AddTeacherDialogState extends State<AddTeacherDialog> {
                               padding: EdgeInsets.zero,
                               elevation: 0,
                             ),
-                            child: Icon(Icons.add, color: Colors.white, size: 26),
+                            child:
+                                Icon(Icons.add, color: Colors.white, size: 26),
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 32),
-                    // --- Форма ---
                     Expanded(
                       child: SingleChildScrollView(
                         child: Form(
@@ -196,38 +176,50 @@ class _AddTeacherDialogState extends State<AddTeacherDialog> {
                             children: [
                               Text(
                                 'ФИО преподавателя*',
-                                style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+                                style: TextStyle(
+                                    fontSize: 15, color: Colors.grey.shade700),
                               ),
                               const SizedBox(height: 18),
                               TextFormField(
-                                decoration: textInputDecoration('Введите ФИО преподавателя'),
+                                decoration: textInputDecoration(
+                                    'Введите ФИО преподавателя'),
                                 validator: (value) =>
-                                    value == null || value.isEmpty ? 'Введите ФИО преподавателя' : null,
+                                    value == null || value.isEmpty
+                                        ? 'Введите ФИО преподавателя'
+                                        : null,
                                 onSaved: (value) => fio = value,
                               ),
                               const SizedBox(height: 48),
                               Text(
                                 'Пасада',
-                                style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+                                style: TextStyle(
+                                    fontSize: 15, color: Colors.grey.shade700),
                               ),
                               const SizedBox(height: 18),
                               TextFormField(
-                                decoration: textInputDecoration('Введите пасаду'),
+                                decoration:
+                                    textInputDecoration('Введите пасаду'),
                                 validator: (value) =>
-                                value == null || value.isEmpty ? 'Введите пасаду преподавателя' : null,
+                                    value == null || value.isEmpty
+                                        ? 'Введите пасаду преподавателя'
+                                        : null,
                                 onSaved: (value) => position = value,
                               ),
                               const SizedBox(height: 48),
                               Text(
                                 'Краткая биография',
-                                style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+                                style: TextStyle(
+                                    fontSize: 15, color: Colors.grey.shade700),
                               ),
                               const SizedBox(height: 18),
                               TextFormField(
-                                decoration: textInputDecoration('Введите краткую биографию'),
+                                decoration: textInputDecoration(
+                                    'Введите краткую биографию'),
                                 maxLines: 2,
                                 validator: (value) =>
-                                value == null || value.isEmpty ? 'Введите биографию преподавателя' : null,
+                                    value == null || value.isEmpty
+                                        ? 'Введите биографию преподавателя'
+                                        : null,
                                 onSaved: (value) => bio = value,
                               ),
                             ],

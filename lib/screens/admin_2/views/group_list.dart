@@ -27,25 +27,17 @@ class GroupsExpandableList extends StatefulWidget {
 
 class _GroupsExpandableListState extends State<GroupsExpandableList> {
   final TextEditingController nameController = TextEditingController();
+  final searchController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   int? selectedGroupIndex;
   int? selectedStudentId;
   bool showFilterDialog = false;
   bool showEditDialog = false;
   bool showDeleteDialog = false;
-
+  bool isFilteringActive = false;
   Set<String> selectedFaculties = {};
   Set<int> selectedCourses = {};
-  bool isFilteringActive = false;
-
-  final searchController = TextEditingController();
-
   List<Group> filteredGroups = [];
-
-  final List<String> allFaculties = ['Экономический', 'Юридический'];
-  final List<int> allCourses = [1, 2, 3, 4];
-
-  // Добавляем эти переменные для редактирования
   List<MyUser> selectedStudents = [];
   int? selectedFacultyIndex;
   int? selectedCourseIndex;
@@ -85,11 +77,154 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
     });
   }
 
+  @override
+  Widget build(BuildContext context) {
+    final list = filteredGroups;
+    return Scaffold(
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(14.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          "Список групп и студентов",
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 20),
+                        child: SizedBox(
+                          width: 300,
+                          child: TextField(
+                            controller: searchController,
+                            onChanged: (_) => {},
+                            decoration: textInputDecoration('Поиск..'),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 12,
+                      ),
+                      MyButton(
+                        onChange: () => setState(() => showFilterDialog = true),
+                        buttonName: 'Фильтры',
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: list.isEmpty
+                      ? const Center(
+                    child: Text(
+                      "Нет групп по заданным критериям",
+                      style: TextStyle(color: Colors.grey, fontSize: 16),
+                    ),
+                  )
+                      : ListView.builder(
+                    itemCount: list.length,
+                    itemBuilder: (context, index) {
+                      final group = list[index];
+                      return ExpansionTile(
+                        title: Text(
+                          '${group.name} — ${group.courseId} курс',
+                          style: const TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.w600),
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit,
+                                  color: MyColors.blueJournal),
+                              onPressed: () {
+                                setState(() {
+                                  selectedGroupIndex = index;
+                                  showEditDialog = true;
+                                });
+                              },
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete,
+                                  color: MyColors.blueJournal),
+                              onPressed: () {
+                                setState(() {
+                                  selectedGroupIndex = index;
+                                  showDeleteDialog = true;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                        children: group.students.map((student) {
+                          return Container(
+                            margin: const EdgeInsets.symmetric(
+                                vertical: 6, horizontal: 8),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: Colors.grey.shade300,
+                                width: 1.5,
+                              ),
+                            ),
+                            child: ListTile(
+                              title: Text(student.username),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.edit,
+                                        color: Colors.blueAccent),
+                                    onPressed: () {
+                                      setState(() {
+                                        selectedStudentId = student.id;
+                                        showEditDialog = true;
+                                      });
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete,
+                                        color: Colors.red),
+                                    onPressed: () {
+                                      setState(() {
+                                        selectedStudentId = student.id;
+                                        showDeleteDialog = true;
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      );
+                    },
+                  ),
+                ),
+                if (showFilterDialog) _buildFilterDialog(context),
+                if (showEditDialog) _buildEditDialog(),
+                if (showDeleteDialog) _buildDeleteDialog(),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildFilterDialog(BuildContext context) {
     final w = (MediaQuery.of(context).size.width * 0.6).clamp(300.0, 600.0);
     final h = (MediaQuery.of(context).size.height * 0.3).clamp(400.0, 600.0);
-    final sortedFaculties = List<String>.from(allFaculties)..sort();
-    final sortedCourses = List<int>.from(allCourses)..sort();
+    final sortedFaculties = List<String>.from(_faculties)..sort();
+    final sortedCourses = List<int>.from(_courses)..sort();
     Widget multiSelectInputWithChips<T>({
       required String label,
       required List<T> items,
@@ -666,149 +801,6 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
               ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final list = filteredGroups;
-    return Scaffold(
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(14.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          "Список групп и студентов",
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 20),
-                        child: SizedBox(
-                          width: 300,
-                          child: TextField(
-                            controller: searchController,
-                            onChanged: (_) => {},
-                            decoration: textInputDecoration('Поиск..'),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 12,
-                      ),
-                      MyButton(
-                        onChange: () => setState(() => showFilterDialog = true),
-                        buttonName: 'Фильтры',
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: list.isEmpty
-                      ? const Center(
-                          child: Text(
-                            "Нет групп по заданным критериям",
-                            style: TextStyle(color: Colors.grey, fontSize: 16),
-                          ),
-                        )
-                      : ListView.builder(
-                          itemCount: list.length,
-                          itemBuilder: (context, index) {
-                            final group = list[index];
-                            return ExpansionTile(
-                              title: Text(
-                                '${group.name} — ${group.courseId} курс',
-                                style: const TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.w600),
-                              ),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.edit,
-                                        color: MyColors.blueJournal),
-                                    onPressed: () {
-                                      setState(() {
-                                        selectedGroupIndex = index;
-                                        showEditDialog = true;
-                                      });
-                                    },
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.delete,
-                                        color: MyColors.blueJournal),
-                                    onPressed: () {
-                                      setState(() {
-                                        selectedGroupIndex = index;
-                                        showDeleteDialog = true;
-                                      });
-                                    },
-                                  ),
-                                ],
-                              ),
-                              children: group.students.map((student) {
-                                return Container(
-                                  margin: const EdgeInsets.symmetric(
-                                      vertical: 6, horizontal: 8),
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(16),
-                                    border: Border.all(
-                                      color: Colors.grey.shade300,
-                                      width: 1.5,
-                                    ),
-                                  ),
-                                  child: ListTile(
-                                    title: Text(student.username),
-                                    trailing: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        IconButton(
-                                          icon: const Icon(Icons.edit,
-                                              color: Colors.blueAccent),
-                                          onPressed: () {
-                                            setState(() {
-                                              selectedStudentId = student.id;
-                                              showEditDialog = true;
-                                            });
-                                          },
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(Icons.delete,
-                                              color: Colors.red),
-                                          onPressed: () {
-                                            setState(() {
-                                              selectedStudentId = student.id;
-                                              showDeleteDialog = true;
-                                            });
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              }).toList(),
-                            );
-                          },
-                        ),
-                ),
-                if (showFilterDialog) _buildFilterDialog(context),
-                if (showEditDialog) _buildEditDialog(),
-                if (showDeleteDialog) _buildDeleteDialog(),
-              ],
-            ),
-          ],
         ),
       ),
     );
