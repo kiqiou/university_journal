@@ -8,7 +8,7 @@ class Discipline extends Equatable {
   final String name;
   final String attestationType;
   final bool isGroupSplit;
-  final List<Group> groups;
+  final List<GroupSimple> groups;
   final List<MyUser> teachers;
   final List<PlanItem> planItems;
 
@@ -21,7 +21,7 @@ class Discipline extends Equatable {
       name: json['name'],
       attestationType: json['attestation_type'],
       groups: (json['groups'] as List<dynamic>)
-          .map((g) => Group.fromJson(g as Map<String, dynamic>))
+          .map((g) => GroupSimple.fromJson(g as Map<String, dynamic>))
           .toList(),
       teachers: (json['teachers'] as List<dynamic>)
           .map((e) => MyUser.fromJson(e))

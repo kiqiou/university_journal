@@ -12,12 +12,12 @@ import '../../../bloc/services/discipline/discipline_repository.dart';
 import '../../../bloc/services/group/models/group.dart';
 import '../../../bloc/services/user/models/user.dart';
 
-class AddCourseDialog extends StatefulWidget {
+class AddDisciplineDialog extends StatefulWidget {
   final VoidCallback onCourseAdded;
-  final List<Group> groups;
+  final List<GroupSimple> groups;
   final List<MyUser> teachers;
 
-  const AddCourseDialog({
+  const AddDisciplineDialog({
     super.key,
     required this.onCourseAdded,
     required this.groups,
@@ -25,10 +25,10 @@ class AddCourseDialog extends StatefulWidget {
   });
 
   @override
-  State<AddCourseDialog> createState() => _AddCourseDialogState();
+  State<AddDisciplineDialog> createState() => _AddDisciplineDialogState();
 }
 
-class _AddCourseDialogState extends State<AddCourseDialog> {
+class _AddDisciplineDialogState extends State<AddDisciplineDialog> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController lectureHoursController = TextEditingController();
@@ -36,7 +36,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
   final Map<String, TextEditingController> hoursControllers = {};
   final List<Discipline> disciplines = [];
   List<MyUser> selectedTeachers = [];
-  List<Group> selectedGroups = [];
+  List<GroupSimple> selectedGroups = [];
   List<MyUser> selectedTeachers2 = [];
   List<String> selectedTypes = [];
   List<String> selectedLessonTypes = [];
@@ -525,7 +525,7 @@ class _AddCourseDialogState extends State<AddCourseDialog> {
                               GestureDetector(
                                 onTap: () async {
                                   final selected =
-                                      await showDialog<List<Group>>(
+                                      await showDialog<List<GroupSimple>>(
                                     context: context,
                                     builder: (_) => MultiSelectDialog(
                                       items: widget.groups,

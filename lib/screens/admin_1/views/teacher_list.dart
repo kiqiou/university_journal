@@ -35,6 +35,7 @@ class _TeachersList extends State<TeachersList> {
   final userRepository = UserRepository();
   final usernameController = TextEditingController();
   final positionController = TextEditingController();
+  final searchController = TextEditingController();
   final bioController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   int? selectedTeacherIndex;
@@ -52,20 +53,16 @@ class _TeachersList extends State<TeachersList> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    const baseScreenWidth = 1920.0;
-    const baseButtonHeight = 40.0;
-    const baseWidths = [260.0, 290.0, 320.0];
-    final scale = screenWidth / baseScreenWidth;
-    final buttonHeights = baseButtonHeight * scale;
-    final buttonWidths = baseWidths.map((w) => w * scale).toList();
+    final displayedTeachers = widget.teachers.where((teacher) {
+      final searchText = searchController.text.toLowerCase();
+      return teacher.username.toLowerCase().contains(searchText);
+    }).toList();
     return Scaffold(
       body: Row(
         children: [
           Expanded(
             child: Stack(
               children: [
-                // Основной контент
                 Container(
                   color: Colors.white,
                   child: Padding(
@@ -92,6 +89,17 @@ class _TeachersList extends State<TeachersList> {
                                 ),
                               ),
                               const Spacer(),
+                              SizedBox(
+                                width: 300,
+                                child: TextField(
+                                  controller: searchController,
+                                  onChanged: (_) {
+                                    setState(() {});
+                                  },
+                                  decoration: textInputDecoration('Поиск..'),
+                                ),
+                              ),
+                              SizedBox(width: 12,),
                               if (selectedTeacherIndex != null) ...[
                                 MyButton(
                                   onChange: () {
@@ -169,10 +177,9 @@ class _TeachersList extends State<TeachersList> {
                               ],
                             ),
                           ),
-                          // Список преподавателей
                           Expanded(
                             child: ListView.builder(
-                              itemCount: widget.teachers.length,
+                              itemCount: displayedTeachers.length,
                               itemBuilder: (BuildContext context, int index) {
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(
@@ -220,7 +227,7 @@ class _TeachersList extends State<TeachersList> {
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 16.0),
                                             child: Text(
-                                              widget.teachers[index].username,
+                                              displayedTeachers[index].username,
                                               style: const TextStyle(
                                                 fontSize: 16,
                                                 color: Colors.black87,

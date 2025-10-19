@@ -29,8 +29,8 @@ class GroupsExpandableList extends StatefulWidget {
 }
 
 class _GroupsExpandableListState extends State<GroupsExpandableList> {
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController usernameController = TextEditingController();
+  final nameController = TextEditingController();
+  final usernameController = TextEditingController();
   final searchController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   int? selectedGroupIndex;
@@ -122,7 +122,7 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
                         child: TextField(
                           controller: searchController,
                           onChanged: (_) {
-                            setState(() {}); // обновляем UI при вводе
+                            setState(() {});
                           },
                           decoration: textInputDecoration('Поиск..'),
                         ),

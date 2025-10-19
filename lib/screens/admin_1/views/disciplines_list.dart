@@ -12,13 +12,13 @@ import '../../../bloc/services/discipline/discipline_repository.dart';
 import '../../../bloc/services/group/models/group.dart';
 import '../../../bloc/services/user/models/user.dart';
 
-class CoursesList extends StatefulWidget {
+class DisciplinesList extends StatefulWidget {
   final Future<void> Function() loadCourses;
   final List<Discipline> disciplines;
-  final List<Group> groups;
+  final List<GroupSimple> groups;
   final List<MyUser> teachers;
 
-  const CoursesList({
+  const DisciplinesList({
     super.key,
     required this.loadCourses,
     required this.disciplines,
@@ -27,18 +27,19 @@ class CoursesList extends StatefulWidget {
   });
 
   @override
-  State<CoursesList> createState() => _CoursesList();
+  State<DisciplinesList> createState() => _DisciplinesList();
 }
 
-class _CoursesList extends State<CoursesList> {
+class _DisciplinesList extends State<DisciplinesList> {
   final disciplineRepository = DisciplineRepository();
   final nameController = TextEditingController();
-  final TextEditingController lectureHoursController = TextEditingController();
-  final TextEditingController labHoursController = TextEditingController();
+  final searchController = TextEditingController();
+  final lectureHoursController = TextEditingController();
+  final labHoursController = TextEditingController();
   final Map<String, TextEditingController> hoursControllers = {};
   final List<Discipline> disciplines = [];
   List<MyUser> selectedTeachers = [];
-  List<Group> selectedGroups = [];
+  List<GroupSimple> selectedGroups = [];
   List<String> selectedTypes = [];
   List<String> selectedLessonTypes = [];
   String? _selectedAttestationType;
@@ -69,7 +70,10 @@ class _CoursesList extends State<CoursesList> {
 
   @override
   Widget build(BuildContext context) {
-    final courses = widget.disciplines;
+    final displayedDisciplines = widget.disciplines.where((discipline) {
+      final searchText = searchController.text.toLowerCase();
+      return discipline.name.toLowerCase().contains(searchText);
+    }).toList();
     return Scaffold(
       body: Row(
         children: [
@@ -102,6 +106,17 @@ class _CoursesList extends State<CoursesList> {
                                 ),
                               ),
                               const Spacer(),
+                              SizedBox(
+                                width: 300,
+                                child: TextField(
+                                  controller: searchController,
+                                  onChanged: (_) {
+                                    setState(() {});
+                                  },
+                                  decoration: textInputDecoration('Поиск..'),
+                                ),
+                              ),
+                              SizedBox(width: 12,),
                               if (selectedIndex != null) ...[
                                 MyButton(
                                   onChange: () {
@@ -185,7 +200,7 @@ class _CoursesList extends State<CoursesList> {
                           ),
                           Expanded(
                             child: ListView.builder(
-                              itemCount: courses.length,
+                              itemCount: displayedDisciplines.length,
                               itemBuilder: (BuildContext context, int index) {
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(
@@ -228,7 +243,7 @@ class _CoursesList extends State<CoursesList> {
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 16.0),
                                             child: Text(
-                                              courses[index].name,
+                                              displayedDisciplines[index].name,
                                               style: const TextStyle(
                                                 fontSize: 16,
                                                 color: Colors.black87,
@@ -301,7 +316,7 @@ class _CoursesList extends State<CoursesList> {
                                 ),
                                 const SizedBox(height: 24),
                                 Text(
-                                  courses[selectedIndex!].name,
+                                  disciplines[selectedIndex!].name,
                                   style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16),
@@ -849,7 +864,7 @@ class _CoursesList extends State<CoursesList> {
                                     GestureDetector(
                                       onTap: () async {
                                         final selected =
-                                            await showDialog<List<Group>>(
+                                            await showDialog<List<GroupSimple>>(
                                           context: context,
                                           builder: (_) => MultiSelectDialog(
                                             items: widget.groups,

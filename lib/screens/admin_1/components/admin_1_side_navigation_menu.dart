@@ -15,7 +15,7 @@ class Admin1SideNavigationMenu extends StatefulWidget {
   final VoidCallback onToggle;
   final VoidCallback onTeacherListTap;
   final VoidCallback onCoursesListTap;
-  final List<Group> groups;
+  final List<GroupSimple> groups;
   final List<MyUser> teachers;
   final bool isExpanded;
 
@@ -71,7 +71,7 @@ class _Admin1SideNavigationMenuState extends State<Admin1SideNavigationMenu> {
       () {
         showDialog(
           context: context,
-          builder: (context) => AddCourseDialog(
+          builder: (context) => AddDisciplineDialog(
             onCourseAdded: () => widget.onCourseAdded(),
             teachers: widget.teachers.toList(),
             groups: widget.groups.toList(),
