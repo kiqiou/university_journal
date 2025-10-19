@@ -96,7 +96,10 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
 
   @override
   Widget build(BuildContext context) {
-    final list = filteredGroups;
+    final displayedGroups = filteredGroups.where((group) {
+      final searchText = searchController.text.toLowerCase();
+      return group.name.toLowerCase().contains(searchText);
+    }).toList();
     return Scaffold(
       body: SafeArea(
         child: Stack(
@@ -118,7 +121,9 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
                         width: 300,
                         child: TextField(
                           controller: searchController,
-                          onChanged: (_) => {},
+                          onChanged: (_) {
+                            setState(() {}); // обновляем UI при вводе
+                          },
                           decoration: textInputDecoration('Поиск..'),
                         ),
                       ),
@@ -133,7 +138,7 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
                   ),
                 ),
                 Expanded(
-                  child: list.isEmpty
+                  child: displayedGroups.isEmpty
                       ? const Center(
                           child: Text(
                             "Нет групп по заданным критериям",
@@ -141,9 +146,9 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
                           ),
                         )
                       : ListView.builder(
-                          itemCount: list.length,
+                          itemCount: displayedGroups.length,
                           itemBuilder: (context, index) {
-                            final group = list[index];
+                            final group = displayedGroups[index];
                             return Padding(
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 16.0, vertical: 2),
@@ -252,15 +257,18 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
                                               onPressed: () {
                                                 setState(() {
                                                   selectedGroupIndex = index;
-                                                  selectedStudentIndex = studentIndex;
-                                                  selectedStudentId = student.id;
+                                                  selectedStudentIndex =
+                                                      studentIndex;
+                                                  selectedStudentId =
+                                                      student.id;
                                                   selectedGroup = GroupSimple(
                                                     id: group.id,
                                                     name: group.name,
                                                   );
                                                   showEditStudentDialog = true;
                                                   isHeadman = student.isHeadman;
-                                                  usernameController.text = student.username;
+                                                  usernameController.text =
+                                                      student.username;
                                                 });
                                               },
                                             ),
@@ -270,9 +278,12 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
                                               onPressed: () {
                                                 setState(() {
                                                   selectedGroupIndex = index;
-                                                  selectedStudentIndex = studentIndex;
-                                                  selectedStudentId = student.id;
-                                                  showDeleteStudentDialog = true;
+                                                  selectedStudentIndex =
+                                                      studentIndex;
+                                                  selectedStudentId =
+                                                      student.id;
+                                                  showDeleteStudentDialog =
+                                                      true;
                                                 });
                                               },
                                             ),
@@ -529,11 +540,13 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
                             fontSize: 18, color: Colors.grey.shade700),
                       ),
                       const Spacer(),
-                      CancelButton(onPressed:  () {
-                        setState(() {
-                          showDeleteStudentDialog = false;
-                        });
-                      },),
+                      CancelButton(
+                        onPressed: () {
+                          setState(() {
+                            showDeleteStudentDialog = false;
+                          });
+                        },
+                      ),
                     ],
                   ),
                   const SizedBox(height: 24),
@@ -739,29 +752,33 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
                                     fontSize: 18, color: Colors.grey.shade700),
                               ),
                               const Spacer(),
-                              MyButton(onChange: () async {
-                                final userRepository = UserRepository();
-                                final success =
-                                await userRepository.updateUser(
-                                  userId: selectedStudentId!,
-                                  groupId: selectedGroup?.id,
-                                  username: usernameController.text,
-                                  isHeadman: isHeadman,
-                                );
-                                if (success) {
-                                  await _reloadGroupsWithFilters();
+                              MyButton(
+                                  onChange: () async {
+                                    final userRepository = UserRepository();
+                                    final success =
+                                        await userRepository.updateUser(
+                                      userId: selectedStudentId!,
+                                      groupId: selectedGroup?.id,
+                                      username: usernameController.text,
+                                      isHeadman: isHeadman,
+                                    );
+                                    if (success) {
+                                      await _reloadGroupsWithFilters();
+                                      setState(() {
+                                        selectedStudentIndex = null;
+                                        showEditStudentDialog = false;
+                                      });
+                                    }
+                                  },
+                                  buttonName: 'Сохранить'),
+                              const SizedBox(width: 12),
+                              CancelButton(
+                                onPressed: () {
                                   setState(() {
-                                    selectedStudentIndex = null;
                                     showEditStudentDialog = false;
                                   });
-                                }
-                              }, buttonName: 'Сохранить'),
-                              const SizedBox(width: 12),
-                              CancelButton(onPressed:  () {
-                                setState(() {
-                                  showEditStudentDialog = false;
-                                });
-                              },),
+                                },
+                              ),
                             ],
                           ),
                           SizedBox(height: constraints.maxHeight * 0.1),
@@ -817,7 +834,8 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
                               const SizedBox(height: 18),
                               DropdownButtonFormField<GroupSimple>(
                                 items: widget.simpleGroups
-                                    .map((group) => DropdownMenuItem<GroupSimple>(
+                                    .map((group) =>
+                                        DropdownMenuItem<GroupSimple>(
                                           value: group,
                                           child: Text(
                                             group.name,
