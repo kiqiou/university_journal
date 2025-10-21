@@ -237,6 +237,30 @@ class UserRepository {
     }
   }
 
+  Future<List<MyUser>?> getStudentsWithoutGroup() async {
+    try {
+      final response = await http.get(
+        Uri.parse('http://127.0.0.1:8000/user/api/get_students_without_group/'),
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept-Charset': 'utf-8',
+        },
+      );
+
+      final data = jsonDecode(utf8.decode(response.bodyBytes));
+      if (data != null && data is List) {
+        log('📌 Ответ сервера (без группы): $data');
+        return data.map((json) => MyUser.fromJson(json)).toList();
+      } else {
+        log('❌ Ошибка: неожиданный формат ответа сервера');
+        return null;
+      }
+    } catch (e) {
+      log('❌ Ошибка соединения: $e');
+      return null;
+    }
+  }
+
   Future<bool> updateUser({
     required int userId,
     String? username,

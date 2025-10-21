@@ -11,7 +11,9 @@ import '../../../bloc/services/user/user_repository.dart';
 
 class GroupsExpandableList extends StatefulWidget {
   final List<Group> groups;
+  final List<MyUser> freeStudents;
   final List<GroupSimple> simpleGroups;
+  final Future<void> Function() loadFreeStudents;
   final Future<void> Function({
     Set<String>? faculties,
     Set<int>? courses,
@@ -22,6 +24,8 @@ class GroupsExpandableList extends StatefulWidget {
     required this.groups,
     required this.loadGroups,
     required this.simpleGroups,
+    required this.freeStudents,
+    required this.loadFreeStudents,
   });
 
   @override
@@ -196,12 +200,16 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
                                       IconButton(
                                         icon: const Icon(Icons.edit,
                                             color: MyColors.blueJournal),
-                                        onPressed: () {
-                                          setState(() {
-                                            selectedGroupIndex = index;
-                                            showEditGroupDialog = true;
-                                          });
-                                        },
+                                          onPressed: () {
+                                            setState(() {
+                                              selectedGroupIndex = index;
+                                              selectedStudents = List<MyUser>.from(group.students);
+                                              nameController.text = group.name ?? '';
+                                              selectedCourseIndex = group.courseId - 1;
+                                              selectedFacultyIndex = group.facultyId - 1;
+                                              showEditGroupDialog = true;
+                                            });
+                                          },
                                       ),
                                       IconButton(
                                         icon: const Icon(Icons.delete,
@@ -242,7 +250,7 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
                                         trailing: Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            if (student.isHeadman!)
+                                            if (student.isHeadman ?? false)
                                               Text(
                                                 'Отмечен как староста',
                                                 style: TextStyle(
@@ -928,16 +936,9 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
 
   Widget _buildEditGroupDialog() {
     if (selectedGroupIndex == null) return const SizedBox.shrink();
-
-    final group = widget.groups[selectedGroupIndex!];
-
-    nameController.text = group.name ?? '';
-    selectedCourseIndex = group.courseId - 1;
-    selectedFacultyIndex = group.facultyId - 1;
-    selectedStudents = List<MyUser>.from(group.students);
-
     final media = MediaQuery.of(context).size;
     final double dialogWidth = (media.width - 32 - 80).clamp(320, 600);
+    final group = widget.groups[selectedGroupIndex!];
 
     return Positioned(
       top: 32,
@@ -1007,6 +1008,7 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
 
                                   if (result) {
                                     await widget.loadGroups();
+                                    await widget.loadFreeStudents();
                                     setState(() {
                                       selectedGroupIndex = null;
                                       showEditGroupDialog = false;
@@ -1096,10 +1098,14 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
                             const SizedBox(height: 18),
                             GestureDetector(
                               onTap: () async {
+                                final allStudents = [
+                                  ...group.students,
+                                  ...widget.freeStudents,
+                                ];
                                 final selected = await showDialog<List<MyUser>>(
                                   context: context,
-                                  builder: (_) => MultiSelectDialog(
-                                    items: group.students,
+                                  builder: (_) => MultiSelectDialog<MyUser>(
+                                    items: allStudents,
                                     initiallySelected: selectedStudents,
                                     itemLabel: (user) => user.username,
                                   ),

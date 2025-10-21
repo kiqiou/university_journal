@@ -15,14 +15,14 @@ Future<void> showAverageScoreDialog(
 
   final selectedTypes = await showDialog<List<String>>(
     context: context,
-    builder: (context) => MultiSelectDialog<String>(
+    builder: (context) => SimpleMultiSelectDialog<String>(
       items: types,
       initiallySelected: [],
       itemLabel: (type) => type,
     ),
   );
 
-  if (selectedTypes == null) return; // пользователь отменил
+  if (selectedTypes == null) return;
 
   final students = sessions.map((s) => s.student).toSet().toList();
 

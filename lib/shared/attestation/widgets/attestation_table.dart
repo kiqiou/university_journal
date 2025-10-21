@@ -68,7 +68,7 @@ class AttestationTableState extends State<AttestationTable> {
         a.student.username.toLowerCase().compareTo(b.student.username.toLowerCase()));
 
     _dataSource.attestations = widget.attestations;
-    _dataSource.refreshRows(); // <-- ВАЖНО
+    _dataSource.refreshRows();
 
     if (widget.selectedColumnIndex != oldWidget.selectedColumnIndex) {
       _dataSource.selectedColumnIndex = widget.selectedColumnIndex;
@@ -84,16 +84,17 @@ class AttestationTableState extends State<AttestationTable> {
     return SfDataGrid(
       gridLinesVisibility: GridLinesVisibility.none,
       headerGridLinesVisibility: GridLinesVisibility.none,
-      headerRowHeight: 100,
+      headerRowHeight: 110,
+      rowHeight: 40,
       source: _dataSource,
       columns: [
-        _buildHeaderColumn('№', 50, center: true),
-        _buildHeaderColumn('Список студентов', 200, center: false),
+        _buildHeaderColumn('№', 50,),
+        _buildHeaderColumn('Список студентов', 200,),
         _buildHeaderColumn('Средний балл', 90),
         for (int i = 0; i < maxUsrCount; i++)
           GridColumn(
             columnName: 'УСР-${i + 1}',
-            width: 80,
+            width: 60,
             label: GestureDetector(
               onTap: () {
                 if (widget.onColumnSelected != null) {
@@ -109,7 +110,6 @@ class AttestationTableState extends State<AttestationTable> {
                           : Colors.grey.shade400),
                 ),
                 alignment: Alignment.center,
-                padding: const EdgeInsets.all(8),
                 child: Text(
                   'УСР-${i + 1}',
                   style: TextStyle(
@@ -121,13 +121,12 @@ class AttestationTableState extends State<AttestationTable> {
               ),
             ),
           ),
-        _buildHeaderColumn('Итог', 100),
+        _buildHeaderColumn('Итог', 80),
       ],
     );
   }
 
-  GridColumn _buildHeaderColumn(String text, double width,
-      {bool center = true}) {
+  GridColumn _buildHeaderColumn(String text, double width) {
     return GridColumn(
       columnName: text,
       width: width,
@@ -136,14 +135,14 @@ class AttestationTableState extends State<AttestationTable> {
           color: Colors.grey.shade300,
           border: Border.all(color: Colors.grey.shade400),
         ),
-        alignment: center ? Alignment.center : Alignment.centerLeft,
-        padding: const EdgeInsets.all(8),
+        alignment: Alignment.center,
         child: Text(
           text,
           style: TextStyle(
               color: Colors.grey.shade900,
               fontFamily: 'Montserrat',
               fontWeight: FontWeight.w700),
+          textAlign: TextAlign.center,
         ),
       ),
     );
@@ -235,16 +234,19 @@ class _AttestationDataSource extends DataGridSource {
     return DataGridRowAdapter(
       key: ValueKey(attestation.id),
       cells: row.getCells().asMap().entries.map((entry) {
+
         final columnIndex = entry.key;
         final cell = entry.value;
         final isUSRColumn = columnIndex >= 3 && columnIndex < 3 + maxUsrCount;
         final isAverageScore = columnIndex == 2;
         final isResult = columnIndex == 3 + maxUsrCount;
+
         if (columnIndex == 0 || columnIndex == 1) {
           return _buildStaticCell(cell.value.toString(),
               align:
                   columnIndex == 1 ? Alignment.centerLeft : Alignment.center);
         }
+
         if (isUSRColumn) {
           final usrIndex = columnIndex - 3;
           final usrItem = usrIndex < attestation.usrItems.length
@@ -316,6 +318,7 @@ class _AttestationDataSource extends DataGridSource {
           fontFamily: 'Montserrat',
           fontWeight: FontWeight.w700,
         ),
+        textAlign: TextAlign.center,
       ),
     );
   }
@@ -329,7 +332,6 @@ class _AttestationDataSource extends DataGridSource {
   }) {
     return Container(
       alignment: Alignment.center,
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey.shade400),
       ),
@@ -339,6 +341,7 @@ class _AttestationDataSource extends DataGridSource {
         textAlign: TextAlign.center,
         decoration: const InputDecoration(
           border: InputBorder.none,
+          isCollapsed: true,
         ),
         style: TextStyle(color: Colors.grey.shade700),
         keyboardType: isDecimal

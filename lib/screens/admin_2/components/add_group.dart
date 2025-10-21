@@ -243,7 +243,7 @@ class _AddGroupDialogState extends State<AddGroupDialog> {
                                     final selected = await showDialog<List<MyUser>>(
                                       context: context,
                                       builder: (_) => MultiSelectDialog(
-                                        items: widget.students.where((student) => student.groupId == null).toList(),
+                                        items: widget.students,
                                         initiallySelected: selectedStudents,
                                         itemLabel: (user) => user.username,
                                       ),

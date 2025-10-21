@@ -21,9 +21,9 @@ class _Admin2MainScreenState extends State<Admin2MainScreen> {
   final userRepository = UserRepository();
   final groupRepository = GroupRepository();
   Admin2ContentScreen currentScreen = Admin2ContentScreen.groups;
-  List<MyUser> students = [];
   List<Group> groups = [];
   List<GroupSimple> simpleGroups= [];
+  List<MyUser> freeStudents = [];
   bool isLoading = true;
   bool isMenuExpanded = false;
 
@@ -31,6 +31,7 @@ class _Admin2MainScreenState extends State<Admin2MainScreen> {
   void initState() {
     super.initState();
     loadGroupsSimple();
+    loadFreeStudents();
   }
 
   Future<void> loadGroups({
@@ -65,6 +66,17 @@ class _Admin2MainScreenState extends State<Admin2MainScreen> {
     }
   }
 
+  Future<void> loadFreeStudents() async {
+    try {
+      final list = await userRepository.getStudentsWithoutGroup();
+      setState(() {
+        freeStudents = list ?? [];
+      });
+    } catch (e) {
+      print("Ошибка при загрузке студентов без группы: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,7 +92,7 @@ class _Admin2MainScreenState extends State<Admin2MainScreen> {
                   await loadGroups();
                 },
                 groups: simpleGroups,
-                students: students,
+                students: freeStudents,
                 isExpanded: isMenuExpanded,
                 onToggle: () {
                   setState(() {
@@ -97,6 +109,8 @@ class _Admin2MainScreenState extends State<Admin2MainScreen> {
                           groups: groups,
                           loadGroups: loadGroups,
                           simpleGroups: simpleGroups,
+                          freeStudents: freeStudents,
+                          loadFreeStudents: loadFreeStudents,
                         );
                     }
                   },
