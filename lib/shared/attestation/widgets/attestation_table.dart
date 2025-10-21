@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -234,7 +235,7 @@ class _AttestationDataSource extends DataGridSource {
     return DataGridRowAdapter(
       key: ValueKey(attestation.id),
       cells: row.getCells().asMap().entries.map((entry) {
-
+        Timer? debounce;
         final columnIndex = entry.key;
         final cell = entry.value;
         final isUSRColumn = columnIndex >= 3 && columnIndex < 3 + maxUsrCount;
@@ -295,7 +296,10 @@ class _AttestationDataSource extends DataGridSource {
             controller: controller,
             readOnly: !isEditable,
             onChanged: (value) {
-              onAttestationUpdate?.call(attestationId, null, value);
+              if (debounce?.isActive ?? false) debounce!.cancel();
+              debounce = Timer(const Duration(milliseconds: 500), () {
+                onAttestationUpdate?.call(attestationId, null, value);
+              });
             },
           );
         }
