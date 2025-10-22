@@ -316,7 +316,7 @@ class _DisciplinesList extends State<DisciplinesList> {
                                 ),
                                 const SizedBox(height: 24),
                                 Text(
-                                  disciplines[selectedIndex!].name,
+                                  displayedDisciplines[selectedIndex!].name,
                                   style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16),
@@ -339,7 +339,7 @@ class _DisciplinesList extends State<DisciplinesList> {
                                     ),
                                     onPressed: () async {
                                       if (selectedIndex != null) {
-                                        final courseId = widget.disciplines[selectedIndex!].id;
+                                        final courseId = displayedDisciplines[selectedIndex!].id;
                                         bool success = await disciplineRepository.deleteDiscipline(courseId: courseId);
 
                                         if (success) {
