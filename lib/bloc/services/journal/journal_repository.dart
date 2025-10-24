@@ -4,12 +4,14 @@ import 'dart:developer';
 import 'package:http/http.dart' as http;
 import 'package:university_journal/bloc/services/journal/models/session.dart';
 
+import '../base_url.dart';
+
 class JournalRepository {
   Future<List<Session>> journalData({
     required int disciplineId,
     required int groupId,
   }) async {
-    final uri = Uri.parse('http://127.0.0.1:8000/session/api/get_attendance/')
+    final uri = Uri.parse('$baseUrl/session/api/get_attendance/')
         .replace(queryParameters: {
       'course_id': disciplineId.toString(),
       'group_id': groupId.toString(),
@@ -92,7 +94,7 @@ class JournalRepository {
     }
 
     final response = await http.put(
-      Uri.parse('http://127.0.0.1:8000/session/api/update_attendance/'),
+      Uri.parse('$baseUrl/session/api/update_attendance/'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
@@ -118,7 +120,7 @@ class JournalRepository {
   }) async {
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/session/api/add_session/'),
+        Uri.parse('$baseUrl/session/api/add_session/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
@@ -161,7 +163,7 @@ class JournalRepository {
     body['subGroup'] = subGroup;
 
     final response = await http.patch(
-      Uri.parse('http://127.0.0.1:8000/session/api/update_session/$id/'),
+      Uri.parse('$baseUrl/session/api/update_session/$id/'),
       headers: {
         'Content-Type': 'application/json',
       },
@@ -182,7 +184,7 @@ class JournalRepository {
   }) async {
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/session/api/delete_session/'),
+        Uri.parse('$baseUrl/session/api/delete_session/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',

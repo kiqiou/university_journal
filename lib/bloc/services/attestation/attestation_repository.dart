@@ -2,10 +2,11 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
 
+import '../base_url.dart';
 import 'model/attestation.dart';
 
 class USRRepository {
-  final _baseUrl = 'http://127.0.0.1:8000/attest/api/';
+  final _baseUrl = '$baseUrl/attest/api/';
 
   Future<List<Attestation>?> getAttestations({
     required int disciplineId,

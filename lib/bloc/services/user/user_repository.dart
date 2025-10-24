@@ -8,6 +8,8 @@ import 'package:university_journal/bloc/services/user/models/user.dart';
 import 'package:mime/mime.dart';
 import 'package:http_parser/http_parser.dart';
 
+import '../base_url.dart';
+
 class UserRepository {
   Future<MyUser?> signUp({
     required String username,
@@ -21,7 +23,7 @@ class UserRepository {
     String? photoName,
   }) async {
     try {
-      final uri = Uri.parse('http://127.0.0.1:8000/auth/api/register/');
+      final uri = Uri.parse('$baseUrl/auth/api/register/');
       final request = http.MultipartRequest('POST', uri);
       request.fields['username'] = username;
       request.fields['password'] = password;
@@ -75,7 +77,7 @@ class UserRepository {
   Future<bool> login(String username, String password) async {
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/auth/api/token/'),
+        Uri.parse('$baseUrl/auth/api/token/'),
         headers: {'Content-Type': 'application/json; charset=utf-8'},
         body: jsonEncode({
           'username': username,
@@ -108,7 +110,7 @@ class UserRepository {
     if (accessToken == null) return null;
 
     final response = await http.get(
-      Uri.parse('http://127.0.0.1:8000/auth/api/user/'),
+      Uri.parse('$baseUrl/auth/api/user/'),
       headers: {
         'Authorization': 'Bearer $accessToken',
         'Content-Type': 'application/json',
@@ -127,7 +129,7 @@ class UserRepository {
 
   Future<void> logout() async {
     final response = await http.post(
-      Uri.parse('http://127.0.0.1:8000/auth/logout/'),
+      Uri.parse('$baseUrl/auth/logout/'),
       headers: {
         'Authorization': 'Bearer ${await getAccessToken()}',
       },
@@ -167,7 +169,7 @@ class UserRepository {
     if (refreshToken == null) return false;
 
     final response = await http.post(
-      Uri.parse('http://127.0.0.1:8000/auth/api/token/refresh/'),
+      Uri.parse('$baseUrl/auth/api/token/refresh/'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'refresh': refreshToken}),
     );
@@ -188,7 +190,7 @@ class UserRepository {
   Future<List<MyUser>?> getTeacherList() async {
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/user/api/get_teacher_list/'),
+        Uri.parse('$baseUrl/user/api/get_teacher_list/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
@@ -213,7 +215,7 @@ class UserRepository {
   Future<List<MyUser>?> getStudentsByGroupList(int groupId) async {
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/user/api/get_students_by_group/'),
+        Uri.parse('$baseUrl/user/api/get_students_by_group/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
@@ -240,7 +242,7 @@ class UserRepository {
   Future<List<MyUser>?> getStudentsWithoutGroup() async {
     try {
       final response = await http.get(
-        Uri.parse('http://127.0.0.1:8000/user/api/get_students_without_group/'),
+        Uri.parse('$baseUrl/user/api/get_students_without_group/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
@@ -272,7 +274,7 @@ class UserRepository {
     String? photoName,
   }) async {
     try {
-      final uri = Uri.parse('http://127.0.0.1:8000/user/api/update_user/$userId/');
+      final uri = Uri.parse('$baseUrl/user/api/update_user/$userId/');
       final request = http.MultipartRequest('PUT', uri);
 
       request.fields['username'] = username ?? '';
@@ -313,7 +315,7 @@ class UserRepository {
     required List<int> disciplineIds,
   }) async {
     try {
-      final uri = Uri.parse('http://127.0.0.1:8000/user/api/update_teacher_disciplines/');
+      final uri = Uri.parse('$baseUrl/user/api/update_teacher_disciplines/');
       final response = await http.put(
         uri,
         headers: {'Content-Type': 'application/json'},
@@ -338,7 +340,7 @@ class UserRepository {
   }) async {
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/user/api/delete_user/'),
+        Uri.parse('$baseUrl/user/api/delete_user/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',

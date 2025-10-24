@@ -1,13 +1,14 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
+import '../base_url.dart';
 import 'models/discipline.dart';
 
 class DisciplineRepository{
   Future<List<Discipline>?> getDisciplinesList() async {
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/discipline/api/get_disciplines_list/'),
+        Uri.parse('$baseUrl/discipline/api/get_disciplines_list/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
@@ -39,7 +40,7 @@ class DisciplineRepository{
   }) async {
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/discipline/api/add_course/'),
+        Uri.parse('$baseUrl/discipline/api/add_course/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
@@ -92,7 +93,7 @@ class DisciplineRepository{
       if(attestationType != null) body['attestation_type'] = attestationType;
 
       final response = await http.put(
-        Uri.parse('http://127.0.0.1:8000/discipline/api/update_course/'),
+        Uri.parse('$baseUrl/discipline/api/update_course/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
@@ -120,7 +121,7 @@ class DisciplineRepository{
   }) async {
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/discipline/api/delete_course/'),
+        Uri.parse('$baseUrl/discipline/api/delete_course/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import '../base_url.dart';
 import 'models/group.dart';
 import 'package:http/http.dart' as http;
 
@@ -10,7 +11,7 @@ class GroupRepository {
       List<int>? courses,
       ) async {
     final response = await http.post(
-      Uri.parse('http://127.0.0.1:8000/group/api/get_groups_list/'),
+      Uri.parse('$baseUrl/group/api/get_groups_list/'),
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
         'Accept-Charset': 'utf-8',
@@ -34,7 +35,7 @@ class GroupRepository {
     List<int>? courses,
   }) async {
     final response = await http.post(
-      Uri.parse('http://127.0.0.1:8000/group/api/get_groups_simple_list/'),
+      Uri.parse('$baseUrl/group/api/get_groups_simple_list/'),
       headers: {'Content-Type': 'application/json; charset=utf-8'},
       body: jsonEncode({'faculties': faculties, 'courses': courses}),
     );
@@ -55,7 +56,7 @@ class GroupRepository {
   }) async {
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/group/api/add_group/'),
+        Uri.parse('$baseUrl/group/api/add_group/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
@@ -91,7 +92,7 @@ class GroupRepository {
   }) async {
     try {
       final response = await http.put(
-        Uri.parse('http://127.0.0.1:8000/group/api/update_group/'),
+        Uri.parse('$baseUrl/group/api/update_group/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
@@ -124,7 +125,7 @@ class GroupRepository {
   }) async {
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/group/api/delete_group/'),
+        Uri.parse('$baseUrl/group/api/delete_group/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
