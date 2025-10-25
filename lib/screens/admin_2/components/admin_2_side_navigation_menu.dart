@@ -78,7 +78,7 @@ class _Admin2SideNavigationMenuState extends State<Admin2SideNavigationMenu> {
     ];
 
     return GestureDetector(
-      behavior: HitTestBehavior.opaque,
+      behavior: HitTestBehavior.translucent,
       child: TweenAnimationBuilder<double>(
         tween: Tween<double>(
           begin: widget.isExpanded ? _collapsedWidth : _expandedWidth,
