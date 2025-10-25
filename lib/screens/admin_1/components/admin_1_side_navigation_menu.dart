@@ -101,27 +101,25 @@ class _Admin1SideNavigationMenuState extends State<Admin1SideNavigationMenu> {
                     Padding(
                       padding: const EdgeInsets.all(4.0),
                       child: widget.isExpanded
-                          ? const Expanded(
-                              child: Column(
-                                children: [
-                                  Padding(
-                                    padding: EdgeInsets.only(left: 16.0),
-                                    child: Text(
-                                      'МИТСО',
-                                      style: TextStyle(
-                                        fontSize: 40,
-                                      ),
-                                    ),
+                          ? Column(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(left: 16.0),
+                                child: Text(
+                                  'МИТСО',
+                                  style: TextStyle(
+                                    fontSize: 40,
                                   ),
-                                  Text(
-                                    'Международный\nуниверситет',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
-                            )
+                              Text(
+                                'Международный\nуниверситет',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          )
                           : const SizedBox(),
                     ),
                     Expanded(
