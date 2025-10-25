@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/bloc/auth/authentication_bloc.dart';
-import 'package:university_journal/screens/auth/views/sign_up_screen.dart';
-
 import '../../../components/widgets/input_decoration.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -37,16 +35,6 @@ class _SignInScreenState extends State<SignInScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.exit_to_app_rounded),
-          onPressed: () {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) => WelcomeScreen()),
-            );
-          },
-        ),
-      ),
       backgroundColor: Colors.white,
       body: Center(
         child: Padding(

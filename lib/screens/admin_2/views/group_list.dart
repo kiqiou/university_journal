@@ -141,6 +141,95 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
                     ],
                   ),
                 ),
+                if (widget.freeStudents.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 2),
+                    child: Theme(
+                      data: Theme.of(context).copyWith(
+                        dividerColor: Colors.transparent,
+                        hoverColor: Colors.transparent,
+                        splashColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+                        focusColor: Colors.transparent,
+                        colorScheme: Theme.of(context).colorScheme.copyWith(
+                          surfaceVariant: Colors.transparent,
+                        ),
+                      ),
+                      child: ExpansionTile(
+                        tilePadding: EdgeInsets.zero,
+                        collapsedShape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        backgroundColor: Colors.transparent,
+                        collapsedBackgroundColor: Colors.transparent,
+                        title: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Text(
+                            'Без группы (${widget.freeStudents.length})',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.grey.shade800,
+                            ),
+                          ),
+                        ),
+                        children: widget.freeStudents.map((student) {
+                          return Container(
+                            height: 55,
+                            margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(22.0),
+                              border: Border.all(color: Colors.grey.shade300, width: 1.4),
+                              color: Colors.white,
+                            ),
+                            child: ListTile(
+                              title: Text(student.username),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (student.isHeadman ?? false)
+                                    Text(
+                                      'Староста',
+                                      style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+                                    ),
+                                  const SizedBox(width: 20),
+                                  IconButton(
+                                    icon: const Icon(Icons.edit, color: MyColors.blueJournal),
+                                    onPressed: () {
+                                      setState(() {
+                                        selectedStudentId = student.id;
+                                        selectedGroup = null;
+                                        showEditStudentDialog = true;
+                                        usernameController.text = student.username;
+                                        isHeadman = student.isHeadman;
+                                      });
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete, color: MyColors.blueJournal),
+                                    onPressed: () {
+                                      setState(() {
+                                        selectedStudentId = student.id;
+                                        showDeleteStudentDialog = true;
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ),
                 Expanded(
                   child: displayedGroups.isEmpty
                       ? const Center(
@@ -230,73 +319,77 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
                                     final studentIndex = entry.key;
                                     final student = entry.value;
 
-                                    return Container(
-                                      height: 55,
-                                      margin: const EdgeInsets.symmetric(
-                                          vertical: 6, horizontal: 8),
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 6),
-                                      decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(22.0),
-                                        border: Border.all(
-                                          color: Colors.grey.shade300,
-                                          width: 1.4,
-                                        ),
-                                        color: Colors.white,
-                                      ),
-                                      child: ListTile(
-                                        title: Text(student.username),
-                                        trailing: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            if (student.isHeadman ?? false)
-                                              Text(
-                                                'Отмечен как староста',
-                                                style: TextStyle(
-                                                    fontSize: 15,
-                                                    color:
-                                                        Colors.grey.shade700),
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                                      child: Row(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            '${studentIndex + 1}.',
+                                            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                                          ),
+                                          const SizedBox(width: 15),
+                                          Expanded(
+                                            child: Container(
+                                              height: 55,
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(22.0),
+                                                border: Border.all(
+                                                  color: Colors.grey.shade300,
+                                                  width: 1.4,
+                                                ),
+                                                color: Colors.white,
                                               ),
-                                            const SizedBox(width: 20),
-                                            IconButton(
-                                              icon: const Icon(Icons.edit,
-                                                  color: MyColors.blueJournal),
-                                              onPressed: () {
-                                                setState(() {
-                                                  selectedGroupIndex = index;
-                                                  selectedStudentIndex =
-                                                      studentIndex;
-                                                  selectedStudentId =
-                                                      student.id;
-                                                  selectedGroup = GroupSimple(
-                                                    id: group.id,
-                                                    name: group.name,
-                                                  );
-                                                  showEditStudentDialog = true;
-                                                  isHeadman = student.isHeadman;
-                                                  usernameController.text =
-                                                      student.username;
-                                                });
-                                              },
+                                              child: ListTile(
+                                                title: Text(student.username),
+                                                trailing: Row(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    if (student.isHeadman ?? false)
+                                                      Text(
+                                                        'Отмечен как староста',
+                                                        style: TextStyle(
+                                                          fontSize: 15,
+                                                          color: Colors.grey.shade700,
+                                                        ),
+                                                      ),
+                                                    const SizedBox(width: 20),
+                                                    IconButton(
+                                                      icon: const Icon(Icons.edit,
+                                                          color: MyColors.blueJournal),
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          selectedGroupIndex = index;
+                                                          selectedStudentIndex = studentIndex;
+                                                          selectedStudentId = student.id;
+                                                          selectedGroup = GroupSimple(
+                                                            id: group.id,
+                                                            name: group.name,
+                                                          );
+                                                          showEditStudentDialog = true;
+                                                          isHeadman = student.isHeadman;
+                                                          usernameController.text = student.username;
+                                                        });
+                                                      },
+                                                    ),
+                                                    IconButton(
+                                                      icon: const Icon(Icons.delete,
+                                                          color: MyColors.blueJournal),
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          selectedGroupIndex = index;
+                                                          selectedStudentIndex = studentIndex;
+                                                          selectedStudentId = student.id;
+                                                          showDeleteStudentDialog = true;
+                                                        });
+                                                      },
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
                                             ),
-                                            IconButton(
-                                              icon: const Icon(Icons.delete,
-                                                  color: MyColors.blueJournal),
-                                              onPressed: () {
-                                                setState(() {
-                                                  selectedGroupIndex = index;
-                                                  selectedStudentIndex =
-                                                      studentIndex;
-                                                  selectedStudentId =
-                                                      student.id;
-                                                  showDeleteStudentDialog =
-                                                      true;
-                                                });
-                                              },
-                                            ),
-                                          ],
-                                        ),
+                                          ),
+                                        ],
                                       ),
                                     );
                                   }).toList(),
@@ -896,7 +989,7 @@ class _GroupsExpandableListState extends State<GroupsExpandableList> {
                                   Transform.scale(
                                     scale: 1.5,
                                     child: Checkbox(
-                                      value: isHeadman,
+                                      value: isHeadman ?? false,
                                       onChanged: (bool? newValue) {
                                         setState(() {
                                           isHeadman = newValue;

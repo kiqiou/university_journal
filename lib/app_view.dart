@@ -1,12 +1,9 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/bloc/auth/authentication_bloc.dart';
 import 'package:university_journal/screens/admin_1/views/admin_1_home_screen.dart';
 import 'package:university_journal/screens/admin_2/views/admin_2_home_screen.dart';
 import 'package:university_journal/screens/auth/views/sign_in_screen.dart';
-import 'package:university_journal/screens/auth/views/sign_up_screen.dart';
 import 'package:university_journal/screens/dean/view/main_screen.dart';
 import 'package:university_journal/screens/student/view/main_screen.dart';
 import 'package:university_journal/screens/teacher/views/main_screen.dart';
