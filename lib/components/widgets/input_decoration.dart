@@ -7,19 +7,19 @@ InputDecoration inputDecoration(String hint) {
     hintText: hint,
     hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
     filled: true,
-    fillColor: const Color(0xFFF3F4F6),
+    fillColor: Colors.white,
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(11),
-      borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
+      borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(11),
-      borderSide: const BorderSide(color: Color(0xFF4068EA), width: 1.2),
+      borderSide: const BorderSide(color: Color(0xFF4068EA), width: 1.5),
     ),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(11),
-      borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
+      borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
     ),
   );
 }
