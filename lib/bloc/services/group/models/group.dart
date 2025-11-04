@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 
 import '../../user/models/user.dart';
 
-class Group extends Equatable{
+class Group extends Equatable {
   final int id;
   final String name;
   final int facultyId;
@@ -11,7 +11,7 @@ class Group extends Equatable{
   final String courseName;
   final List<MyUser> students;
 
-  Group({
+  const Group({
     required this.id,
     required this.name,
     required this.facultyId,
@@ -32,6 +32,26 @@ class Group extends Equatable{
       students: (json['students'] as List)
           .map((e) => MyUser.fromGroupJson(e))
           .toList(),
+    );
+  }
+
+  @override
+  List<Object?> get props => [id];
+}
+
+class GroupSimple extends Equatable {
+  final int id;
+  final String name;
+
+  const GroupSimple({
+    required this.id,
+    required this.name,
+  });
+
+  factory GroupSimple.fromJson(Map<String, dynamic> json) {
+    return GroupSimple(
+      id: json['id'],
+      name: json['name'],
     );
   }
 

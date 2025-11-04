@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:university_journal/components/widgets/button.dart';
+import 'package:university_journal/components/widgets/cancel_button.dart';
 import 'dart:math';
 
 import '../../../../components/colors/colors.dart';
@@ -7,7 +9,7 @@ import '../../../bloc/services/user/user_repository.dart';
 
 class AddStudentDialog extends StatefulWidget {
   final VoidCallback onStudentAdded;
-  final List<Group> groups;
+  final List<GroupSimple> groups;
   final void Function(String studentName, String? group) onSave;
 
   const AddStudentDialog({
@@ -22,7 +24,7 @@ class AddStudentDialog extends StatefulWidget {
 
 class _AddStudentDialogState extends State<AddStudentDialog> {
   final _formKey = GlobalKey<FormState>();
-  Group? selectedGroup;
+  GroupSimple? selectedGroup;
   String? fio;
   String? group;
   bool isHeadman = false;
@@ -65,72 +67,39 @@ class _AddStudentDialogState extends State<AddStudentDialog> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // --- Шапка ---
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Expanded(
                           child: Text(
                             'Создание студента',
-                            style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+                            style: TextStyle(fontSize: 18, color: Colors.grey.shade700),
                           ),
                         ),
-                        SizedBox(
-                          height: 48,
-                          child: Row(
-                            children: [
-                              ElevatedButton(
-                                onPressed: () async {
-                                  if (_formKey.currentState!.validate()) {
-                                    _formKey.currentState!.save();
-                                    final authRepository = UserRepository();
+                        Row(children: [
+                          MyButton(onChange: () async {
+                            if (_formKey.currentState!.validate()) {
+                              _formKey.currentState!.save();
+                              final authRepository = UserRepository();
 
-                                    await authRepository.signUp(
-                                      username: fio ?? '',
-                                      password: '123456',
-                                      roleId: 5,
-                                      groupId: selectedGroup?.id,
-                                      isHeadman: isHeadman,
-                                    );
-                                    widget.onSave(fio ?? '', group);
-                                    widget.onStudentAdded();
-                                    Navigator.of(context).pop();
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF4068EA),
-                                  foregroundColor: Colors.white,
-                                  elevation: 0,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 0),
-                                  minimumSize: const Size(160, 55),
-                                  textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                                ),
-                                child: const Text('Сохранить'),
-                              ),
-                              const SizedBox(width: 12),
-                              Container(
-                                width: 48,
-                                height: 48,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF4068EA),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: IconButton(
-                                  icon: const Icon(Icons.close, size: 28, color: Colors.white),
-                                  splashRadius: 24,
-                                  onPressed: () => Navigator.of(context).pop(),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                              await authRepository.signUp(
+                                username: fio ?? '',
+                                password: '123456',
+                                roleId: 5,
+                                groupId: selectedGroup?.id,
+                                isHeadman: isHeadman,
+                              );
+                              widget.onSave(fio ?? '', group);
+                              widget.onStudentAdded();
+                              Navigator.of(context).pop();
+                            }
+                          }, buttonName: 'Сохранить'),
+                          SizedBox(width: 12,),
+                          CancelButton(onPressed:  () => Navigator.of(context).pop(),),
+                        ],),
                       ],
                     ),
                     const SizedBox(height: 25),
-                    // --- Форма ---
                     Expanded(
                       child: SingleChildScrollView(
                         child: Form(
@@ -138,7 +107,6 @@ class _AddStudentDialogState extends State<AddStudentDialog> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Поле ФИО студента*
                               Text(
                                 'ФИО студента*',
                                 style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
@@ -175,9 +143,9 @@ class _AddStudentDialogState extends State<AddStudentDialog> {
                                 style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
                               ),
                               const SizedBox(height: 18),
-                              DropdownButtonFormField<Group>(
+                              DropdownButtonFormField<GroupSimple>(
                                 items: widget.groups
-                                    .map((group) => DropdownMenuItem<Group>(
+                                    .map((group) => DropdownMenuItem<GroupSimple>(
                                   value: group,
                                   child: Text(group.name),
                                 ))
@@ -202,7 +170,7 @@ class _AddStudentDialogState extends State<AddStudentDialog> {
                                   ),
                                 ),
                                 value: selectedGroup,
-                                onChanged: (Group? value) {
+                                onChanged: (GroupSimple? value) {
                                   setState(() {
                                     selectedGroup = value!;
                                   });
