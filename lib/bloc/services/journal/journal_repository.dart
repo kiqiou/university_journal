@@ -183,7 +183,7 @@ class JournalRepository {
     required int sessionId,
   }) async {
     try {
-      final response = await http.post(
+      final response = await http.delete(
         Uri.parse('$baseUrl/session/api/delete_session/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',

@@ -7,13 +7,12 @@ import 'models/discipline.dart';
 class DisciplineRepository{
   Future<List<Discipline>?> getDisciplinesList() async {
     try {
-      final response = await http.post(
+      final response = await http.get(
         Uri.parse('$baseUrl/discipline/api/get_disciplines_list/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
         },
-        body: jsonEncode({}),
       );
 
       final data = jsonDecode(utf8.decode(response.bodyBytes));
@@ -120,7 +119,7 @@ class DisciplineRepository{
     required int courseId,
   }) async {
     try {
-      final response = await http.post(
+      final response = await http.delete(
         Uri.parse('$baseUrl/discipline/api/delete_course/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',

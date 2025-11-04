@@ -42,7 +42,7 @@ class USRRepository {
     required String? result,
   }) async {
     try {
-      final response = await http.post(
+      final response = await http.put(
         Uri.parse('${_baseUrl}update_attestation/'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -99,7 +99,7 @@ class USRRepository {
     required int grade,
   }) async {
     try {
-      final response = await http.post(
+      final response = await http.put(
         Uri.parse('${_baseUrl}update_usr/'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
@@ -128,7 +128,7 @@ class USRRepository {
       int position,
   ) async {
     try {
-      final response = await http.post(
+      final response = await http.delete(
         Uri.parse('${_baseUrl}delete_usr/'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({

@@ -189,13 +189,12 @@ class UserRepository {
 
   Future<List<MyUser>?> getTeacherList() async {
     try {
-      final response = await http.post(
+      final response = await http.get(
         Uri.parse('$baseUrl/user/api/get_teacher_list/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
         },
-        body: jsonEncode({}),
       );
 
       final data = jsonDecode(utf8.decode(response.bodyBytes));
@@ -339,7 +338,7 @@ class UserRepository {
     required int userId,
   }) async {
     try {
-      final response = await http.post(
+      final response = await http.delete(
         Uri.parse('$baseUrl/user/api/delete_user/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',

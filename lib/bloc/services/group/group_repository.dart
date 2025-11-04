@@ -30,14 +30,10 @@ class GroupRepository {
     }
   }
 
-  Future<List<GroupSimple>?> getGroupsSimpleList({
-    List<String>? faculties,
-    List<int>? courses,
-  }) async {
-    final response = await http.post(
+  Future<List<GroupSimple>?> getGroupsSimpleList() async {
+    final response = await http.get(
       Uri.parse('$baseUrl/group/api/get_groups_simple_list/'),
       headers: {'Content-Type': 'application/json; charset=utf-8'},
-      body: jsonEncode({'faculties': faculties, 'courses': courses}),
     );
 
     if (response.statusCode == 200) {
@@ -124,7 +120,7 @@ class GroupRepository {
     required int groupId,
   }) async {
     try {
-      final response = await http.post(
+      final response = await http.delete(
         Uri.parse('$baseUrl/group/api/delete_group/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',

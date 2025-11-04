@@ -397,13 +397,27 @@ class JournalDataSource extends DataGridSource {
   }
 }
 
+DateTime parseDate(String dateStr) {
+  //формат "dd.MM.yyyy"
+  final parts = dateStr.split('.');
+  final day = int.parse(parts[0]);
+  final month = int.parse(parts[1]);
+  final year = int.parse(parts[2]);
+  return DateTime(year, month, day);
+}
+
 List<String> extractUniqueDateTypes(List<Session> sessions) {
   final Set<String> dateTypes = {};
 
   for (var session in sessions) {
     dateTypes.add('${session.date} ${session.type} ${session.id}');
   }
-  final sorted = dateTypes.toList()..sort((a, b) => a.compareTo(b));
+  final sorted = dateTypes.toList()
+    ..sort((a, b) {
+      final dateA = parseDate(a.split(' ')[0]);
+      final dateB = parseDate(b.split(' ')[0]);
+      return dateA.compareTo(dateB);
+    });
 
   return sorted;
 }
