@@ -43,7 +43,7 @@ class UserRepository {
             ),
           );
         }
-      } else if (roleId == 5 && groupId != null) {
+      } else if (roleId == 5) {
         request.fields['group_id'] = groupId.toString();
         log('➡️ Перед обновлением isHeadman = $isHeadman');
         request.fields['isHeadman'] = isHeadman ?? false ? '1' : '0';
