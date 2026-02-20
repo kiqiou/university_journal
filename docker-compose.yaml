@@ -1,0 +1,14 @@
+services:
+
+  frontend:
+    image: ghcr.io/cirruslabs/flutter:latest
+    container_name: frontend-university
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../frontend:/app
+      - ../frontend/.env:/app/.env
+    working_dir: /app
+    environment:
+      BASE_URL: ${BASE_URL}
+    command: flutter run -d web-server --web-port=3000 --web-hostname=0.0.0.0
