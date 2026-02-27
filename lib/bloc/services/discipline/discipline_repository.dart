@@ -1,18 +1,18 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
+import '../base_url.dart';
 import 'models/discipline.dart';
 
 class DisciplineRepository{
   Future<List<Discipline>?> getDisciplinesList() async {
     try {
-      final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/api/get_courses_list/'),
+      final response = await http.get(
+        Uri.parse('$baseUrl/discipline/api/get_disciplines_list/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
         },
-        body: jsonEncode({}),
       );
 
       final data = jsonDecode(utf8.decode(response.bodyBytes));
@@ -34,11 +34,12 @@ class DisciplineRepository{
     required List<int> teacherIds,
     required List<int> groupIds,
     required bool isGroupSplit,
+    required String attestationType,
     required List<Map<String, dynamic>> planItems,
   }) async {
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/api/add_course/'),
+        Uri.parse('$baseUrl/discipline/api/add_course/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
@@ -49,6 +50,7 @@ class DisciplineRepository{
           'groups': groupIds,
           'is_group_split': isGroupSplit,
           'plan_items': planItems,
+          'attestation_type': attestationType,
         }),
       );
 
@@ -72,8 +74,9 @@ class DisciplineRepository{
     List<int>? teacherIds,
     List<int>? groupIds,
     bool? isGroupSplit,
+    String? attestationType,
     required bool appendTeachers,
-    List<Map<String, dynamic>>? planItems, // nullable
+    List<Map<String, dynamic>>? planItems,
   }) async {
     try {
       final Map<String, dynamic> body = {
@@ -86,9 +89,10 @@ class DisciplineRepository{
       if (teacherIds != null) body['teachers'] = teacherIds;
       if (groupIds != null) body['groups'] = groupIds;
       if (planItems != null) body['plan_items'] = planItems;
+      if(attestationType != null) body['attestation_type'] = attestationType;
 
       final response = await http.put(
-        Uri.parse('http://127.0.0.1:8000/api/update_course/'),
+        Uri.parse('$baseUrl/discipline/api/update_course/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
@@ -115,8 +119,8 @@ class DisciplineRepository{
     required int courseId,
   }) async {
     try {
-      final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/api/delete_course/'),
+      final response = await http.delete(
+        Uri.parse('$baseUrl/discipline/api/delete_course/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',

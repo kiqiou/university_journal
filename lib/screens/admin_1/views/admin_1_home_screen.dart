@@ -28,7 +28,7 @@ class _Admin1MainScreenState extends State<Admin1MainScreen> {
   Admin1ContentScreen currentScreen = Admin1ContentScreen.teachers;
   List<MyUser> teachers = [];
   List<Discipline> disciplines = [];
-  List<Group> groups = [];
+  List<SimpleGroup> groups = [];
   bool isLoading = true;
   bool isMenuExpanded = false;
 
@@ -37,7 +37,7 @@ class _Admin1MainScreenState extends State<Admin1MainScreen> {
     super.initState();
     loadTeachers();
     loadDisciplines();
-    loadGroups();
+    loadGroupsSimple();
   }
 
   void _showTeachersList() {
@@ -52,16 +52,16 @@ class _Admin1MainScreenState extends State<Admin1MainScreen> {
     });
   }
 
-  Future<void> loadGroups() async {
+  Future<void> loadGroupsSimple () async {
     try {
-      final list = await groupRepository.getGroupsList();
+      final list = await groupRepository.getGroupsSimpleList();
       setState(() {
-        groups = list!;
+        groups = list ?? [];
         isLoading = false;
       });
     } catch (e) {
       print("Ошибка при загрузке групп: $e");
-      isLoading = false;
+      setState(() => isLoading = false);
     }
   }
 
@@ -132,7 +132,7 @@ class _Admin1MainScreenState extends State<Admin1MainScreen> {
                           loadDisciplines: loadDisciplines,
                         );
                       case Admin1ContentScreen.courses:
-                        return CoursesList(
+                        return DisciplinesList(
                           loadCourses: loadDisciplines,
                           disciplines: disciplines,
                           groups: groups,

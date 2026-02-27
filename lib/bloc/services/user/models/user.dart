@@ -1,17 +1,20 @@
 import 'package:equatable/equatable.dart';
+import '../../base_url.dart';
 import '../../discipline/models/discipline.dart';
+import '../../group/models/group.dart';
 
 class MyUser extends Equatable {
   final int id;
   final String username;
+  final String? firstName;
+  final String? lastName;
+  final String? middleName;
   final String role;
   final String? bio;
   final String? position;
   final bool? isHeadman;
-  final int? groupId;
-  final String? groupName;
-  final String? facultyName;
-  final String? disciplineName;
+  final int? subGroup;
+  final SimpleGroup? group;
   final String? photoUrl;
   final List<Discipline> disciplines;
 
@@ -19,13 +22,14 @@ class MyUser extends Equatable {
     required this.id,
     required this.username,
     required this.role,
+    this.firstName,
+    this.lastName,
+    this.middleName,
     this.bio,
     this.position,
     this.isHeadman,
-    this.groupId,
-    this.groupName,
-    this.facultyName,
-    this.disciplineName,
+    this.group,
+    this.subGroup,
     this.photoUrl,
     this.disciplines = const [],
   });
@@ -34,38 +38,42 @@ class MyUser extends Equatable {
     return MyUser(
       id: json['id'],
       username: json['username'],
+      subGroup: json['subGroup'],
       role: 'Студент',
+      isHeadman: json['isHeadman'],
     );
   }
 
   factory MyUser.fromJson(Map<String, dynamic> json) {
     final data = json.containsKey('user') ? json['user'] : json;
+
     String? bio;
     String? position;
     bool? isHeadman;
-    int? groupId;
-    String? groupName;
+    int? subGroup;
     String? photoUrl;
-    String? facultyName;
-    String? courseName;
+    SimpleGroup? group;
 
     if (data['teacher_profile'] != null) {
-      bio = data['teacher_profile']['bio'];
-      position = data['teacher_profile']['position'];
-      photoUrl = data['teacher_profile']?['photo'] != null
-          ? 'http://127.0.0.1:8000${data['teacher_profile']['photo']}'
-          : null;
+      final teacher = data['teacher_profile'];
+
+      bio = teacher['bio'];
+      position = teacher['position'];
+
+      if (teacher['photo'] != null) {
+        photoUrl = baseUrl + teacher['photo'];
+      }
     }
 
-    if (data['group'] != null) {
-      groupId = data['group']['id'];
-      groupName = data['group']['name'];
-      facultyName = data['group']['faculty']['name'];
-      courseName = data['group']['course']['name'];
-    }
+    if (data['student_profile'] != null) {
+      final student = data['student_profile'];
 
-    if(data['isHeadman'] != null){
-      isHeadman = data['isHeadman'];
+      isHeadman = student['isHeadman'];
+      subGroup = student['subGroup'];
+
+      if (student['group'] != null) {
+        group = SimpleGroup.fromJson(student['group']);
+      }
     }
 
     List<Discipline> courses = [];
@@ -76,17 +84,18 @@ class MyUser extends Equatable {
     }
 
     return MyUser(
-      id: data['id'] ?? '',
+      id: data['id'],
       username: data['username'] ?? '',
-      role: data['role']['role'] ?? '',
+      role: data['role']?['role'] ?? '',
+      firstName: data['first_name'],
+      lastName: data['last_name'],
+      middleName: data['middle_name'],
       disciplines: courses,
       bio: bio,
       position: position,
       isHeadman: isHeadman,
-      groupId: groupId,
-      groupName: groupName,
-      facultyName: facultyName,
-      disciplineName: courseName,
+      group: group,
+      subGroup: subGroup,
       photoUrl: photoUrl,
     );
   }

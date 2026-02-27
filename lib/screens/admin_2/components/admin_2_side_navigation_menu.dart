@@ -5,16 +5,14 @@ import 'package:university_journal/bloc/auth/authentication_bloc.dart';
 import 'package:university_journal/components/widgets/icon_container.dart';
 import '../../../bloc/services/group/models/group.dart';
 import '../../../bloc/services/user/models/user.dart';
-import 'add_student.dart';
+import 'add_or_edit_student.dart';
 import 'add_group.dart';
 
 class Admin2SideNavigationMenu extends StatefulWidget {
   final Future<void> Function() onStudentAdded;
   final Future<void> Function() onGroupAdded;
   final VoidCallback onToggle;
-  final VoidCallback onStudentsListTap;
-  final VoidCallback onGroupsListTap;
-  final List<Group> groups;
+  final List<SimpleGroup> groups;
   final List<MyUser> students;
   final bool isExpanded;
 
@@ -22,8 +20,6 @@ class Admin2SideNavigationMenu extends StatefulWidget {
     super.key,
     required this.onStudentAdded,
     required this.onGroupAdded,
-    required this.onStudentsListTap,
-    required this.onGroupsListTap,
     required this.groups,
     required this.students,
     required this.onToggle,
@@ -42,15 +38,13 @@ class _Admin2SideNavigationMenuState extends State<Admin2SideNavigationMenu> {
   int? selectedIndex;
 
   final List<IconData> _icons = [
-    Icons.person_outline,
     Icons.groups_outlined,
     Icons.add_circle_outline,
     Icons.add_circle_outline,
   ];
 
   final List<String> _texts = [
-    'Список студентов',
-    'Список групп',
+    'Список групп и студентов',
     'Добавить студента',
     'Добавить группу',
   ];
@@ -58,18 +52,13 @@ class _Admin2SideNavigationMenuState extends State<Admin2SideNavigationMenu> {
   @override
   Widget build(BuildContext context) {
     final List<VoidCallback> functions = [
-      widget.onStudentsListTap,
-      widget.onGroupsListTap,
+      () {},
       () {
         showDialog(
           context: context,
-          builder: (context) => AddStudentDialog(
-            onStudentAdded: widget.onStudentAdded,
-            onSave: (
-              String studentName,
-              String? group,
-            ) {},
-            groups: widget.groups,
+          builder: (context) => AddAndEditStudentDialog(
+            onSuccess: widget.onStudentAdded,
+            groups: widget.groups, isEdit: false,
           ),
         );
       },
@@ -85,26 +74,27 @@ class _Admin2SideNavigationMenuState extends State<Admin2SideNavigationMenu> {
     ];
 
     return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      child: TweenAnimationBuilder<double>(
-        tween: Tween<double>(
-          begin: widget.isExpanded ? _collapsedWidth : _expandedWidth,
-          end: widget.isExpanded ? _expandedWidth : _collapsedWidth,
-        ),
-        duration: const Duration(milliseconds: 300),
-        builder: (context, width, child) {
-          return Container(
-            width: width,
-            color: Colors.grey.shade300,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: widget.isExpanded
-                      ? const Expanded(
-                          child: Column(
+      behavior: HitTestBehavior.translucent,
+      child: Stack(
+        children: [
+          TweenAnimationBuilder<double>(
+            tween: Tween<double>(
+              begin: widget.isExpanded ? _collapsedWidth : _expandedWidth,
+              end: widget.isExpanded ? _expandedWidth : _collapsedWidth,
+            ),
+            duration: const Duration(milliseconds: 300),
+            builder: (context, width, child) {
+              return Container(
+                width: width,
+                color: Colors.grey.shade300,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: widget.isExpanded
+                          ? Column(
                             children: [
                               Padding(
                                 padding: EdgeInsets.only(left: 16.0),
@@ -122,106 +112,107 @@ class _Admin2SideNavigationMenuState extends State<Admin2SideNavigationMenu> {
                                 ),
                               ),
                             ],
-                          ),
-                        )
-                      : const SizedBox(),
-                ),
-                Expanded(
-                  child: Column(
-                    children: [
-                      if (!widget.isExpanded)
-                        InkWell(
-                          onTap: () {
-                            widget.onToggle();
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 4.0, vertical: 4.0),
-                            child: MyIconContainer(
-                              icon: Icons.menu,
-                              width: (widget.isExpanded ? 250 : 50),
-                            ),
-                          ),
-                        ),
-                      const SizedBox(height: 20),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                        child: widget.isExpanded
-                            ? const Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  'Панель навигации',
-                                  style: TextStyle(
-                                      color: Colors.grey, fontSize: 16),
-                                ),
-                              )
-                            : const Divider(
-                                height: 1,
-                                color: Colors.grey,
-                              ),
-                      ),
-                      const SizedBox(height: 20),
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: _icons.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return Center(
+                          )
+                          : const SizedBox(),
+                    ),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          if (!widget.isExpanded)
+                            InkWell(
+                              onTap: () {
+                                widget.onToggle();
+                              },
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 15.0, vertical: 4.0),
-                                child: InkWell(
-                                  onTap: () {
-                                    functions[index]();
-                                    if (index < 2) {
-                                      setState(() {
-                                        selectedIndex = index;
-                                      });
-                                    }
-                                  },
-                                  child: MyIconContainer(
-                                    icon: _icons[index],
-                                    width: (widget.isExpanded ? 250 : 50),
-                                    text: _texts[index],
-                                    withText: widget.isExpanded,
-                                    isSelected: selectedIndex == index,
-                                  ),
+                                    horizontal: 4.0, vertical: 4.0),
+                                child: MyIconContainer(
+                                  icon: Icons.menu,
+                                  width: (widget.isExpanded ? 250 : 50),
                                 ),
                               ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 15.0, vertical: 50.0),
-                    child: InkWell(
-                      onHover: (hovering) {
-                        setState(() {
-                          isHovered = hovering;
-                        });
-                      },
-                      onTap: () {
-                        context
-                            .read<AuthenticationBloc>()
-                            .add(AuthenticationLogoutRequested());
-                        log('➡️ Состояние: ${context.read<AuthenticationBloc>().state}');
-                      },
-                      child: MyIconContainer(
-                        borderRadius: 100,
-                        icon: Icons.arrow_back,
-                        width: (widget.isExpanded ? 250 : 50),
+                            ),
+                          const SizedBox(height: 20),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                            child: widget.isExpanded
+                                ? const Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      'Панель навигации',
+                                      style: TextStyle(
+                                          color: Colors.grey, fontSize: 16),
+                                    ),
+                                  )
+                                : const Divider(
+                                    height: 1,
+                                    color: Colors.grey,
+                                  ),
+                          ),
+                          const SizedBox(height: 20),
+                          Expanded(
+                            child: ListView.builder(
+                              itemCount: _icons.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 15.0, vertical: 4.0),
+                                    child: InkWell(
+                                      onTap: () {
+                                        functions[index]();
+                                        if (index < 2) {
+                                          setState(() {
+                                            selectedIndex = index;
+                                          });
+                                        }
+                                      },
+                                      child: MyIconContainer(
+                                        icon: _icons[index],
+                                        width: (widget.isExpanded ? 250 : 50),
+                                        text: _texts[index],
+                                        withText: widget.isExpanded,
+                                        isSelected: selectedIndex == index,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 15.0, vertical: 50.0),
+                        child: InkWell(
+                          onHover: (hovering) {
+                            setState(() {
+                              isHovered = hovering;
+                            });
+                          },
+                          onTap: () {
+                            context
+                                .read<AuthenticationBloc>()
+                                .add(AuthenticationLogoutRequested());
+                            log('➡️ Состояние: ${context.read<AuthenticationBloc>().state}');
+                          },
+                          child: MyIconContainer(
+                            borderRadius: 100,
+                            icon: Icons.arrow_back,
+                            width: (widget.isExpanded ? 250 : 50),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          );
-        },
+              );
+            },
+          ),
+        ],
       ),
     );
   }

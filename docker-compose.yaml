@@ -1,0 +1,15 @@
+services:
+  frontend:
+    image: ghcr.io/cirruslabs/flutter:latest
+    container_name: frontend-university
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../frontend:/app
+    working_dir: /app
+    command: >
+      sh -c "
+      flutter pub get &&
+      flutter build web &&
+      python3 -m http.server 3000 --directory build/web
+      "

@@ -7,7 +7,7 @@ import 'package:university_journal/components/widgets/icon_container.dart';
 import '../../../bloc/services/group/models/group.dart';
 import '../../../bloc/services/user/models/user.dart';
 import 'add_discipline.dart';
-import 'add_teacher.dart';
+import 'add_or_edit_teacher.dart';
 
 class Admin1SideNavigationMenu extends StatefulWidget {
   final Future<void> Function() onTeacherAdded;
@@ -15,7 +15,7 @@ class Admin1SideNavigationMenu extends StatefulWidget {
   final VoidCallback onToggle;
   final VoidCallback onTeacherListTap;
   final VoidCallback onCoursesListTap;
-  final List<Group> groups;
+  final List<SimpleGroup> groups;
   final List<MyUser> teachers;
   final bool isExpanded;
 
@@ -65,13 +65,13 @@ class _Admin1SideNavigationMenuState extends State<Admin1SideNavigationMenu> {
         showDialog(
           context: context,
           builder: (context) =>
-              AddTeacherDialog(onTeacherAdded: widget.onTeacherAdded),
+              AddAndEditTeacherDialog(onSuccess: widget.onTeacherAdded, isEdit: false,),
         );
       },
       () {
         showDialog(
           context: context,
-          builder: (context) => AddCourseDialog(
+          builder: (context) => AddDisciplineDialog(
             onCourseAdded: () => widget.onCourseAdded(),
             teachers: widget.teachers.toList(),
             groups: widget.groups.toList(),
@@ -81,26 +81,27 @@ class _Admin1SideNavigationMenuState extends State<Admin1SideNavigationMenu> {
     ];
 
     return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      child: TweenAnimationBuilder<double>(
-        tween: Tween<double>(
-          begin: widget.isExpanded ? _collapsedWidth : _expandedWidth,
-          end: widget.isExpanded ? _expandedWidth : _collapsedWidth,
-        ),
-        duration: const Duration(milliseconds: 300),
-        builder: (context, width, child) {
-          return Container(
-            width: width,
-            color: Colors.grey.shade300,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: widget.isExpanded
-                      ? const Expanded(
-                          child: Column(
+      behavior: HitTestBehavior.translucent,
+      child: Stack(
+        children: [
+          TweenAnimationBuilder<double>(
+            tween: Tween<double>(
+              begin: widget.isExpanded ? _collapsedWidth : _expandedWidth,
+              end: widget.isExpanded ? _expandedWidth : _collapsedWidth,
+            ),
+            duration: const Duration(milliseconds: 300),
+            builder: (context, width, child) {
+              return Container(
+                width: width,
+                color: Colors.grey.shade300,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: widget.isExpanded
+                          ? Column(
                             children: [
                               Padding(
                                 padding: EdgeInsets.only(left: 16.0),
@@ -118,106 +119,107 @@ class _Admin1SideNavigationMenuState extends State<Admin1SideNavigationMenu> {
                                 ),
                               ),
                             ],
-                          ),
-                        )
-                      : const SizedBox(),
-                ),
-                Expanded(
-                  child: Column(
-                    children: [
-                      if (!widget.isExpanded)
-                        InkWell(
-                          onTap: () {
-                            widget.onToggle();
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 4.0, vertical: 4.0),
-                            child: MyIconContainer(
-                              icon: Icons.menu,
-                              width: (widget.isExpanded ? 250 : 50),
-                            ),
-                          ),
-                        ),
-                      const SizedBox(height: 20),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                        child: widget.isExpanded
-                            ? const Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  'Панель навигации',
-                                  style: TextStyle(
-                                      color: Colors.grey, fontSize: 16),
-                                ),
-                              )
-                            : const Divider(
-                                height: 1,
-                                color: Colors.grey,
-                              ),
-                      ),
-                      const SizedBox(height: 20),
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: _icons.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return Center(
+                          )
+                          : const SizedBox(),
+                    ),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          if (!widget.isExpanded)
+                            InkWell(
+                              onTap: () {
+                                widget.onToggle();
+                              },
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 15.0, vertical: 4.0),
-                                child: InkWell(
-                                  onTap: () {
-                                    functions[index]();
-                                    if (index < 2) {
-                                      setState(() {
-                                        selectedIndex = index;
-                                      });
-                                    }
-                                  },
-                                  child: MyIconContainer(
-                                    icon: _icons[index],
-                                    width: (widget.isExpanded ? 250 : 50),
-                                    text: _texts[index],
-                                    withText: widget.isExpanded,
-                                    isSelected: selectedIndex == index,
-                                  ),
+                                    horizontal: 4.0, vertical: 4.0),
+                                child: MyIconContainer(
+                                  icon: Icons.menu,
+                                  width: (widget.isExpanded ? 250 : 50),
                                 ),
                               ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 15.0, vertical: 50.0),
-                    child: InkWell(
-                      onHover: (hovering) {
-                        setState(() {
-                          isHovered = hovering;
-                        });
-                      },
-                      onTap: () {
-                        context
-                            .read<AuthenticationBloc>()
-                            .add(AuthenticationLogoutRequested());
-                        log('➡️ Состояние: ${context.read<AuthenticationBloc>().state}');
-                      },
-                      child: MyIconContainer(
-                        borderRadius: 100,
-                        icon: Icons.arrow_back,
-                        width: (widget.isExpanded ? 250 : 50),
+                            ),
+                          const SizedBox(height: 20),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                            child: widget.isExpanded
+                                ? const Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      'Панель навигации',
+                                      style: TextStyle(
+                                          color: Colors.grey, fontSize: 16),
+                                    ),
+                                  )
+                                : const Divider(
+                                    height: 1,
+                                    color: Colors.grey,
+                                  ),
+                          ),
+                          const SizedBox(height: 20),
+                          Expanded(
+                            child: ListView.builder(
+                              itemCount: _icons.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 15.0, vertical: 4.0),
+                                    child: InkWell(
+                                      onTap: () {
+                                        functions[index]();
+                                        if (index < 2) {
+                                          setState(() {
+                                            selectedIndex = index;
+                                          });
+                                        }
+                                      },
+                                      child: MyIconContainer(
+                                        icon: _icons[index],
+                                        width: (widget.isExpanded ? 250 : 50),
+                                        text: _texts[index],
+                                        withText: widget.isExpanded,
+                                        isSelected: selectedIndex == index,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 15.0, vertical: 50.0),
+                        child: InkWell(
+                          onHover: (hovering) {
+                            setState(() {
+                              isHovered = hovering;
+                            });
+                          },
+                          onTap: () {
+                            context
+                                .read<AuthenticationBloc>()
+                                .add(AuthenticationLogoutRequested());
+                            log('➡️ Состояние: ${context.read<AuthenticationBloc>().state}');
+                          },
+                          child: MyIconContainer(
+                            borderRadius: 100,
+                            icon: Icons.arrow_back,
+                            width: (widget.isExpanded ? 250 : 50),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          );
-        },
+              );
+            },
+          ),
+        ],
       ),
     );
   }
