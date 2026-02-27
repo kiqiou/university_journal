@@ -14,7 +14,7 @@ import '../../../bloc/services/user/models/user.dart';
 
 class AddDisciplineDialog extends StatefulWidget {
   final VoidCallback onCourseAdded;
-  final List<GroupSimple> groups;
+  final List<SimpleGroup> groups;
   final List<MyUser> teachers;
 
   const AddDisciplineDialog({
@@ -36,7 +36,7 @@ class _AddDisciplineDialogState extends State<AddDisciplineDialog> {
   final Map<String, TextEditingController> hoursControllers = {};
   final List<Discipline> disciplines = [];
   List<MyUser> selectedTeachers = [];
-  List<GroupSimple> selectedGroups = [];
+  List<SimpleGroup> selectedGroups = [];
   List<MyUser> selectedTeachers2 = [];
   List<String> selectedTypes = [];
   List<String> selectedLessonTypes = [];
@@ -525,7 +525,7 @@ class _AddDisciplineDialogState extends State<AddDisciplineDialog> {
                               GestureDetector(
                                 onTap: () async {
                                   final selected =
-                                      await showDialog<List<GroupSimple>>(
+                                      await showDialog<List<SimpleGroup>>(
                                     context: context,
                                     builder: (_) => MultiSelectDialog(
                                       items: widget.groups,

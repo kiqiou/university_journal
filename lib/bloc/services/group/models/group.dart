@@ -39,17 +39,17 @@ class Group extends Equatable {
   List<Object?> get props => [id];
 }
 
-class GroupSimple extends Equatable {
+class SimpleGroup extends Equatable {
   final int id;
   final String name;
 
-  const GroupSimple({
+  const SimpleGroup({
     required this.id,
     required this.name,
   });
 
-  factory GroupSimple.fromJson(Map<String, dynamic> json) {
-    return GroupSimple(
+  factory SimpleGroup.fromJson(Map<String, dynamic> json) {
+    return SimpleGroup(
       id: json['id'],
       name: json['name'],
     );

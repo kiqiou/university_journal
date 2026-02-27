@@ -22,7 +22,7 @@ class _Admin2MainScreenState extends State<Admin2MainScreen> {
   final groupRepository = GroupRepository();
   Admin2ContentScreen currentScreen = Admin2ContentScreen.groups;
   List<Group> groups = [];
-  List<GroupSimple> simpleGroups= [];
+  List<SimpleGroup> simpleGroups = [];
   List<MyUser> freeStudents = [];
   bool isLoading = true;
   bool isMenuExpanded = false;
@@ -53,7 +53,7 @@ class _Admin2MainScreenState extends State<Admin2MainScreen> {
     }
   }
 
-  Future<void> loadGroupsSimple () async {
+  Future<void> loadGroupsSimple() async {
     try {
       final list = await groupRepository.getGroupsSimpleList();
       setState(() {
@@ -77,6 +77,12 @@ class _Admin2MainScreenState extends State<Admin2MainScreen> {
     }
   }
 
+  _refresh() async {
+    loadGroups();
+    loadGroupsSimple();
+    loadFreeStudents();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -86,10 +92,10 @@ class _Admin2MainScreenState extends State<Admin2MainScreen> {
             children: [
               Admin2SideNavigationMenu(
                 onStudentAdded: () async {
-                  await loadGroups();
+                  await _refresh();
                 },
                 onGroupAdded: () async {
-                  await loadGroups();
+                 await _refresh();
                 },
                 groups: simpleGroups,
                 students: freeStudents,

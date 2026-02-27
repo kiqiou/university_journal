@@ -15,6 +15,9 @@ class UserRepository {
     required String username,
     required String password,
     required int roleId,
+    String? firstName,
+    String? lastName,
+    String? middleName,
     int? groupId,
     String? position,
     String? bio,
@@ -25,9 +28,14 @@ class UserRepository {
     try {
       final uri = Uri.parse('$baseUrl/auth/api/register/');
       final request = http.MultipartRequest('POST', uri);
+
       request.fields['username'] = username;
       request.fields['password'] = password;
       request.fields['role_id'] = roleId.toString();
+
+      if (firstName != null) request.fields['first_name'] = firstName;
+      if (lastName != null) request.fields['last_name'] = lastName;
+      if (middleName != null) request.fields['middle_name'] = middleName;
 
       if (roleId == 1) {
         if (position != null) request.fields['position'] = position;
@@ -51,6 +59,8 @@ class UserRepository {
 
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
+
+      print(response.body);
 
       if (response.statusCode == 201) {
         final decodedBody = utf8.decode(response.bodyBytes);
@@ -265,6 +275,9 @@ class UserRepository {
   Future<bool> updateUser({
     required int userId,
     String? username,
+    String? firstName,
+    String? lastName,
+    String? middleName,
     String? position,
     String? bio,
     bool? isHeadman,
@@ -279,6 +292,11 @@ class UserRepository {
       request.fields['username'] = username ?? '';
       request.fields['position'] = position ?? '';
       request.fields['bio'] = bio ?? '';
+
+      if (firstName != null) request.fields['first_name'] = firstName;
+      if (lastName != null) request.fields['last_name'] = lastName;
+      if (middleName != null) request.fields['middle_name'] = middleName;
+
       if (groupId != null) {
         request.fields['group_id'] = groupId.toString();
       }

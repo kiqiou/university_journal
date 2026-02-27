@@ -12,6 +12,7 @@ import '../../../bloc/services/discipline/models/discipline.dart';
 import '../../../bloc/services/user/models/user.dart';
 import '../../../bloc/services/user/user_repository.dart';
 import '../../../components/widgets/input_decoration.dart';
+import '../components/add_or_edit_teacher.dart';
 
 class TeachersList extends StatefulWidget {
   final Future<void> Function() loadTeachers;
@@ -33,11 +34,7 @@ class TeachersList extends StatefulWidget {
 
 class _TeachersList extends State<TeachersList> {
   final userRepository = UserRepository();
-  final usernameController = TextEditingController();
-  final positionController = TextEditingController();
   final searchController = TextEditingController();
-  final bioController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
   int? selectedTeacherIndex;
   bool isLoading = true;
   bool showDeleteDialog = false;
@@ -99,7 +96,9 @@ class _TeachersList extends State<TeachersList> {
                                   decoration: textInputDecoration('Поиск..'),
                                 ),
                               ),
-                              SizedBox(width: 12,),
+                              SizedBox(
+                                width: 12,
+                              ),
                               if (selectedTeacherIndex != null) ...[
                                 MyButton(
                                   onChange: () {
@@ -114,16 +113,14 @@ class _TeachersList extends State<TeachersList> {
                                   onChange: () {
                                     setState(() {
                                       showEditDialog = true;
-
-                                      final selectedTeacher = widget
-                                          .teachers[selectedTeacherIndex!];
-
-                                      usernameController.text =
-                                          selectedTeacher.username ?? '';
-                                      positionController.text =
-                                          selectedTeacher.position ?? '';
-                                      bioController.text =
-                                          selectedTeacher.bio ?? '';
+                                      showDialog(
+                                        context: context,
+                                        builder: (_) => AddAndEditTeacherDialog(
+                                          isEdit: true,
+                                          teacher: widget.teachers[selectedTeacherIndex!],
+                                          onSuccess: widget.loadTeachers,
+                                        ),
+                                      );
                                     });
                                   },
                                   buttonName: 'Редактировать информацию',
@@ -205,8 +202,7 @@ class _TeachersList extends State<TeachersList> {
                                               selectedTeacherIndex = index;
                                               selectedDisciplines = widget
                                                       .teachers[index]
-                                                      .disciplines ??
-                                                  [];
+                                                      .disciplines;
                                             });
                                           },
                                           child: Container(
@@ -227,7 +223,9 @@ class _TeachersList extends State<TeachersList> {
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 16.0),
                                             child: Text(
-                                              displayedTeachers[index].username,
+                                              '${displayedTeachers[index].lastName ?? ''} '
+                                                  '${displayedTeachers[index].firstName ?? ''} '
+                                                  '${displayedTeachers[index].middleName ?? ''}',
                                               style: const TextStyle(
                                                 fontSize: 16,
                                                 color: Colors.black87,
@@ -291,11 +289,13 @@ class _TeachersList extends State<TeachersList> {
                                       ),
                                     ),
                                     const Spacer(),
-                                    CancelButton(onPressed: () {
-                                      setState(() {
-                                        showDeleteDialog = false;
-                                      });
-                                    },),
+                                    CancelButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          showDeleteDialog = false;
+                                        });
+                                      },
+                                    ),
                                   ],
                                 ),
                                 const SizedBox(height: 24),
@@ -340,7 +340,8 @@ class _TeachersList extends State<TeachersList> {
                                       }
                                     },
                                     child: const Text("Удалить",
-                                        style: TextStyle(color: Colors.white, fontSize: 16)),
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 16)),
                                   ),
                                 ),
                               ],
@@ -350,266 +351,6 @@ class _TeachersList extends State<TeachersList> {
                       },
                     ),
                   ),
-                if (showEditDialog && selectedTeacherIndex != null) ...[
-                  Positioned(
-                    top: 32,
-                    right: 32,
-                    child: Builder(
-                      builder: (context) {
-                        final media = MediaQuery.of(context).size;
-                        final double dialogWidth =
-                            (media.width - 32 - 80).clamp(320, 600);
-                        final double dialogHeight =
-                            (media.height - 64).clamp(480, 1100);
-
-                        Uint8List? _selectedPhotoBytes;
-                        String? _photoPreviewUrl;
-                        String? _photoName;
-
-                        void _pickImage() {
-                          html.FileUploadInputElement uploadInput =
-                              html.FileUploadInputElement();
-                          uploadInput.accept = 'image/*';
-                          uploadInput.click();
-
-                          uploadInput.onChange.listen((event) {
-                            final files = uploadInput.files;
-                            if (files != null && files.isNotEmpty) {
-                              final file = files[0];
-                              final reader = html.FileReader();
-
-                              reader.readAsArrayBuffer(file);
-                              reader.onLoadEnd.listen((event) {
-                                setState(() {
-                                  _selectedPhotoBytes =
-                                      reader.result as Uint8List;
-                                  _photoPreviewUrl =
-                                      html.Url.createObjectUrlFromBlob(file);
-                                  _photoName = file.name;
-                                });
-                              });
-                            }
-                          });
-                        }
-
-                        return Material(
-                          color: Colors.transparent,
-                          child: Container(
-                            width: dialogWidth,
-                            height: dialogHeight,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                  color: Color(0xFF4068EA), width: 2),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 24,
-                                  offset: Offset(0, 8),
-                                ),
-                              ],
-                            ),
-                            child: LayoutBuilder(
-                              builder: (context, constraints) {
-                                return SingleChildScrollView(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(32),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Text(
-                                              "Редактирование преподавателя",
-                                              style: TextStyle(
-                                                  fontSize: 18,
-                                                  color: Colors.grey.shade700),
-                                            ),
-                                            const Spacer(),
-                                            MyButton(onChange: () async {
-                                              final success =
-                                              await userRepository
-                                                  .updateUser(
-                                                userId: widget
-                                                    .teachers[
-                                                selectedTeacherIndex!]
-                                                    .id,
-                                                username:
-                                                usernameController.text,
-                                                position:
-                                                positionController.text,
-                                                bio: bioController.text,
-                                                photoBytes:
-                                                _selectedPhotoBytes,
-                                                photoName: _photoName,
-                                              );
-
-                                              if (success) {
-                                                await widget.loadTeachers();
-                                                setState(() {
-                                                  selectedTeacherIndex =
-                                                  null;
-                                                  showEditDialog = false;
-                                                });
-                                              }
-                                            }, buttonName: 'Сохранить'),
-                                            const SizedBox(width: 12),
-                                            CancelButton(onPressed: () { setState(() {
-                                              showEditDialog = false;
-                                            }); },),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 32),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Container(
-                                                  width: 200,
-                                                  height: 260,
-                                                  decoration: BoxDecoration(
-                                                    color:
-                                                        const Color(0xFFE5E7EB),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            14),
-                                                  ),
-                                                  child: ClipRRect(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            14),
-                                                    child: _photoPreviewUrl !=
-                                                            null
-                                                        ? Image.network(
-                                                            _photoPreviewUrl!,
-                                                            fit: BoxFit.cover)
-                                                        : (widget
-                                                                        .teachers[
-                                                                            selectedTeacherIndex!]
-                                                                        .photoUrl !=
-                                                                    null &&
-                                                                widget
-                                                                    .teachers[
-                                                                        selectedTeacherIndex!]
-                                                                    .photoUrl!
-                                                                    .isNotEmpty)
-                                                            ? Image.network(
-                                                                widget
-                                                                    .teachers[
-                                                                        selectedTeacherIndex!]
-                                                                    .photoUrl!,
-                                                                fit: BoxFit
-                                                                    .cover)
-                                                            : const Icon(
-                                                                Icons.person,
-                                                                size: 54,
-                                                                color: Color(
-                                                                    0xFF9CA3AF)),
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 18),
-                                                SizedBox(
-                                                  height: 48,
-                                                  width: 48,
-                                                  child: ElevatedButton(
-                                                    onPressed: _pickImage,
-                                                    style: ElevatedButton
-                                                        .styleFrom(
-                                                      backgroundColor:
-                                                          const Color(
-                                                              0xFF4068EA),
-                                                      shape:
-                                                          RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(12),
-                                                      ),
-                                                      padding: EdgeInsets.zero,
-                                                      elevation: 0,
-                                                    ),
-                                                    child: Icon(Icons.add,
-                                                        color: Colors.white,
-                                                        size: 26),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            const SizedBox(height: 32),
-                                            Form(
-                                              key: _formKey,
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    'ФИО преподавателя*',
-                                                    style: TextStyle(
-                                                        fontSize: 15,
-                                                        color: Colors
-                                                            .grey.shade700),
-                                                  ),
-                                                  const SizedBox(height: 18),
-                                                  TextFormField(
-                                                    controller:
-                                                        usernameController,
-                                                    decoration: textInputDecoration(
-                                                        'Введите ФИО преподавателя'),
-                                                  ),
-                                                  const SizedBox(height: 48),
-                                                  Text(
-                                                    'Пасада',
-                                                    style: TextStyle(
-                                                        fontSize: 15,
-                                                        color: Colors
-                                                            .grey.shade700),
-                                                  ),
-                                                  const SizedBox(height: 18),
-                                                  TextFormField(
-                                                    decoration:
-                                                        textInputDecoration(
-                                                            'Введите пасаду'),
-                                                    controller:
-                                                        positionController,
-                                                  ),
-                                                  const SizedBox(height: 48),
-                                                  Text(
-                                                    'Краткая биография',
-                                                    style: TextStyle(
-                                                        fontSize: 15,
-                                                        color: Colors
-                                                            .grey.shade700),
-                                                  ),
-                                                  const SizedBox(height: 18),
-                                                  TextFormField(
-                                                    decoration: textInputDecoration(
-                                                        'Введите краткую биографию'),
-                                                    maxLines: 2,
-                                                    controller: bioController,
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-
                 if (showLinkDisciplineDialog && selectedTeacherIndex != null)
                   Positioned(
                     top: 32,
@@ -660,51 +401,55 @@ class _TeachersList extends State<TeachersList> {
                                               ),
                                             ),
                                             const Spacer(),
-                                            MyButton(onChange: () async {
-                                              final currentTeacher = widget
-                                                  .teachers[
-                                              selectedTeacherIndex!];
-                                              final disciplineIds =
-                                              selectedDisciplines
-                                                  .map((d) => d.id)
-                                                  .toList();
+                                            MyButton(
+                                                onChange: () async {
+                                                  final currentTeacher = widget
+                                                          .teachers[
+                                                      selectedTeacherIndex!];
+                                                  final disciplineIds =
+                                                      selectedDisciplines
+                                                          .map((d) => d.id)
+                                                          .toList();
 
-                                              final success =
-                                              await userRepository
-                                                  .updateTeacherDisciplines(
-                                                teacherId:
-                                                currentTeacher.id,
-                                                disciplineIds:
-                                                disciplineIds,
-                                              );
+                                                  final success =
+                                                      await userRepository
+                                                          .updateTeacherDisciplines(
+                                                    teacherId:
+                                                        currentTeacher.id,
+                                                    disciplineIds:
+                                                        disciplineIds,
+                                                  );
 
-                                              if (success) {
-                                                await widget
-                                                    .loadDisciplines();
+                                                  if (success) {
+                                                    await widget
+                                                        .loadDisciplines();
 
+                                                    setState(() {
+                                                      showLinkDisciplineDialog =
+                                                          false;
+                                                      selectedTeacherIndex =
+                                                          null;
+                                                    });
+                                                  } else {
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(
+                                                      const SnackBar(
+                                                          content: Text(
+                                                              '❌ Не удалось обновить дисциплины')),
+                                                    );
+                                                  }
+                                                },
+                                                buttonName: 'Сохранить'),
+                                            const SizedBox(width: 12),
+                                            CancelButton(
+                                              onPressed: () {
                                                 setState(() {
                                                   showLinkDisciplineDialog =
-                                                  false;
-                                                  selectedTeacherIndex =
-                                                  null;
+                                                      false;
                                                 });
-                                              } else {
-                                                ScaffoldMessenger.of(
-                                                    context)
-                                                    .showSnackBar(
-                                                  const SnackBar(
-                                                      content: Text(
-                                                          '❌ Не удалось обновить дисциплины')),
-                                                );
-                                              }
-                                            }, buttonName: 'Сохранить'),
-                                            const SizedBox(width: 12),
-                                            CancelButton(onPressed: () {
-                                              setState(() {
-                                                showLinkDisciplineDialog =
-                                                false;
-                                              });
-                                            },),
+                                              },
+                                            ),
                                           ],
                                         ),
                                         SizedBox(
@@ -768,7 +513,7 @@ class _TeachersList extends State<TeachersList> {
                                                         color: Colors
                                                             .grey.shade400,
                                                         width:
-                                                            1.5), // чуть ярче при фокусе
+                                                            1.5),
                                                   ),
                                                   contentPadding:
                                                       const EdgeInsets

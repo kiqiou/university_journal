@@ -15,7 +15,7 @@ import '../../../bloc/services/user/models/user.dart';
 class DisciplinesList extends StatefulWidget {
   final Future<void> Function() loadCourses;
   final List<Discipline> disciplines;
-  final List<GroupSimple> groups;
+  final List<SimpleGroup> groups;
   final List<MyUser> teachers;
 
   const DisciplinesList({
@@ -39,7 +39,7 @@ class _DisciplinesList extends State<DisciplinesList> {
   final Map<String, TextEditingController> hoursControllers = {};
   final List<Discipline> disciplines = [];
   List<MyUser> selectedTeachers = [];
-  List<GroupSimple> selectedGroups = [];
+  List<SimpleGroup> selectedGroups = [];
   List<String> selectedTypes = [];
   List<String> selectedLessonTypes = [];
   String? _selectedAttestationType;
@@ -864,7 +864,7 @@ class _DisciplinesList extends State<DisciplinesList> {
                                     GestureDetector(
                                       onTap: () async {
                                         final selected =
-                                            await showDialog<List<GroupSimple>>(
+                                            await showDialog<List<SimpleGroup>>(
                                           context: context,
                                           builder: (_) => MultiSelectDialog(
                                             items: widget.groups,

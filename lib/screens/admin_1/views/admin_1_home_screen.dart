@@ -28,7 +28,7 @@ class _Admin1MainScreenState extends State<Admin1MainScreen> {
   Admin1ContentScreen currentScreen = Admin1ContentScreen.teachers;
   List<MyUser> teachers = [];
   List<Discipline> disciplines = [];
-  List<GroupSimple> groups = [];
+  List<SimpleGroup> groups = [];
   bool isLoading = true;
   bool isMenuExpanded = false;
 

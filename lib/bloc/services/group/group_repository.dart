@@ -30,7 +30,7 @@ class GroupRepository {
     }
   }
 
-  Future<List<GroupSimple>?> getGroupsSimpleList() async {
+  Future<List<SimpleGroup>?> getGroupsSimpleList() async {
     final response = await http.get(
       Uri.parse('$baseUrl/group/api/get_groups_simple_list/'),
       headers: {'Content-Type': 'application/json; charset=utf-8'},
@@ -38,7 +38,7 @@ class GroupRepository {
 
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
-      return data.map((groupJson) => GroupSimple.fromJson(groupJson)).toList();
+      return data.map((groupJson) => SimpleGroup.fromJson(groupJson)).toList();
     } else {
       throw Exception('Не удалось загрузить список простых групп');
     }

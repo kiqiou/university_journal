@@ -5,14 +5,14 @@ import 'package:university_journal/bloc/auth/authentication_bloc.dart';
 import 'package:university_journal/components/widgets/icon_container.dart';
 import '../../../bloc/services/group/models/group.dart';
 import '../../../bloc/services/user/models/user.dart';
-import 'add_student.dart';
+import 'add_or_edit_student.dart';
 import 'add_group.dart';
 
 class Admin2SideNavigationMenu extends StatefulWidget {
   final Future<void> Function() onStudentAdded;
   final Future<void> Function() onGroupAdded;
   final VoidCallback onToggle;
-  final List<GroupSimple> groups;
+  final List<SimpleGroup> groups;
   final List<MyUser> students;
   final bool isExpanded;
 
@@ -56,13 +56,9 @@ class _Admin2SideNavigationMenuState extends State<Admin2SideNavigationMenu> {
       () {
         showDialog(
           context: context,
-          builder: (context) => AddStudentDialog(
-            onStudentAdded: widget.onStudentAdded,
-            onSave: (
-              String studentName,
-              String? group,
-            ) {},
-            groups: widget.groups,
+          builder: (context) => AddAndEditStudentDialog(
+            onSuccess: widget.onStudentAdded,
+            groups: widget.groups, isEdit: false,
           ),
         );
       },

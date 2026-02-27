@@ -72,7 +72,7 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
   void getUserInfo() {
     final authState = context.read<AuthenticationBloc>().state;
     isHeadman = authState.user!.isHeadman;
-    selectedGroupId = authState.user!.groupId;
+    selectedGroupId = authState.user!.group?.id;
   }
 
   void getAccessToken() {

@@ -7,7 +7,7 @@ import 'package:university_journal/components/widgets/icon_container.dart';
 import '../../../bloc/services/group/models/group.dart';
 import '../../../bloc/services/user/models/user.dart';
 import 'add_discipline.dart';
-import 'add_teacher.dart';
+import 'add_or_edit_teacher.dart';
 
 class Admin1SideNavigationMenu extends StatefulWidget {
   final Future<void> Function() onTeacherAdded;
@@ -15,7 +15,7 @@ class Admin1SideNavigationMenu extends StatefulWidget {
   final VoidCallback onToggle;
   final VoidCallback onTeacherListTap;
   final VoidCallback onCoursesListTap;
-  final List<GroupSimple> groups;
+  final List<SimpleGroup> groups;
   final List<MyUser> teachers;
   final bool isExpanded;
 
@@ -65,7 +65,7 @@ class _Admin1SideNavigationMenuState extends State<Admin1SideNavigationMenu> {
         showDialog(
           context: context,
           builder: (context) =>
-              AddTeacherDialog(onTeacherAdded: widget.onTeacherAdded),
+              AddAndEditTeacherDialog(onSuccess: widget.onTeacherAdded, isEdit: false,),
         );
       },
       () {
