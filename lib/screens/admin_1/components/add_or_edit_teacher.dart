@@ -9,7 +9,7 @@ import 'package:university_journal/screens/admin_1/components/textfield_with_tex
 
 import '../../../bloc/services/user/models/user.dart';
 import '../../../bloc/services/user/user_repository.dart';
-import '../../../components/widgets/input_decoration.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class AddAndEditTeacherDialog extends StatefulWidget {
   final VoidCallback onSuccess;
@@ -187,7 +187,11 @@ class _AddAndEditTeacherDialogState extends State<AddAndEditTeacherDialog> {
                             borderRadius: BorderRadius.circular(14),
                           ),
                           child: _photoPreviewUrl != null
-                              ? Image.network(_photoPreviewUrl!)
+                              ? CachedNetworkImage(
+                            imageUrl: _photoPreviewUrl!,
+                            placeholder: (context, url) => CircularProgressIndicator(),
+                            errorWidget: (context, url, error) => Icon(Icons.error),
+                          )
                               : Icon(Icons.person,
                                   size: 54, color: Color(0xFF9CA3AF)),
                         ),

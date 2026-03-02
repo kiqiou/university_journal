@@ -61,7 +61,7 @@ class MyUser extends Equatable {
       position = teacher['position'];
 
       if (teacher['photo'] != null) {
-        photoUrl = baseUrl + teacher['photo'];
+        photoUrl = teacher['photo'];
       }
     }
 
