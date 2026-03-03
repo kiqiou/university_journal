@@ -1,7 +1,7 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 const String baseUrl = String.fromEnvironment(
-    'BASE_URL',
+    'API_BASE_URL',
     defaultValue: 'https://'
 );
 //http://127.0.0.1:8000
