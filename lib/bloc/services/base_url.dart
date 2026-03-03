@@ -1,8 +1,8 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-const String baseUrl = String.fromEnvironment(
+final String baseUrl = dotenv.get(
     'API_BASE_URL',
-    defaultValue: 'https://university-journal-back.onrender.com'
+    fallback: 'https://university-journal-back.onrender.com'
 );
 //http://127.0.0.1:8000
 //https://university-journal-back.onrender.com
