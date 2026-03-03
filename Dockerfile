@@ -8,7 +8,7 @@ COPY . .
 RUN flutter clean
 RUN flutter pub get
 
-RUN flutter build web --release --dart-define=API_BASE_URL=$API_BASE_URL
+RUN flutter build web --release --web-renderer canvaskit --dart-define=API_BASE_URL=$API_BASE_URL
 
 FROM nginx:alpine
 COPY --from=build /app/build/web /usr/share/nginx/html
