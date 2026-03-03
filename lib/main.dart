@@ -11,11 +11,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 void main() async {
   final authRepository = UserRepository();
   WidgetsFlutterBinding.ensureInitialized();
-  try {
-    await dotenv.load(fileName: ".env");
-  } catch (e) {
-    log("Файл .env не найден, используем переменные окружения или дефолты");
-  }
   Bloc.observer = SimpleBlocObserver();
   runApp(RepositoryProvider.value(
     value: authRepository,
