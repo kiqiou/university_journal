@@ -40,4 +40,7 @@ _flutter.loader.load({
   serviceWorkerSettings: {
     serviceWorkerVersion: "1029348038"
   }
+  config: {
+    renderer: "canvaskit",
+  }
 });
