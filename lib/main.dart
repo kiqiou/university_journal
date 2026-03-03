@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:university_journal/simple_bloc_observer.dart';
@@ -9,7 +11,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 void main() async {
   final authRepository = UserRepository();
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    log("Файл .env не найден, используем переменные окружения или дефолты");
+  }
   Bloc.observer = SimpleBlocObserver();
   runApp(RepositoryProvider.value(
     value: authRepository,

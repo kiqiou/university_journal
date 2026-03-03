@@ -60,5 +60,3 @@ flutter:
     - family: Montserrat
       fonts:
         - asset: assets/fonts/Montserrat-VariableFont_wght.ttf
-  assets:
-    - .env
