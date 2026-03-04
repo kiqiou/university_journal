@@ -99,6 +99,22 @@ class _TeachersList extends State<TeachersList> {
                               SizedBox(
                                 width: 12,
                               ),
+                              if (selectedTeacherIndex == null)
+                                MyButton(
+                                  onChange: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) =>
+                                          AddAndEditTeacherDialog(
+                                        onSuccess: () {
+                                          widget.loadTeachers();
+                                        },
+                                        isEdit: false,
+                                      ),
+                                    );
+                                  },
+                                  buttonName: 'Добавить преподавателя',
+                                ),
                               if (selectedTeacherIndex != null) ...[
                                 MyButton(
                                   onChange: () {
@@ -117,7 +133,8 @@ class _TeachersList extends State<TeachersList> {
                                         context: context,
                                         builder: (_) => AddAndEditTeacherDialog(
                                           isEdit: true,
-                                          teacher: widget.teachers[selectedTeacherIndex!],
+                                          teacher: widget
+                                              .teachers[selectedTeacherIndex!],
                                           onSuccess: widget.loadTeachers,
                                         ),
                                       );
@@ -201,8 +218,7 @@ class _TeachersList extends State<TeachersList> {
                                             setState(() {
                                               selectedTeacherIndex = index;
                                               selectedDisciplines = widget
-                                                      .teachers[index]
-                                                      .disciplines;
+                                                  .teachers[index].disciplines;
                                             });
                                           },
                                           child: Container(
@@ -224,8 +240,8 @@ class _TeachersList extends State<TeachersList> {
                                                 horizontal: 16.0),
                                             child: Text(
                                               '${displayedTeachers[index].lastName ?? ''} '
-                                                  '${displayedTeachers[index].firstName ?? ''} '
-                                                  '${displayedTeachers[index].middleName ?? ''}',
+                                              '${displayedTeachers[index].firstName ?? ''} '
+                                              '${displayedTeachers[index].middleName ?? ''}',
                                               style: const TextStyle(
                                                 fontSize: 16,
                                                 color: Colors.black87,
@@ -512,8 +528,7 @@ class _TeachersList extends State<TeachersList> {
                                                     borderSide: BorderSide(
                                                         color: Colors
                                                             .grey.shade400,
-                                                        width:
-                                                            1.5),
+                                                        width: 1.5),
                                                   ),
                                                   contentPadding:
                                                       const EdgeInsets

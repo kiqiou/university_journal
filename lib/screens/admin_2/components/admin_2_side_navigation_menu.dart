@@ -201,7 +201,7 @@ class _Admin2SideNavigationMenuState extends State<Admin2SideNavigationMenu> {
                           },
                           child: MyIconContainer(
                             borderRadius: 100,
-                            icon: Icons.arrow_back,
+                            icon: Icons.exit_to_app,
                             width: (widget.isExpanded ? 250 : 50),
                           ),
                         ),

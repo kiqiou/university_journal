@@ -11,16 +11,17 @@ import '../../../bloc/services/discipline/models/discipline.dart';
 import '../../../bloc/services/discipline/discipline_repository.dart';
 import '../../../bloc/services/group/models/group.dart';
 import '../../../bloc/services/user/models/user.dart';
+import '../components/add_discipline.dart';
 
 class DisciplinesList extends StatefulWidget {
-  final Future<void> Function() loadCourses;
+  final Future<void> Function() loadDisciplines;
   final List<Discipline> disciplines;
   final List<SimpleGroup> groups;
   final List<MyUser> teachers;
 
   const DisciplinesList({
     super.key,
-    required this.loadCourses,
+    required this.loadDisciplines,
     required this.disciplines,
     required this.groups,
     required this.teachers,
@@ -52,7 +53,7 @@ class _DisciplinesList extends State<DisciplinesList> {
   @override
   void initState() {
     super.initState();
-    widget.loadCourses;
+    widget.loadDisciplines;
     for (var type in lessonTypeOptions) {
       hoursControllers[type['key']!] = TextEditingController();
     }
@@ -117,6 +118,22 @@ class _DisciplinesList extends State<DisciplinesList> {
                                 ),
                               ),
                               SizedBox(width: 12,),
+                              if (selectedIndex == null)
+                                MyButton(
+                                  onChange: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) => AddDisciplineDialog(
+                                        onCourseAdded: () {
+                                          widget.loadDisciplines();
+                                        },
+                                        teachers: widget.teachers.toList(),
+                                        groups: widget.groups.toList(),
+                                      ),
+                                    );
+                                  },
+                                  buttonName: 'Добавить дисциплину',
+                                ),
                               if (selectedIndex != null) ...[
                                 MyButton(
                                   onChange: () {
@@ -343,7 +360,7 @@ class _DisciplinesList extends State<DisciplinesList> {
                                         bool success = await disciplineRepository.deleteDiscipline(courseId: courseId);
 
                                         if (success) {
-                                          await widget.loadCourses();
+                                          await widget.loadDisciplines();
                                           setState(() {
                                             showDeleteDialog = false;
                                             selectedIndex = null;
@@ -465,7 +482,7 @@ class _DisciplinesList extends State<DisciplinesList> {
                                           );
 
                                           if (result) {
-                                            await widget.loadCourses();
+                                            await widget.loadDisciplines();
                                             setState(() {
                                               selectedIndex = null;
                                               showEditDialog = false;

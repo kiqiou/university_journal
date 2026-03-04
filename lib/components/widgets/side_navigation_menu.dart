@@ -16,6 +16,7 @@ class SideNavigationMenu extends StatefulWidget {
   final VoidCallback onGroupSelect;
   final bool isExpanded;
   final bool showGroupSelect;
+  final int? selectedGroupId;
 
   const SideNavigationMenu({
     super.key,
@@ -27,6 +28,7 @@ class SideNavigationMenu extends StatefulWidget {
     required this.showGroupSelect,
     required this.onGroupSelect,
     required this.onAttestationTap,
+    required this.selectedGroupId,
   });
 
   @override
@@ -256,6 +258,7 @@ class _SideNavigationMenuState extends State<SideNavigationMenu> {
                               SizedBox(
                                 height: 20,
                               ),
+                              if (widget.selectedGroupId != null)...[
                               Padding(
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 10.0),
@@ -276,6 +279,7 @@ class _SideNavigationMenuState extends State<SideNavigationMenu> {
                               SizedBox(
                                 height: 20,
                               ),
+
                               Expanded(
                                 child: ListView.builder(
                                   itemCount: _icons.length,
@@ -312,7 +316,7 @@ class _SideNavigationMenuState extends State<SideNavigationMenu> {
                                     );
                                   },
                                 ),
-                              ),
+                              ),]
                             ],
                           ),
                         ),
@@ -329,7 +333,7 @@ class _SideNavigationMenuState extends State<SideNavigationMenu> {
                               },
                               child: MyIconContainer(
                                 borderRadius: 100,
-                                icon: Icons.arrow_back,
+                                icon: Icons.exit_to_app,
                                 width: (widget.isExpanded ? 250 : 50),
                               ),
                             ),

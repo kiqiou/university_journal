@@ -45,15 +45,11 @@ class _Admin1SideNavigationMenuState extends State<Admin1SideNavigationMenu> {
   final List<IconData> _icons = [
     Icons.groups_outlined,
     Icons.library_books,
-    Icons.add_circle_outline,
-    Icons.add_circle_outline,
   ];
 
   final List<String> _texts = [
     'Список преподавателей',
     'Список дисциплин',
-    'Добавить преподавателя',
-    'Добавить дисциплину',
   ];
 
   @override
@@ -61,23 +57,6 @@ class _Admin1SideNavigationMenuState extends State<Admin1SideNavigationMenu> {
     final List<VoidCallback> functions = [
       widget.onTeacherListTap,
       widget.onCoursesListTap,
-      () {
-        showDialog(
-          context: context,
-          builder: (context) =>
-              AddAndEditTeacherDialog(onSuccess: widget.onTeacherAdded, isEdit: false,),
-        );
-      },
-      () {
-        showDialog(
-          context: context,
-          builder: (context) => AddDisciplineDialog(
-            onCourseAdded: () => widget.onCourseAdded(),
-            teachers: widget.teachers.toList(),
-            groups: widget.groups.toList(),
-          ),
-        );
-      }
     ];
 
     return GestureDetector(
@@ -208,7 +187,7 @@ class _Admin1SideNavigationMenuState extends State<Admin1SideNavigationMenu> {
                           },
                           child: MyIconContainer(
                             borderRadius: 100,
-                            icon: Icons.arrow_back,
+                            icon: Icons.exit_to_app,
                             width: (widget.isExpanded ? 250 : 50),
                           ),
                         ),

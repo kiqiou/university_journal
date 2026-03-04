@@ -145,6 +145,7 @@ class _StudentMainScreenState extends State<StudentMainScreen> {
               Row(
                 children: [
                   SideNavigationMenu(
+                    selectedGroupId: selectedGroupId,
                     onSelectType: _filterBySessionType,
                     onProfileTap: () {},
                     onThemeTap: _showThemeScreen,

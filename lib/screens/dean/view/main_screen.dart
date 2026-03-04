@@ -144,6 +144,7 @@ class _DeanMainScreenState extends State<DeanMainScreen> {
               Row(
                 children: [
                   SideNavigationMenu(
+                    selectedGroupId: selectedGroupId,
                     onSelectType: _filterBySessionType,
                     onProfileTap: () {},
                     onThemeTap: _showThemeScreen,

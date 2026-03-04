@@ -146,6 +146,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                 Row(
                   children: [
                     SideNavigationMenu(
+                      selectedGroupId: selectedGroupId,
                       onSelectType: _filterBySessionType,
                       onProfileTap: _showAccountScreen,
                       onThemeTap: _showThemeScreen,

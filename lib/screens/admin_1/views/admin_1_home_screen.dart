@@ -133,7 +133,7 @@ class _Admin1MainScreenState extends State<Admin1MainScreen> {
                         );
                       case Admin1ContentScreen.courses:
                         return DisciplinesList(
-                          loadCourses: loadDisciplines,
+                          loadDisciplines: loadDisciplines,
                           disciplines: disciplines,
                           groups: groups,
                           teachers: teachers,
