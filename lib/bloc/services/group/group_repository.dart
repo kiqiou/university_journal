@@ -1,26 +1,46 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import '../base_url.dart';
 import 'models/group.dart';
 import 'package:http/http.dart' as http;
 
 class GroupRepository {
-  Future<List<Group>?> getGroupsList() async {
-    final response = await http.get(
-      Uri.parse('http://127.0.0.1:8000/api/get_groups_list/'),
+  Future<List<Group>?> getGroupsList(
+      List<String>? faculties,
+      List<int>? courses,
+      ) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/group/api/get_groups_list/'),
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
         'Accept-Charset': 'utf-8',
       },
+      body: jsonEncode({
+        'faculties': faculties,
+        'courses': courses,
+      }),
     );
 
-    final data = jsonDecode(utf8.decode(response.bodyBytes));
-    print('Полученные данные: $data} ');
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
+      final List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
       return data.map((groupJson) => Group.fromJson(groupJson)).toList();
     } else {
       throw Exception('Не удалось загрузить список групп');
+    }
+  }
+
+  Future<List<SimpleGroup>?> getGroupsSimpleList() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/group/api/get_groups_simple_list/'),
+      headers: {'Content-Type': 'application/json; charset=utf-8'},
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
+      return data.map((groupJson) => SimpleGroup.fromJson(groupJson)).toList();
+    } else {
+      throw Exception('Не удалось загрузить список простых групп');
     }
   }
 
@@ -32,7 +52,7 @@ class GroupRepository {
   }) async {
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/api/add_group/'),
+        Uri.parse('$baseUrl/group/api/add_group/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
@@ -68,7 +88,7 @@ class GroupRepository {
   }) async {
     try {
       final response = await http.put(
-        Uri.parse('http://127.0.0.1:8000/api/update_group/'),
+        Uri.parse('$baseUrl/group/api/update_group/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
@@ -100,8 +120,8 @@ class GroupRepository {
     required int groupId,
   }) async {
     try {
-      final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/api/delete_group/'),
+      final response = await http.delete(
+        Uri.parse('$baseUrl/group/api/delete_group/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',

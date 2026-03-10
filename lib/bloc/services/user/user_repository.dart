@@ -8,11 +8,16 @@ import 'package:university_journal/bloc/services/user/models/user.dart';
 import 'package:mime/mime.dart';
 import 'package:http_parser/http_parser.dart';
 
+import '../base_url.dart';
+
 class UserRepository {
   Future<MyUser?> signUp({
     required String username,
     required String password,
     required int roleId,
+    String? firstName,
+    String? lastName,
+    String? middleName,
     int? groupId,
     String? position,
     String? bio,
@@ -21,11 +26,16 @@ class UserRepository {
     String? photoName,
   }) async {
     try {
-      final uri = Uri.parse('http://127.0.0.1:8000/auth/api/register/');
+      final uri = Uri.parse('$baseUrl/auth/api/register/');
       final request = http.MultipartRequest('POST', uri);
+
       request.fields['username'] = username;
       request.fields['password'] = password;
       request.fields['role_id'] = roleId.toString();
+
+      if (firstName != null) request.fields['first_name'] = firstName;
+      if (lastName != null) request.fields['last_name'] = lastName;
+      if (middleName != null) request.fields['middle_name'] = middleName;
 
       if (roleId == 1) {
         if (position != null) request.fields['position'] = position;
@@ -41,7 +51,7 @@ class UserRepository {
             ),
           );
         }
-      } else if (roleId == 5 && groupId != null) {
+      } else if (roleId == 5) {
         request.fields['group_id'] = groupId.toString();
         log('➡️ Перед обновлением isHeadman = $isHeadman');
         request.fields['isHeadman'] = isHeadman ?? false ? '1' : '0';
@@ -49,6 +59,8 @@ class UserRepository {
 
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
+
+      print(response.body);
 
       if (response.statusCode == 201) {
         final decodedBody = utf8.decode(response.bodyBytes);
@@ -75,7 +87,7 @@ class UserRepository {
   Future<bool> login(String username, String password) async {
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/auth/api/token/'),
+        Uri.parse('$baseUrl/auth/api/token/'),
         headers: {'Content-Type': 'application/json; charset=utf-8'},
         body: jsonEncode({
           'username': username,
@@ -89,15 +101,15 @@ class UserRepository {
         final refreshToken = data['refresh'];
         if (accessToken != null && refreshToken != null) {
           await saveTokens(accessToken, refreshToken);
-          print('Токены сохранены');
+          log('Токены сохранены');
           return true;
         }
       } else {
-        print('Ошибка входа: ${response.body}');
+        log('Ошибка входа: ${response.body}');
         return false;
       }
     } catch (e) {
-      print('Ошибка соединения: $e');
+      log('Ошибка соединения: $e');
       return false;
     }
     return false;
@@ -108,7 +120,7 @@ class UserRepository {
     if (accessToken == null) return null;
 
     final response = await http.get(
-      Uri.parse('http://127.0.0.1:8000/auth/api/user/'),
+      Uri.parse('$baseUrl/auth/api/user/'),
       headers: {
         'Authorization': 'Bearer $accessToken',
         'Content-Type': 'application/json',
@@ -127,7 +139,7 @@ class UserRepository {
 
   Future<void> logout() async {
     final response = await http.post(
-      Uri.parse('http://127.0.0.1:8000/auth/logout/'),
+      Uri.parse('$baseUrl/auth/logout/'),
       headers: {
         'Authorization': 'Bearer ${await getAccessToken()}',
       },
@@ -167,7 +179,7 @@ class UserRepository {
     if (refreshToken == null) return false;
 
     final response = await http.post(
-      Uri.parse('http://127.0.0.1:8000/auth/api/token/refresh/'),
+      Uri.parse('$baseUrl/auth/api/token/refresh/'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'refresh': refreshToken}),
     );
@@ -187,38 +199,12 @@ class UserRepository {
 
   Future<List<MyUser>?> getTeacherList() async {
     try {
-      final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/api/get_teacher_list/'),
+      final response = await http.get(
+        Uri.parse('$baseUrl/user/api/get_teacher_list/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
         },
-        body: jsonEncode({}),
-      );
-
-      final data = jsonDecode(utf8.decode(response.bodyBytes));
-      if (data != null && data is List) {
-        log('📌 Ответ сервера: $data');
-        return data.map((json) => MyUser.fromJson(json)).toList();
-      } else {
-        log('❌ Ошибка: неожиданный формат ответа сервера');
-        return null;
-      }
-    } catch (e) {
-      log('❌ Ошибка соединения: $e');
-      return null;
-    }
-  }
-
-  Future<List<MyUser>?> getStudentList() async {
-    try {
-      final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/api/get_student_list/'),
-        headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-          'Accept-Charset': 'utf-8',
-        },
-        body: jsonEncode({}),
       );
 
       final data = jsonDecode(utf8.decode(response.bodyBytes));
@@ -238,7 +224,7 @@ class UserRepository {
   Future<List<MyUser>?> getStudentsByGroupList(int groupId) async {
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/api/get_students_by_group/'),
+        Uri.parse('$baseUrl/user/api/get_students_by_group/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',
@@ -262,9 +248,36 @@ class UserRepository {
     }
   }
 
+  Future<List<MyUser>?> getStudentsWithoutGroup() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/user/api/get_students_without_group/'),
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept-Charset': 'utf-8',
+        },
+      );
+
+      final data = jsonDecode(utf8.decode(response.bodyBytes));
+      if (data != null && data is List) {
+        log('📌 Ответ сервера (без группы): $data');
+        return data.map((json) => MyUser.fromJson(json)).toList();
+      } else {
+        log('❌ Ошибка: неожиданный формат ответа сервера');
+        return null;
+      }
+    } catch (e) {
+      log('❌ Ошибка соединения: $e');
+      return null;
+    }
+  }
+
   Future<bool> updateUser({
     required int userId,
     String? username,
+    String? firstName,
+    String? lastName,
+    String? middleName,
     String? position,
     String? bio,
     bool? isHeadman,
@@ -273,12 +286,17 @@ class UserRepository {
     String? photoName,
   }) async {
     try {
-      final uri = Uri.parse('http://127.0.0.1:8000/api/update_user/$userId/');
+      final uri = Uri.parse('$baseUrl/user/api/update_user/$userId/');
       final request = http.MultipartRequest('PUT', uri);
 
       request.fields['username'] = username ?? '';
       request.fields['position'] = position ?? '';
       request.fields['bio'] = bio ?? '';
+
+      if (firstName != null) request.fields['first_name'] = firstName;
+      if (lastName != null) request.fields['last_name'] = lastName;
+      if (middleName != null) request.fields['middle_name'] = middleName;
+
       if (groupId != null) {
         request.fields['group_id'] = groupId.toString();
       }
@@ -314,7 +332,7 @@ class UserRepository {
     required List<int> disciplineIds,
   }) async {
     try {
-      final uri = Uri.parse('http://127.0.0.1:8000/api/update_teacher_disciplines/');
+      final uri = Uri.parse('$baseUrl/user/api/update_teacher_disciplines/');
       final response = await http.put(
         uri,
         headers: {'Content-Type': 'application/json'},
@@ -338,8 +356,8 @@ class UserRepository {
     required int userId,
   }) async {
     try {
-      final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/api/delete_user/'),
+      final response = await http.delete(
+        Uri.parse('$baseUrl/user/api/delete_user/'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept-Charset': 'utf-8',

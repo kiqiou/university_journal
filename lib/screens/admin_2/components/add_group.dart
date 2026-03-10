@@ -1,5 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:university_journal/components/widgets/button.dart';
+import 'package:university_journal/components/widgets/cancel_button.dart';
 import '../../../../components/colors/colors.dart';
 import '../../../components/widgets/multiselect.dart';
 import '../../../bloc/services/group/group_repository.dart';
@@ -32,10 +34,7 @@ class _AddGroupDialogState extends State<AddGroupDialog> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-
-    if (screenWidth < 500 || screenHeight < 500) return const SizedBox.shrink();
-
+    final screenHeight = MediaQuery.of(context).size.height * 0.9;
     final dialogWidth = min(800.0, max(420.0, screenWidth * 0.45));
 
     return Dialog(
@@ -47,6 +46,7 @@ class _AddGroupDialogState extends State<AddGroupDialog> {
           alignment: Alignment.centerRight,
           child: SizedBox(
             width: dialogWidth,
+            height: screenHeight,
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -64,73 +64,45 @@ class _AddGroupDialogState extends State<AddGroupDialog> {
                 child:  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // --- Заголовок и кнопка закрытия ---
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Expanded(
                             child: Text(
                               'Добавить группу',
-                              style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+                              style: TextStyle(fontSize: 18, color: Colors.grey.shade700),
                             ),
                           ),
-                          Flexible(
-                            child: ElevatedButton(
-                              onPressed: () async {
-                                if (_formKey.currentState!.validate()) {
-                                  _formKey.currentState!.save();
+                          MyButton(onChange: () async {
+                            if (_formKey.currentState!.validate()) {
+                              _formKey.currentState!.save();
 
-                                  List<int> studentsIds = selectedStudents.map((e) => e.id).toList();
-                                  int facultyId = selectedFacultyIndex! + 1;
-                                  int courseId = selectedCourseIndex! + 1;
+                              List<int> studentsIds = selectedStudents.map((e) => e.id).toList();
+                              int facultyId = selectedFacultyIndex! + 1;
+                              int courseId = selectedCourseIndex! + 1;
 
-                                  final groupRepository = GroupRepository();
-                                  final result = await groupRepository.addGroup(
-                                      name: nameController.text,
-                                      studentIds: studentsIds,
-                                      courseId: courseId,
-                                      facultyId: facultyId);
+                              final groupRepository = GroupRepository();
+                              final result = await groupRepository.addGroup(
+                                  name: nameController.text,
+                                  studentIds: studentsIds,
+                                  courseId: courseId,
+                                  facultyId: facultyId);
 
-                                  if (result) {
-                                    widget.onGroupAdded();
-                                    Navigator.of(context).pop();
-                                  } else {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('❌ Не удалось добавить группу')),
-                                    );
-                                  }
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF4068EA),
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
-                                minimumSize: const Size.fromHeight(55),
-                              ),
-                              child: const Text('Сохранить', style: TextStyle(fontSize: 16)),
-                            ),
-                          ),
+                              if (result) {
+                                widget.onGroupAdded();
+                                Navigator.of(context).pop();
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('❌ Не удалось добавить группу')),
+                                );
+                              }
+                            }
+                          }, buttonName: 'Сохранить'),
                           const SizedBox(width: 12),
-                          Container(
-                            width: 48,
-                            height: 48,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF4068EA),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: IconButton(
-                              icon: const Icon(Icons.close, size: 28, color: Colors.white),
-                              splashRadius: 24,
-                              onPressed: () => Navigator.of(context).pop(),
-                            ),
-                          ),
+                          CancelButton(onPressed: () => Navigator.of(context).pop(),),
                         ],
                       ),
                       const SizedBox(height: 28),
-                      // --- Форма ---
                       Expanded(
                         child: SingleChildScrollView(
                           child: Form(
@@ -271,7 +243,7 @@ class _AddGroupDialogState extends State<AddGroupDialog> {
                                     final selected = await showDialog<List<MyUser>>(
                                       context: context,
                                       builder: (_) => MultiSelectDialog(
-                                        items: widget.students.where((student) => student.groupId == null).toList(),
+                                        items: widget.students,
                                         initiallySelected: selectedStudents,
                                         itemLabel: (user) => user.username,
                                       ),

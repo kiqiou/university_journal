@@ -1,16 +1,21 @@
-# Шаг 1: Сборка Flutter-приложения
-FROM ghcr.io/cirruslabs/flutter:latest AS build
+FROM ghcr.io/cirruslabs/flutter:stable AS build
+
+ARG API_BASE_URL
 
 WORKDIR /app
 COPY . .
 
-RUN flutter clean && flutter pub get && flutter build web
+RUN touch .env
 
-# Шаг 2: nginx
+RUN flutter clean
+RUN flutter pub get
+
+RUN flutter build web --release --dart-define=API_BASE_URL=$API_BASE_URL
+
 FROM nginx:alpine
+COPY --from=build /app/build/web /usr/share/nginx/html
 
-COPY --from=build /app/build/web /usr/share/nginx/html/
-COPY default.conf /etc/nginx/conf.d/default.conf
+RUN echo "server { listen 80; location / { root /usr/share/nginx/html; try_files \$uri \$uri/ /index.html; } }" > /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
-CMD ["flutter", "run", "-d", "web-server", "--web-port=3000", "--web-hostname=0.0.0.0", "--no-sound-null-safety"]
+CMD ["nginx", "-g", "daemon off;"]

@@ -1,0 +1,25 @@
+services:
+
+  frontend:
+    # по хорошему нужно использовать build и опираться на Dockerfile
+    # чтобы вся ответственность за сборку лежала на Dockerfile
+    image: ghcr.io/cirruslabs/flutter:latest
+
+    container_name: frontend-university
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/app # этот путь лучше использовать абсолютный, а не относительный
+    working_dir: /app
+
+    # в самом Dockerfile я вижу вы уже добавили переменную окружения
+    environment:
+      - BASE_URL=${BASE_URL}
+
+    # и при переходе на Dockerfile не нужно будет использовать комманду
+    command: >
+      sh -c "
+      flutter pub get &&
+      flutter build web &&
+      python3 -m http.server 3000 --directory build/web
+      "
