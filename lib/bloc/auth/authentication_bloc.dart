@@ -24,7 +24,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
       final loginSuccess = await userRepository.login(event.username, event.password);
 
       if (!loginSuccess) {
-        emit(const AuthenticationState.unauthenticated());
+        emit(const AuthenticationState.unauthenticated(error: 'Неверный логин или пароль'));
         return;
       }
 
